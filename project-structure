@@ -1,0 +1,68 @@
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── HealthSupportSystem/
+│   │           ├── HealthSupportSystemApplication.java
+│   │           ├── config/
+│   │           │   ├── SecurityConfig.java
+│   │           │   ├── JwtConfig.java
+│   │           │   └── SwaggerConfig.java
+│   │           ├── controller/
+│   │           │   ├── AuthController.java
+│   │           │   ├── UserController.java
+│   │           │   ├── ContentController.java
+│   │           │   ├── AppointmentController.java
+│   │           │   ├── SurveyController.java
+│   │           │   ├── ProgramController.java
+│   │           │   └── ManagerController.java
+│   │           ├── service/
+│   │           │   ├── AuthService.java
+│   │           │   ├── UserService.java
+│   │           │   ├── ContentService.java
+│   │           │   ├── AppointmentService.java
+│   │           │   ├── SurveyService.java
+│   │           │   ├── ProgramService.java
+│   │           │   └── ManagerService.java
+│   │           ├── repository/
+│   │           │   ├── UserRepository.java
+│   │           │   ├── ContentRepository.java
+│   │           │   ├── AppointmentRepository.java
+│   │           │   ├── SurveyRepository.java
+│   │           │   └── ProgramRepository.java
+│   │           ├── model/
+│   │           │   ├── entity/
+│   │           │   │   ├── User.java
+│   │           │   │   ├── Content.java
+│   │           │   │   ├── Appointment.java
+│   │           │   │   ├── Survey.java
+│   │           │   │   └── Program.java
+│   │           │   └── dto/
+│   │           │       ├── request/
+│   │           │       │   ├── LoginRequest.java
+│   │           │       │   ├── RegisterRequest.java
+│   │           │       │   └── ...
+│   │           │       └── response/
+│   │           │           ├── LoginResponse.java
+│   │           │           ├── UserResponse.java
+│   │           │           └── ...
+│   │           ├── security/
+│   │           │   ├── JwtTokenProvider.java
+│   │           │   └── UserDetailsServiceImpl.java
+│   │           ├── exception/
+│   │           │   ├── GlobalExceptionHandler.java
+│   │           │   └── CustomException.java
+│   │           └── util/
+│   │               ├── Constants.java
+│   │               └── DateUtils.java
+│   └── resources/
+│       ├── application.properties
+│       ├── application-dev.properties
+│       └── application-prod.properties
+└── test/
+    └── java/
+        └── com/
+            └── mentalcare/
+                ├── controller/
+                ├── service/
+                └── repository/ 

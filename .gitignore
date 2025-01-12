@@ -1,42 +1,44 @@
-.idea/*
-.vscode/*
-.nbproject/*
-# Spring Boot
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-*.log
-spring-boot-*.pid
 
-# Local configurations
-application-local.properties
-application-local.yml
-application-dev.properties
-application-dev.yml
-
-# Compiled files
-*.class
-*.jar
-*.war
-
-# Dependencies
-.mvn/
-mvnw
-mvnw.cmd
-
-# IDE specific files
-.settings/
+### STS ###
+.apt_generated
 .classpath
-.project
 .factorypath
+.project
+.settings
 .springBeans
 .sts4-cache
 
-# Logs
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Application ###
+application-local.properties
 logs/
 *.log.*
 
 # Other common files
 HELP.md
 .DS_Store
+#Testing
+requirements.txt
