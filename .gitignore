@@ -1,1 +1,42 @@
- .idea/misc.xml
+.idea/*
+.vscode/*
+.nbproject/*
+# Spring Boot
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.log
+spring-boot-*.pid
+
+# Local configurations
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
+# Compiled files
+*.class
+*.jar
+*.war
+
+# Dependencies
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE specific files
+.settings/
+.classpath
+.project
+.factorypath
+.springBeans
+.sts4-cache
+
+# Logs
+logs/
+*.log.*
+
+# Other common files
+HELP.md
+.DS_Store
