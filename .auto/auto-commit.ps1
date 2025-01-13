@@ -455,6 +455,7 @@ Initialize-Script
 Use-GitActions -a "Add" -b $var.GetBranch()
 Use-GitActions -a "Commit" -b $var.GetBranch() -c $var.GetComment()
 Use-GitActions -a "Push" -b $var.GetBranch()
+
 Use-GitActions -a "Switch" -b $var.GetBranch()
 Use-GitActions -a "Merge" -b $var.GetBranch()
 Use-GitActions -a "PushMerged" -b $var.GetBranch() 
