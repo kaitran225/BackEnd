@@ -17,13 +17,9 @@ CREATE TABLE Users (
 CREATE TABLE Students (
     StudentID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
-    -- REMOVED
-        -- GradeLevel VARCHAR(20),
-    -- MODIFIED
     Grade INT,
     Class VARCHAR(20),
     SchoolName VARCHAR(100),
-    --
     Gender ENUM('Male', 'Female', 'Other'),
     Status ENUM('Active', 'Inactive') DEFAULT 'Active',
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
@@ -41,10 +37,8 @@ CREATE TABLE Psychologists (
     PsychologistID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
     Specialization VARCHAR(100),
-    -- ADDED    
     YearsOfExperience INT,
     AvailableHours JSON,
-    --
     Status ENUM('Active', 'On Leave', 'Inactive') DEFAULT 'Active',
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
@@ -52,9 +46,7 @@ CREATE TABLE Psychologists (
 CREATE TABLE Programs (
     ProgramID INT AUTO_INCREMENT PRIMARY KEY,
     ProgramName VARCHAR(100) NOT NULL,
-    -- REMOVED
-        -- Category ENUM('Cognitive', 'Social', 'Emotional', 'Physical') NOT NULL,
-    -- MODIFIED
+
     Category ENUM(
         'Cognitive',
         'Social',
@@ -68,14 +60,9 @@ CREATE TABLE Programs (
         'Prevention',        
         'Counseling'        
     ) NOT NULL,
-    --
     Description TEXT,
-    -- ADDED
     NumberParticipants INT,                 -- Maximum number of participants
---    MinAge INT,                          -- Minimum age requirement
---    MaxAge INT,                          -- Maximum age requirement
     Duration INT,                        -- Program duration day/week
-    --
     Status ENUM('Activate', 'Inactive') DEFAULT 'Activate',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
@@ -99,8 +86,7 @@ CREATE TABLE ProgramParticipation (
     FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
 );
 
--- Surveys management
--- Each survey can have multiple questions
+
 CREATE TABLE Surveys (
     SurveyID INT AUTO_INCREMENT PRIMARY KEY,
     SurveyName VARCHAR(100) NOT NULL,
@@ -131,8 +117,7 @@ CREATE TABLE SurveyAnswersSet (
     FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
 
--- One survey can have multiple students and questions
--- One student can participate in multiple surveys
+
 CREATE TABLE SurveyResponses (
     SurveyID INT NOT NULL,
     StudentID INT NOT NULL,
@@ -144,14 +129,7 @@ CREATE TABLE SurveyResponses (
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
     FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
--- REMOVED
--- Multiple correct answers possible for one question
--- CREATE TABLE SurveyCorrectAnswers (
---     QuestionID INT,
---     CorrectAnswer TEXT NOT NULL,
---     PRIMARY KEY (QuestionID, CorrectAnswer),
---     FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
--- ); -- Currently not used
+
 
 CREATE TABLE UserLogs (
     LogID INT AUTO_INCREMENT PRIMARY KEY,
@@ -169,14 +147,7 @@ CREATE TABLE Reports (
     Data JSON,
     FOREIGN KEY (GeneratedBy) REFERENCES Users(UserID) ON DELETE CASCADE
 );
--- REMOVED
--- CREATE TABLE FixedTimeSlots (
---     SlotID INT AUTO_INCREMENT PRIMARY KEY,
---     StartTime TIME NOT NULL,
---     EndTime TIME NOT NULL,
---     Description VARCHAR(255) DEFAULT NULL,
---     CONSTRAINT chk_slot_time_valid CHECK (StartTime < EndTime)
--- ); --Currently not used
+
 
 CREATE TABLE TimeSlots (
     TimeSlotID INT AUTO_INCREMENT PRIMARY KEY,
@@ -185,8 +156,7 @@ CREATE TABLE TimeSlots (
     PsychologistID INT NOT NULL,
     Status ENUM('Available', 'Booked') DEFAULT 'Available',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- REMOVED
-    -- FOREIGN KEY (SlotID) REFERENCES FixedTimeSlots(SlotID) ON DELETE CASCADE, -- Currently not used
+
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
@@ -216,7 +186,6 @@ CREATE TABLE AppointmentHistory (
     FOREIGN KEY (ChangedBy) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
--- Student notes for periodic assessments and feedback
 CREATE TABLE StudentNotes (
     NoteID INT AUTO_INCREMENT PRIMARY KEY,
     StudentID INT NOT NULL,
@@ -228,7 +197,6 @@ CREATE TABLE StudentNotes (
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID)
 );
 
--- Notification management for email alerts
 CREATE TABLE Notifications (
     NotificationID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
@@ -240,21 +208,12 @@ CREATE TABLE Notifications (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
--- Progress tracking for support programs
-CREATE TABLE StudentHealthRecords ( 
-	-- MODIFIED Rename from StudentProgress
+CREATE TABLE StudentHealthRecords (
     RecordID INT AUTO_INCREMENT PRIMARY KEY,
     StudentID INT NOT NULL,
     PsychologistID INT NOT NULL,
     AssessmentDate DATE NOT NULL,
-    -- REMOVED
-        -- CognitiveScore DECIMAL(5,2),
-        -- SocialScore DECIMAL(5,2),
-        -- EmotionalScore DECIMAL(5,2),
-        -- PhysicalScore DECIMAL(5,2),
-    --
-    -- MODIFIED
-    -- Should be changed to a JSON object
+
     DepressionScore DECIMAL(5,2),
     AnxietyScore DECIMAL(5,2),
     StressScore DECIMAL(5,2),
@@ -267,7 +226,6 @@ CREATE TABLE StudentHealthRecords (
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID)
 );
--- ADDED
 
 
 CREATE TABLE Feedback (
