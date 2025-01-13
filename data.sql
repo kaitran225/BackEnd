@@ -71,15 +71,23 @@ CREATE TABLE Programs (
     --
     Description TEXT,
     -- ADDED
-    MaxParticipants INT,                 -- Maximum number of participants
-    MinAge INT,                          -- Minimum age requirement
-    MaxAge INT,                          -- Maximum age requirement
-    Duration INT,                        -- Program duration in weeks/days
+    NumberParticipants INT,                 -- Maximum number of participants
+--    MinAge INT,                          -- Minimum age requirement
+--    MaxAge INT,                          -- Maximum age requirement
+    Duration INT,                        -- Program duration day/week
     --
-    Status ENUM('Active', 'Inactive', 'Draft') DEFAULT 'Active',
+    Status ENUM('Activate', 'Inactive') DEFAULT 'Activate',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
+);
+CREATE TABLE ProgramSchedule (
+    ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
+    ProgramID INT NOT NULL,
+    DayOfWeek ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
+    StartTime TIME,
+    EndTime TIME,
+    FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
+);
 CREATE TABLE ProgramParticipation (
     ParticipationID INT AUTO_INCREMENT PRIMARY KEY,
     StudentID INT NOT NULL,
@@ -213,7 +221,7 @@ CREATE TABLE Notifications (
     UserID INT NOT NULL,
     Title VARCHAR(255) NOT NULL,
     Message TEXT NOT NULL,
-    Type ENUM('Appointment', 'Survey', 'Program', 'General') NOT NULL,
+    Type ENUM('Appointment', 'Survey', 'Program', 'done') NOT NULL,
     IsRead BOOLEAN DEFAULT FALSE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -247,14 +255,7 @@ CREATE TABLE StudentHealthRecords (
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID)
 );
 -- ADDED
-CREATE TABLE ProgramSchedule (
-    ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
-    ProgramID INT NOT NULL,
-    DayOfWeek ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
-    StartTime TIME,
-    EndTime TIME,
-    FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
-);
+
 
 CREATE TABLE Feedback (
     FeedbackID INT AUTO_INCREMENT PRIMARY KEY,
