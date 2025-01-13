@@ -1,6 +1,6 @@
 
-CREATE DATABASE TEST;
-USE TEST;
+CREATE DATABASE DB;
+USE DB;
 
 CREATE TABLE Users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,6 +116,19 @@ CREATE TABLE SurveyQuestions (
     SurveyID INT NOT NULL,
     QuestionText TEXT NOT NULL,
     FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE
+    FOREIGN KEY (AnswerSetID) REFERENCES SurveyAnswersSet(AnswerSetID) ON DELETE CASCADE
+);
+CREATE TABLE SurveyAnswersSet (
+    AnswerSetID INT AUTO_INCREMENT PRIMARY KEY,
+    QuestionID INT NOT NULL,
+    TextAnswer TEXT,
+    DepressionScore INT,
+    AnxietyScore INT,
+    StressScore INT,
+    LowSelfEsteemScore INT,
+    SocialAnxietyScore INT,
+    SleepIssueScore INT,
+    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
 
 -- One survey can have multiple students and questions
