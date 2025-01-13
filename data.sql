@@ -99,6 +99,7 @@ CREATE TABLE Surveys (
     Description TEXT,
     CreatedBy INT NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Status ENUM('Unfinished', 'Finished', 'Cancelled') DEFAULT 'Unfinished',
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
