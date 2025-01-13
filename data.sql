@@ -108,6 +108,18 @@ CREATE TABLE SurveyQuestions (
     SurveyID INT NOT NULL,
     QuestionText TEXT NOT NULL,
     FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE
+    FOREIGN KEY (AnswerSetID) REFERENCES SurveyAnswersSet(AnswerSetID) ON DELETE CASCADE
+);
+CREATE TABLE SurveyAnswersSet (
+    AnswerSetID INT AUTO_INCREMENT PRIMARY KEY,
+    QuestionID INT NOT NULL,
+    DepressionScore INT,
+    AnxietyScore INT,
+    StressScore INT,
+    LowSelfEsteemScore INT,
+    SocialAnxietyScore INT,
+    SleepIssueScore INT,
+    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
 
 -- One survey can have multiple students and questions
