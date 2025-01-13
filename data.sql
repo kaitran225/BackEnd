@@ -113,6 +113,7 @@ CREATE TABLE SurveyQuestions (
 CREATE TABLE SurveyAnswersSet (
     AnswerSetID INT AUTO_INCREMENT PRIMARY KEY,
     QuestionID INT NOT NULL,
+    TextAnswer TEXT,
     DepressionScore INT,
     AnxietyScore INT,
     StressScore INT,
