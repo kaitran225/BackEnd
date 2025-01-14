@@ -1,0 +1,21 @@
+I) thay đổi DB (14/01)
+tạo them bang SurveyCategories (Stress, Anxiety, Depression) mục đích xem để biết nó khảo sát về chủ đề gì
+tương tự thêm bảng  QuestionCategories
+
+đổi column answer in table surveyResponses (=> score )
+
+surveyAnswerSet  ( xóa column Social, LowSelf)
+
+xóa cột slotID trong bang TimeSlots
+
+đổi tên reports thành blog   ( them cột chứa nội dung  + sửa GenerateBy thành username )
+
+đổi kiểu dữ liwwuj của Grade Student ( varchar )
+
+table SurveyResponses  thêm surveyResponsesID
+và 2 bang SurveyResponses vs StudentHealthRecord lại thành SurveyResults
+
+đổi tên bang Feedback thanh comment và trỏ tới bang Blog
+
+thêm PsychologisId trong bang Appointments
+xóa bang comment

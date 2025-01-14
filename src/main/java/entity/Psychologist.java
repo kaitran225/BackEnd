@@ -18,6 +18,7 @@ public class Psychologist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long psychologistId;
 
+
     @OneToOne
     @JoinColumn(name = "userId", nullable = false)
     private User user;

@@ -1,7 +1,4 @@
-
-CREATE DATABASE DB;
-USE DB;
-
+-- 1. Bảng chính chứa thông tin người dùng
 CREATE TABLE Users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(50) NOT NULL UNIQUE,
@@ -14,6 +11,7 @@ CREATE TABLE Users (
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- 2. Bảng phụ thuộc vào Users
 CREATE TABLE Students (
     StudentID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
@@ -43,30 +41,30 @@ CREATE TABLE Psychologists (
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
+-- 3. Bảng chương trình và liên quan
 CREATE TABLE Programs (
     ProgramID INT AUTO_INCREMENT PRIMARY KEY,
     ProgramName VARCHAR(100) NOT NULL,
-
     Category ENUM(
         'Cognitive',
         'Social',
         'Emotional',
         'Physical',
-        'Self Help',          
-        'Wellness',            
-        'Assessment',          
-        'Support Group',                        
-        'Life Skills',        
-        'Prevention',        
-        'Counseling'        
+        'Self Help',
+        'Wellness',
+        'Assessment',
+        'Support Group',
+        'Life Skills',
+        'Prevention',
+        'Counseling'
     ) NOT NULL,
     Description TEXT,
-    NumberParticipants INT,                 -- Maximum number of participants
-    Duration INT,                        -- Program duration day/week
+    NumberParticipants INT, -- Maximum number of participants
+    Duration INT, -- Program duration day/week
     Status ENUM('Activate', 'Inactive') DEFAULT 'Activate',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
 );
+
 CREATE TABLE ProgramSchedule (
     ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
     ProgramID INT NOT NULL,
@@ -75,6 +73,7 @@ CREATE TABLE ProgramSchedule (
     EndTime TIME,
     FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
 );
+
 CREATE TABLE ProgramParticipation (
     ParticipationID INT AUTO_INCREMENT PRIMARY KEY,
     StudentID INT NOT NULL,
@@ -86,7 +85,7 @@ CREATE TABLE ProgramParticipation (
     FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
 );
 
-
+-- 4. Bảng khảo sát và câu hỏi
 CREATE TABLE Surveys (
     SurveyID INT AUTO_INCREMENT PRIMARY KEY,
     SurveyName VARCHAR(100) NOT NULL,
@@ -102,8 +101,29 @@ CREATE TABLE SurveyQuestions (
     SurveyID INT NOT NULL,
     QuestionText TEXT NOT NULL,
     FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE
-    FOREIGN KEY (AnswerSetID) REFERENCES SurveyAnswersSet(AnswerSetID) ON DELETE CASCADE
 );
+
+CREATE TABLE Categories (
+    CategoryID INT AUTO_INCREMENT PRIMARY KEY,
+    CategoryName ENUM('Stress', 'Anxiety', 'Depression') NOT NULL UNIQUE
+);
+
+CREATE TABLE SurveyCategories (
+    SurveyID INT NOT NULL,
+    CategoryID INT NOT NULL,
+    PRIMARY KEY (SurveyID, CategoryID),
+    FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE,
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE CASCADE
+);
+
+CREATE TABLE QuestionCategories (
+    QuestionID INT NOT NULL,
+    CategoryID INT NOT NULL,
+    PRIMARY KEY (QuestionID, CategoryID),
+    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE,
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE CASCADE
+);
+
 CREATE TABLE SurveyAnswersSet (
     AnswerSetID INT AUTO_INCREMENT PRIMARY KEY,
     QuestionID INT NOT NULL,
@@ -117,75 +137,28 @@ CREATE TABLE SurveyAnswersSet (
     FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
 
-
-CREATE TABLE SurveyResponses (
+CREATE TABLE SurveyResults (
+    ResultID INT AUTO_INCREMENT PRIMARY KEY,
+    StudentID INT NOT NULL,
+    PsychologistID INT,
     SurveyID INT NOT NULL,
-    StudentID INT NOT NULL,
-    QuestionID INT NOT NULL,
-    Answer TEXT,
-    SubmittedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(SurveyID, StudentID, QuestionID),
-    FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE,
-    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
-    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
-);
-
-
-CREATE TABLE UserLogs (
-    LogID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-    LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    IPAddress VARCHAR(50),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-);
-
-CREATE TABLE Reports (
-    ReportID INT AUTO_INCREMENT PRIMARY KEY,
-    ReportName VARCHAR(100),
-    GeneratedBy INT NOT NULL,
-    GeneratedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Data JSON,
-    FOREIGN KEY (GeneratedBy) REFERENCES Users(UserID) ON DELETE CASCADE
-);
-
-
-CREATE TABLE TimeSlots (
-    TimeSlotID INT AUTO_INCREMENT PRIMARY KEY,
-    SlotDate DATE NOT NULL,
-    SlotID INT NOT NULL,
-    PsychologistID INT NOT NULL,
-    Status ENUM('Available', 'Booked') DEFAULT 'Available',
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
-);
-
-CREATE TABLE Appointments (
-    AppointmentID INT AUTO_INCREMENT PRIMARY KEY,
-    TimeSlotID INT NOT NULL,
-    StudentID INT NOT NULL,
-    Status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+    QuestionID INT,
+    DepressionScore DECIMAL(5,2),
+    AnxietyScore DECIMAL(5,2),
+    StressScore DECIMAL(5,2),
+    LowSelfEsteemScore DECIMAL(5,2),
+    SocialAnxietyScore DECIMAL(5,2),
+    SleepIssueScore DECIMAL(5,2),
+    Score VARCHAR(50),
+    AssessmentDate DATE NOT NULL,
     Notes TEXT,
-    MeetingLink VARCHAR(255),
-    AppointmentType ENUM('Online', 'Offline') DEFAULT 'Offline',
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (TimeSlotID) REFERENCES TimeSlots(TimeSlotID) ON DELETE CASCADE,
-    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE SET NULL,
+    FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE,
+    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE SET NULL
 );
 
-CREATE TABLE AppointmentHistory (
-    HistoryID INT AUTO_INCREMENT PRIMARY KEY,
-    AppointmentID INT NOT NULL,
-    OldStatus ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
-    NewStatus ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
-    ChangedBy INT NOT NULL,
-    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Notes TEXT DEFAULT NULL,
-    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID) ON DELETE CASCADE,
-    FOREIGN KEY (ChangedBy) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
-);
-
+-- 5. Bảng ghi chú và nhật ký
 CREATE TABLE StudentNotes (
     NoteID INT AUTO_INCREMENT PRIMARY KEY,
     StudentID INT NOT NULL,
@@ -195,6 +168,64 @@ CREATE TABLE StudentNotes (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID)
+);
+
+CREATE TABLE UserLogs (
+    LogID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    IPAddress VARCHAR(50),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+-- 6. Bảng bài viết và bình luận
+CREATE TABLE Blog (
+    BlogID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(100),
+    Username VARCHAR(50) NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Content TEXT,
+    FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE
+);
+
+
+
+-- 7. Bảng lịch hẹn và thông báo
+CREATE TABLE TimeSlots (
+    TimeSlotID INT AUTO_INCREMENT PRIMARY KEY,
+    SlotDate DATE NOT NULL,
+    PsychologistID INT NOT NULL,
+    Status ENUM('Available', 'Booked') DEFAULT 'Available',
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
+);
+
+CREATE TABLE Appointments (
+    AppointmentID INT AUTO_INCREMENT PRIMARY KEY,
+    TimeSlotID INT NOT NULL,
+    StudentID INT NOT NULL,
+    PsychologistID INT NOT NULL,
+    Status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+    Notes TEXT,
+    MeetingLink VARCHAR(255),
+    AppointmentType ENUM('Online', 'Offline') DEFAULT 'Offline',
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE,
+    FOREIGN KEY (TimeSlotID) REFERENCES TimeSlots(TimeSlotID) ON DELETE CASCADE,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE
+);
+
+CREATE TABLE AppointmentHistory (
+    HistoryID INT AUTO_INCREMENT PRIMARY KEY,
+    AppointmentID INT NOT NULL,
+    Action ENUM('Created', 'Updated', 'Cancelled', 'Completed') [not null],
+    Status ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
+    ChangedBy ENUM('Student', 'Psychologist', 'Admin') [not null]    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Notes TEXT DEFAULT NULL,
+    Timestamp TIMESTAMP [default: 'CURRENT_TIMESTAMP'],
+    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID) ON DELETE CASCADE,
+    FOREIGN KEY (ChangedBy) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
 CREATE TABLE Notifications (
@@ -207,35 +238,3 @@ CREATE TABLE Notifications (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
-
-CREATE TABLE StudentHealthRecords (
-    RecordID INT AUTO_INCREMENT PRIMARY KEY,
-    StudentID INT NOT NULL,
-    PsychologistID INT NOT NULL,
-    AssessmentDate DATE NOT NULL,
-
-    DepressionScore DECIMAL(5,2),
-    AnxietyScore DECIMAL(5,2),
-    StressScore DECIMAL(5,2),
-    LowSelfEsteemScore DECIMAL(5,2),
-    SocialAnxietyScore DECIMAL(5,2),    
-    SleepIssueScore DECIMAL(5,2),  
-    --
-    Notes TEXT,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID)
-);
-
-
-CREATE TABLE Feedback (
-    FeedbackID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-    RelatedTo ENUM('Program', 'Appointment', 'Psychologist', 'General') NOT NULL,
-    RelatedID INT,                    
-    Rating INT CHECK (Rating BETWEEN 1 AND 5),
-    Comment TEXT,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-);
-

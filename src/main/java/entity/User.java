@@ -15,13 +15,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor  // contructor full tham số
 @NoArgsConstructor   // contructor ko tham số
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id  // // khóa chính
+    @GeneratedValue(strategy = GenerationType.IDENTITY) ////AUTO_INCREMENT
     private Long userId;
 
     @Column(nullable = false, unique = true)
+
+    // nullable (có thể vô hiệu) = false ( không được phép null,
+    //                                    nếu lưu null vào db nó sẽ ném ra 1 ngoaij lệ exception)
+    // unique (độc nhất)  = true ( nội dung sau không được trùng với nội dung trước
     @NotBlank(message = "Username cannot be blank")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
     private String username;
 
     @Column(nullable = false)
@@ -36,12 +40,14 @@ public class User {
     @Email(message = "Email should be valid")
     private String email;
 
-    @Pattern(regexp = "\\d{10,15}", message = "Phone number must be between 10 and 15 digits")
+    @Pattern(regexp = " /(84[3|5|7|8|9])+([0-9]{8})\\b/g;", message = "Phone number cannot be blank")
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    //updatable = false   ( có nghĩa không cho phép lưu lại sửa đổi kế tiếp, giống như
+    // hằng
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
