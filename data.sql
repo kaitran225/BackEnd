@@ -11,7 +11,7 @@ CREATE TABLE Users (
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2. Bảng phụ thuộc vào Users
+-- 2. Bảng phụ thuộc vào Users ..
 CREATE TABLE Students (
     StudentID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
