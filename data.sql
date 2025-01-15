@@ -1,6 +1,6 @@
 -- 1. Bảng chính chứa thông tin người dùng
 CREATE TABLE Users (
-    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(50) NOT NULL UNIQUE,
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100) NOT NULL,
@@ -11,10 +11,10 @@ CREATE TABLE Users (
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2. Bảng phụ thuộc vào Users ..
+-- 2. Bảng phụ thuộc vào Users
 CREATE TABLE Students (
-    StudentID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
+    StudentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) NOT NULL,
     Grade INT,
     Class VARCHAR(20),
     SchoolName VARCHAR(100),
@@ -24,16 +24,16 @@ CREATE TABLE Students (
 );
 
 CREATE TABLE Parents (
-    ParentID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-    ChildID INT,
+    ParentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) NOT NULL,
+    ChildID VARCHAR(36),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ChildID) REFERENCES Students(StudentID) ON DELETE CASCADE
 );
 
 CREATE TABLE Psychologists (
-    PsychologistID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
+    PsychologistID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) NOT NULL,
     Specialization VARCHAR(100),
     YearsOfExperience INT,
     AvailableHours JSON,
@@ -43,7 +43,7 @@ CREATE TABLE Psychologists (
 
 -- 3. Bảng chương trình và liên quan
 CREATE TABLE Programs (
-    ProgramID INT AUTO_INCREMENT PRIMARY KEY,
+    ProgramID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
     ProgramName VARCHAR(100) NOT NULL,
     Category ENUM(
         'Cognitive',
@@ -59,15 +59,15 @@ CREATE TABLE Programs (
         'Counseling'
     ) NOT NULL,
     Description TEXT,
-    NumberParticipants INT, -- Maximum number of participants
-    Duration INT, -- Program duration day/week
+    NumberParticipants INT,
+    Duration INT,
     Status ENUM('Activate', 'Inactive') DEFAULT 'Activate',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE ProgramSchedule (
-    ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
-    ProgramID INT NOT NULL,
+    ScheduleID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ProgramID VARCHAR(36) NOT NULL,
     DayOfWeek ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
     StartTime TIME,
     EndTime TIME,
@@ -75,9 +75,9 @@ CREATE TABLE ProgramSchedule (
 );
 
 CREATE TABLE ProgramParticipation (
-    ParticipationID INT AUTO_INCREMENT PRIMARY KEY,
-    StudentID INT NOT NULL,
-    ProgramID INT NOT NULL,
+    ParticipationID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    StudentID VARCHAR(36) NOT NULL,
+    ProgramID VARCHAR(36) NOT NULL,
     StartDate DATE,
     EndDate DATE,
     Status ENUM('In Progress', 'Completed', 'Cancelled') DEFAULT 'In Progress',
@@ -85,84 +85,56 @@ CREATE TABLE ProgramParticipation (
     FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
 );
 
--- 4. Bảng khảo sát và câu hỏi
+-- 4. Bảng Categories và Surveys
+CREATE TABLE Categories (
+    CategoryID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    CategoryName ENUM('Stress', 'Anxiety', 'Depression') NOT NULL UNIQUE
+);
+
 CREATE TABLE Surveys (
-    SurveyID INT AUTO_INCREMENT PRIMARY KEY,
+    SurveyID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
     SurveyName VARCHAR(100) NOT NULL,
     Description TEXT,
-    CreatedBy INT NOT NULL,
+    CategoryID VARCHAR(36),
+    CreatedBy VARCHAR(36) NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Status ENUM('Unfinished', 'Finished', 'Cancelled') DEFAULT 'Unfinished',
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 CREATE TABLE SurveyQuestions (
-    QuestionID INT AUTO_INCREMENT PRIMARY KEY,
-    SurveyID INT NOT NULL,
+    QuestionID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    SurveyID VARCHAR(36) NOT NULL,
     QuestionText TEXT NOT NULL,
-    FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE
-);
-
-CREATE TABLE Categories (
-    CategoryID INT AUTO_INCREMENT PRIMARY KEY,
-    CategoryName ENUM('Stress', 'Anxiety', 'Depression') NOT NULL UNIQUE
-);
-
-CREATE TABLE SurveyCategories (
-    SurveyID INT NOT NULL,
-    CategoryID INT NOT NULL,
-    PRIMARY KEY (SurveyID, CategoryID),
+    CategoryID VARCHAR(36),
     FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE,
-    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE CASCADE
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
 );
 
-CREATE TABLE QuestionCategories (
-    QuestionID INT NOT NULL,
-    CategoryID INT NOT NULL,
-    PRIMARY KEY (QuestionID, CategoryID),
-    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE,
-    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE CASCADE
-);
-
-CREATE TABLE SurveyAnswersSet (
-    AnswerSetID INT AUTO_INCREMENT PRIMARY KEY,
-    QuestionID INT NOT NULL,
-    TextAnswer TEXT,
-    DepressionScore INT,
-    AnxietyScore INT,
-    StressScore INT,
-    LowSelfEsteemScore INT,
-    SocialAnxietyScore INT,
-    SleepIssueScore INT,
+CREATE TABLE Answers (
+    AnswerID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    QuestionID VARCHAR(36) NOT NULL,
+    Answer TEXT NOT NULL,
+    Score INT,
     FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE
 );
 
 CREATE TABLE SurveyResults (
-    ResultID INT AUTO_INCREMENT PRIMARY KEY,
-    StudentID INT NOT NULL,
-    PsychologistID INT,
-    SurveyID INT NOT NULL,
-    QuestionID INT,
-    DepressionScore DECIMAL(5,2),
-    AnxietyScore DECIMAL(5,2),
-    StressScore DECIMAL(5,2),
-    LowSelfEsteemScore DECIMAL(5,2),
-    SocialAnxietyScore DECIMAL(5,2),
-    SleepIssueScore DECIMAL(5,2),
-    Score VARCHAR(50),
-    AssessmentDate DATE NOT NULL,
-    Notes TEXT,
+    ResultID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    StudentID VARCHAR(36) NOT NULL,
+    QuestionID VARCHAR(36) NOT NULL,
+    AnswerID VARCHAR(36) NOT NULL,
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE SET NULL,
-    FOREIGN KEY (SurveyID) REFERENCES Surveys(SurveyID) ON DELETE CASCADE,
-    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE SET NULL
+    FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions(QuestionID) ON DELETE CASCADE,
+    FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID) ON DELETE CASCADE
 );
 
 -- 5. Bảng ghi chú và nhật ký
 CREATE TABLE StudentNotes (
-    NoteID INT AUTO_INCREMENT PRIMARY KEY,
-    StudentID INT NOT NULL,
-    PsychologistID INT NOT NULL,
+    NoteID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    StudentID VARCHAR(36) NOT NULL,
+    PsychologistID VARCHAR(36) NOT NULL,
     NoteText TEXT NOT NULL,
     NoteType ENUM('General', 'Behavior', 'Academic', 'Emotional') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -171,16 +143,16 @@ CREATE TABLE StudentNotes (
 );
 
 CREATE TABLE UserLogs (
-    LogID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
+    LogID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) NOT NULL,
     LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     IPAddress VARCHAR(50),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
--- 6. Bảng bài viết và bình luận
+-- 6. Bảng bài viết
 CREATE TABLE Blog (
-    BlogID INT AUTO_INCREMENT PRIMARY KEY,
+    BlogID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(100),
     Username VARCHAR(50) NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -188,23 +160,21 @@ CREATE TABLE Blog (
     FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE
 );
 
-
-
 -- 7. Bảng lịch hẹn và thông báo
 CREATE TABLE TimeSlots (
-    TimeSlotID INT AUTO_INCREMENT PRIMARY KEY,
+    TimeSlotID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
     SlotDate DATE NOT NULL,
-    PsychologistID INT NOT NULL,
+    PsychologistID VARCHAR(36) NOT NULL,
     Status ENUM('Available', 'Booked') DEFAULT 'Available',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
 CREATE TABLE Appointments (
-    AppointmentID INT AUTO_INCREMENT PRIMARY KEY,
-    TimeSlotID INT NOT NULL,
-    StudentID INT NOT NULL,
-    PsychologistID INT NOT NULL,
+    AppointmentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    TimeSlotID VARCHAR(36) NOT NULL,
+    StudentID VARCHAR(36) NOT NULL,
+    PsychologistID VARCHAR(36) NOT NULL,
     Status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
     Notes TEXT,
     MeetingLink VARCHAR(255),
@@ -217,23 +187,23 @@ CREATE TABLE Appointments (
 );
 
 CREATE TABLE AppointmentHistory (
-    HistoryID INT AUTO_INCREMENT PRIMARY KEY,
-    AppointmentID INT NOT NULL,
-    Action ENUM('Created', 'Updated', 'Cancelled', 'Completed') [not null],
+    HistoryID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    AppointmentID VARCHAR(36) NOT NULL,
+    Action ENUM('Created', 'Updated', 'Cancelled', 'Completed') NOT NULL,
     Status ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
-    ChangedBy ENUM('Student', 'Psychologist', 'Admin') [not null]    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Notes TEXT DEFAULT NULL,
-    Timestamp TIMESTAMP [default: 'CURRENT_TIMESTAMP'],
+    ChangedBy VARCHAR(36) NOT NULL,
+    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Notes TEXT,
     FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID) ON DELETE CASCADE,
-    FOREIGN KEY (ChangedBy) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
+    FOREIGN KEY (ChangedBy) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 CREATE TABLE Notifications (
-    NotificationID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
+    NotificationID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36) NOT NULL,
     Title VARCHAR(255) NOT NULL,
     Message TEXT NOT NULL,
-    Type ENUM('Appointment', 'Survey', 'Program', 'done') NOT NULL,
+    Type ENUM('Appointment', 'Survey', 'Program', 'Done') NOT NULL,
     IsRead BOOLEAN DEFAULT FALSE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
