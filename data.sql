@@ -6,7 +6,8 @@ CREATE TABLE Users (
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE,
     PhoneNumber VARCHAR(15),
-    Role ENUM('Student', 'Parent', 'Psychologist', 'Manager') NOT NULL,
+    Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    Role ENUM('Student', 'Parent', 'Psychologist', 'Manager','Staff') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -19,7 +20,6 @@ CREATE TABLE Students (
     Class VARCHAR(20),
     SchoolName VARCHAR(100),
     Gender ENUM('Male', 'Female', 'Other'),
-    Status ENUM('Active', 'Inactive') DEFAULT 'Active',
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -37,9 +37,10 @@ CREATE TABLE Psychologists (
     Specialization VARCHAR(100),
     YearsOfExperience INT,
     AvailableHours JSON,
-    Status ENUM('Active', 'On Leave', 'Inactive') DEFAULT 'Active',
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+
+
 
 -- 3. Bảng chương trình và liên quan
 CREATE TABLE Programs (
@@ -62,7 +63,10 @@ CREATE TABLE Programs (
     NumberParticipants INT,
     Duration INT,
     Status ENUM('Activate', 'Inactive') DEFAULT 'Activate',
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ManagedByStaffID VARCHAR(36),
+    FOREIGN KEY (ManagedByStaffID) REFERENCES Users(UserID)
+
 );
 
 CREATE TABLE ProgramSchedule (

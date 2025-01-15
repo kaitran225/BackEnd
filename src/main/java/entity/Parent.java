@@ -15,7 +15,7 @@ public class Parent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long parentId;
+    private String parentId;
 
     @OneToOne
     @JoinColumn(name = "userId", nullable = false)

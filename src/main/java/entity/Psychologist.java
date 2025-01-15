@@ -16,7 +16,7 @@ public class Psychologist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long psychologistId;
+    private String psychologistId;
 
 
     @OneToOne

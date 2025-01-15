@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id  // // khóa chính
     @GeneratedValue(strategy = GenerationType.IDENTITY) ////AUTO_INCREMENT
-    private Long userId;
+    private String userId;
 
     @Column(nullable = false, unique = true)
 
