@@ -1,0 +1,39 @@
+
+// AuthenticationService.java
+package com.heathly.BackEnd.Service;
+
+import com.heathly.BackEnd.dto.LoginDTO;
+import com.heathly.BackEnd.entity.Users;
+import com.heathly.BackEnd.repository.AuthenticationRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static java.util.regex.Pattern.matches;
+
+@Service
+public class AuthenticationService {
+    @Autowired
+    private AuthenticationRepo authenticationRepo;
+
+
+    public Users register(Users users) {
+        // Mã hóa mật khẩu trước khi lưu
+
+        Users newAccount = authenticationRepo.save(users);
+        return newAccount;
+    }
+    public boolean login(LoginDTO loginDTO) {
+        // Tìm người dùng theo tên đăng nhập
+        Users user = authenticationRepo.findByUsername(loginDTO.getUsername());
+
+        // Nếu không tìm thấy hoặc mật khẩu không khớp, trả về false
+        if (user == null || !matches(loginDTO.getPassword(), user.getPasswordHash())) {
+            return false;
+        }
+
+        // Nếu hợp lệ, trả về true
+        return true;
+    }
+
+
+}
