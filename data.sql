@@ -1,3 +1,6 @@
+CREATE DATABASE SWP391Healthy;
+USE SWP391Healthy;
+
 -- 1. Bảng chính chứa thông tin người dùng
 CREATE TABLE Users (
     UserID VARCHAR(36)  PRIMARY KEY,
@@ -6,7 +9,7 @@ CREATE TABLE Users (
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE,
     PhoneNumber VARCHAR(15),
-    Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    Status ENUM('Active', 'Inactive') DEFAULT 'Active', 
     Role ENUM('Student', 'Parent', 'Psychologist', 'Manager','Staff') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -36,7 +39,7 @@ CREATE TABLE Psychologists (
     UserID VARCHAR(36) NOT NULL,
     Specialization VARCHAR(100),
     YearsOfExperience INT,
-    AvailableHours JSON,
+    AvailableID VARCHAR(20),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -212,3 +215,4 @@ CREATE TABLE Notifications (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
