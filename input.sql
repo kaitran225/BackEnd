@@ -1,6 +1,5 @@
 USE SWP391Healthy;
 
--- Insert sample data into Users table
 INSERT INTO Users (UserID, Username, PasswordHash, FullName, Email, PhoneNumber, Role)
 VALUES 
     ('U000', 'admin', 'adminpass', 'Admin User', 'admin@example.com', '1111111111', 'Manager'),
@@ -12,71 +11,87 @@ VALUES
 	('U006', 'john_jan', 'password123', 'John Jan', 'jan@example.com', '1234567890', 'Student'),
     ('U007', 'dr_blue', 'password789', 'Dr. Blue', 'blue@example.com', '5555555555', 'Psychologist');
     
--- Insert sample data into Students table
 INSERT INTO Students (StudentID, UserID, Grade, Class, SchoolName, Gender)
 VALUES
     ('S001', 'U001', 10, 'A', 'Example High School', 'Male'),
     ('S002', 'U006', 9, 'B', 'Example High School', 'Female');
     
--- Insert sample data into Parents table
 INSERT INTO Parents (ParentID, UserID, ChildID)
 VALUES
     ('P001', 'U002', 'S001'),
     ('P002', 'U005', 'S002');
 
--- Insert sample data into Psychologists table
-
-    
--- Insert sample data into TimeSlots table
-INSERT INTO TimeSlots (TimeSlotID, SlotDate, SlotTime)
+INSERT INTO Psychologists (PsychologistID, UserID, Specialization, YearsOfExperience, Status)
 VALUES
-    ('TS150601', '2023-06-15', 1),
-    ('TS150602', '2023-06-15', 2),
-    ('TS150603', '2023-06-15', 3),
-    ('TS150604', '2023-06-15', 4),
-    ('TS150605', '2023-06-15', 5),
-    ('TS150606', '2023-06-15', 6);
-    
-INSERT INTO Psychologists (PsychologistID, UserID, Specialization, YearsOfExperience, AvailableSlot, Status)
-VALUES
-    ('PSY001', 'U003', 'Child Psychology', 10, 'TS150601', 'Active'),
-    ('PSY002', 'U007', 'Adolescent Psychology', 8, 'TS150604', 'Active');
+    ('PSY001', 'U003', 'Child Psychology', 10, 'Active'),
+    ('PSY002', 'U007', 'Adolescent Psychology', 8, 'Active');
 
--- Insert sample data into Programs table
+INSERT INTO AvailableSlots (AvailableSlotsID, PsychologistID) 
+VALUES
+    ('AS001', 'PSY001'),
+    ('AS002', 'PSY001'),
+    ('AS003', 'PSY002'),
+    ('AS004', 'PSY002'),
+    ('AS005', 'PSY001'),
+    ('AS006', 'PSY002');
+    
+INSERT INTO TimeSlots (TimeSlotsID, AvailableSlotsID, SlotDate, SlotTime, Status, CreatedAt, UpdatedAt)
+VALUES
+    ('TS150601', 'AS001', '2023-06-15', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150602', 'AS001', '2023-06-15', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150603', 'AS001', '2023-06-15', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150604', 'AS001', '2023-06-15', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150605', 'AS001', '2023-06-15', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150606', 'AS001', '2023-06-15', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    --
+    ('TS160601', 'AS002', '2023-06-16', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS160602', 'AS002', '2023-06-16', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS160603', 'AS002', '2023-06-16', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    --
+    ('TS150604', 'AS003', '2023-06-15', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150605', 'AS003', '2023-06-15', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150606', 'AS003', '2023-06-15', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150607', 'AS003', '2023-06-15', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150608', 'AS003', '2023-06-15', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150609', 'AS003', '2023-06-15', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    --
+    ('TS150604', 'AS004', '2023-06-16', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150605', 'AS004', '2023-06-16', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150606', 'AS004', '2023-06-16', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150607', 'AS004', '2023-06-16', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150608', 'AS004', '2023-06-16', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150609', 'AS004', '2023-06-16', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
 INSERT INTO Programs (ProgramID, ProgramName, Category, Description, NumberParticipants, Duration, ManagedByStaffID)
 VALUES
     ('PRG001', 'Stress Management', 'Wellness', 'Program to help manage stress', 20, 4, 'U004'),
     ('PRG002', 'Anxiety Support Group', 'Support Group', 'Support group for individuals with anxiety', 15, 6, 'U004'),
     ('PRG003', 'Mindfulness Workshop', 'Wellness', 'Workshop on mindfulness techniques', 25, 3, 'U004');
 
--- Insert sample data into ProgramSchedule table
 INSERT INTO ProgramSchedule (ScheduleID, ProgramID, DayOfWeek, StartTime, EndTime)
 VALUES
     ('SCH001', 'PRG001', 'Monday', '10:00:00', '11:30:00'),
     ('SCH002', 'PRG002', 'Tuesday', '14:00:00', '15:30:00'),
     ('SCH003', 'PRG003', 'Wednesday', '09:00:00', '10:30:00');
 
--- Insert sample data into ProgramParticipation table
 INSERT INTO ProgramParticipation (ParticipationID, StudentID, ProgramID, StartDate, EndDate)
 VALUES
     ('PP001', 'S001', 'PRG001', '2023-06-01', '2023-06-30'),
     ('PP002', 'S002', 'PRG002', '2023-07-01', '2023-08-15');
 
--- Insert sample data into Categories table
 INSERT INTO Categories (CategoryID, CategoryName)
 VALUES
     ('CAT001', 'Stress'),
     ('CAT002', 'Anxiety'),
     ('CAT003', 'Depression');
 
--- Insert sample data into Surveys table
 INSERT INTO Surveys (SurveyID, SurveyName, Description, CategoryID, CreatedBy)
 VALUES
     ('SUR001', 'Stress Survey', 'Survey to assess stress levels', 'CAT001', 'U003'),
     ('SUR002', 'Anxiety Assessment', 'Assessment of anxiety symptoms', 'CAT002', 'U003'),
     ('SUR003', 'Depression Screening', 'Screening for depression', 'CAT003', 'U007');
 
--- Insert sample data into SurveyQuestions table
 INSERT INTO SurveyQuestions (QuestionID, SurveyID, QuestionText, CategoryID)
 VALUES
     ('Q001', 'SUR001', 'How often do you feel stressed?', 'CAT001'),
@@ -86,7 +101,6 @@ VALUES
     ('Q005', 'SUR003', 'Do you feel sad or hopeless most of the time?', 'CAT003'),
     ('Q006', 'SUR003', 'Have you lost interest in activities you once enjoyed?', 'CAT003');
 
--- Insert sample data into Answers table
 INSERT INTO Answers (AnswerID, QuestionID, Answer, Score)
 VALUES
     ('A001', 'Q001', 'Never', 0),
@@ -114,44 +128,36 @@ VALUES
     ('A023', 'Q006', 'Often', 2),
     ('A024', 'Q006', 'Always', 3);
 
-
--- Insert sample data into SurveyResults table
 INSERT INTO SurveyResults (ResultID, StudentID, QuestionID, AnswerID)
 VALUES
     ('R001', 'S001', 'Q001', 'A002'),
     ('R002', 'S001', 'Q002', 'A006');
 
--- Insert sample data into StudentNotes table
 INSERT INTO StudentNotes (NoteID, StudentID, PsychologistID, NoteText, NoteType)
 VALUES
     ('N001', 'S001', 'PSY001', 'Student shows signs of stress', 'General'),
     ('N002', 'S002', 'PSY002', 'Student exhibits anxiety symptoms', 'Behavior');
 
--- Insert sample data into UserLogs table
 INSERT INTO UserLogs (LogID, UserID, IPAddress)
 VALUES
     ('L001', 'U001', '192.168.0.1'),
     ('L002', 'U002', '192.168.0.2');
 
--- Insert sample data into Blog table
 INSERT INTO Blog (BlogID, Title, CreatedBy, Content)
 VALUES
     ('B001', 'Managing Stress', 'U003', 'Tips for managing stress...'),
     ('B002', 'Overcoming Anxiety', 'U004', 'Strategies to cope with anxiety...');
-
--- Insert sample data into Appointments table
+    
 INSERT INTO Appointments (AppointmentID, SlotTime, StudentID, PsychologistID, MeetingLink)
 VALUES
-    ('APP001', 1000, 'S001', 'PSY001', 'https://example.com/meeting1'),
-    ('APP002', 1100, 'S002', 'PSY002', 'https://example.com/meeting2');
+    ('APP001', 'TS150601', 'S001', 'PSY001', 'https://example.com/meeting1'),
+    ('APP002', 'TS150602', 'S002', 'PSY002', 'https://example.com/meeting2');
 
--- Insert sample data into AppointmentHistory table
 INSERT INTO AppointmentHistory (HistoryID, AppointmentID, Action, Status, ChangedBy)
 VALUES
     ('H001', 'APP001', 'Created', 'Scheduled', 'U003'),
-    ('H002', 'APP002', 'Created', 'Scheduled', 'U004');
+    ('H002', 'APP002', 'Created', 'Scheduled', 'U007');
 
--- Insert sample data into Notifications table
 INSERT INTO Notifications (NotificationID, UserID, Title, Message, Type)
 VALUES
     ('NOT001', 'U001', 'Appointment Scheduled', 'Your appointment is scheduled for 2023-06-15 at 10:00 AM', 'Appointment'),

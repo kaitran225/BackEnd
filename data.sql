@@ -2,7 +2,6 @@ DROP DATABASE IF EXISTS swp391healthy;
 CREATE DATABASE SWP391Healthy;
 USE SWP391Healthy;
 
-
 CREATE TABLE Users (
     UserID VARCHAR(36) PRIMARY KEY,
     Username VARCHAR(50) NOT NULL UNIQUE,
@@ -15,7 +14,6 @@ CREATE TABLE Users (
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2. Bảng phụ thuộc vào Users
 CREATE TABLE Students (
     StudentID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
@@ -33,28 +31,34 @@ CREATE TABLE Parents (
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ChildID) REFERENCES Students(StudentID) ON DELETE CASCADE
 );
-CREATE TABLE TimeSlots (
-    TimeSlotID VARCHAR(36) PRIMARY KEY,
-    SlotDate DATE NOT NULL,
-    SlotTime INT NOT NULL,
-    Status ENUM('Available', 'Booked') DEFAULT 'Available',
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 CREATE TABLE Psychologists (
     PsychologistID VARCHAR(36) PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     Specialization VARCHAR(100),
     YearsOfExperience INT,
-    AvailableSlot VARCHAR(36),
     Status ENUM('Active', 'On Leave', 'Inactive') DEFAULT 'Active',
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (AvailableSlot) REFERENCES TimeSlots(TimeSlotID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 
+CREATE TABLE AvailableSlots (
+    AvailableSlotsID VARCHAR(36) PRIMARY KEY,
+    PsychologistID VARCHAR(36) NOT NULL,
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
+);
 
--- 3. Bảng chương trình và liên quan
+CREATE TABLE TimeSlots (
+    TimeSlotsID VARCHAR(36) PRIMARY KEY,
+    AvailableSlotsID VARCHAR(36) NOT NULL,
+    SlotDate DATE NOT NULL,
+    SlotTime INT NOT NULL,
+    Status ENUM('Available', 'Booked') DEFAULT 'Available',
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (AvailableSlotsID) REFERENCES AvailableSlots(AvailableSlotsID) ON DELETE CASCADE
+);
+
 CREATE TABLE Programs (
     ProgramID VARCHAR(36)  PRIMARY KEY,
     ProgramName VARCHAR(100) NOT NULL,
@@ -101,7 +105,6 @@ CREATE TABLE ProgramParticipation (
     FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID) ON DELETE CASCADE
 );
 
--- 4. Bảng Categories và Surveys
 CREATE TABLE Categories (
     CategoryID VARCHAR(36)  PRIMARY KEY,
     CategoryName ENUM('Stress', 'Anxiety', 'Depression') NOT NULL UNIQUE
@@ -146,7 +149,6 @@ CREATE TABLE SurveyResults (
     FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID) ON DELETE CASCADE
 );
 
--- 5. Bảng ghi chú và nhật ký
 CREATE TABLE StudentNotes (
     NoteID VARCHAR(36)  PRIMARY KEY,
     StudentID VARCHAR(36) NOT NULL,
@@ -166,7 +168,6 @@ CREATE TABLE UserLogs (
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
--- 6. Bảng bài viết
 CREATE TABLE Blog (
     BlogID VARCHAR(36) PRIMARY KEY,
     Title VARCHAR(100),
@@ -188,7 +189,7 @@ CREATE TABLE Appointments (
     AppointmentType ENUM('Online', 'Offline') DEFAULT 'Offline',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (SlotTime) REFERENCES TimeSlots(TimeSlotID),
+    FOREIGN KEY (SlotTime) REFERENCES TimeSlots(TimeSlotsID),
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
