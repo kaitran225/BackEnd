@@ -1,6 +1,6 @@
 -- 1. Bảng chính chứa thông tin người dùng
 CREATE TABLE Users (
-    UserID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(36)  PRIMARY KEY,
     Username VARCHAR(50) NOT NULL UNIQUE,
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE Users (
 
 -- 2. Bảng phụ thuộc vào Users
 CREATE TABLE Students (
-    StudentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    StudentID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     Grade INT,
     Class VARCHAR(20),
@@ -24,7 +24,7 @@ CREATE TABLE Students (
 );
 
 CREATE TABLE Parents (
-    ParentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ParentID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     ChildID VARCHAR(36),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
@@ -32,7 +32,7 @@ CREATE TABLE Parents (
 );
 
 CREATE TABLE Psychologists (
-    PsychologistID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    PsychologistID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     Specialization VARCHAR(100),
     YearsOfExperience INT,
@@ -44,7 +44,7 @@ CREATE TABLE Psychologists (
 
 -- 3. Bảng chương trình và liên quan
 CREATE TABLE Programs (
-    ProgramID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ProgramID VARCHAR(36)  PRIMARY KEY,
     ProgramName VARCHAR(100) NOT NULL,
     Category ENUM(
         'Cognitive',
@@ -70,7 +70,7 @@ CREATE TABLE Programs (
 );
 
 CREATE TABLE ProgramSchedule (
-    ScheduleID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ScheduleID VARCHAR(36)  PRIMARY KEY,
     ProgramID VARCHAR(36) NOT NULL,
     DayOfWeek ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
     StartTime TIME,
@@ -79,7 +79,7 @@ CREATE TABLE ProgramSchedule (
 );
 
 CREATE TABLE ProgramParticipation (
-    ParticipationID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ParticipationID VARCHAR(36)  PRIMARY KEY,
     StudentID VARCHAR(36) NOT NULL,
     ProgramID VARCHAR(36) NOT NULL,
     StartDate DATE,
@@ -91,12 +91,12 @@ CREATE TABLE ProgramParticipation (
 
 -- 4. Bảng Categories và Surveys
 CREATE TABLE Categories (
-    CategoryID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    CategoryID VARCHAR(36)  PRIMARY KEY,
     CategoryName ENUM('Stress', 'Anxiety', 'Depression') NOT NULL UNIQUE
 );
 
 CREATE TABLE Surveys (
-    SurveyID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    SurveyID VARCHAR(36)  PRIMARY KEY,
     SurveyName VARCHAR(100) NOT NULL,
     Description TEXT,
     CategoryID VARCHAR(36),
@@ -108,7 +108,7 @@ CREATE TABLE Surveys (
 );
 
 CREATE TABLE SurveyQuestions (
-    QuestionID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    QuestionID VARCHAR(36)  PRIMARY KEY,
     SurveyID VARCHAR(36) NOT NULL,
     QuestionText TEXT NOT NULL,
     CategoryID VARCHAR(36),
@@ -117,7 +117,7 @@ CREATE TABLE SurveyQuestions (
 );
 
 CREATE TABLE Answers (
-    AnswerID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    AnswerID VARCHAR(36)  PRIMARY KEY,
     QuestionID VARCHAR(36) NOT NULL,
     Answer TEXT NOT NULL,
     Score INT,
@@ -125,7 +125,7 @@ CREATE TABLE Answers (
 );
 
 CREATE TABLE SurveyResults (
-    ResultID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    ResultID VARCHAR(36)  PRIMARY KEY,
     StudentID VARCHAR(36) NOT NULL,
     QuestionID VARCHAR(36) NOT NULL,
     AnswerID VARCHAR(36) NOT NULL,
@@ -136,7 +136,7 @@ CREATE TABLE SurveyResults (
 
 -- 5. Bảng ghi chú và nhật ký
 CREATE TABLE StudentNotes (
-    NoteID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    NoteID VARCHAR(36)  PRIMARY KEY,
     StudentID VARCHAR(36) NOT NULL,
     PsychologistID VARCHAR(36) NOT NULL,
     NoteText TEXT NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE StudentNotes (
 );
 
 CREATE TABLE UserLogs (
-    LogID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    LogID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     IPAddress VARCHAR(50),
@@ -156,7 +156,7 @@ CREATE TABLE UserLogs (
 
 -- 6. Bảng bài viết
 CREATE TABLE Blog (
-    BlogID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    BlogID VARCHAR(36)  PRIMARY KEY,
     Title VARCHAR(100),
     Username VARCHAR(50) NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -166,7 +166,7 @@ CREATE TABLE Blog (
 
 -- 7. Bảng lịch hẹn và thông báo
 CREATE TABLE TimeSlots (
-    TimeSlotID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    TimeSlotID VARCHAR(36)  PRIMARY KEY,
     SlotDate DATE NOT NULL,
     PsychologistID VARCHAR(36) NOT NULL,
     Status ENUM('Available', 'Booked') DEFAULT 'Available',
@@ -175,7 +175,7 @@ CREATE TABLE TimeSlots (
 );
 
 CREATE TABLE Appointments (
-    AppointmentID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    AppointmentID VARCHAR(36)  PRIMARY KEY,
     TimeSlotID VARCHAR(36) NOT NULL,
     StudentID VARCHAR(36) NOT NULL,
     PsychologistID VARCHAR(36) NOT NULL,
@@ -191,7 +191,7 @@ CREATE TABLE Appointments (
 );
 
 CREATE TABLE AppointmentHistory (
-    HistoryID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    HistoryID VARCHAR(36)  PRIMARY KEY,
     AppointmentID VARCHAR(36) NOT NULL,
     Action ENUM('Created', 'Updated', 'Cancelled', 'Completed') NOT NULL,
     Status ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE AppointmentHistory (
 );
 
 CREATE TABLE Notifications (
-    NotificationID VARCHAR(36) AUTO_INCREMENT PRIMARY KEY,
+    NotificationID VARCHAR(36)  PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     Title VARCHAR(255) NOT NULL,
     Message TEXT NOT NULL,
