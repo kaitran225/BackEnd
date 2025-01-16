@@ -3,7 +3,6 @@ package com.heathly.BackEnd.Service.IMPL;
 import com.heathly.BackEnd.Service.UserService;
 import com.heathly.BackEnd.dto.UserDTO;
 import com.heathly.BackEnd.entity.User;
-import jakarta.persistence.Entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.heathly.BackEnd.repository.UserRepo;

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.data.annotation.Id;
 import java.time.LocalDateTime;
 
