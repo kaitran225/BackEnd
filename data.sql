@@ -1,16 +1,14 @@
 CREATE DATABASE SWP391Healthy;
 USE SWP391Healthy;
 
--- 1. Bảng chính chứa thông tin người dùng
 CREATE TABLE Users (
-    UserID VARCHAR(36)  PRIMARY KEY,
+    UserID VARCHAR(36) PRIMARY KEY,
     Username VARCHAR(50) NOT NULL UNIQUE,
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE,
     PhoneNumber VARCHAR(15),
-    Status ENUM('Active', 'Inactive') DEFAULT 'Active', 
-    Role ENUM('Student', 'Parent', 'Psychologist', 'Manager','Staff') NOT NULL,
+    Role ENUM('Student', 'Parent', 'Psychologist', 'Manager', 'Staff') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -35,12 +33,14 @@ CREATE TABLE Parents (
 );
 
 CREATE TABLE Psychologists (
-    PsychologistID VARCHAR(36)  PRIMARY KEY,
+    PsychologistID VARCHAR(36) PRIMARY KEY,
     UserID VARCHAR(36) NOT NULL,
     Specialization VARCHAR(100),
     YearsOfExperience INT,
-    AvailableID VARCHAR(20),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+    AvailableSlot VARCHAR(36),
+    Status ENUM('Active', 'On Leave', 'Inactive') DEFAULT 'Active',
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (AvailableSlot) REFERENCES TimeSlots(TimeSlotID)
 );
 
 
@@ -159,27 +159,26 @@ CREATE TABLE UserLogs (
 
 -- 6. Bảng bài viết
 CREATE TABLE Blog (
-    BlogID VARCHAR(36)  PRIMARY KEY,
+    BlogID VARCHAR(36) PRIMARY KEY,
     Title VARCHAR(100),
-    Username VARCHAR(50) NOT NULL,
+    CreatedBy VARCHAR(36),
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Content TEXT,
-    FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
 );
 
 -- 7. Bảng lịch hẹn và thông báo
 CREATE TABLE TimeSlots (
-    TimeSlotID VARCHAR(36)  PRIMARY KEY,
+    TimeSlotID VARCHAR(36) PRIMARY KEY,
     SlotDate DATE NOT NULL,
-    PsychologistID VARCHAR(36) NOT NULL,
+    SlotTime INT NOT NULL,
     Status ENUM('Available', 'Booked') DEFAULT 'Available',
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Appointments (
-    AppointmentID VARCHAR(36)  PRIMARY KEY,
-    TimeSlotID VARCHAR(36) NOT NULL,
+    AppointmentID VARCHAR(36) PRIMARY KEY,
+    SlotTime INT,
     StudentID VARCHAR(36) NOT NULL,
     PsychologistID VARCHAR(36) NOT NULL,
     Status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
@@ -188,9 +187,9 @@ CREATE TABLE Appointments (
     AppointmentType ENUM('Online', 'Offline') DEFAULT 'Offline',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE,
-    FOREIGN KEY (TimeSlotID) REFERENCES TimeSlots(TimeSlotID) ON DELETE CASCADE,
-    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE
+    FOREIGN KEY (SlotTime) REFERENCES TimeSlots(TimeSlotID),
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
 CREATE TABLE AppointmentHistory (
@@ -216,3 +215,58 @@ CREATE TABLE Notifications (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
+
+
+ALTER TABLE Students ADD FOREIGN KEY (UserID) REFERENCES Users (UserID);
+
+ALTER TABLE Parents ADD FOREIGN KEY (UserID) REFERENCES Users (UserID);
+
+ALTER TABLE Parents ADD FOREIGN KEY (ChildID) REFERENCES Students (StudentID);
+
+ALTER TABLE Psychologists ADD FOREIGN KEY (UserID) REFERENCES Users (UserID);
+
+ALTER TABLE Psychologists ADD FOREIGN KEY (AvailableSlot) REFERENCES TimeSlots (TimeSlotID);
+
+ALTER TABLE Programs ADD FOREIGN KEY (ManagedByStaffID) REFERENCES Users (UserID);
+
+ALTER TABLE ProgramSchedule ADD FOREIGN KEY (ProgramID) REFERENCES Programs (ProgramID);
+
+ALTER TABLE ProgramParticipation ADD FOREIGN KEY (StudentID) REFERENCES Students (StudentID);
+
+ALTER TABLE ProgramParticipation ADD FOREIGN KEY (ProgramID) REFERENCES Programs (ProgramID);
+
+ALTER TABLE Surveys ADD FOREIGN KEY (CategoryID) REFERENCES Categories (CategoryID);
+
+ALTER TABLE Surveys ADD FOREIGN KEY (CreatedBy) REFERENCES Psychologists (PsychologistID);
+
+ALTER TABLE SurveyQuestions ADD FOREIGN KEY (SurveyID) REFERENCES Surveys (SurveyID);
+
+ALTER TABLE SurveyQuestions ADD FOREIGN KEY (CategoryID) REFERENCES Categories (CategoryID);
+
+ALTER TABLE Answers ADD FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions (QuestionID);
+
+ALTER TABLE SurveyResults ADD FOREIGN KEY (StudentID) REFERENCES Students (StudentID);
+
+ALTER TABLE SurveyResults ADD FOREIGN KEY (QuestionID) REFERENCES SurveyQuestions (QuestionID);
+
+ALTER TABLE SurveyResults ADD FOREIGN KEY (AnswerID) REFERENCES Answers (AnswerID);
+
+ALTER TABLE StudentNotes ADD FOREIGN KEY (PsychologistID) REFERENCES Psychologists (PsychologistID);
+
+ALTER TABLE StudentNotes ADD FOREIGN KEY (StudentID) REFERENCES Students (StudentID);
+
+ALTER TABLE UserLogs ADD FOREIGN KEY (UserID) REFERENCES Users (UserID);
+
+ALTER TABLE Blog ADD FOREIGN KEY (CreatedBy) REFERENCES Users (UserID);
+
+ALTER TABLE Appointments ADD FOREIGN KEY (SlotTime) REFERENCES TimeSlots (TimeSlotID);
+
+ALTER TABLE Appointments ADD FOREIGN KEY (StudentID) REFERENCES Students (StudentID);
+
+ALTER TABLE Appointments ADD FOREIGN KEY (PsychologistID) REFERENCES Psychologists (PsychologistID);
+
+ALTER TABLE AppointmentHistory ADD FOREIGN KEY (AppointmentID) REFERENCES Appointments (AppointmentID);
+
+ALTER TABLE AppointmentHistory ADD FOREIGN KEY (ChangedBy) REFERENCES Users (UserID);
+
+ALTER TABLE Notifications ADD FOREIGN KEY (UserID) REFERENCES Users (UserID);
