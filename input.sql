@@ -25,42 +25,22 @@ INSERT INTO Psychologists (PsychologistID, UserID, Specialization, YearsOfExperi
 VALUES
     ('PSY001', 'U003', 'Child Psychology', 10, 'Active'),
     ('PSY002', 'U007', 'Adolescent Psychology', 8, 'Active');
-
-INSERT INTO AvailableSlots (AvailableSlotsID, PsychologistID) 
-VALUES
-    ('AS001', 'PSY001'),
-    ('AS002', 'PSY001'),
-    ('AS003', 'PSY002'),
-    ('AS004', 'PSY002'),
-    ('AS005', 'PSY001'),
-    ('AS006', 'PSY002');
     
-INSERT INTO TimeSlots (TimeSlotsID, AvailableSlotsID, SlotDate, SlotTime, Status, CreatedAt, UpdatedAt)
+INSERT INTO TimeSlots (TimeSlotsID, PsychologistID, SlotDate, StartTime, EndTime, Status, CreatedAt, UpdatedAt)
 VALUES
-    ('TS150601', 'AS001', '2023-06-15', 1, 'Booked', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150602', 'AS001', '2023-06-15', 2, 'Booked', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150603', 'AS001', '2023-06-15', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150604', 'AS001', '2023-06-15', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150605', 'AS001', '2023-06-15', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150606', 'AS001', '2023-06-15', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150601', 'PSY001', '2023-06-15', '08:00:00', '08:30:00', 'Booked', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150602', 'PSY001', '2023-06-15', '08:30:00', '09:00:00', 'Booked', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150603', 'PSY001', '2023-06-15', '09:00:00', '09:30:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150604', 'PSY001', '2023-06-15', '09:30:00', '10:00:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150605', 'PSY001', '2023-06-15', '10:00:00', '10:30:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150606', 'PSY001', '2023-06-15', '10:30:00', '11:00:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     --
-    ('TS160601', 'AS002', '2023-06-16', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160602', 'AS002', '2023-06-16', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160603', 'AS002', '2023-06-16', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    --
-    ('TS150607', 'AS003', '2023-06-15', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150608', 'AS003', '2023-06-15', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150609', 'AS003', '2023-06-15', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150610', 'AS003', '2023-06-15', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150611', 'AS003', '2023-06-15', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS150612', 'AS003', '2023-06-15', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    --
-    ('TS160604', 'AS004', '2023-06-16', 1, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160605', 'AS004', '2023-06-16', 2, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160606', 'AS004', '2023-06-16', 3, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160607', 'AS004', '2023-06-16', 4, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160608', 'AS004', '2023-06-16', 5, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('TS160609', 'AS004', '2023-06-16', 6, 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    ('TS150607', 'PSY002', '2023-06-15', '08:00:00', '08:30:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150608', 'PSY002', '2023-06-15', '08:30:00', '09:00:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150609', 'PSY002', '2023-06-15', '09:00:00', '09:30:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150610', 'PSY002', '2023-06-15', '09:30:00', '10:00:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150611', 'PSY002', '2023-06-15', '10:00:00', '10:30:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('TS150612', 'PSY002', '2023-06-15', '10:30:00', '11:00:00', 'Available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
 INSERT INTO Programs (ProgramID, ProgramName, Category, Description, NumberParticipants, Duration, ManagedByStaffID)
@@ -148,7 +128,7 @@ VALUES
     ('B001', 'Managing Stress', 'U003', 'Tips for managing stress...'),
     ('B002', 'Overcoming Anxiety', 'U004', 'Strategies to cope with anxiety...');
     
-INSERT INTO Appointments (AppointmentID, SlotTime, StudentID, PsychologistID, MeetingLink)
+INSERT INTO Appointments (AppointmentID, TimeSlotsID, StudentID, PsychologistID, MeetingLink)
 VALUES
     ('APP001', 'TS150601', 'S001', 'PSY001', 'https://example.com/meeting1'),
     ('APP002', 'TS150602', 'S002', 'PSY002', 'https://example.com/meeting2');

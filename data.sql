@@ -41,22 +41,16 @@ CREATE TABLE Psychologists (
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
-
-CREATE TABLE AvailableSlots (
-    AvailableSlotsID VARCHAR(36) PRIMARY KEY,
-    PsychologistID VARCHAR(36) NOT NULL,
-    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
-);
-
 CREATE TABLE TimeSlots (
     TimeSlotsID VARCHAR(36) PRIMARY KEY,
-    AvailableSlotsID VARCHAR(36) NOT NULL,
+    PsychologistID VARCHAR(36),    
     SlotDate DATE NOT NULL,
-    SlotTime INT NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
     Status ENUM('Available', 'Booked') DEFAULT 'Available',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (AvailableSlotsID) REFERENCES AvailableSlots(AvailableSlotsID) ON DELETE CASCADE
+    FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
 CREATE TABLE Programs (
@@ -180,7 +174,7 @@ CREATE TABLE Blog (
 
 CREATE TABLE Appointments (
     AppointmentID VARCHAR(36) PRIMARY KEY,
-    SlotTime VARCHAR(36),
+    TimeSlotsID VARCHAR(36),
     StudentID VARCHAR(36) NOT NULL,
     PsychologistID VARCHAR(36) NOT NULL,
     Status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
@@ -189,8 +183,8 @@ CREATE TABLE Appointments (
     AppointmentType ENUM('Online', 'Offline') DEFAULT 'Offline',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (SlotTime) REFERENCES TimeSlots(TimeSlotsID),
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID) ON DELETE CASCADE,
+    FOREIGN KEY (TimeSlotsID) REFERENCES TimeSlots(TimeSlotsID) ON DELETE CASCADE,
     FOREIGN KEY (PsychologistID) REFERENCES Psychologists(PsychologistID) ON DELETE CASCADE
 );
 
