@@ -65,13 +65,22 @@ JOIN TimeSlots t ON a.SlotTime = t.TimeSlotsID
 JOIN AvailableSlots ass ON t.AvailableSlotsID = a.AvailableSlotsID
 WHERE ass.PsychologistID = 'PSY001' AND t.Status = 'Available';
 
+	-- Query to find all available slots for all psychologists and their names
+	SELECT ass.AvailableSlotsID, t.SlotDate, t.SlotTime, p.PsychologistID, u.FullName
+	FROM AvailableSlots ass
+	JOIN TimeSlots t ON ass.AvailableSlotsID = t.AvailableSlotsID
+	JOIN Psychologists p ON ass.PsychologistID = p.PsychologistID
+	JOIN Users u ON p.UserID = u.UserID
+	WHERE t.Status = 'Available';
+
 -- Query to find all available slots for all psychologists and their names
-SELECT ass.AvailableSlotsID, t.SlotDate, t.SlotTime, p.PsychologistID, u.FullName
+SELECT ass.AvailableSlotsID, t.SlotDate, t.SlotTime, a.AppointmentID, a.StudentID, p.PsychologistID, u.FullName
 FROM AvailableSlots ass
 JOIN TimeSlots t ON ass.AvailableSlotsID = t.AvailableSlotsID
+JOIN Appointments a ON t.TimeSlotsID = a.SlotTime
 JOIN Psychologists p ON ass.PsychologistID = p.PsychologistID
-JOIN Users u ON p.UserID = u.UserID
-WHERE t.Status = 'Available';
+JOIN Users u ON p.UserID = u.UserID;
+
 
 -- Query to find all psychologists and their details
 SELECT p.PsychologistID, p.FullName, p.Specialization, p.YearsOfExperience, p.Status
