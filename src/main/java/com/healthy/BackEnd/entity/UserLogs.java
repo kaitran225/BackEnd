@@ -13,16 +13,16 @@ public class UserLogs {
     
     @Id
     @Column(name = "LogID", length = 36)
-    private String LogID;
+    private String logID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "LoginTime", updatable = false)
-    private LocalDateTime LoginTime;
+    private LocalDateTime loginTime;
 
     @Column(name = "IPAddress", length = 50)
-    private String IPAddress;
+    private String ipAddress;
 
     @ManyToOne
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
@@ -30,6 +30,6 @@ public class UserLogs {
 
     @PrePersist
     protected void onCreate() {
-        LoginTime = LocalDateTime.now();
+        loginTime = LocalDateTime.now();
     }
 } 

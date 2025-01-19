@@ -13,38 +13,38 @@ public class Notifications {
     
     @Id
     @Column(name = "NotificationID", length = 36)
-    private String NotificationID;
+    private String notificationID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "Title", length = 255, nullable = false)
-    private String Title;
+    private String title;
 
     @Column(name = "Message", columnDefinition = "TEXT", nullable = false)
-    private String Message;
+    private String message;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", nullable = false, columnDefinition = "ENUM('Appointment', 'Survey', 'Program', 'Done')")
-    private Type Type;
+    private Type type;
 
     @Column(name = "IsRead")
-    private Boolean IsRead;
+    private Boolean isRead;
 
     @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
 
     public Notifications() {
-        IsRead = false;
+        isRead = false;
     }
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 
     public enum Type {

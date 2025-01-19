@@ -13,19 +13,19 @@ public class Blog {
     
     @Id
     @Column(name = "BlogID", length = 36)
-    private String BlogID;
+    private String blogID;
 
     @Column(name = "Title", length = 100)
-    private String Title;
+    private String title;
 
     @Column(name = "CreatedBy", length = 36)
-    private String CreatedBy;
+    private String createdBy;
 
     @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "Content", columnDefinition = "TEXT")
-    private String Content;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
@@ -33,6 +33,6 @@ public class Blog {
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 } 
