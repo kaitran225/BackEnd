@@ -3,6 +3,7 @@ package com.healthy.BackEnd.init;
 import com.healthy.BackEnd.entity.*;
 import com.healthy.BackEnd.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Service
-public class DataInitializer {
+@Component
+public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
@@ -69,7 +71,7 @@ public class DataInitializer {
     @Autowired
     private CategoriesRepository categoryRepository;
 
-    public void initialize(){
+    private void initialize(){
         Users admin = new Users("U000", "admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER);
         userRepository.save(admin);
 
@@ -339,4 +341,9 @@ public class DataInitializer {
         Notifications notification2 = new Notifications("NOT002", user2.getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey);
         notificationRepository.save(notification2);
     }
-} 
+
+    @Override
+    public void run(String... args) throws Exception {
+        this.initialize();
+    }
+}
