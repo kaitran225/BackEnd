@@ -1,3 +1,4 @@
+USE SWP391Healthy;
  -- Query to select all data from Users table
 SELECT * FROM Users;
 
