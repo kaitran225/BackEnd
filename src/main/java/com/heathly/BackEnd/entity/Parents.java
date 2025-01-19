@@ -11,20 +11,20 @@ import lombok.Setter;
 public class Parents {
     
     @Id
-    @Column(name = "ParentID", length = 36)
-    private String ParentID;
+    @Column(name = "ParentID", length = 36, nullable = false)
+    private String parentID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "ChildID", length = 36)
-    private String ChildID;
+    private String childID;
 
-    @ManyToOne
-    @JoinColumn(name = "UserID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    @ManyToOne
-    @JoinColumn(name = "ChildID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ChildID", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students child;
 } 

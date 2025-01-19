@@ -12,39 +12,45 @@ import java.time.LocalDateTime;
 public class Surveys {
     
     @Id
-    @Column(name = "SurveyID", length = 36)
-    private String SurveyID;
+    @Column(name = "SurveyID", length = 36, nullable = false)
+    private String surveyID;
 
     @Column(name = "SurveyName", length = 100, nullable = false)
-    private String SurveyName;
+    private String surveyName;
 
     @Column(name = "Description", columnDefinition = "TEXT")
-    private String Description;
+    private String description;
 
     @Column(name = "CategoryID", length = 36)
-    private String CategoryID;
+    private String categoryID;
 
     @Column(name = "CreatedBy", length = 36, nullable = false)
-    private String CreatedBy;
+    private String createdBy;
 
-    @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Unfinished', 'Finished', 'Cancelled')")
-    private Status Status = Status.Unfinished;
+    @Column(name = "Status", columnDefinition = "ENUM('Unfinished', 'Finished', 'Cancelled')", nullable = false)
+    private Status status;
 
-    @ManyToOne
-    @JoinColumn(name = "CategoryID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CategoryID", referencedColumnName = "CategoryID", insertable = false, updatable = false)
     private Categories category;
 
-    @ManyToOne
-    @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CreatedBy", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users createdByUser;
+
+    public Surveys() {
+        status = Status.Unfinished;
+    }
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     public enum Status {

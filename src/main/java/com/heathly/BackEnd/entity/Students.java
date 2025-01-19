@@ -11,27 +11,27 @@ import lombok.Setter;
 public class Students {
     
     @Id
-    @Column(name = "StudentID", length = 36)
-    private String StudentID;
+    @Column(name = "StudentID", length = 36, nullable = false)
+    private String studentID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "Grade")
-    private Integer Grade;
+    private Integer grade;
 
     @Column(name = "Class", length = 20)
-    private String Class;
+    private String className;
 
     @Column(name = "SchoolName", length = 100)
-    private String SchoolName;
+    private String schoolName;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Gender", columnDefinition = "ENUM('Male', 'Female', 'Other')")
-    private Gender Gender;
+    private Gender gender;
 
-    @ManyToOne
-    @JoinColumn(name = "UserID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
     public enum Gender {

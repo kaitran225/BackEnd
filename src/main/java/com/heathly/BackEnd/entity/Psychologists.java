@@ -11,25 +11,29 @@ import lombok.Setter;
 public class Psychologists {
     
     @Id
-    @Column(name = "PsychologistID", length = 36)
-    private String PsychologistID;
+    @Column(name = "PsychologistID", length = 36, nullable = false)
+    private String psychologistID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "Specialization", length = 100)
-    private String Specialization;
+    private String specialization;
 
     @Column(name = "YearsOfExperience")
-    private Integer YearsOfExperience;
+    private Integer yearsOfExperience;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Active', 'On Leave', 'Inactive')")
-    private Status Status = Status.Active;
+    @Column(name = "Status", columnDefinition = "ENUM('Active', 'On Leave', 'Inactive')", nullable = false)
+    private Status status;
 
-    @ManyToOne
-    @JoinColumn(name = "UserID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
+
+    public Psychologists() {
+        status = Status.Active;
+    }
 
     public enum Status {
         Active,

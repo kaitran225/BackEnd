@@ -12,24 +12,24 @@ import java.time.LocalTime;
 public class ProgramSchedule {
     
     @Id
-    @Column(name = "ScheduleID", length = 36)
-    private String ScheduleID;
+    @Column(name = "ScheduleID", length = 36, nullable = false)
+    private String scheduleID;
 
     @Column(name = "ProgramID", length = 36, nullable = false)
-    private String ProgramID;
+    private String programID;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "DayOfWeek", columnDefinition = "ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')")
-    private DayOfWeek DayOfWeek;
+    @Column(name = "DayOfWeek", columnDefinition = "ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')", nullable = false)
+    private DayOfWeek dayOfWeek;
 
     @Column(name = "StartTime")
-    private LocalTime StartTime;
+    private LocalTime startTime;
 
     @Column(name = "EndTime")
-    private LocalTime EndTime;
+    private LocalTime endTime;
 
-    @ManyToOne
-    @JoinColumn(name = "ProgramID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
     public enum DayOfWeek {

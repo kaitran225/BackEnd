@@ -10,54 +10,56 @@ import java.time.LocalDateTime;
 @Setter
 @Table(name = "Users")
 public class Users {
-    
-    @Id
-    @Column(name = "UserID", length = 36)
-    private String UserID;
 
-    @Column(name = "Username", length = 50, nullable = false, unique = true) // Chỉ định rõ tên cột
+    @Id
+    @Column(name = "UserID", length = 36, nullable = false)
+    private String userId;
+
+    @Column(name = "Username", length = 50, nullable = false, unique = true)
     private String username;
 
-    @Column(name = "PasswordHash", length = 255, nullable = false, columnDefinition = "VARCHAR(255)")
-    private String PasswordHash;
+    @Column(name = "PasswordHash", length = 255, nullable = false)
+    private String passwordHash;
 
     @Column(name = "FullName", length = 100, nullable = false)
-    private String FullName;
+    private String fullName;
 
     @Column(name = "Email", length = 100, unique = true)
-    private String Email;
+    private String email;
 
     @Column(name = "PhoneNumber", length = 15)
-    private String PhoneNumber;
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Role", nullable = false, columnDefinition = "ENUM('Student', 'Parent', 'Psychologist', 'Manager', 'Staff')")
-    private UserRole Role;
+    @Column(name = "Role", nullable = false)
+    private UserRole role;
 
-    @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "UpdatedAt")
-    private LocalDateTime UpdatedAt;
+    @Column(name = "UpdatedAt", nullable = false)
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
-        UpdatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-
-    // Enum for Role
     public enum UserRole {
-        Student,
-        Parent,
-        Psychologist,
-        Manager,
-        Staff
+        STUDENT,
+        PARENT,
+        PSYCHOLOGIST,
+        MANAGER,
+        STAFF
     }
 }

@@ -11,19 +11,19 @@ import lombok.Setter;
 public class Answers {
     
     @Id
-    @Column(name = "AnswerID", length = 36)
-    private String AnswerID;
+    @Column(name = "AnswerID", length = 36, nullable = false)
+    private String answerID;
 
     @Column(name = "QuestionID", length = 36, nullable = false)
-    private String QuestionID;
+    private String questionID;
 
     @Column(name = "Answer", columnDefinition = "TEXT", nullable = false)
-    private String Answer;
+    private String answer;
 
     @Column(name = "Score")
-    private Integer Score;
+    private Integer score;
 
-    @ManyToOne
-    @JoinColumn(name = "QuestionID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "QuestionID", referencedColumnName = "QuestionID", insertable = false, updatable = false)
     private SurveyQuestions question;
 } 

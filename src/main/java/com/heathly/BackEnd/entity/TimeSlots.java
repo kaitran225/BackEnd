@@ -14,44 +14,52 @@ import java.time.LocalTime;
 public class TimeSlots {
     
     @Id
-    @Column(name = "TimeSlotsID", length = 36)
-    private String TimeSlotsID;
+    @Column(name = "TimeSlotsID", length = 36, nullable = false)
+    private String timeSlotsID;
 
-    @Column(name = "PsychologistID", length = 36)
-    private String PsychologistID;
+    @Column(name = "PsychologistID", length = 36, nullable = false)
+    private String psychologistID;
 
     @Column(name = "SlotDate", nullable = false)
-    private LocalDate SlotDate;
+    private LocalDate slotDate;
 
     @Column(name = "StartTime", nullable = false)
-    private LocalTime StartTime;
+    private LocalTime startTime;
 
     @Column(name = "EndTime", nullable = false)
-    private LocalTime EndTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Available', 'Booked')")
-    private Status Status = Status.Available;
+    @Column(name = "Status", columnDefinition = "ENUM('Available', 'Booked')", nullable = false)
+    private Status status;
 
-    @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "UpdatedAt")
-    private LocalDateTime UpdatedAt;
+    @Column(name = "UpdatedAt", nullable = false)
+    private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PsychologistID", referencedColumnName = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
+
+    public TimeSlots() {
+        status = Status.Available;
+    }
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
-        UpdatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     public enum Status {

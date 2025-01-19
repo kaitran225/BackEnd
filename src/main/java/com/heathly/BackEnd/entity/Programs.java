@@ -12,42 +12,48 @@ import java.time.LocalDateTime;
 public class Programs {
     
     @Id
-    @Column(name = "ProgramID", length = 36)
-    private String ProgramID;
+    @Column(name = "ProgramID", length = 36, nullable = false)
+    private String programID;
 
     @Column(name = "ProgramName", length = 100, nullable = false)
-    private String ProgramName;
+    private String programName;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Category", nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
-    private Category Category;
+    private Category category;
 
     @Column(name = "Description", columnDefinition = "TEXT")
-    private String Description;
+    private String description;
 
     @Column(name = "NumberParticipants")
-    private Integer NumberParticipants;
+    private Integer numberParticipants;
 
     @Column(name = "Duration")
-    private Integer Duration;
+    private Integer duration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Activate', 'Inactive')")
-    private Status Status = Status.Activate;
+    @Column(name = "Status", columnDefinition = "ENUM('Activate', 'Inactive')", nullable = false)
+    private Status status;
 
-    @Column(name = "CreatedAt", updatable = false)
-    private LocalDateTime CreatedAt;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "ManagedByStaffID", length = 36)
-    private String ManagedByStaffID;
+    private String managedByStaffID;
 
-    @ManyToOne
-    @JoinColumn(name = "ManagedByStaffID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ManagedByStaffID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users managedByStaff;
+
+    public Programs() {
+        status = Status.Activate;
+    }
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     public enum Category {

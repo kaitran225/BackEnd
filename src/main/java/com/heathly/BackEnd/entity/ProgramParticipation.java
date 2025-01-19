@@ -12,32 +12,36 @@ import java.time.LocalDate;
 public class ProgramParticipation {
     
     @Id
-    @Column(name = "ParticipationID", length = 36)
-    private String ParticipationID;
+    @Column(name = "ParticipationID", length = 36, nullable = false)
+    private String participationID;
 
     @Column(name = "StudentID", length = 36, nullable = false)
-    private String StudentID;
+    private String studentID;
 
     @Column(name = "ProgramID", length = 36, nullable = false)
-    private String ProgramID;
+    private String programID;
 
     @Column(name = "StartDate")
-    private LocalDate StartDate;
+    private LocalDate startDate;
 
     @Column(name = "EndDate")
-    private LocalDate EndDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('In Progress', 'Completed', 'Cancelled')")
-    private Status Status = Status.InProgress;
+    @Column(name = "Status", columnDefinition = "ENUM('In Progress', 'Completed', 'Cancelled')", nullable = false)
+    private Status statusz;
 
-    @ManyToOne
-    @JoinColumn(name = "StudentID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
 
-    @ManyToOne
-    @JoinColumn(name = "ProgramID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
+
+    public ProgramParticipation() {
+        status = Status.InProgress;
+    }
 
     public enum Status {
         InProgress,
