@@ -1,35 +1,42 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "UserLogs")
 public class UserLogs {
     
     @Id
     @Column(name = "LogID", length = 36)
-    private String LogID;
+    private String logID;
 
     @Column(name = "UserID", length = 36, nullable = false)
-    private String UserID;
+    private String userID;
 
     @Column(name = "LoginTime", updatable = false)
-    private LocalDateTime LoginTime;
+    private LocalDateTime loginTime;
 
     @Column(name = "IPAddress", length = 50)
-    private String IPAddress;
+    private String ipAddress;
 
     @ManyToOne
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
 
+    public UserLogs(String l001, String userId, String s) {
+    }
+
     @PrePersist
     protected void onCreate() {
-        LoginTime = LocalDateTime.now();
+        loginTime = LocalDateTime.now();
     }
 } 

@@ -1,13 +1,17 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "ProgramSchedule")
 public class ProgramSchedule {
     
@@ -18,27 +22,19 @@ public class ProgramSchedule {
     @Column(name = "ProgramID", length = 36, nullable = false)
     private String programID;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "DayOfWeek", columnDefinition = "ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')", nullable = false)
-    private DayOfWeek dayOfWeek;
+    @Column(name = "DayOfWeek", length = 10, nullable = false)
+    private String dayOfWeek;
 
-    @Column(name = "StartTime")
+    @Column(name = "StartTime", nullable = false)
     private LocalTime startTime;
 
-    @Column(name = "EndTime")
+    @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
-    public enum DayOfWeek {
-        Monday,
-        Tuesday,
-        Wednesday,
-        Thursday,
-        Friday,
-        Saturday,
-        Sunday
+    public ProgramSchedule(String sch001, String programID, String monday, LocalTime parse, LocalTime parse1) {
     }
 } 

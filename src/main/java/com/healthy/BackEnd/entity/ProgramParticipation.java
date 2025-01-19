@@ -1,13 +1,16 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "ProgramParticipation")
 public class ProgramParticipation {
     
@@ -21,10 +24,10 @@ public class ProgramParticipation {
     @Column(name = "ProgramID", length = 36, nullable = false)
     private String programID;
 
-    @Column(name = "StartDate")
+    @Column(name = "StartDate", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "EndDate")
+    @Column(name = "EndDate", nullable = false)
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +42,11 @@ public class ProgramParticipation {
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
-    public ProgramParticipation() {status = Status.InProgress;
+    public ProgramParticipation() {
+        status = Status.InProgress;
+    }
+
+    public ProgramParticipation(String pp001, String studentID, String programID, LocalDate parse, LocalDate parse1) {
     }
 
     public enum Status {

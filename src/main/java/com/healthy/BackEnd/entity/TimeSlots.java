@@ -1,7 +1,9 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import java.time.LocalTime;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "TimeSlots")
 public class TimeSlots {
     
@@ -45,6 +48,9 @@ public class TimeSlots {
 
     public TimeSlots() {
         status = Status.Available;
+    }
+
+    public TimeSlots(String ts150601, String psychologistID, LocalDate parse, LocalTime parse1, LocalTime parse2, Status status) {
     }
 
     @PrePersist
