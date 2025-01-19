@@ -39,6 +39,7 @@ public class BackEndApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BackEndApplication.class, args);
+		//Comment cái method này nếu chạy có lỗi
 		initDatabase();
 	}
 }
