@@ -1,10 +1,10 @@
 
 // AuthenticationService.java
-package com.heathly.BackEnd.Service;
+package com.healthy.BackEnd.Service;
 
-import com.heathly.BackEnd.dto.LoginDTO;
-import com.heathly.BackEnd.entity.Users;
-import com.heathly.BackEnd.repository.AuthenticationRepo;
+import com.healthy.BackEnd.dto.LoginDTO;
+import com.healthy.BackEnd.entity.Users;
+import com.healthy.BackEnd.repository.AuthenticationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

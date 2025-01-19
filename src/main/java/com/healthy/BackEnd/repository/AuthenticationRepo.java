@@ -1,6 +1,6 @@
-package com.heathly.BackEnd.repository;
+package com.healthy.BackEnd.repository;
 
-import com.heathly.BackEnd.entity.Users;
+import com.healthy.BackEnd.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AuthenticationRepo extends JpaRepository<Users, String> {

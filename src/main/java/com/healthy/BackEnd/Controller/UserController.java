@@ -1,9 +1,9 @@
-package com.heathly.BackEnd.Controller;
+package com.healthy.BackEnd.Controller;
 
 
-import com.heathly.BackEnd.Service.AuthenticationService;
-import com.heathly.BackEnd.dto.LoginDTO;
-import com.heathly.BackEnd.entity.Users;
+import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.dto.LoginDTO;
+import com.healthy.BackEnd.entity.Users;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ public class UserController {
     @Autowired
     AuthenticationService authenticationService;
 
-    @PostMapping("register")
-    public ResponseEntity register (@Valid @RequestBody Users users) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register (@Valid @RequestBody Users users) {
         Users newAccount = authenticationService.register(users);
         return ResponseEntity.ok(newAccount);
     }

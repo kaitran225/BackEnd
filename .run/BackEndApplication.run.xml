@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="BackEndApplication" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.healthy.BackEnd.BackEndApplication" />
+    <module name="BackEnd" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

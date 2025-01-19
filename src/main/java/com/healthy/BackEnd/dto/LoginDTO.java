@@ -1,4 +1,4 @@
-package com.heathly.BackEnd.dto;
+package com.healthy.BackEnd.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

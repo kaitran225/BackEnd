@@ -1,4 +1,4 @@
-package com.heathly.BackEnd;
+package com.healthy.BackEnd;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
