@@ -38,7 +38,13 @@ public class Students {
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    public Students(String s001, String userId, int i, String a, String exampleHighSchool, Gender gender) {
+    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Gender gender) {
+        this.studentID = studentID;
+        this.userID = userID;
+        this.grade = grade;
+        this.className = className;
+        this.schoolName = schoolName;
+        this.gender = gender;
     }
 
     public enum Gender {

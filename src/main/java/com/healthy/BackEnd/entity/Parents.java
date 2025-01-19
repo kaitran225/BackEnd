@@ -32,6 +32,9 @@ public class Parents {
     @JoinColumn(name = "ChildID", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students child;
 
-    public Parents(String p001, String userId, String studentID) {
+    public Parents(String parentID, String userID, String childID) {
+        this.parentID = parentID;
+        this.userID = userID;
+        this.childID = childID;
     }
 } 

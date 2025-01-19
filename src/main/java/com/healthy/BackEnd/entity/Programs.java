@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Programs")
 public class Programs {
@@ -22,7 +23,7 @@ public class Programs {
     private String programName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Category", nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
+    @Column(name = "Category",  length = 50, nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
     private Category category;
 
     @Column(name = "Description", columnDefinition = "TEXT")
@@ -35,7 +36,7 @@ public class Programs {
     private Integer duration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Activate', 'Inactive')", nullable = false)
+    @Column(name = "Status", length = 50, columnDefinition = "ENUM('Activate', 'Inactive')", nullable = false)
     private Status status;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
@@ -48,11 +49,15 @@ public class Programs {
     @JoinColumn(name = "ManagedByStaffID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users managedByStaff;
 
-    public Programs() {
-        status = Status.Activate;
-    }
-
-    public Programs(String prg001, String stressManagement, Category category, String programToHelpManageStress, int i, int i1, String u004) {
+    public Programs(String programID, String programName, Category category, String description, Integer numberParticipants, Integer duration, Status status, String managedByStaffID) {
+        this.programID = programID;
+        this.programName = programName;
+        this.category = category;
+        this.description = description;
+        this.numberParticipants = numberParticipants;
+        this.duration = duration;
+        this.managedByStaffID = managedByStaffID;
+        this.status = status;
     }
 
     @PrePersist

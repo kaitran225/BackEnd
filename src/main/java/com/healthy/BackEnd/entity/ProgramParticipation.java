@@ -5,12 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
+
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "ProgramParticipation")
 public class ProgramParticipation {
     
@@ -31,7 +34,7 @@ public class ProgramParticipation {
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('In Progress', 'Completed', 'Cancelled')", nullable = false)
+    @Column(name = "Status", length = 50, columnDefinition = "ENUM('InProgress', 'Completed', 'Cancelled')", nullable = false)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,11 +45,13 @@ public class ProgramParticipation {
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
-    public ProgramParticipation() {
-        status = Status.InProgress;
-    }
-
-    public ProgramParticipation(String pp001, String studentID, String programID, LocalDate parse, LocalDate parse1) {
+    public ProgramParticipation(String participationID, String studentID, String programID, Status status, LocalDate startDate, LocalDate endDate) {
+        this.participationID = participationID;
+        this.studentID = studentID;
+        this.programID = programID;
+        this.status = status;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public enum Status {

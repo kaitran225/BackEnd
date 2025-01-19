@@ -39,6 +39,10 @@ public class SurveyResults {
     @JoinColumn(name = "AnswerID", referencedColumnName = "AnswerID", insertable = false, updatable = false)
     private Answers answer;
 
-    public SurveyResults(String r001, String studentID, String questionID, String answerID) {
+    public SurveyResults(String resultID, String studentID, String questionID, String answerID) {
+        this.resultID = resultID;
+        this.studentID = studentID;
+        this.questionID = questionID;
+        this.answerID = answerID;
     }
 } 

@@ -72,8 +72,7 @@ public class DataInitializer implements CommandLineRunner {
     private CategoriesRepository categoryRepository;
 
     private void initialize(){
-        Users admin = new Users("U000", "admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER);
-        userRepository.save(admin);
+        userRepository.save(new Users("U000", "admin", "adminpass","Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER));
 
         Users user1 = new Users("U001", "john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT);
         userRepository.save(user1);
@@ -155,13 +154,13 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(timeSlot12);
 
         // Initialize Programs
-        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, "U004");
+        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4,Programs.Status.Activate,"U004");
         programRepository.save(program1);
 
-        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.SupportGroup, "Support group for individuals with anxiety", 15, 6, "U004");
+        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6,Programs.Status.Activate, "U004");
         programRepository.save(program2);
 
-        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, "U004");
+        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate,"U004");
         programRepository.save(program3);
 
         // Initialize Program Schedule
@@ -175,10 +174,10 @@ public class DataInitializer implements CommandLineRunner {
         programScheduleRepository.save(schedule3);
 
         // Initialize Program Participation
-        ProgramParticipation participation1 = new ProgramParticipation("PP001", student1.getStudentID(), program1.getProgramID(), LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30"));
+        ProgramParticipation participation1 = new ProgramParticipation("PP001", student1.getStudentID(), program1.getProgramID(), ProgramParticipation.Status.Completed ,LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30"));
         programParticipationRepository.save(participation1);
 
-        ProgramParticipation participation2 = new ProgramParticipation("PP002", student2.getStudentID(), program2.getProgramID(), LocalDate.parse("2023-07-01"), LocalDate.parse("2023-08-15"));
+        ProgramParticipation participation2 = new ProgramParticipation("PP002", student2.getStudentID(), program2.getProgramID(), ProgramParticipation.Status.InProgress, LocalDate.parse("2023-07-01"), LocalDate.parse("2023-08-15"));
         programParticipationRepository.save(participation2);
 
         // Initialize Categories
@@ -192,13 +191,13 @@ public class DataInitializer implements CommandLineRunner {
         categoryRepository.save(category3);
 
         // Initialize Surveys
-        Surveys survey1 = new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", category1.getCategoryID(), user3.getUserId());
+        Surveys survey1 = new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", category1.getCategoryID(), user3.getUserId(), Surveys.Status.Finished);
         surveyRepository.save(survey1);
 
-        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), user3.getUserId());
+        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), user3.getUserId(),Surveys.Status.Unfinished);
         surveyRepository.save(survey2);
 
-        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), user7.getUserId());
+        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), user7.getUserId(),Surveys.Status.Unfinished);
         surveyRepository.save(survey3);
 
         // Initialize Survey Questions

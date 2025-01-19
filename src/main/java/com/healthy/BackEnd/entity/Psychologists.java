@@ -3,7 +3,6 @@ package com.healthy.BackEnd.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -38,7 +37,12 @@ public class Psychologists {
         status = Status.Active;
     }
 
-    public Psychologists(String psy001, String userId, String childPsychology, int i, Status status) {
+    public Psychologists(String psychologistID, String userID, String specialization, Integer yearsOfExperience, Status status) {
+        this.psychologistID = psychologistID;
+        this.userID = userID;
+        this.specialization = specialization;
+        this.yearsOfExperience = yearsOfExperience;
+        this.status = status;
     }
 
     public enum Status {

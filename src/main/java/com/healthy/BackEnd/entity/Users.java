@@ -42,7 +42,14 @@ public class Users {
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    public Users(String u000, String admin, String adminpass, String adminUser, String mail, String number, UserRole userRole) {
+    public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole) {
+        this.userId = userId;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.role = userRole;
     }
 
     @PrePersist

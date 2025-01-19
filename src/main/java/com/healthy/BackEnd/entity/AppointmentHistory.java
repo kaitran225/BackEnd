@@ -47,7 +47,12 @@ public class AppointmentHistory {
     @JoinColumn(name = "ChangedBy", insertable = false, updatable = false)
     private Users changedByUser;
 
-    public AppointmentHistory(String h001, String appointmentID, Action action, Status status, String userId) {
+    public AppointmentHistory(String historyID, String appointmentID, Action action, Status status, String changedBy) {
+        this.historyID = historyID;
+        this.appointmentID = appointmentID;
+        this.action = action;
+        this.status = status;
+        this.changedBy = changedBy;
     }
 
     @PrePersist

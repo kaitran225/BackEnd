@@ -35,7 +35,11 @@ public class Blog {
     @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
     private Users createdByUser;
 
-    public Blog(String b001, String managingStress, String userId, String s) {
+    public Blog(String blogID, String title, String createdBy, String content) {
+        this.blogID = blogID;
+        this.title = title;
+        this.createdBy = createdBy;
+        this.content = content;
     }
 
     @PrePersist
