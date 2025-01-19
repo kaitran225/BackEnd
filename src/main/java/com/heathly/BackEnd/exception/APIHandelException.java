@@ -15,14 +15,14 @@ public class APIHandelException {
 
     // MethodArgumentNotValidException
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleBadRequestException (MethodArgumentNotValidException exception) {
+    public ResponseEntity<?> handleBadRequestException (MethodArgumentNotValidException exception) {
 
-        String messages ="";
+        StringBuilder messages = new StringBuilder();
 
         for(FieldError error: exception.getBindingResult().getFieldErrors()) {
-            messages += error.getDefaultMessage() + "\n";
+            messages.append(error.getDefaultMessage()).append("\n");
         }
 
-        return new ResponseEntity(messages, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(messages.toString(), HttpStatus.BAD_REQUEST);
     }
 }

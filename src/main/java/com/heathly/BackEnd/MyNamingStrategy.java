@@ -17,7 +17,8 @@ public class MyNamingStrategy implements PhysicalNamingStrategy {
 
     @Override
     public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment context) {
-        return new Identifier(name.getText().toUpperCase(), name.isQuoted());
+        String tableName = convertToPascalCase(name.getText());
+        return new Identifier(tableName, name.isQuoted());
     }
 
     @Override
@@ -27,6 +28,18 @@ public class MyNamingStrategy implements PhysicalNamingStrategy {
 
     @Override
     public Identifier toPhysicalColumnName(Identifier name, JdbcEnvironment context) {
-        return new Identifier(name.getText().toUpperCase(), name.isQuoted());
+        String columnName = convertToPascalCase(name.getText());
+        return new Identifier(columnName, name.isQuoted());
+    }
+
+    private String convertToPascalCase(String text) {
+        StringBuilder result = new StringBuilder();
+        for (String part : text.split("_")) {
+            if (!part.isEmpty()) {
+                result.append(part.substring(0, 1).toUpperCase());
+                result.append(part.substring(1).toLowerCase());
+            }
+        }
+        return result.toString();
     }
 }

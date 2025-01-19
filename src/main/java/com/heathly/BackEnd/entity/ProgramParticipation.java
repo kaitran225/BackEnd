@@ -39,8 +39,7 @@ public class ProgramParticipation {
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
-    public ProgramParticipation() {
-        status = Status.InProgress;
+    public ProgramParticipation() {status = Status.InProgress;
     }
 
     public enum Status {
