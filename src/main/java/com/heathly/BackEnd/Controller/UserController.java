@@ -18,8 +18,8 @@ public class UserController {
     @Autowired
     AuthenticationService authenticationService;
 
-    @PostMapping("register")
-    public ResponseEntity register (@Valid @RequestBody Users users) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register (@Valid @RequestBody Users users) {
         Users newAccount = authenticationService.register(users);
         return ResponseEntity.ok(newAccount);
     }

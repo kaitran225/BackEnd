@@ -29,7 +29,7 @@ public class ProgramParticipation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", columnDefinition = "ENUM('In Progress', 'Completed', 'Cancelled')", nullable = false)
-    private Status statusz;
+    private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)

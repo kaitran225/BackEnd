@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
+import static com.heathly.BackEnd.entity.Appointments.AppointmentType.Offline;
+import static com.heathly.BackEnd.entity.Appointments.Status.Scheduled;
+
 @Entity
 @Getter
 @Setter
@@ -57,8 +60,8 @@ public class Appointments {
     private Psychologists psychologist;
 
     public Appointments() {
-        Status = Status.Scheduled;
-        AppointmentType = AppointmentType.Offline;
+        Status = Scheduled;
+        AppointmentType = Offline;
     }
 
     @PrePersist
