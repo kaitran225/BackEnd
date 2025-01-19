@@ -1,6 +1,7 @@
 package com.healthy.BackEnd.Controller;
 
 import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.Service.UserService;
 import com.healthy.BackEnd.dto.LoginDTO;
 import com.healthy.BackEnd.entity.Appointments;
 import com.healthy.BackEnd.entity.Programs;
@@ -23,6 +24,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     UserRepository userRepository;
@@ -52,28 +56,33 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
     }
-
+    // Working but not tested
     @GetMapping("/users")
-    public List<Users> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<?> getAllUsers() {
+        boolean isEmpty = userService.isUserEmpty();
+        if(isEmpty) return ResponseEntity.status(500).body("No users found");
+        return ResponseEntity.ok(userRepository.findAll());
     }
-
+    // Working but not tested
     @GetMapping("/users/{userId}")
-    public Users getUserById(@PathVariable String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    public ResponseEntity<?> getUserById(@PathVariable String userId) {
+        if(!userRepository.existsById(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
+        return ResponseEntity.ok(userRepository.findById(userId));
     }
 
+    // Not done and not working
     @GetMapping("/users/{userId}/programs")
     public List<Programs> getProgramsByUserId(@PathVariable String userId) {
-        return programRepository.findByManagedByStaffID(userId);
+        return (List<Programs>) programRepository.findByManagedByStaffID(userId);
     }
 
+    // Not done and not working
     @GetMapping("/users/{userId}/appointments")
     public List<Appointments> getAppointmentsByUserId(@PathVariable String userId) {
         return appointmentRepository.findByStudentID(userId);
     }
 
+    // Not done and not working
     @GetMapping("/users/{userId}/surveys")
     public List<SurveyResults> getSurveyResultsByUserId(@PathVariable String userId) {
         return surveyResultRepository.findByStudentID(userId);
