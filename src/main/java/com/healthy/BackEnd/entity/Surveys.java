@@ -1,13 +1,16 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "Surveys")
 public class Surveys {
     
@@ -21,7 +24,7 @@ public class Surveys {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "CategoryID", length = 36)
+    @Column(name = "CategoryID", length = 36, nullable = false)
     private String categoryID;
 
     @Column(name = "CreatedBy", length = 36, nullable = false)
@@ -40,10 +43,13 @@ public class Surveys {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatedBy", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private Users createdByUser;
+    private Users creator;
 
     public Surveys() {
         status = Status.Unfinished;
+    }
+
+    public Surveys(String sur001, String stressSurvey, String surveyToAssessStressLevels, String categoryID, String userId) {
     }
 
     @PrePersist

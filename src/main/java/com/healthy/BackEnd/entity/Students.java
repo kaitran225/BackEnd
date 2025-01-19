@@ -1,12 +1,16 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Students")
 public class Students {
     
@@ -20,7 +24,7 @@ public class Students {
     @Column(name = "Grade")
     private Integer grade;
 
-    @Column(name = "Class", length = 20)
+    @Column(name = "ClassName", length = 20)
     private String className;
 
     @Column(name = "SchoolName", length = 100)
@@ -33,6 +37,9 @@ public class Students {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
+
+    public Students(String s001, String userId, int i, String a, String exampleHighSchool, Gender gender) {
+    }
 
     public enum Gender {
         Male,

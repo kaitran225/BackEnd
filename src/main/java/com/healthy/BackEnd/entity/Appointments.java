@@ -1,7 +1,9 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
@@ -11,6 +13,7 @@ import static com.healthy.BackEnd.entity.Appointments.Status.Scheduled;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "Appointments")
 public class Appointments {
     
@@ -62,6 +65,9 @@ public class Appointments {
     public Appointments() {
         status = Scheduled;
         appointmentType = Offline;
+    }
+
+    public Appointments(String app001, String timeSlotsID, String studentID, String psychologistID, String url) {
     }
 
     @PrePersist

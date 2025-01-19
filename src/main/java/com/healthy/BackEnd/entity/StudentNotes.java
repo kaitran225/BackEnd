@@ -1,13 +1,17 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "StudentNotes")
 public class StudentNotes {
     
@@ -38,6 +42,9 @@ public class StudentNotes {
     @ManyToOne
     @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
+
+    public StudentNotes(String n001, String studentID, String psychologistID, String studentShowsSignsOfStress, NoteType noteType) {
+    }
 
     @PrePersist
     protected void onCreate() {

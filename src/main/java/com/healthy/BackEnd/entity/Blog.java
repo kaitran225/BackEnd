@@ -1,13 +1,17 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Blog")
 public class Blog {
     
@@ -30,6 +34,9 @@ public class Blog {
     @ManyToOne
     @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
     private Users createdByUser;
+
+    public Blog(String b001, String managingStress, String userId, String s) {
+    }
 
     @PrePersist
     protected void onCreate() {

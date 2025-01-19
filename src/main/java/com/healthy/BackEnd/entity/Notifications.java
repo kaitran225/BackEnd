@@ -1,13 +1,16 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "Notifications")
 public class Notifications {
     
@@ -40,6 +43,9 @@ public class Notifications {
 
     public Notifications() {
         isRead = false;
+    }
+
+    public Notifications(String not001, String userId, String appointmentScheduled, String s, Type type) {
     }
 
     @PrePersist

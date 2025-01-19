@@ -1,13 +1,15 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Users")
 public class Users {
 
@@ -39,6 +41,9 @@ public class Users {
 
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
+
+    public Users(String u000, String admin, String adminpass, String adminUser, String mail, String number, UserRole userRole) {
+    }
 
     @PrePersist
     protected void onCreate() {

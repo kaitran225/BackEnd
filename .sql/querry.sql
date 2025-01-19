@@ -1,3 +1,5 @@
+DROP DATABASE SWP391Healthy;
+CREATE DATABASE SWP391Healthy;
 USE SWP391Healthy;
  -- Query to select all data from Users table
 SELECT * FROM Users;
@@ -65,23 +67,6 @@ FROM Appointments a
 JOIN TimeSlots t ON a.SlotTime = t.TimeSlotsID
 JOIN AvailableSlots ass ON t.AvailableSlotsID = a.AvailableSlotsID
 WHERE ass.PsychologistID = 'PSY001' AND t.Status = 'Available';
-
--- Query to find all available slots for all psychologists and their names
--- 1 : 8h - 8h30
--- 2 : 8h30 - 9h
--- 3 : 9h - 9h30
--- 4 : 9h30 - 10h
--- 5 : 10h - 10h30
--- 6 : 10h30 - 11h
--- 7 : 11h - 11h30
-
--- 8 : 13h - 13h30
--- 9 : 13h30 - 14h
--- 10 : 14h - 14h30
--- 11 : 14h30 - 15h
--- 12 : 15h - 15h30
--- 13 : 15h30 - 16h
--- 14 : 16h - 16h30
 
 SELECT t.SlotDate, t.StartTime, t.EndTime,
        CASE 

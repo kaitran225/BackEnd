@@ -1,13 +1,16 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "Programs")
 public class Programs {
     
@@ -47,6 +50,9 @@ public class Programs {
 
     public Programs() {
         status = Status.Activate;
+    }
+
+    public Programs(String prg001, String stressManagement, Category category, String programToHelpManageStress, int i, int i1, String u004) {
     }
 
     @PrePersist

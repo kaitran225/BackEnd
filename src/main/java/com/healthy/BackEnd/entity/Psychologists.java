@@ -1,12 +1,15 @@
 package com.healthy.BackEnd.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "Psychologists")
 public class Psychologists {
     
@@ -33,6 +36,9 @@ public class Psychologists {
 
     public Psychologists() {
         status = Status.Active;
+    }
+
+    public Psychologists(String psy001, String userId, String childPsychology, int i, Status status) {
     }
 
     public enum Status {
