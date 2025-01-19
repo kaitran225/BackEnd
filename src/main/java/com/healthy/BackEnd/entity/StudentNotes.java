@@ -43,7 +43,12 @@ public class StudentNotes {
     @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
 
-    public StudentNotes(String n001, String studentID, String psychologistID, String studentShowsSignsOfStress, NoteType noteType) {
+    public StudentNotes(String noteID, String studentID, String psychologistID, String noteText, NoteType noteType) {
+        this.noteID = noteID;
+        this.studentID = studentID;
+        this.psychologistID = psychologistID;
+        this.noteText = noteText;
+        this.noteType = noteType;
     }
 
     @PrePersist

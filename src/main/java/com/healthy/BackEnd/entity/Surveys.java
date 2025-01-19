@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Surveys")
 public class Surveys {
     
@@ -34,7 +35,7 @@ public class Surveys {
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Unfinished', 'Finished', 'Cancelled')", nullable = false)
+    @Column(name = "Status", length = 50, columnDefinition = "ENUM('Unfinished', 'Finished', 'Cancelled')", nullable = false)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,11 +46,13 @@ public class Surveys {
     @JoinColumn(name = "CreatedBy", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users creator;
 
-    public Surveys() {
-        status = Status.Unfinished;
-    }
-
-    public Surveys(String sur001, String stressSurvey, String surveyToAssessStressLevels, String categoryID, String userId) {
+    public Surveys(String surveyID, String surveyName, String description, String categoryID, String createdBy, Status status) {
+        this.surveyID = surveyID;
+        this.surveyName = surveyName;
+        this.description = description;
+        this.categoryID = categoryID;
+        this.createdBy = createdBy;
+        this.status = status;
     }
 
     @PrePersist

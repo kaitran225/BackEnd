@@ -3,7 +3,6 @@ package com.healthy.BackEnd.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,7 +49,13 @@ public class TimeSlots {
         status = Status.Available;
     }
 
-    public TimeSlots(String ts150601, String psychologistID, LocalDate parse, LocalTime parse1, LocalTime parse2, Status status) {
+    public TimeSlots(String timeSlotsID, String psychologistID, LocalDate slotDate, LocalTime startTime, LocalTime endTime, Status status) {
+        this.timeSlotsID = timeSlotsID;
+        this.psychologistID = psychologistID;
+        this.slotDate = slotDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
     }
 
     @PrePersist

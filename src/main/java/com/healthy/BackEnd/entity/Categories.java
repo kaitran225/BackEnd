@@ -9,7 +9,6 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Categories")
 public class Categories {
@@ -20,4 +19,9 @@ public class Categories {
 
     @Column(name = "CategoryName", length = 100, nullable = false)
     private String categoryName;
+
+    public Categories(String categoryID, String categoryName) {
+        this.categoryID = categoryID;
+        this.categoryName = categoryName;
+    }
 } 

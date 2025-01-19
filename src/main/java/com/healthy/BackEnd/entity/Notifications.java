@@ -3,7 +3,6 @@ package com.healthy.BackEnd.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
@@ -45,7 +44,12 @@ public class Notifications {
         isRead = false;
     }
 
-    public Notifications(String not001, String userId, String appointmentScheduled, String s, Type type) {
+    public Notifications(String notificationID, String userID, String title, String message, Type type) {
+        this.notificationID = notificationID;
+        this.userID = userID;
+        this.title = title;
+        this.message = message;
+        this.type = type;
     }
 
     @PrePersist

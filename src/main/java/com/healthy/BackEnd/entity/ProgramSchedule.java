@@ -35,6 +35,11 @@ public class ProgramSchedule {
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 
-    public ProgramSchedule(String sch001, String programID, String monday, LocalTime parse, LocalTime parse1) {
+    public ProgramSchedule(String scheduleID, String programID, String dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.scheduleID = scheduleID;
+        this.programID = programID;
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 } 

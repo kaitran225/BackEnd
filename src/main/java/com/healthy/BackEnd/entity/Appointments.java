@@ -3,7 +3,6 @@ package com.healthy.BackEnd.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
@@ -67,7 +66,12 @@ public class Appointments {
         appointmentType = Offline;
     }
 
-    public Appointments(String app001, String timeSlotsID, String studentID, String psychologistID, String url) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, String meetingLink) {
+        this.appointmentID = appointmentID;
+        this.timeSlotsID = timeSlotsID;
+        this.studentID = studentID;
+        this.psychologistID = psychologistID;
+        this.meetingLink = meetingLink;
     }
 
     @PrePersist

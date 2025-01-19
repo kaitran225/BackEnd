@@ -32,7 +32,10 @@ public class UserLogs {
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    public UserLogs(String l001, String userId, String s) {
+    public UserLogs(String logID, String userId, String ipAddress) {
+        this.logID = logID;
+        this.userID = userId;
+        this.ipAddress = ipAddress;
     }
 
     @PrePersist
