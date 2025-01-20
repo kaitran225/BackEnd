@@ -2,16 +2,14 @@ package com.healthy.BackEnd.Controller;
 
 import com.healthy.BackEnd.Service.AuthenticationService;
 import com.healthy.BackEnd.Service.UserService;
+import com.healthy.BackEnd.Service.ProgramService;
 import com.healthy.BackEnd.dto.LoginDTO;
 import com.healthy.BackEnd.entity.Appointments;
 import com.healthy.BackEnd.entity.Programs;
 import com.healthy.BackEnd.entity.SurveyResults;
 import com.healthy.BackEnd.entity.Users;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.AppointmentRepository;
-import com.healthy.BackEnd.repository.ProgramRepository;
 import com.healthy.BackEnd.repository.SurveyResultRepository;
-import com.healthy.BackEnd.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +27,7 @@ public class UserController {
     UserService userService;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    ProgramRepository programRepository;
+    ProgramService programService;
 
     @Autowired
     AppointmentRepository appointmentRepository;
@@ -56,24 +51,26 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
     }
+
     // Working but not tested
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
-        boolean isEmpty = userService.isUserEmpty();
+        boolean isEmpty = userService.isEmpty();
         if(isEmpty) return ResponseEntity.status(500).body("No users found");
-        return ResponseEntity.ok(userRepository.findAll());
+        return ResponseEntity.ok(userService.getAllUsers());
     }
+
     // Working but not tested
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        if(!userRepository.existsById(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
-        return ResponseEntity.ok(userRepository.findById(userId));
+        if(!userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     // Not done and not working
     @GetMapping("/users/{userId}/programs")
     public List<Programs> getProgramsByUserId(@PathVariable String userId) {
-        return (List<Programs>) programRepository.findByManagedByStaffID(userId);
+        return programService.getProgramsByUserId(userId);
     }
 
     // Not done and not working
@@ -87,16 +84,28 @@ public class UserController {
     public List<SurveyResults> getSurveyResultsByUserId(@PathVariable String userId) {
         return surveyResultRepository.findByStudentID(userId);
     }
-
+    // Not done and not working
     @PutMapping("/users/{userId}/edit")
-    public Users updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
+        if (!userService.isUserExist(userId)) {
+            return ResponseEntity.status(404).body("User not found with id: " + userId);
+        }
 
-        user.setFullName(updatedUser.getFullName());
-        user.setEmail(updatedUser.getEmail());
-        user.setPhoneNumber(updatedUser.getPhoneNumber());
+        Users existingUser = userService.getUserById(userId);
+        
+        // Check for changes before updating
+        if (!existingUser.getFullName().equals(updatedUser.getFullName()) ||
+            !existingUser.getEmail().equals(updatedUser.getEmail()) ||
+            !existingUser.getPhoneNumber().equals(updatedUser.getPhoneNumber())) {
+            
+            existingUser.setFullName(updatedUser.getFullName());
+            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
 
-        return userRepository.save(user);
+            Users updatedUserEntity = userService.editUser(existingUser);
+            return ResponseEntity.ok(updatedUserEntity);
+        }
+
+        return ResponseEntity.status(400).body("No changes detected to update.");
     }
 }
