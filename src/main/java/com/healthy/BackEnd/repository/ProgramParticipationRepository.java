@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProgramParticipationRepository extends JpaRepository<ProgramParticipation, String> {
     List<ProgramParticipation> findByStudentID(String studentID);
+    
     boolean existsByStudentID(String studentID);
 } 

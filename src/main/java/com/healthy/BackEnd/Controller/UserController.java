@@ -8,10 +8,12 @@ import com.healthy.BackEnd.entity.Appointments;
 import com.healthy.BackEnd.entity.Programs;
 import com.healthy.BackEnd.entity.SurveyResults;
 import com.healthy.BackEnd.entity.Users;
+import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.AppointmentRepository;
 import com.healthy.BackEnd.repository.SurveyResultRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,14 +65,21 @@ public class UserController {
     // Working but not tested
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        if(!userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
+        if(userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    // Not done and not working
+    // Working but not tested
     @GetMapping("/users/{userId}/programs")
-    public List<Programs> getProgramsByUserId(@PathVariable String userId) {
-        return programService.getProgramsByUserId(userId);
+    public ResponseEntity<?> getProgramsByUserId(@PathVariable String userId) {
+        try {
+            List<Programs> programs = programService.getProgramsByUserId(userId);
+            return ResponseEntity.ok(programs);  // Return 200 OK with programs
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
     }
 
     // Not done and not working
@@ -84,10 +93,11 @@ public class UserController {
     public List<SurveyResults> getSurveyResultsByUserId(@PathVariable String userId) {
         return surveyResultRepository.findByStudentID(userId);
     }
+
     // Not done and not working
     @PutMapping("/users/{userId}/edit")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        if (!userService.isUserExist(userId)) {
+        if (userService.isUserExist(userId)) {
             return ResponseEntity.status(404).body("User not found with id: " + userId);
         }
 

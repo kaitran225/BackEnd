@@ -7,11 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// xử lí exception của api
-// mỗi khi có lỗi validation thì chạy xử lí này
 @RestControllerAdvice
-public class APIHandelException {
-    // mỗi khi có lỗi validation thì chạy xử lý này
+public class APIHandelException extends RuntimeException {
 
     // MethodArgumentNotValidException
     @ExceptionHandler(MethodArgumentNotValidException.class)

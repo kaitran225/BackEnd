@@ -6,8 +6,6 @@ import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.ProgramParticipationRepository;
 import com.healthy.BackEnd.repository.ProgramRepository;
 
-import jakarta.persistence.AttributeOverride;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +33,26 @@ public class ProgramService {
     }
 
     public List<Programs> getProgramsByUserId(String userId) {
-        if(!userService.isUserExist(userId)) throw new ResourceNotFoundException("User not found with id: " + userId);
-        String studentId = studentService.getStudentByUserId(userId).getStudentID();
-        if(!studentService.isStudentExist(studentId)) throw new ResourceNotFoundException("Student not found with id: " + studentId  + " for user with id: " + userId);
-        List<ProgramParticipation> programParticipations = programParticipationRepository.findByStudentID(studentId);
-        if(programParticipations.isEmpty()) throw new ResourceNotFoundException("No programs found for student with id: " + studentId + " for user with id: " + userId);
-        List<Programs> programs = new ArrayList<>();
-        for(ProgramParticipation programParticipation : programParticipations) {
-            programs.add(programParticipation.getProgram());
+        if (!userService.isUserExist(userId)) {
+            throw new ResourceNotFoundException("User not found with id: " + userId);
         }
-        return programs;
+
+        String studentID = studentService
+                .getStudentByUserId(userId)
+                .getStudentID()
+                .trim();
+
+        List<ProgramParticipation> programParticipationList =
+                programParticipationRepository.findByStudentID(studentID);
+
+        if (programParticipationList.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No programs found for student with id: " + studentID + " for user with id: " + userId
+            );
+        }
+
+        return programParticipationList.stream()
+                .map(ProgramParticipation::getProgram)
+                .toList();
     }
 }

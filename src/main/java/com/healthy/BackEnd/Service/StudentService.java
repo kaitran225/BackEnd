@@ -30,12 +30,12 @@ public class StudentService {
     }
 
     public Students getStudentById(String id) {
-        if(!isStudentExist(id)) throw new ResourceNotFoundException("Student not found with id: " + id);
+        if(isStudentExist(id)) throw new ResourceNotFoundException("Student not found with id: " + id);
         return studentRepository.findById(id).orElse(null);
     }
 
     public Students getStudentByUserId(String userId) {
-        if(!isStudentExist(userId)) throw new ResourceNotFoundException("Student not found with userId: " + userId);
+        if(isStudentExist(userId)) throw new ResourceNotFoundException("Student not found with userId: " + userId);
         return studentRepository.findByUserID(userId);
     }
 }

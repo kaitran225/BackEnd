@@ -12,9 +12,9 @@ POST 	/api/auth/reset-password
 3. User
 
 GET /api/users
-GET /api/users/{userId}    			Chi tiết hồ sơ học sinh
+GET /api/users/{userId}    			    Chi tiết hồ sơ học sinh
 GET /api/users/{userId}/programs  		Lịch sử tham gia chương trình
-GET /api/users/{userId}/appointments 		Lịch sử tư vấn
+GET /api/users/{userId}/appointments 	Lịch sử tư vấn
 GET /api/users/{userId}/surveys  		Lịch sử khảo sát
 PUT /api/users/{userId/edit			
 
@@ -29,8 +29,8 @@ GET /api/content/blogs/{id}
 
 3. Appointment
 
-GET 	/api/psychologists          		Danh sách chuyên viên tư vấn
-GET 	/api/psychologists/{id}     		Chi tiết chuyên viên
+GET 	/api/psychologists          	Danh sách chuyên viên tư vấn
+GET 	/api/psychologists/{id}     	Chi tiết chuyên viên
 GET 	/api/appointments        		Danh sách lịch hẹn
 POST 	/api/appointments        		Tạo lịch hẹn mới
 PUT 	/api/appointments/{id}    		Cập nhật lịch hẹn
