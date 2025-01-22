@@ -65,7 +65,7 @@ public class UserController {
     // Working but not tested
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        if(userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
+        if(!userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
@@ -97,7 +97,7 @@ public class UserController {
     // Not done and not working
     @PutMapping("/users/{userId}/edit")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        if (userService.isUserExist(userId)) {
+        if (!userService.isUserExist(userId)) {
             return ResponseEntity.status(404).body("User not found with id: " + userId);
         }
 
