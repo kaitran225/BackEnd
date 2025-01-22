@@ -1,8 +1,8 @@
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17.0.1-jdk-slim
+FROM openjdk:21
 COPY --from=build /target/swagger-api-server.jar swagger-api-server.jar
 EXPOSE 8080
 
