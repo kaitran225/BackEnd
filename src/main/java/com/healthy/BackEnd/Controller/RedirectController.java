@@ -7,8 +7,4 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class RedirectController {
 
-    @RequestMapping("/**")
-    public RedirectView redirect() {
-        return new RedirectView("https://web.com");
-    }
 } 
