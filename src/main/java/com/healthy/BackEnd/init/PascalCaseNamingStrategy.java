@@ -1,4 +1,4 @@
-package com.healthy.BackEnd;
+package com.healthy.BackEnd.init;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
