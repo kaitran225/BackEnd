@@ -41,4 +41,5 @@ logs/
 HELP.md
 .DS_Store
 #Testing
+.sample/
 requirements.txt

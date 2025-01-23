@@ -89,7 +89,8 @@ SELECT t.SlotDate, t.StartTime, t.EndTime,
 FROM TimeSlots t
 JOIN Psychologists p ON t.PsychologistID = p.PsychologistID
 JOIN Users u ON p.UserID = u.UserID
-WHERE t.Status = 'Available';	
+JOIN AppointmentHistory ah ON ah.Changeby = p.UserID
+WHERE p.Status = '';	
 
 -- Query to find all available slots for all psychologists and their names
 SELECT ass.AvailableSlotsID, t.SlotDate, t.SlotTime, a.AppointmentID, a.StudentID, p.PsychologistID, u.FullName
@@ -99,6 +100,11 @@ JOIN Appointments a ON t.TimeSlotsID = a.SlotTime
 JOIN Psychologists p ON ass.PsychologistID = p.PsychologistID
 JOIN Users u ON p.UserID = u.UserID;
 
+USE SWP391Healthy;
+select u.UserID, ah.ChangedBy
+FROM Users u
+JOIN AppointmentHistory ah ON ah.ChangedBy = u.UserID
+WHERE ah.AppointmentID = "APP001";
 
 -- Query to find all psychologists and their details
 SELECT p.PsychologistID, p.FullName, p.Specialization, p.YearsOfExperience, p.Status

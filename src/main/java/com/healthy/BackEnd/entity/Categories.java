@@ -17,10 +17,14 @@ public class Categories {
     private String categoryID;
 
     @Column(name = "CategoryName", length = 100, nullable = false)
-    private String categoryName;
+    private MentalHealthCategory categoryName;
 
-    public Categories(String categoryID, String categoryName) {
+    public Categories(String categoryID, MentalHealthCategory categoryName) {
         this.categoryID = categoryID;
         this.categoryName = categoryName;
+    }
+
+    public enum MentalHealthCategory {
+        Stress, Anxiety, Depression
     }
 } 

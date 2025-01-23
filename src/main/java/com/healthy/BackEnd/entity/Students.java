@@ -30,26 +30,27 @@ public class Students {
     @Column(name = "SchoolName", length = 100)
     private String schoolName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Gender", columnDefinition = "ENUM('Male', 'Female', 'Other')")
-    private Gender gender;
+    @Column(name = "AnxietyScore")
+    private Integer anxietyScore;
+    
+    @Column(name = "StressScore")
+    private Integer stressScore;
+
+    @Column(name = "DepressionScore")
+    private Integer depressionScore;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Gender gender) {
+    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
         this.studentID = studentID;
         this.userID = userID;
         this.grade = grade;
         this.className = className;
         this.schoolName = schoolName;
-        this.gender = gender;
-    }
-
-    public enum Gender {
-        Male,
-        Female,
-        Other
+        this.depressionScore = depressionScore;
+        this.anxietyScore = anxietyScore;
+        this.stressScore = stressScore;
     }
 } 

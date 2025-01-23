@@ -35,6 +35,15 @@ public class StudentNotes {
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "AnxietyScore")
+    private Integer anxietyScore;
+    
+    @Column(name = "StressScore")
+    private Integer stressScore;
+
+    @Column(name = "DepressionScore")
+    private Integer depressionScore;
+
     @ManyToOne
     @JoinColumn(name = "StudentID", insertable = false, updatable = false)
     private Students student;
@@ -43,18 +52,22 @@ public class StudentNotes {
     @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
 
-    public StudentNotes(String noteID, String studentID, String psychologistID, String noteText, NoteType noteType) {
+    public StudentNotes(String noteID, String studentID, String psychologistID, String noteText, NoteType noteType, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
         this.noteID = noteID;
         this.studentID = studentID;
         this.psychologistID = psychologistID;
         this.noteText = noteText;
         this.noteType = noteType;
+        this.depressionScore = depressionScore;
+        this.anxietyScore = anxietyScore;
+        this.stressScore = stressScore;
     }
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
 
     public enum NoteType {
         General,

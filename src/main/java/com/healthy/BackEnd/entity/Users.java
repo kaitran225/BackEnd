@@ -36,13 +36,17 @@ public class Users {
     @Column(name = "Role", nullable = false)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Gender", columnDefinition = "ENUM('Male', 'Female', 'Other')")
+    private Gender gender;
+
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole) {
+    public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole, Gender gender) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
@@ -50,6 +54,7 @@ public class Users {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.role = userRole;
+        this.gender = gender;
     }
 
     @PrePersist
@@ -71,7 +76,12 @@ public class Users {
         STUDENT,
         PARENT,
         PSYCHOLOGIST,
-        MANAGER,
-        STAFF
+        MANAGER
+    }
+
+    public enum Gender {
+        Male,
+        Female,
+        Other
     }
 }
