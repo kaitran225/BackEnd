@@ -1,2 +1,5 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+src/main/resources/application.properties text merge=ours
+src/main/resources/application.properties text rebase=ours
+pom.xml text rebase=ours
