@@ -1,10 +1,11 @@
 package com.healthy.BackEnd.Service;
 
+import com.healthy.BackEnd.entity.Parents;
 import com.healthy.BackEnd.entity.Psychologists;
-import com.healthy.BackEnd.entity.StudentNotes;
 import com.healthy.BackEnd.entity.Students;
 import com.healthy.BackEnd.entity.Users;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
+import com.healthy.BackEnd.repository.ParentRepository;
 import com.healthy.BackEnd.repository.PsychologistRepository;
 import com.healthy.BackEnd.repository.StudentRepository;
 import com.healthy.BackEnd.repository.UserRepository;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.healthy.BackEnd.dto.UserDTO;
@@ -28,6 +28,8 @@ public class UserService {
 
     @Autowired
     private PsychologistRepository psychologistRepository;
+    @Autowired
+    private ParentRepository parentRepository;
 
     public boolean isEmpty() {
         return userRepository.findAll().isEmpty();
@@ -70,10 +72,26 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-
     public UserDTO convertToDTO(Users user) {
+        if(user.getRole() == Users.UserRole.PARENT) {
+            Parents  parents = parentRepository.findByUserID(user.getUserId());
+            Students student = studentRepository.findByStudentID(parents.getChildID());
+            StudentService studentService = new StudentService();
+            return UserDTO.builder()
+                    .userId(user.getUserId())
+                    .fullName(user.getFullName())
+                    .email(user.getEmail())
+                    .phone(user.getPhoneNumber())
+                    .gender(user.getGender().toString())
+                    .child(studentService.convertToChildDTO(student))
+                    .role(user.getRole().toString())
+                    .createdAt(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
+                    .build();
+        }
         if (user.getRole() == Users.UserRole.STUDENT) {
             Students student = studentRepository.findByUserID(user.getUserId());
+            StudentService studentService = new StudentService();
             return UserDTO.builder()
                     .userId(user.getUserId())
                     .fullName(user.getFullName())
@@ -83,13 +101,12 @@ public class UserService {
                     .role(user.getRole().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
-                    .anxietyScore(student.getAnxietyScore())
-                    .depressionScore(student.getDepressionScore())
-                    .stressScore(student.getStressScore())
+                    .student(studentService.convertToDTO(student))
                     .build();
         }
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
             Psychologists psychologist = psychologistRepository.findByUserID(user.getUserId());
+            PsychologistService psychologistService = new PsychologistService();
             return UserDTO.builder()
                     .userId(user.getUserId())
                     .fullName(user.getFullName())
@@ -99,8 +116,7 @@ public class UserService {
                     .gender(user.getGender().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
-                    .specialization(psychologist.getSpecialization())
-                    .yearsOfExperience(psychologist.getYearsOfExperience())
+                    .psychologist(psychologistService.convertToDTO(psychologist))
                     .build();
         }
         return UserDTO.builder()
