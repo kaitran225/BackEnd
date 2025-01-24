@@ -71,38 +71,38 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private CategoriesRepository categoryRepository;
 
-    private void initialize(){
-        userRepository.save(new Users("U000", "admin", "adminpass","Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER, Users.Gender.Male));
+    private void initialize() {
+        userRepository.save(new Users("U000", "admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER, Users.Gender.Male));
 
-        Users user1 = new Users("U001", "john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT,  Users.Gender.Male);
+        Users user1 = new Users("U001", "john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
         userRepository.save(user1);
 
-        Users user2 = new Users("U002", "jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT,  Users.Gender.Female);
+        Users user2 = new Users("U002", "jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT, Users.Gender.Female);
         userRepository.save(user2);
 
-        Users user3 = new Users("U003", "dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST,  Users.Gender.Male);
+        Users user3 = new Users("U003", "dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
         userRepository.save(user3);
 
-        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER,  Users.Gender.Female);
+        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER, Users.Gender.Female);
         userRepository.save(user4);
 
-        Users user5 = new Users("U005", "alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT,  Users.Gender.Female);
+        Users user5 = new Users("U005", "alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT, Users.Gender.Female);
         userRepository.save(user5);
 
-        Users user6 = new Users("U006", "john_jan", "password123", "John Jan", "jan@example.com", "1234567890", Users.UserRole.STUDENT,  Users.Gender.Male);
+        Users user6 = new Users("U006", "john_jan", "password123", "John Jan", "jan@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
         userRepository.save(user6);
 
-        Users user7 = new Users("U007", "dr_blue", "password789", "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST,  Users.Gender.Male);
+        Users user7 = new Users("U007", "dr_blue", "password789", "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
         userRepository.save(user7);
 
         // Initialize Students
         Students student1 = new Students("S001", user1.getUserId(), 10, "A", "Example High School", 5, 10, 2);
         studentRepository.save(student1);
 
-        Students student2 = new Students("S002", user5.getUserId(), 9, "B", "Example High School",3, 4, 7);
+        Students student2 = new Students("S002", user5.getUserId(), 9, "B", "Example High School", 3, 4, 7);
         studentRepository.save(student2);
 
-        Students student3 = new Students("S003", user6.getUserId(), 9, "A", "Example High School",2, 2, 1);
+        Students student3 = new Students("S003", user6.getUserId(), 9, "A", "Example High School", 2, 2, 1);
         studentRepository.save(student3);
 
         // Initialize Parents
@@ -157,13 +157,13 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(timeSlot12);
 
         // Initialize Programs
-        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4,Programs.Status.Activate,"U004");
+        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, "U004");
         programRepository.save(program1);
 
-        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6,Programs.Status.Activate, "U004");
+        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, "U004");
         programRepository.save(program2);
 
-        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate,"U004");
+        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, "U004");
         programRepository.save(program3);
 
         // Initialize Program Schedule
@@ -177,7 +177,7 @@ public class DataInitializer implements CommandLineRunner {
         programScheduleRepository.save(schedule3);
 
         // Initialize Program Participation
-        ProgramParticipation participation1 = new ProgramParticipation("PP001", student1.getStudentID(), program1.getProgramID(), ProgramParticipation.Status.Completed ,LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30"));
+        ProgramParticipation participation1 = new ProgramParticipation("PP001", student1.getStudentID(), program1.getProgramID(), ProgramParticipation.Status.Completed, LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30"));
         programParticipationRepository.save(participation1);
 
         ProgramParticipation participation2 = new ProgramParticipation("PP002", student2.getStudentID(), program2.getProgramID(), ProgramParticipation.Status.InProgress, LocalDate.parse("2023-07-01"), LocalDate.parse("2023-08-15"));
@@ -197,10 +197,10 @@ public class DataInitializer implements CommandLineRunner {
         Surveys survey1 = new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", category1.getCategoryID(), user3.getUserId(), Surveys.Status.Finished);
         surveyRepository.save(survey1);
 
-        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), user3.getUserId(),Surveys.Status.Unfinished);
+        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), user3.getUserId(), Surveys.Status.Unfinished);
         surveyRepository.save(survey2);
 
-        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), user7.getUserId(),Surveys.Status.Unfinished);
+        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), user7.getUserId(), Surveys.Status.Unfinished);
         surveyRepository.save(survey3);
 
         // Initialize Survey Questions
@@ -303,13 +303,13 @@ public class DataInitializer implements CommandLineRunner {
         surveyResultRepository.save(result2);
 
         // Initialize Student Notes
-        StudentNotes note1 = new StudentNotes("N001", student1.getStudentID(), psychologist1.getPsychologistID(), "Student shows signs of stress", StudentNotes.NoteType.General,2,5,7);
+        StudentNotes note1 = new StudentNotes("N001", student1.getStudentID(), psychologist1.getPsychologistID(), "Student shows signs of stress", StudentNotes.NoteType.General, 2, 5, 7);
         studentNoteRepository.save(note1);
 
-        StudentNotes note2 = new StudentNotes("N002", student2.getStudentID(), psychologist2.getPsychologistID(), "Student exhibits anxiety symptoms", StudentNotes.NoteType.Behavior,3,2,5);
+        StudentNotes note2 = new StudentNotes("N002", student2.getStudentID(), psychologist2.getPsychologistID(), "Student exhibits anxiety symptoms", StudentNotes.NoteType.Behavior, 3, 2, 5);
         studentNoteRepository.save(note2);
 
-        StudentNotes note3 = new StudentNotes("N003", student3.getStudentID(), psychologist1.getPsychologistID(), "Student behavior is normal", StudentNotes.NoteType.Behavior,1,1,1);
+        StudentNotes note3 = new StudentNotes("N003", student3.getStudentID(), psychologist1.getPsychologistID(), "Student behavior is normal", StudentNotes.NoteType.Behavior, 1, 1, 1);
         studentNoteRepository.save(note3);
 
         // Initialize User Logs
@@ -351,7 +351,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            if(userRepository.count() != 0){
+            if (userRepository.count() != 0) {
                 return;
             }
             this.initialize();
