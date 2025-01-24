@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "id": "1",
+      "title": "Depression Assessment Test",
+      "description": "A comprehensive screening tool for depression symptoms",
+      "duration": "15-20 minutes",
+      "questions": 9,
+      "category": "Depression",
+      "status": "unfinished",
+      "detailedDescription": "This test helps identify symptoms of depression and their severity. It uses standardized questions based on PHQ-9 to assess your emotional well-being over the past two weeks."
+    },
+    {
+      "id": "2",
+      "title": "Anxiety Screening Test",
+      "description": "Quick assessment for anxiety levels",
+      "duration": "10-15 minutes",
+      "questions": 7,
+      "category": "Anxiety",
+      "status": "finished",
+      "detailedDescription": "A screening tool based on GAD-7 designed to measure anxiety levels and identify potential anxiety disorders. The test evaluates both physical and psychological symptoms."
+    },
+    {
+      "id": "3",
+      "title": "Stress Level Assessment",
+      "description": "Evaluate your current stress levels and coping mechanisms",
+      "duration": "10-12 minutes",
+      "questions": 9,
+      "category": "Stress",
+      "status": "unfinished",
+      "detailedDescription": "Based on the PSS (Perceived Stress Scale), this assessment helps identify your current stress levels and provides insights into your stress management capabilities."
+    }
+  ]
+}
