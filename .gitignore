@@ -28,6 +28,7 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+-.sample/
 
 ### VS Code ###
 .vscode/
@@ -41,5 +42,4 @@ logs/
 HELP.md
 .DS_Store
 #Testing
-.sample/
 requirements.txt
