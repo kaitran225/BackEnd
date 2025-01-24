@@ -83,7 +83,7 @@ public class UserService {
                     .email(user.getEmail())
                     .phone(user.getPhoneNumber())
                     .gender(user.getGender().toString())
-                    .child(studentService.convertToChildDTO(student))
+                    .childInfo(studentService.convertToChildDTO(student))
                     .role(user.getRole().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
@@ -101,7 +101,7 @@ public class UserService {
                     .role(user.getRole().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
-                    .student(studentService.convertToDTO(student))
+                    .studentInfo(studentService.convertToDTO(student))
                     .build();
         }
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
@@ -116,7 +116,7 @@ public class UserService {
                     .gender(user.getGender().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
-                    .psychologist(psychologistService.convertToDTO(psychologist))
+                    .psychologistInfo(psychologistService.convertToDTO(psychologist))
                     .build();
         }
         return UserDTO.builder()
