@@ -83,11 +83,7 @@ public class DataInitializer implements CommandLineRunner {
         Users user3 = new Users("U003", "dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST,  Users.Gender.Male);
         userRepository.save(user3);
 
-<<<<<<< HEAD
-        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER,  Users.Gender.Female);
-=======
-        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER);
->>>>>>> 18bfac1 (data init checking)
+        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER, Users.Gender.Female);
         userRepository.save(user4);
 
         Users user5 = new Users("U005", "alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT,  Users.Gender.Female);
@@ -354,13 +350,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        try {
-            if(userRepository.count() != 0){
-                return;
-            }
-            this.initialize();
-        } catch (Exception e) {
-            e.initCause(e);
-        }
+        this.initialize();
     }
 }
