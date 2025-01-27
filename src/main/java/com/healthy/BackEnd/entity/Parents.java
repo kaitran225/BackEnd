@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -21,20 +23,15 @@ public class Parents {
     @Column(name = "UserID", length = 36, nullable = false)
     private String userID;
 
-    @Column(name = "ChildID", length = 36)
-    private String childID;
+    @OneToMany(mappedBy = "parents", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Students> students;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ChildID", referencedColumnName = "StudentID", insertable = false, updatable = false)
-    private Students child;
-
-    public Parents(String parentID, String userID, String childID) {
+    public Parents(String parentID, String userID) {
         this.parentID = parentID;
         this.userID = userID;
-        this.childID = childID;
     }
 } 

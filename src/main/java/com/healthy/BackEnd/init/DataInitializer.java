@@ -95,23 +95,22 @@ public class DataInitializer implements CommandLineRunner {
         Users user7 = new Users("U007", "dr_blue", "password789", "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
         userRepository.save(user7);
 
-        // Initialize Students
-        Students student1 = new Students("S001", user1.getUserId(), 10, "A", "Example High School", 5, 10, 2);
-        studentRepository.save(student1);
-
-        Students student2 = new Students("S002", user5.getUserId(), 9, "B", "Example High School", 3, 4, 7);
-        studentRepository.save(student2);
-
-        Students student3 = new Students("S003", user6.getUserId(), 9, "A", "Example High School", 2, 2, 1);
-        studentRepository.save(student3);
-
         // Initialize Parents
-        Parents parent1 = new Parents("P001", user2.getUserId(), student1.getStudentID());
+        Parents parent1 = new Parents("P001", user2.getUserId());
         parentRepository.save(parent1);
 
-        Parents parent2 = new Parents("P002", user5.getUserId(), student2.getStudentID());
+        Parents parent2 = new Parents("P002", user5.getUserId());
         parentRepository.save(parent2);
 
+        // Initialize Students
+        Students student1 = new Students("S001", user1.getUserId(),parent1.getParentID(), 10, "A", "Example High School", 5, 10, 2);
+        studentRepository.save(student1);
+
+        Students student2 = new Students("S002", user5.getUserId(),parent1.getParentID(), 9, "B", "Example High School", 3, 4, 7);
+        studentRepository.save(student2);
+
+        Students student3 = new Students("S003", user6.getUserId(),parent2.getParentID(), 9, "A", "Example High School", 2, 2, 1);
+        studentRepository.save(student3);
         // Initialize Psychologists
         Psychologists psychologist1 = new Psychologists("PSY001", user3.getUserId(), "Child Psychology", 10, Psychologists.Status.Active);
         psychologistRepository.save(psychologist1);

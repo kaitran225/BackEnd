@@ -21,6 +21,10 @@ public class Students {
     @Column(name = "UserID", length = 36, nullable = false)
     private String userID;
 
+    @Column(name = "ParentID", length = 36, nullable = false)
+    private String parentID;
+
+
     @Column(name = "Grade")
     private Integer grade;
 
@@ -43,9 +47,14 @@ public class Students {
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
+    @ManyToOne
+    @JoinColumn(name = "ParentID", referencedColumnName =  "ParentID", insertable = false, updatable = false)
+    private Parents parents;
+
+    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
         this.studentID = studentID;
         this.userID = userID;
+        this.parentID = parentID;
         this.grade = grade;
         this.className = className;
         this.schoolName = schoolName;

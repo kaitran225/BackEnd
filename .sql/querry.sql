@@ -110,3 +110,8 @@ WHERE ah.AppointmentID = "APP001";
 SELECT p.PsychologistID, p.FullName, p.Specialization, p.YearsOfExperience, p.Status
 FROM Psychologists p
 JOIN Users u ON p.UserID = u.UserID; 
+
+INSERT Parents
+values(
+	"P001","S003","U006"
+)

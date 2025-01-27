@@ -2,6 +2,8 @@ package com.healthy.BackEnd.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +22,7 @@ public class UserDTO {
     private String address;
     private String gender;
     private String role;
-    private StudentDTO childInfo;
+    private List<StudentDTO> children;
     private PsychologistDTO psychologistInfo;
     private StudentDTO studentInfo;
     private LocalDateTime createdAt;

@@ -1,5 +1,6 @@
 package com.healthy.BackEnd.Service;
 
+import com.healthy.BackEnd.dto.StudentDTO;
 import com.healthy.BackEnd.entity.Parents;
 import com.healthy.BackEnd.entity.Psychologists;
 import com.healthy.BackEnd.entity.Students;
@@ -75,15 +76,16 @@ public class UserService {
     public UserDTO convertToDTO(Users user) {
         if(user.getRole() == Users.UserRole.PARENT) {
             Parents  parents = parentRepository.findByUserID(user.getUserId());
-            Students student = studentRepository.findByStudentID(parents.getChildID());
+            List<Students> studentsList = parents.getStudents();
             StudentService studentService = new StudentService();
+            List<StudentDTO> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();
             return UserDTO.builder()
                     .userId(user.getUserId())
                     .fullName(user.getFullName())
                     .email(user.getEmail())
                     .phone(user.getPhoneNumber())
                     .gender(user.getGender().toString())
-                    .childInfo(studentService.convertToChildDTO(student))
+                    .children(childrenList)
                     .role(user.getRole().toString())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
