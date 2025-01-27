@@ -8,6 +8,9 @@
           "text": "Little interest or pleasure in doing things",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -24,12 +27,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -37,6 +43,9 @@
           "text": "Feeling down, depressed, or hopeless",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -53,12 +62,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -66,6 +78,9 @@
           "text": "Trouble falling or staying asleep, or sleeping too much",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -82,12 +97,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -95,6 +113,9 @@
           "text": "Feeling tired or having little energy",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -111,12 +132,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -124,6 +148,9 @@
           "text": "Poor appetite or overeating",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -140,12 +167,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -153,6 +183,9 @@
           "text": "Feeling bad about yourself - or that you are a failure or have let yourself or your family down",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -169,12 +202,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -182,6 +218,9 @@
           "text": "Trouble concentrating on things, such as reading or watching TV",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -198,12 +237,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -211,6 +253,9 @@
           "text": "Moving or speaking so slowly that other people could have noticed, or being so fidgety or restless that you have been moving around a lot more than usual",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -227,12 +272,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -240,6 +288,9 @@
           "text": "Thoughts that you would be better off dead, or of hurting yourself",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -256,12 +307,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         }
       ]
@@ -274,6 +328,9 @@
           "text": "Feeling nervous, anxious, or on edge",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -290,12 +347,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -303,6 +363,9 @@
           "text": "Not being able to stop or control worrying",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -319,12 +382,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -332,6 +398,9 @@
           "text": "Worrying too much about different things",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -348,12 +417,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -361,6 +433,9 @@
           "text": "Trouble relaxing",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -377,12 +452,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -390,6 +468,9 @@
           "text": "Being so restless that it's hard to sit still",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -406,12 +487,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -419,6 +503,9 @@
           "text": "Becoming easily annoyed or irritable",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -435,12 +522,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -448,6 +538,9 @@
           "text": "Feeling afraid as if something awful might happen",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Not at all"
@@ -464,12 +557,15 @@
               "value": 3,
               "label": "Nearly every day"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Not at all" },
             { "value": 1, "label": "Several days" },
             { "value": 2, "label": "More than half the days" },
             { "value": 3, "label": "Nearly every day" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         }
       ]
@@ -482,6 +578,9 @@
           "text": "In the last month, how often have you been upset because of something that happened unexpectedly?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Never"
@@ -502,6 +601,7 @@
               "value": 4,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Never" },
             { "value": 1, "label": "Almost Never" },
@@ -509,6 +609,8 @@
             { "value": 3, "label": "Fairly Often" },
             { "value": 4, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -516,6 +618,9 @@
           "text": "In the last month, how often have you felt that you were unable to control the important things in your life?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Never"
@@ -536,6 +641,7 @@
               "value": 4,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Never" },
             { "value": 1, "label": "Almost Never" },
@@ -543,6 +649,8 @@
             { "value": 3, "label": "Fairly Often" },
             { "value": 4, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -550,6 +658,9 @@
           "text": "In the last month, how often have you felt nervous and stressed?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Never"
@@ -570,6 +681,7 @@
               "value": 4,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Never" },
             { "value": 1, "label": "Almost Never" },
@@ -577,6 +689,8 @@
             { "value": 3, "label": "Fairly Often" },
             { "value": 4, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -584,6 +698,9 @@
           "text": "In the last month, how often have you felt confident about your ability to handle your personal problems?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 4,
               "label": "Never"
@@ -604,6 +721,7 @@
               "value": 0,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 4, "label": "Never" },
             { "value": 3, "label": "Almost Never" },
@@ -611,6 +729,8 @@
             { "value": 1, "label": "Fairly Often" },
             { "value": 0, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -618,6 +738,9 @@
           "text": "In the last month, how often have you felt that things were going your way?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 4,
               "label": "Never"
@@ -638,6 +761,7 @@
               "value": 0,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 4, "label": "Never" },
             { "value": 3, "label": "Almost Never" },
@@ -645,6 +769,8 @@
             { "value": 1, "label": "Fairly Often" },
             { "value": 0, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -652,6 +778,9 @@
           "text": "In the last month, how often have you found that you could not cope with all the things that you had to do?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Never"
@@ -672,6 +801,7 @@
               "value": 4,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Never" },
             { "value": 1, "label": "Almost Never" },
@@ -679,6 +809,8 @@
             { "value": 3, "label": "Fairly Often" },
             { "value": 4, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -686,6 +818,9 @@
           "text": "In the last month, how often have you been able to control irritations in your life?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 4,
               "label": "Never"
@@ -706,6 +841,7 @@
               "value": 0,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 4, "label": "Never" },
             { "value": 3, "label": "Almost Never" },
@@ -713,6 +849,8 @@
             { "value": 1, "label": "Fairly Often" },
             { "value": 0, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -720,6 +858,9 @@
           "text": "In the last month, how often have you felt that you were on top of things?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 4,
               "label": "Never"
@@ -740,6 +881,7 @@
               "value": 0,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 4, "label": "Never" },
             { "value": 3, "label": "Almost Never" },
@@ -747,6 +889,8 @@
             { "value": 1, "label": "Fairly Often" },
             { "value": 0, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         },
         {
@@ -754,6 +898,9 @@
           "text": "In the last month, how often have you been angered because of things that happened that were outside of your control?",
           "options": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
             {
               "value": 0,
               "label": "Never"
@@ -774,6 +921,7 @@
               "value": 4,
               "label": "Very Often"
             }
+<<<<<<< HEAD
 =======
             { "value": 0, "label": "Never" },
             { "value": 1, "label": "Almost Never" },
@@ -781,6 +929,8 @@
             { "value": 3, "label": "Fairly Often" },
             { "value": 4, "label": "Very Often" }
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
           ]
         }
       ]

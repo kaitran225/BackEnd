@@ -1,5 +1,8 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
   "mental_health_resources": [
     {
       "id": 1,
@@ -297,6 +300,7 @@
       "experience": "14 years"
     }
   ]
+<<<<<<< HEAD
 =======
     "mental_health_resources": [
         {
@@ -580,4 +584,6 @@
         }
     ]
 >>>>>>> b6b0158 (changes)
+=======
+>>>>>>> 0130e2668828361d0b51854182c97bbccf4440b1
 } 
