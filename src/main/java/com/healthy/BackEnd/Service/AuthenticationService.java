@@ -63,17 +63,32 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request )  {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         // Authenticate user
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        UsernamePasswordAuthenticationToken authToken;
+
+        // Check if the request is using email or username
+        if (request.getUsername().contains("@")) {
+            // Authenticate via email
+            Users user = authenticationRepository.findByEmail(request.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            authToken = new UsernamePasswordAuthenticationToken(
+                    user.getUsername(),
+                    request.getPassword()
+            );
+            request.setUsername(user.getUsername());
+        } else {
+            // Authenticate via username
+            authToken = new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            );
+        }
+
+        authenticationManager.authenticate(authToken);
 
         // Get user
-        var user = authenticationRepository.findByUsername(request.getUsername())
+        Users user = authenticationRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Generate tokens
