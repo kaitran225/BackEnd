@@ -12,11 +12,11 @@ public class APIHandelException extends RuntimeException {
 
     // MethodArgumentNotValidException
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleBadRequestException (MethodArgumentNotValidException exception) {
+    public ResponseEntity<?> handleBadRequestException(MethodArgumentNotValidException exception) {
 
         StringBuilder messages = new StringBuilder();
 
-        for(FieldError error: exception.getBindingResult().getFieldErrors()) {
+        for (FieldError error : exception.getBindingResult().getFieldErrors()) {
             messages.append(error.getDefaultMessage()).append("\n");
         }
 

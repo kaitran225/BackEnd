@@ -1,6 +1,7 @@
 package com.healthy.BackEnd.Service;
 
 import com.healthy.BackEnd.dto.StudentDTO;
+import com.healthy.BackEnd.dto.UserDTO;
 import com.healthy.BackEnd.entity.Parents;
 import com.healthy.BackEnd.entity.Psychologists;
 import com.healthy.BackEnd.entity.Students;
@@ -16,11 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.healthy.BackEnd.dto.UserDTO;
-
 @Service
 public class UserService {
-    
+
     @Autowired
     private StudentRepository studentRepository;
 
@@ -35,16 +34,18 @@ public class UserService {
     public boolean isEmpty() {
         return userRepository.findAll().isEmpty();
     }
+
     public boolean isUserExist(String id) {
         return userRepository.existsById(id);
     }
+
     public List<UserDTO> getAllUsers() {
         if (isEmpty()) {
             throw new ResourceNotFoundException("No users found");
         }
         return userRepository.findAll().stream()
-        .map(this::convertToDTO)
-        .toList();
+                .map(this::convertToDTO)
+                .toList();
     }
 
     public Users getUserById(String id) {
@@ -56,7 +57,7 @@ public class UserService {
 
     public Users editUser(Users user) {
         Users existingUser = userRepository.findById(user.getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + user.getUserId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + user.getUserId()));
         existingUser.setFullName(user.getFullName());
         existingUser.setEmail(user.getEmail());
         existingUser.setPhoneNumber(user.getPhoneNumber());
@@ -74,8 +75,8 @@ public class UserService {
     }
 
     public UserDTO convertToDTO(Users user) {
-        if(user.getRole() == Users.UserRole.PARENT) {
-            Parents  parents = parentRepository.findByUserID(user.getUserId());
+        if (user.getRole() == Users.UserRole.PARENT) {
+            Parents parents = parentRepository.findByUserID(user.getUserId());
             List<Students> studentsList = parents.getStudents();
             StudentService studentService = new StudentService();
             List<StudentDTO> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();

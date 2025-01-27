@@ -1,8 +1,7 @@
 package com.healthy.BackEnd.Controller;
 
-import com.healthy.BackEnd.Service.UserService;
 import com.healthy.BackEnd.Service.ProgramService;
-import com.healthy.BackEnd.dto.LoginDTO;
+import com.healthy.BackEnd.Service.UserService;
 import com.healthy.BackEnd.entity.Appointments;
 import com.healthy.BackEnd.entity.Programs;
 import com.healthy.BackEnd.entity.SurveyResults;
@@ -10,7 +9,6 @@ import com.healthy.BackEnd.entity.Users;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.AppointmentRepository;
 import com.healthy.BackEnd.repository.SurveyResultRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,14 +37,15 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         boolean isEmpty = userService.isEmpty();
-        if(isEmpty) return ResponseEntity.status(500).body("No users found");
+        if (isEmpty) return ResponseEntity.status(500).body("No users found");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     // Working but not tested
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        if(!userService.isUserExist(userId)) return ResponseEntity.status(500).body("User not found with id: " + userId);
+        if (!userService.isUserExist(userId))
+            return ResponseEntity.status(500).body("User not found with id: " + userId);
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
@@ -83,12 +82,12 @@ public class UserController {
         }
 
         Users existingUser = userService.getUserById(userId);
-        
+
         // Check for changes before updating
         if (!existingUser.getFullName().equals(updatedUser.getFullName()) ||
-            !existingUser.getEmail().equals(updatedUser.getEmail()) ||
-            !existingUser.getPhoneNumber().equals(updatedUser.getPhoneNumber())) {
-            
+                !existingUser.getEmail().equals(updatedUser.getEmail()) ||
+                !existingUser.getPhoneNumber().equals(updatedUser.getPhoneNumber())) {
+
             existingUser.setFullName(updatedUser.getFullName());
             existingUser.setEmail(updatedUser.getEmail());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());

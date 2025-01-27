@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalTime;
 
 @Entity
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Table(name = "ProgramSchedule")
 public class ProgramSchedule {
-    
+
     @Id
     @Column(name = "ScheduleID", length = 36, nullable = false)
     private String scheduleID;

@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "Parents")
 public class Parents {
-    
+
     @Id
     @Column(name = "ParentID", length = 36, nullable = false)
     private String parentID;

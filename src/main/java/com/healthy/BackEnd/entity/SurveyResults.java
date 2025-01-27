@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "SurveyResults")
 public class SurveyResults {
-    
+
     @Id
     @Column(name = "ResultID", length = 36, nullable = false)
     private String resultID;

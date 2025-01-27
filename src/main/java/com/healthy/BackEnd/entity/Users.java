@@ -67,6 +67,7 @@ public class Users implements UserDetails {
         this.role = userRole;
         this.gender = gender;
     }
+
     public static Users fromDTO(UserDTO dto) {
         return Users.builder()
                 .userId(dto.getUserId())
@@ -93,19 +94,6 @@ public class Users implements UserDetails {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public enum UserRole {
-        STUDENT,
-        PARENT,
-        PSYCHOLOGIST,
-        MANAGER
-    }
-
-    public enum Gender {
-        Male,
-        Female,
-        Other
     }
 
     @Override
@@ -141,5 +129,18 @@ public class Users implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public enum UserRole {
+        STUDENT,
+        PARENT,
+        PSYCHOLOGIST,
+        MANAGER
+    }
+
+    public enum Gender {
+        Male,
+        Female,
+        Other
     }
 }

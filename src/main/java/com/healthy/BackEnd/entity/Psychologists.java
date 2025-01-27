@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "Psychologists")
 public class Psychologists {
-    
+
     @Id
     @Column(name = "PsychologistID", length = 36, nullable = false)
     private String psychologistID;

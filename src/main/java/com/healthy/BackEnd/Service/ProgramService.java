@@ -5,7 +5,6 @@ import com.healthy.BackEnd.entity.Programs;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.ProgramParticipationRepository;
 import com.healthy.BackEnd.repository.ProgramRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class ProgramService {
 
     @Autowired
     private ProgramParticipationRepository programParticipationRepository;
-    
+
     @Autowired
     private UserService userService;
 
@@ -27,7 +26,7 @@ public class ProgramService {
     private StudentService studentService;
 
     public List<Programs> getAllPrograms() {
-        if(programRepository.findAll().isEmpty()) return null;
+        if (programRepository.findAll().isEmpty()) return null;
         return programRepository.findAll();
     }
 

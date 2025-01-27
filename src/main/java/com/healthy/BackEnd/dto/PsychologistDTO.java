@@ -16,5 +16,5 @@ public class PsychologistDTO {
     private String userId;
     private String specialization;
     private Integer yearsOfExperience;
-    private String  status;
+    private String status;
 }

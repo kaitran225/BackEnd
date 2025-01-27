@@ -103,13 +103,13 @@ public class DataInitializer implements CommandLineRunner {
         parentRepository.save(parent2);
 
         // Initialize Students
-        Students student1 = new Students("S001", user1.getUserId(),parent1.getParentID(), 10, "A", "Example High School", 5, 10, 2);
+        Students student1 = new Students("S001", user1.getUserId(), parent1.getParentID(), 10, "A", "Example High School", 5, 10, 2);
         studentRepository.save(student1);
 
-        Students student2 = new Students("S002", user5.getUserId(),parent1.getParentID(), 9, "B", "Example High School", 3, 4, 7);
+        Students student2 = new Students("S002", user5.getUserId(), parent1.getParentID(), 9, "B", "Example High School", 3, 4, 7);
         studentRepository.save(student2);
 
-        Students student3 = new Students("S003", user6.getUserId(),parent2.getParentID(), 9, "A", "Example High School", 2, 2, 1);
+        Students student3 = new Students("S003", user6.getUserId(), parent2.getParentID(), 9, "A", "Example High School", 2, 2, 1);
         studentRepository.save(student3);
         // Initialize Psychologists
         Psychologists psychologist1 = new Psychologists("PSY001", user3.getUserId(), "Child Psychology", 10, Psychologists.Status.Active);

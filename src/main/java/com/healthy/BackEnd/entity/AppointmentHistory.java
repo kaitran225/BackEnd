@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "AppointmentHistory")
 public class AppointmentHistory {
-    
+
     @Id
     @Column(name = "HistoryID", length = 36, nullable = false)
     private String historyID;

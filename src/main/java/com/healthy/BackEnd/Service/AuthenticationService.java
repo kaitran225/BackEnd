@@ -1,9 +1,9 @@
 package com.healthy.BackEnd.Service;
 
+import com.healthy.BackEnd.dto.UserDTO;
 import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
 import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
 import com.healthy.BackEnd.dto.auth.RegisterRequest;
-import com.healthy.BackEnd.dto.UserDTO;
 import com.healthy.BackEnd.entity.Users;
 import com.healthy.BackEnd.repository.AuthenticationRepository;
 import com.healthy.BackEnd.repository.UserRepository;
@@ -17,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

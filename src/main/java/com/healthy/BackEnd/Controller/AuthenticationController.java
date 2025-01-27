@@ -1,7 +1,9 @@
 package com.healthy.BackEnd.Controller;
 
-import com.healthy.BackEnd.dto.auth.*;
 import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
+import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
+import com.healthy.BackEnd.dto.auth.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor    
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;

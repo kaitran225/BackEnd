@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "Students")
 public class Students {
-    
+
     @Id
     @Column(name = "StudentID", length = 36, nullable = false)
     private String studentID;
@@ -36,7 +36,7 @@ public class Students {
 
     @Column(name = "AnxietyScore")
     private Integer anxietyScore;
-    
+
     @Column(name = "StressScore")
     private Integer stressScore;
 
@@ -48,10 +48,10 @@ public class Students {
     private Users user;
 
     @ManyToOne
-    @JoinColumn(name = "ParentID", referencedColumnName =  "ParentID", insertable = false, updatable = false)
+    @JoinColumn(name = "ParentID", referencedColumnName = "ParentID", insertable = false, updatable = false)
     private Parents parents;
 
-    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
+    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
         this.studentID = studentID;
         this.userID = userID;
         this.parentID = parentID;
