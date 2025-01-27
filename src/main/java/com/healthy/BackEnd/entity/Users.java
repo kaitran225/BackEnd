@@ -1,17 +1,25 @@
 package com.healthy.BackEnd.entity;
 
+import com.healthy.BackEnd.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
+@Data
+@Builder
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Users")
-public class Users {
+public class Users implements UserDetails {
 
     @Id
     @Column(name = "UserID", length = 36, nullable = false)
@@ -46,6 +54,9 @@ public class Users {
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "ResetToken")
+    private String resetToken;
+
     public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole, Gender gender) {
         this.userId = userId;
         this.username = username;
@@ -55,6 +66,18 @@ public class Users {
         this.phoneNumber = phoneNumber;
         this.role = userRole;
         this.gender = gender;
+    }
+    public static Users fromDTO(UserDTO dto) {
+        return Users.builder()
+                .userId(dto.getUserId())
+                .username(dto.getUsername())
+                .passwordHash(dto.getPasswordHash())
+                .fullName(dto.getFullName())
+                .email(dto.getEmail())
+                .phoneNumber(dto.getPhone())
+                .role(UserRole.valueOf(dto.getRole()))
+                .gender(Gender.valueOf(dto.getGender()))
+                .build();
     }
 
     @PrePersist
@@ -83,5 +106,40 @@ public class Users {
         Male,
         Female,
         Other
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 }

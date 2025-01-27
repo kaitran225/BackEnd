@@ -34,22 +34,6 @@ public class UserController {
     @Autowired
     SurveyResultRepository surveyResultRepository;
 
-//    @PostMapping("/register")
-//    public ResponseEntity<?> register(@Valid @RequestBody Users users) {
-//        Users newAccount = authenticationService.register(users);
-//        return ResponseEntity.ok(newAccount);
-//    }
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<?> loginEmployee(@Valid @RequestBody LoginDTO loginDTO) {
-//        boolean isAuthenticated = authenticationService.login(loginDTO);
-//
-//        if (isAuthenticated) {
-//            return ResponseEntity.ok("Login successful");
-//        } else {
-//            return ResponseEntity.status(401).body("Invalid username or password");
-//        }
-//    }
 
     // Working but not tested
     @GetMapping("/users")
