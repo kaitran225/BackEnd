@@ -4,6 +4,7 @@ import com.healthy.BackEnd.entity.*;
 import com.healthy.BackEnd.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,8 @@ import java.time.LocalTime;
 @Service
 @Component
 public class DataInitializer implements CommandLineRunner {
+
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -72,27 +75,27 @@ public class DataInitializer implements CommandLineRunner {
     private CategoriesRepository categoryRepository;
 
     private void initialize() {
-        userRepository.save(new Users("U000", "admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER, Users.Gender.Male));
+        userRepository.save(new Users("U000", "admin", passwordEncoder.encode("adminpass"), "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER, Users.Gender.Male));
 
-        Users user1 = new Users("U001", "john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
+        Users user1 = new Users("U001", "john_doe", passwordEncoder.encode("password123"), "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
         userRepository.save(user1);
 
-        Users user2 = new Users("U002", "jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT, Users.Gender.Female);
+        Users user2 = new Users("U002", "jane_smith", passwordEncoder.encode("password456"), "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT, Users.Gender.Female);
         userRepository.save(user2);
 
-        Users user3 = new Users("U003", "dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
+        Users user3 = new Users("U003", "dr_brown", passwordEncoder.encode("password789"), "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
         userRepository.save(user3);
 
-        Users user4 = new Users("U004", "staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER, Users.Gender.Female);
+        Users user4 = new Users("U004", "staff_user", passwordEncoder.encode("staffpass"), "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER, Users.Gender.Female);
         userRepository.save(user4);
 
-        Users user5 = new Users("U005", "alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT, Users.Gender.Female);
+        Users user5 = new Users("U005", "alice_jones", passwordEncoder.encode("alicepass"), "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT, Users.Gender.Female);
         userRepository.save(user5);
 
-        Users user6 = new Users("U006", "john_jan", "password123", "John Jan", "jan@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
+        Users user6 = new Users("U006", "john_jan", passwordEncoder.encode("password123"), "John Jan", "jan@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
         userRepository.save(user6);
 
-        Users user7 = new Users("U007", "dr_blue", "password789", "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
+        Users user7 = new Users("U007", "dr_blue", passwordEncoder.encode("password789"), "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
         userRepository.save(user7);
 
         // Initialize Parents
