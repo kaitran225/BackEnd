@@ -1,4 +1,3 @@
-
 // AuthenticationService.java
 package com.healthy.BackEnd.Service;
 
@@ -21,6 +20,7 @@ public class AuthenticationService {
         // Mã hóa mật khẩu trước khi lưu
         return authenticationRepository.save(users);
     }
+
     @NotNull
     public boolean login(LoginDTO loginDTO) {
         // Tìm người dùng theo tên đăng nhập

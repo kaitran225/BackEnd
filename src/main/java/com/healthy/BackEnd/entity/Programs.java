@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "Programs")
 public class Programs {
-    
+
     @Id
     @Column(name = "ProgramID", length = 36, nullable = false)
     private String programID;
@@ -23,7 +24,7 @@ public class Programs {
     private String programName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Category",  length = 50, nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
+    @Column(name = "Category", length = 50, nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
     private Category category;
 
     @Column(name = "Description", columnDefinition = "TEXT")

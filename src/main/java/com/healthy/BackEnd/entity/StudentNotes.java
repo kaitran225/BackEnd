@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "StudentNotes")
 public class StudentNotes {
-    
+
     @Id
     @Column(name = "NoteID", length = 36)
     private String noteID;
@@ -37,7 +38,7 @@ public class StudentNotes {
 
     @Column(name = "AnxietyScore")
     private Integer anxietyScore;
-    
+
     @Column(name = "StressScore")
     private Integer stressScore;
 
@@ -52,7 +53,7 @@ public class StudentNotes {
     @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
 
-    public StudentNotes(String noteID, String studentID, String psychologistID, String noteText, NoteType noteType, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
+    public StudentNotes(String noteID, String studentID, String psychologistID, String noteText, NoteType noteType, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
         this.noteID = noteID;
         this.studentID = studentID;
         this.psychologistID = psychologistID;

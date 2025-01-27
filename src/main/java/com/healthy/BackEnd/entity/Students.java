@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "Students")
 public class Students {
-    
+
     @Id
     @Column(name = "StudentID", length = 36, nullable = false)
     private String studentID;
@@ -32,7 +32,7 @@ public class Students {
 
     @Column(name = "AnxietyScore")
     private Integer anxietyScore;
-    
+
     @Column(name = "StressScore")
     private Integer stressScore;
 
@@ -43,7 +43,7 @@ public class Students {
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore,Integer stressScore) {
+    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
         this.studentID = studentID;
         this.userID = userID;
         this.grade = grade;

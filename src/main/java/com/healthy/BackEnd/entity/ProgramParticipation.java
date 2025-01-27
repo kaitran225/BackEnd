@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table(name = "ProgramParticipation")
 public class ProgramParticipation {
-    
+
     @Id
     @Column(name = "ParticipationID", length = 36, nullable = false)
     private String participationID;

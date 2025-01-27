@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 import static com.healthy.BackEnd.entity.Appointments.AppointmentType.Offline;
@@ -15,7 +16,7 @@ import static com.healthy.BackEnd.entity.Appointments.Status.Scheduled;
 @AllArgsConstructor
 @Table(name = "Appointments")
 public class Appointments {
-    
+
     @Id
     @Column(name = "AppointmentID", length = 36)
     private String appointmentID;

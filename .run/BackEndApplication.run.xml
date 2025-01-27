@@ -1,10 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="BackEndApplication" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="com.healthy.BackEnd.BackEndApplication" />
-    <module name="BackEnd" />
-    <option name="VM_PARAMETERS" value="-DMYSQL_USER=root -DMYSQL_PASSWORD=root -DMYSQL_PORT=3307 -DMYSQL_NAME=defaultdb" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
+    <configuration default="false" name="BackEndApplication" type="Application" factoryName="Application">
+        <option name="MAIN_CLASS_NAME" value="com.healthy.BackEnd.BackEndApplication"/>
+        <module name="BackEnd"/>
+        <option name="VM_PARAMETERS"
+                value="-DMYSQL_USER=root -DMYSQL_PASSWORD=root -DMYSQL_PORT=3307 -DMYSQL_NAME=defaultdb"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
 </component>

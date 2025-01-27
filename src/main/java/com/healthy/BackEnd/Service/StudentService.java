@@ -1,14 +1,13 @@
 package com.healthy.BackEnd.Service;
 
-import java.util.List;
-
 import com.healthy.BackEnd.dto.StudentDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.healthy.BackEnd.entity.Students;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class StudentService {
@@ -21,24 +20,25 @@ public class StudentService {
     }
 
     public boolean isStudentExist(String id) {
-        if(isEmpty()) throw new ResourceNotFoundException("No students found");
+        if (isEmpty()) throw new ResourceNotFoundException("No students found");
         return studentRepository.existsById(id);
     }
 
     public List<Students> getAllStudents() {
-        if(studentRepository.findAll().isEmpty()) throw new ResourceNotFoundException("No students found");
+        if (studentRepository.findAll().isEmpty()) throw new ResourceNotFoundException("No students found");
         return studentRepository.findAll();
     }
 
     public Students getStudentById(String id) {
-        if(isStudentExist(id)) throw new ResourceNotFoundException("Student not found with id: " + id);
+        if (isStudentExist(id)) throw new ResourceNotFoundException("Student not found with id: " + id);
         return studentRepository.findById(id).orElse(null);
     }
 
     public Students getStudentByUserId(String userId) {
-        if(isStudentExist(userId)) throw new ResourceNotFoundException("Student not found with userId: " + userId);
+        if (isStudentExist(userId)) throw new ResourceNotFoundException("Student not found with userId: " + userId);
         return studentRepository.findByUserID(userId);
     }
+
     public StudentDTO convertToDTO(Students student) {
         return StudentDTO.builder()
                 .studentId(student.getStudentID())
@@ -52,6 +52,7 @@ public class StudentService {
                 .stressScore(student.getStressScore())
                 .build();
     }
+
     public StudentDTO convertToChildDTO(Students student) {
         return StudentDTO.builder()
                 .userId(student.getUserID())

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Table(name = "TimeSlots")
 public class TimeSlots {
-    
+
     @Id
     @Column(name = "TimeSlotsID", length = 36, nullable = false)
     private String timeSlotsID;
