@@ -82,4 +82,14 @@ public class JwtService {
     private Key getSignInKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
+
+    public void invalidateToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            // Set expiration to a past date to invalidate the token
+            claims.setExpiration(new Date(System.currentTimeMillis() - 1000));
+        } catch (Exception e) {
+            // Token is already invalid or malformed, nothing to do
+        }
+    }
 }

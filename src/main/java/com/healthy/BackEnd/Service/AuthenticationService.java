@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @Service
@@ -62,7 +63,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request )  {
         // Authenticate user
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -78,6 +79,7 @@ public class AuthenticationService {
         // Generate tokens
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
+
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -141,15 +143,5 @@ public class AuthenticationService {
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setResetToken(null);
         authenticationRepository.save(user);
-    }
-
-    public void logout(HttpServletRequest request) {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-
-        // You might want to add the token to a blacklist here
-        // Or implement other logout logic
     }
 }

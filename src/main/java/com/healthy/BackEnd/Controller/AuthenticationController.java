@@ -1,14 +1,21 @@
 package com.healthy.BackEnd.Controller;
 
 import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.Service.LogoutService;
 import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
 import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
 import com.healthy.BackEnd.dto.auth.RegisterRequest;
+import com.healthy.BackEnd.entity.Users;
+import com.healthy.BackEnd.repository.AuthenticationRepository;
+import com.healthy.BackEnd.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,6 +28,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final LogoutService logoutHandler;
+    private final UserRepository userRepository;
 
     @Operation(
         summary = "Register new user",
@@ -39,9 +48,11 @@ public class AuthenticationController {
     )
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @Valid @RequestBody AuthenticationRequest request
+            @Valid @RequestBody AuthenticationRequest request,
+            HttpServletResponse response
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
+        return ResponseEntity.ok(authenticationResponse);
     }
 
     @Operation(
@@ -89,9 +100,11 @@ public class AuthenticationController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            HttpServletRequest request
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
     ) {
-        authenticationService.logout(request);
+        logoutHandler.logout(request,response,authentication);
         return ResponseEntity.ok("Successfully logged out");
     }
 }
