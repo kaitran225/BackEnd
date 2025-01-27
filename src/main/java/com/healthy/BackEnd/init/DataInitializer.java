@@ -1,5 +1,7 @@
 package com.healthy.BackEnd.init;
 
+import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.dto.auth.RegisterRequest;
 import com.healthy.BackEnd.entity.*;
 import com.healthy.BackEnd.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,51 +76,41 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private CategoriesRepository categoryRepository;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     private void initialize() {
-        userRepository.save(new Users("U000", "admin", passwordEncoder.encode("adminpass"), "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER, Users.Gender.Male));
-
-        Users user1 = new Users("U001", "john_doe", passwordEncoder.encode("password123"), "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
-        userRepository.save(user1);
-
-        Users user2 = new Users("U002", "jane_smith", passwordEncoder.encode("password456"), "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT, Users.Gender.Female);
-        userRepository.save(user2);
-
-        Users user3 = new Users("U003", "dr_brown", passwordEncoder.encode("password789"), "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
-        userRepository.save(user3);
-
-        Users user4 = new Users("U004", "staff_user", passwordEncoder.encode("staffpass"), "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER, Users.Gender.Female);
-        userRepository.save(user4);
-
-        Users user5 = new Users("U005", "alice_jones", passwordEncoder.encode("alicepass"), "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT, Users.Gender.Female);
-        userRepository.save(user5);
-
-        Users user6 = new Users("U006", "john_jan", passwordEncoder.encode("password123"), "John Jan", "jan@example.com", "1234567890", Users.UserRole.STUDENT, Users.Gender.Male);
-        userRepository.save(user6);
-
-        Users user7 = new Users("U007", "dr_blue", passwordEncoder.encode("password789"), "Dr. Blue", "blue@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST, Users.Gender.Male);
-        userRepository.save(user7);
-
+        // Initialize Users
+        authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("bob_johnson", "bobpass", "Bob Johnson", "bob@example.com", "3333333333", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("dr_blue", "bluepass", "Dr. Blue", "blue@example.com", "4444444444", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("john_green", "greenpass", "John Green", "green@example.com", "6666666666", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
         // Initialize Parents
-        Parents parent1 = new Parents("P001", user2.getUserId());
+        Parents parent1 = new Parents("P001", userRepository.findByUsername("jane_smith").getUserId());
         parentRepository.save(parent1);
 
-        Parents parent2 = new Parents("P002", user5.getUserId());
+        Parents parent2 = new Parents("P002", userRepository.findByUsername("bob_johnson").getUserId());
         parentRepository.save(parent2);
 
         // Initialize Students
-        Students student1 = new Students("S001", user1.getUserId(), parent1.getParentID(), 10, "A", "Example High School", 5, 10, 2);
+        Students student1 = new Students("S001", userRepository.findByUsername("john_doe").getUserId(), parent1.getParentID(), 10, "A", "Example High School", 5, 10, 2);
         studentRepository.save(student1);
 
-        Students student2 = new Students("S002", user5.getUserId(), parent1.getParentID(), 9, "B", "Example High School", 3, 4, 7);
+        Students student2 = new Students("S002", userRepository.findByUsername("alice_jones").getUserId(), parent2.getParentID(), 9, "B", "Example High School", 3, 4, 7);
         studentRepository.save(student2);
 
-        Students student3 = new Students("S003", user6.getUserId(), parent2.getParentID(), 9, "A", "Example High School", 2, 2, 1);
+        Students student3 = new Students("S003", userRepository.findByUsername("john_green").getUserId(), parent1.getParentID(), 9, "A", "Example High School", 2, 2, 1);
         studentRepository.save(student3);
         // Initialize Psychologists
-        Psychologists psychologist1 = new Psychologists("PSY001", user3.getUserId(), "Child Psychology", 10, Psychologists.Status.Active);
+        Psychologists psychologist1 = new Psychologists("PSY001", userRepository.findByUsername("dr_brown").getUserId(), "Child Psychology", 10, Psychologists.Status.Active);
         psychologistRepository.save(psychologist1);
 
-        Psychologists psychologist2 = new Psychologists("PSY002", user7.getUserId(), "Adolescent Psychology", 8, Psychologists.Status.Active);
+        Psychologists psychologist2 = new Psychologists("PSY002", userRepository.findByUsername("dr_blue").getUserId(), "Adolescent Psychology", 8, Psychologists.Status.Active);
         psychologistRepository.save(psychologist2);
 
         // Initialize Time Slots
@@ -159,13 +151,13 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(timeSlot12);
 
         // Initialize Programs
-        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, "U004");
+        Programs program1 = new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId());
         programRepository.save(program1);
 
-        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, "U004");
+        Programs program2 = new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId());
         programRepository.save(program2);
 
-        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, "U004");
+        Programs program3 = new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId());
         programRepository.save(program3);
 
         // Initialize Program Schedule
@@ -196,13 +188,13 @@ public class DataInitializer implements CommandLineRunner {
         categoryRepository.save(category3);
 
         // Initialize Surveys
-        Surveys survey1 = new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", category1.getCategoryID(), user3.getUserId(), Surveys.Status.Finished);
+        Surveys survey1 = new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", category1.getCategoryID(), userRepository.findByUsername("john_doe").getUserId(), Surveys.Status.Finished);
         surveyRepository.save(survey1);
 
-        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), user3.getUserId(), Surveys.Status.Unfinished);
+        Surveys survey2 = new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", category2.getCategoryID(), userRepository.findByUsername("jane_smith").getUserId(), Surveys.Status.Unfinished);
         surveyRepository.save(survey2);
 
-        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), user7.getUserId(), Surveys.Status.Unfinished);
+        Surveys survey3 = new Surveys("SUR003", "Depression Screening", "Screening for depression", category3.getCategoryID(), userRepository.findByUsername("john_green").getUserId(), Surveys.Status.Unfinished);
         surveyRepository.save(survey3);
 
         // Initialize Survey Questions
@@ -315,17 +307,17 @@ public class DataInitializer implements CommandLineRunner {
         studentNoteRepository.save(note3);
 
         // Initialize User Logs
-        UserLogs log1 = new UserLogs("L001", user1.getUserId(), "192.168.0.1");
+        UserLogs log1 = new UserLogs("L001", userRepository.findByUsername("jane_smith").getUserId(), "192.168.0.1");
         userLogRepository.save(log1);
 
-        UserLogs log2 = new UserLogs("L002", user2.getUserId(), "192.168.0.2");
+        UserLogs log2 = new UserLogs("L002", userRepository.findByUsername("john_doe").getUserId(), "192.168.0.2");
         userLogRepository.save(log2);
 
         // Initialize Blogs
-        Blog blog1 = new Blog("B001", "Managing Stress", user3.getUserId(), "Tips for managing stress...");
+        Blog blog1 = new Blog("B001", "Managing Stress", userRepository.findByUsername("dr_brown").getUserId(), "Tips for managing stress...");
         blogRepository.save(blog1);
 
-        Blog blog2 = new Blog("B002", "Overcoming Anxiety", user4.getUserId(), "Strategies to cope with anxiety...");
+        Blog blog2 = new Blog("B002", "Overcoming Anxiety", userRepository.findByUsername("staff_user").getUserId(), "Strategies to cope with anxiety...");
         blogRepository.save(blog2);
 
         // Initialize Appointments
@@ -336,17 +328,17 @@ public class DataInitializer implements CommandLineRunner {
         appointmentRepository.save(appointment2);
 
         // Initialize Appointment History
-        AppointmentHistory history1 = new AppointmentHistory("H001", appointment1.getAppointmentID(), AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, user3.getUserId());
+        AppointmentHistory history1 = new AppointmentHistory("H001", appointment1.getAppointmentID(), AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, userRepository.findByUsername("dr_brown").getUserId());
         appointmentHistoryRepository.save(history1);
 
-        AppointmentHistory history2 = new AppointmentHistory("H002", appointment2.getAppointmentID(), AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, user7.getUserId());
+        AppointmentHistory history2 = new AppointmentHistory("H002", appointment2.getAppointmentID(), AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, userRepository.findByUsername("dr_blue").getUserId());
         appointmentHistoryRepository.save(history2);
 
         // Initialize Notifications
-        Notifications notification1 = new Notifications("NOT001", user1.getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment);
+        Notifications notification1 = new Notifications("NOT001", userRepository.findByUsername("jane_smith").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment);
         notificationRepository.save(notification1);
 
-        Notifications notification2 = new Notifications("NOT002", user2.getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey);
+        Notifications notification2 = new Notifications("NOT002", userRepository.findByUsername("john_doe").getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey);
         notificationRepository.save(notification2);
     }
 
