@@ -9,6 +9,7 @@ import com.healthy.BackEnd.entity.Users;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.AppointmentRepository;
 import com.healthy.BackEnd.repository.SurveyResultRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -34,6 +35,7 @@ public class UserController {
 
 
     // Working but not tested
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         boolean isEmpty = userService.isEmpty();

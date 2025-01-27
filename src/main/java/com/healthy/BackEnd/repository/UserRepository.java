@@ -8,6 +8,9 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<Users, String> {
 
+    @Query("SELECT u FROM Users u")
+    List<Users> findAllUsers();
+
     @Query("SELECT u FROM Users u WHERE u.role != 'ADMIN'")
     List<Users> findAllUsersExceptAdmin();
 

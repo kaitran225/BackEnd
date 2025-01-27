@@ -11,6 +11,7 @@ import com.healthy.BackEnd.repository.ParentRepository;
 import com.healthy.BackEnd.repository.PsychologistRepository;
 import com.healthy.BackEnd.repository.StudentRepository;
 import com.healthy.BackEnd.repository.UserRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class UserService {
         if (isEmpty()) {
             throw new ResourceNotFoundException("No users found");
         }
-        return userRepository.findAll().stream()
+        return userRepository.findAllUsers().stream()
                 .map(this::convertToDTO)
                 .toList();
     }
@@ -51,6 +52,9 @@ public class UserService {
     public Users getUserById(String id) {
         if (!isUserExist(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
+        }
+        for (Users user : userRepository.findAllUsers()) {
+            System.out.printf(user.getFullName());
         }
         return userRepository.findById(id).orElse(null);
     }
