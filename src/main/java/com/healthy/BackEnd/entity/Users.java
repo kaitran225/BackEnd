@@ -106,28 +106,12 @@ public class Users implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
     public String getUsername() {
         return username;
+    }
+
+    public boolean isPresent() {
+        return userId != null;
     }
 
     public enum UserRole {

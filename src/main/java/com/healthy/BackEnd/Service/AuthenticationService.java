@@ -9,7 +9,6 @@ import com.healthy.BackEnd.repository.AuthenticationRepository;
 import com.healthy.BackEnd.repository.UserRepository;
 import com.healthy.BackEnd.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @Service
@@ -31,12 +29,9 @@ public class AuthenticationService {
     private final UserRepository userRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // Check if username already exists
-        if (authenticationRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
-
-        // Create new user
         UserDTO user = UserDTO.builder()
                 .userId(UUID.randomUUID().toString())
                 .username(request.getUsername())
@@ -48,10 +43,8 @@ public class AuthenticationService {
                 .gender(String.valueOf(Users.Gender.valueOf(request.getGender())))
                 .build();
 
-        // Save user
         Users savedUser = userRepository.save(Users.fromDTO(user));
 
-        // Generate tokens
         var accessToken = jwtService.generateToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
 
@@ -64,32 +57,21 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        // Authenticate user
         UsernamePasswordAuthenticationToken authToken;
-
-        // Check if the request is using email or username
-        if (request.getUsername().contains("@")) {
-            // Authenticate via email
-            Users user = authenticationRepository.findByEmail(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            authToken = new UsernamePasswordAuthenticationToken(
-                    user.getUsername(),
-                    request.getPassword()
-            );
-            request.setUsername(user.getUsername());
+        Users user;
+        if (request.getLoginIdentifier().contains("@")) {
+            user = authenticationRepository.findByEmail(request.getLoginIdentifier());
         } else {
-            // Authenticate via username
-            authToken = new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-            );
+            user = authenticationRepository.findByUsername(request.getLoginIdentifier());
         }
 
-        authenticationManager.authenticate(authToken);
+        // Generate authToken
+        authToken = new UsernamePasswordAuthenticationToken(
+            request.getLoginIdentifier(),
+            request.getPassword()
+        );
 
-        // Get user
-        Users user = authenticationRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        authenticationManager.authenticate(authToken);
 
         // Generate tokens
         var accessToken = jwtService.generateToken(user);
@@ -105,8 +87,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletRequest request
     ) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -120,28 +101,31 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        var user = authenticationRepository.findByUsername(username);
-        if (user.isEmpty()) {
+        Users user = authenticationRepository.findByUsername(username);
+        if (!user.isPresent()) {
             throw new RuntimeException("User not found");
         }
 
-        if (!jwtService.isTokenValid(refreshToken, user.get())) {
+        if (!jwtService.isTokenValid(refreshToken, user)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        var accessToken = jwtService.generateToken(user.get());
+        String accessToken = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        // Invalidate the old refresh token
+        jwtService.invalidateToken(refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userId(user.get().getUserId())
-                .role(user.get().getRole().toString())
+                .refreshToken(newRefreshToken)
+                .userId(user.getUserId())
+                .role(user.getRole().toString())
                 .build();
     }
 
     public void initiatePasswordReset(String email) {
-        var user = authenticationRepository.findByEmail(email)
-                .orElse(null);
+        Users user = authenticationRepository.findByEmail(email);
         if (user != null) {
             // Generate password reset token
             String resetToken = UUID.randomUUID().toString();
@@ -152,8 +136,7 @@ public class AuthenticationService {
     }
 
     public void resetPassword(String token, String newPassword) {
-        var user = authenticationRepository.findByResetToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+        var user = authenticationRepository.findByResetToken(token);
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setResetToken(null);

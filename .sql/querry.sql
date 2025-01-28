@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS SWP391Healthy;
-CREATE DATABASE SWP391Healthy;
+-- DROP DATABASE IF EXISTS SWP391Healthy;
+-- CREATE DATABASE SWP391Healthy;
 USE SWP391Healthy;
  -- Query to select all data from Users table
 SELECT * FROM Users;

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
-    @NotBlank(message = "Username is required")
-    private String username;
+    @NotBlank(message = "Username or Email is required") // Changed message to be more generic
+    private String loginIdentifier; // Combined email and username into a single field
 
     @NotBlank(message = "Password is required")
     private String password;
