@@ -57,7 +57,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-<<<<<<< HEAD
         UsernamePasswordAuthenticationToken authToken;
         Users user;
         if (request.getLoginIdentifier().contains("@")) {
@@ -73,35 +72,10 @@ public class AuthenticationService {
         );
 
         authenticationManager.authenticate(authToken);
-=======
-        // Authenticate user
-        UsernamePasswordAuthenticationToken authToken;
 
-        // Check if the request is using email or username
-        if (request.getUsername().contains("@")) {
-            // Authenticate via email
-            Users user = authenticationRepository.findByEmail(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            authToken = new UsernamePasswordAuthenticationToken(
-                    user.getUsername(),
-                    request.getPassword()
-            );
-            request.setUsername(user.getUsername());
-        } else {
-            // Authenticate via username
-            authToken = new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-            );
-        }
-
-        authenticationManager.authenticate(authToken);
 
         // Get user
-        Users user = authenticationRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
->>>>>>> 578c7ed39f1f70da2c4bc90c8095ed05490f6558
-
+        user = authenticationRepository.findByUsername(request.getLoginIdentifier());
         // Generate tokens
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
