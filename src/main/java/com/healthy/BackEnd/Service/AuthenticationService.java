@@ -59,23 +59,25 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         UsernamePasswordAuthenticationToken authToken;
         Users user;
+        String username;
         if (request.getLoginIdentifier().contains("@")) {
             user = authenticationRepository.findByEmail(request.getLoginIdentifier());
+
         } else {
             user = authenticationRepository.findByUsername(request.getLoginIdentifier());
         }
-
         // Generate authToken
+        username = user.getUsername();
         authToken = new UsernamePasswordAuthenticationToken(
-            request.getLoginIdentifier(),
+            username,
             request.getPassword()
         );
 
         authenticationManager.authenticate(authToken);
 
         // Generate tokens
-        var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
 
         return AuthenticationResponse.builder()
@@ -136,7 +138,7 @@ public class AuthenticationService {
     }
 
     public void resetPassword(String token, String newPassword) {
-        var user = authenticationRepository.findByResetToken(token);
+        Users user = authenticationRepository.findByResetToken(token);
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setResetToken(null);
