@@ -67,15 +67,12 @@ public class AuthenticationService {
 
         // Generate authToken
         authToken = new UsernamePasswordAuthenticationToken(
-            request.getLoginIdentifier(),
-            request.getPassword()
+                request.getLoginIdentifier(),
+                request.getPassword()
         );
 
         authenticationManager.authenticate(authToken);
 
-
-        // Get user
-        user = authenticationRepository.findByUsername(request.getLoginIdentifier());
         // Generate tokens
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
