@@ -2,6 +2,7 @@ package com.healthy.BackEnd.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.healthy.BackEnd.dto.AppointmentDTO;
@@ -9,18 +10,14 @@ import com.healthy.BackEnd.entity.Appointments;
 
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.AppointmentRepository;
+import org.springframework.stereotype.Service;
 
 
-
-
-
-
+@Service
+@RequiredArgsConstructor
 public class AppointmentService  {
     @Autowired
     AppointmentRepository appointmentRepository;
-
-
-
     public AppointmentDTO coverAppointmentDTO(Appointments appointments) {
          
         return AppointmentDTO.builder()

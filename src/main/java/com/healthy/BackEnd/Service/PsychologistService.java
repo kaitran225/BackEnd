@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.atomikos.datasource.ResourceException;
@@ -11,8 +12,10 @@ import com.healthy.BackEnd.dto.PsychologistDTO;
 import com.healthy.BackEnd.entity.Psychologists;
 import com.healthy.BackEnd.exception.ResourceNotFoundException;
 import com.healthy.BackEnd.repository.PsychologistRepository;
+import org.springframework.stereotype.Service;
 
-
+@Service
+@RequiredArgsConstructor
 public class PsychologistService {
 
     @Autowired

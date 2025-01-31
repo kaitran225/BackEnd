@@ -1,13 +1,12 @@
 package com.healthy.BackEnd.Controller;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.angus.mail.iap.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.healthy.BackEnd.dto.AppointmentDTO;
 import com.healthy.BackEnd.Service.AppointmentService;
@@ -15,14 +14,16 @@ import com.healthy.BackEnd.Service.AppointmentService;
 
 
 @RestController
-@RequestMapping("api/appointment")
-
-
+@RequestMapping("/api")
+@CrossOrigin
+@RequiredArgsConstructor
 public class AppointmentController {
     @Autowired
-    AppointmentService appointmentService;
+    private AppointmentService appointmentService;
 
-    @GetMapping
+
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/appointments")
     public ResponseEntity<?> getAllPsychologistDTO() {
         List<AppointmentDTO> appointmentDTO = appointmentService.getAllAppointmentDTO();
         if(!appointmentDTO.isEmpty()) {
@@ -32,7 +33,8 @@ public class AppointmentController {
 
     }
 
-    @GetMapping("/{id}")
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/appointments/{id}")
     public ResponseEntity<?> getAppointmentById(@PathVariable String id) {
         AppointmentDTO appointmentDTO = appointmentService.getAppointmentById(id);
         return ResponseEntity.ok(appointmentDTO);
