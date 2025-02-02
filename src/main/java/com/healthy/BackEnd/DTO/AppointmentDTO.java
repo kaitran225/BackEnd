@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.dto;
+package com.healthy.BackEnd.DTO;
 
 import java.time.LocalDateTime;
 

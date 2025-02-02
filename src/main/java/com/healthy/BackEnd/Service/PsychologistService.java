@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.atomikos.datasource.ResourceException;
-import com.healthy.BackEnd.dto.PsychologistDTO;
-import com.healthy.BackEnd.entity.Psychologists;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
-import com.healthy.BackEnd.repository.PsychologistRepository;
+import com.healthy.BackEnd.DTO.PsychologistDTO;
+import com.healthy.BackEnd.Entity.Psychologists;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.PsychologistRepository;
 import org.springframework.stereotype.Service;
 
 @Service

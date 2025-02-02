@@ -1,10 +1,10 @@
-package com.healthy.BackEnd.exception;
+package com.healthy.BackEnd.Exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
 import com.healthy.BackEnd.exception.ErrorResponse;
 
 import jakarta.servlet.http.HttpSessionAttributeListener;

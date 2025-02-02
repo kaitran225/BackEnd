@@ -6,14 +6,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.healthy.BackEnd.Service.PsychologistService;
-import com.healthy.BackEnd.dto.PsychologistDTO;
-import com.healthy.BackEnd.exception.GlobalExceptionHandel;
+import com.healthy.BackEnd.DTO.PsychologistDTO;
 
-import jakarta.validation.Valid;
 
 
 @RestController

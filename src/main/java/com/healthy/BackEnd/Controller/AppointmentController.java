@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.healthy.BackEnd.dto.AppointmentDTO;
+import com.healthy.BackEnd.DTO.AppointmentDTO;
 import com.healthy.BackEnd.Service.AppointmentService;
 
 
