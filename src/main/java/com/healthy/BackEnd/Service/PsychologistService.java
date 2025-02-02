@@ -1,7 +1,7 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.dto.PsychologistDTO;
-import com.healthy.BackEnd.entity.Psychologists;
+import com.healthy.BackEnd.DTO.PsychologistDTO;
+import com.healthy.BackEnd.Entity.Psychologists;
 
 public class PsychologistService {
 
