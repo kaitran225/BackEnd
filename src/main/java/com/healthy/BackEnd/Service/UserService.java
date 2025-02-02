@@ -11,12 +11,18 @@ import com.healthy.BackEnd.repository.ParentRepository;
 import com.healthy.BackEnd.repository.PsychologistRepository;
 import com.healthy.BackEnd.repository.StudentRepository;
 import com.healthy.BackEnd.repository.UserRepository;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 
 @Service
 public class UserService {
@@ -29,6 +35,7 @@ public class UserService {
 
     @Autowired
     private PsychologistRepository psychologistRepository;
+    
     @Autowired
     private ParentRepository parentRepository;
 
@@ -76,6 +83,17 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public UserDTO convertToChildDTO(Users user) {
+        return 
+            UserDTO.builder()
+            .fullName(user.getFullName())
+            .gender(user.getGender().name())
+            .username(user.getUsername())
+            .phone(user.getPhoneNumber())
+            .email(user.getEmail())
+            .build();
     }
 
     public UserDTO convertToDTO(Users user) {

@@ -18,11 +18,11 @@ import org.springframework.stereotype.Service;
 public class AppointmentService  {
     @Autowired
     AppointmentRepository appointmentRepository;
-    public AppointmentDTO coverAppointmentDTO(Appointments appointments) {
+    public AppointmentDTO covertAppointmentDTO(Appointments appointments) {
          
         return AppointmentDTO.builder()
             .appointmentID(appointments.getAppointmentID())
-            .AppointmentType(appointments.getAppointmentType().name())
+            
             .CreatedAt(appointments.getCreatedAt())
             .MeetingLink(appointments.getMeetingLink())
             .PsychologistID(appointments.getPsychologistID())
@@ -34,11 +34,21 @@ public class AppointmentService  {
             .build();
     }
 
+    public AppointmentDTO covertChildAppointmentDTO(Appointments appointments) {
+        return AppointmentDTO.builder()
+            .appointmentID(appointments.getAppointmentID())
+            
+            .timeSlotID(appointments.getTimeSlotsID())
+            .MeetingLink(appointments.getMeetingLink())
+            .StudentID(appointments.getStudentID())
+            .build();
+    }
+
     public List<AppointmentDTO> getAllAppointmentDTO () {
         List<Appointments> appointments = appointmentRepository.findAll();
         return 
             appointments.stream()
-            .map(this :: coverAppointmentDTO)
+            .map(this :: covertAppointmentDTO)
             .collect(Collectors.toList());
         
     }
@@ -46,6 +56,6 @@ public class AppointmentService  {
     public AppointmentDTO getAppointmentById(String id) {
         Appointments appointments = appointmentRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("No appointment by id" + id + "Not found"));
-        return coverAppointmentDTO(appointments);
+        return covertAppointmentDTO(appointments);
     }
 }

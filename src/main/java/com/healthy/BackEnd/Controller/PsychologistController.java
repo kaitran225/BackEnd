@@ -4,11 +4,11 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import com.healthy.BackEnd.Service.PsychologistService;
 import com.healthy.BackEnd.dto.PsychologistDTO;
 import com.healthy.BackEnd.exception.GlobalExceptionHandel;
@@ -22,10 +22,10 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class PsychologistController {
     @Autowired
-    PsychologistService psychologistService;
+    public PsychologistService psychologistService;
 
     @SecurityRequirement(name="Bearer Authentication")
-    @GetMapping("/psychologists")
+    @GetMapping("/psychologists/users/appointment")
     public ResponseEntity<?> getAllPsychologist() {
         List<PsychologistDTO> psychologistDTO = psychologistService.getAllPsychologistDTO();
         if (!psychologistDTO.isEmpty()) {
@@ -34,12 +34,14 @@ public class PsychologistController {
         return ResponseEntity.noContent().build(); 
     }
 
-    @SecurityRequirement(name="Bearer Authentication")
-    @GetMapping("/psychologist/{id}")
-    public ResponseEntity<?> getPsychologistById (@PathVariable String id) {
-        PsychologistDTO psychologistDTO = psychologistService.getPsychogistById(id);
-        return ResponseEntity.ok(psychologistDTO);
-    }
+    // @SecurityRequirement(name="Bearer Authentication")
+    // @GetMapping("/psychologist/{id}")
+    // public ResponseEntity<?> getPsychologistById (@PathVariable String id) {
+    //     PsychologistDTO psychologistDTO = psychologistService.getPsychologistById(id);
+    //     return ResponseEntity.ok(psychologistDTO);
+    // }
+
+    
 
 }
 

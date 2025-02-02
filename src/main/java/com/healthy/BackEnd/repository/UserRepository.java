@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<Users, String> {
     List<Users> findAllPsychologists();
 
     Users findByUsername(String username);
+
+    
 } 

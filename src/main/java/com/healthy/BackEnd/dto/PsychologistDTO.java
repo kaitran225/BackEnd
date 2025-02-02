@@ -1,6 +1,9 @@
 package com.healthy.BackEnd.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +20,6 @@ public class PsychologistDTO {
     private String specialization;
     private Integer yearsOfExperience;
     private String status;
+    private UserDTO inforUserofPsychologist;
+    private List<AppointmentDTO> appointment;
 }
