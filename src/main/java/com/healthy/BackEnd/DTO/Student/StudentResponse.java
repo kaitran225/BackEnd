@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.DTO;
+package com.healthy.BackEnd.DTO.Student;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StudentDTO {
+public class StudentResponse {
     private String studentId;
     private String userId;
     private Integer grade;

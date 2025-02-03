@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.DTO;
+package com.healthy.BackEnd.DTO.Appointment;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AppointmentDTO {
+public class AppointmentResponse {
 
     @NotNull(message= "AppointmentID is required")
     private String appointmentID;

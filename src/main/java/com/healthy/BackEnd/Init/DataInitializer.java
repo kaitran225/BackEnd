@@ -321,10 +321,10 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(blog2);
 
         // Initialize Appointments
-        Appointments appointment1 = new Appointments("APP001", timeSlot1.getTimeSlotsID(), student1.getStudentID(), psychologist1.getPsychologistID(), "https://example.com/meeting1");
+        Appointments appointment1 = new Appointments("APP001", timeSlot1.getTimeSlotsID(), student1.getStudentID(), psychologist1.getPsychologistID(), Appointments.Status.Scheduled ,"https://example.com/meeting1",Appointments.AppointmentType.Online);
         appointmentRepository.save(appointment1);
 
-        Appointments appointment2 = new Appointments("APP002", timeSlot2.getTimeSlotsID(), student2.getStudentID(), psychologist2.getPsychologistID(), "https://example.com/meeting2");
+        Appointments appointment2 = new Appointments("APP002", timeSlot2.getTimeSlotsID(), student2.getStudentID(), psychologist2.getPsychologistID(),Appointments.Status.Scheduled, "https://example.com/meeting2",Appointments.AppointmentType.Online);
         appointmentRepository.save(appointment2);
 
         // Initialize Appointment History

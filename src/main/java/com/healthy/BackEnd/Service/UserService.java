@@ -1,6 +1,6 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.DTO.StudentDTO;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
 import com.healthy.BackEnd.DTO.User.UsersResponse;
 import com.healthy.BackEnd.Entity.Parents;
 import com.healthy.BackEnd.Entity.Psychologists;
@@ -20,9 +20,8 @@ import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     @Autowired
@@ -80,64 +79,66 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UsersResponse convertToChildDTO(Users user) {
-        return
-                UsersResponse.builder()
-                        .fullName(user.getFullName())
-                        .gender(user.getGender().name())
-                        .username(user.getUsername())
-                        .phoneNumber(user.getPhoneNumber())
-                        .email(user.getEmail())
-                        .build();
+    private UsersResponse convertParent(Users user) {
+        Parents parents = parentRepository.findByUserID(user.getUserId());
+        List<Students> studentsList = parents.getStudents();
+        StudentService studentService = new StudentService();
+        List<StudentResponse> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                .children(childrenList)
+                .role(user.getRole().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    private UsersResponse convertStudent(Users user) {
+        Students student = studentRepository.findByUserID(user.getUserId());
+        StudentService studentService = new StudentService();
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .gender(user.getGender().toString())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .studentInfo(studentService.convertToDTO(student))
+                .build();
+    }
+
+    private UsersResponse convertPsychologist(Users user) {
+        Psychologists psychologist = psychologistRepository.findByUserID(user.getUserId());
+        PsychologistService psychologistService = new PsychologistService();
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().toString())
+                .gender(user.getGender().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .psychologistInfo(psychologistService.convertToDTO(psychologist))
+                .build();
+
     }
 
     public UsersResponse convert(Users user) {
         if (user.getRole() == Users.UserRole.PARENT) {
-            Parents parents = parentRepository.findByUserID(user.getUserId());
-            List<Students> studentsList = parents.getStudents();
-            StudentService studentService = new StudentService();
-            List<StudentDTO> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();
-            return UsersResponse.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .gender(user.getGender().toString())
-                    .children(childrenList)
-                    .role(user.getRole().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .build();
+            return convertParent(user);
         }
         if (user.getRole() == Users.UserRole.STUDENT) {
-            Students student = studentRepository.findByUserID(user.getUserId());
-            StudentService studentService = new StudentService();
-            return UsersResponse.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .gender(user.getGender().toString())
-                    .phoneNumber(user.getPhoneNumber())
-                    .role(user.getRole().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .studentInfo(studentService.convertToDTO(student))
-                    .build();
+            return convertStudent(user);
         }
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
-            Psychologists psychologist = psychologistRepository.findByUserID(user.getUserId());
-            PsychologistService psychologistService = new PsychologistService();
-            return UsersResponse.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .role(user.getRole().toString())
-                    .gender(user.getGender().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .psychologistInfo(psychologistService.convertToDTO(psychologist))
-                    .build();
+            return convertPsychologist(user);
         }
         return UsersResponse.builder()
                 .userId(user.getUserId())

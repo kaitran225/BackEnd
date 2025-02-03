@@ -60,9 +60,7 @@ public class SecurityConfig {
                                 "/api/auth/logout",
                                 "/api/auth/refresh",
                                 "/api/auth/register",
-                                "/api/auth/login",
-                                "index.html",
-                                "login.html"
+                                "/api/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

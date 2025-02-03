@@ -67,11 +67,13 @@ public class Appointments {
         appointmentType = Offline;
     }
 
-    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, String meetingLink) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, Status status,String meetingLink, AppointmentType appointmentType) {
         this.appointmentID = appointmentID;
         this.timeSlotsID = timeSlotsID;
         this.studentID = studentID;
         this.psychologistID = psychologistID;
+        this.status = status;
+        this.appointmentType = appointmentType;
         this.meetingLink = meetingLink;
     }
 

@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.healthy.BackEnd.DTO.AppointmentDTO;
+import com.healthy.BackEnd.DTO.Appointment.AppointmentResponse;
 import com.healthy.BackEnd.Entity.Appointments;
 
 import com.healthy.BackEnd.Exception.ResourceNotFoundException;
@@ -18,11 +18,10 @@ import org.springframework.stereotype.Service;
 public class AppointmentService  {
     @Autowired
     AppointmentRepository appointmentRepository;
-    public AppointmentDTO covertAppointmentDTO(Appointments appointments) {
+    public AppointmentResponse covertAppointmentDTO(Appointments appointments) {
          
-        return AppointmentDTO.builder()
+        return AppointmentResponse.builder()
             .appointmentID(appointments.getAppointmentID())
-            
             .CreatedAt(appointments.getCreatedAt())
             .MeetingLink(appointments.getMeetingLink())
             .PsychologistID(appointments.getPsychologistID())
@@ -34,8 +33,8 @@ public class AppointmentService  {
             .build();
     }
 
-    public AppointmentDTO covertChildAppointmentDTO(Appointments appointments) {
-        return AppointmentDTO.builder()
+    public AppointmentResponse covertChildAppointmentDTO(Appointments appointments) {
+        return AppointmentResponse.builder()
             .appointmentID(appointments.getAppointmentID())
             
             .timeSlotID(appointments.getTimeSlotsID())
@@ -44,7 +43,7 @@ public class AppointmentService  {
             .build();
     }
 
-    public List<AppointmentDTO> getAllAppointmentDTO () {
+    public List<AppointmentResponse> getAllAppointmentDTO () {
         List<Appointments> appointments = appointmentRepository.findAll();
         return 
             appointments.stream()
@@ -53,7 +52,7 @@ public class AppointmentService  {
         
     }
 
-    public AppointmentDTO getAppointmentById(String id) {
+    public AppointmentResponse getAppointmentById(String id) {
         Appointments appointments = appointmentRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("No appointment by id" + id + "Not found"));
         return covertAppointmentDTO(appointments);

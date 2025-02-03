@@ -1,8 +1,8 @@
 package com.healthy.BackEnd.DTO.User;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.healthy.BackEnd.DTO.PsychologistDTO;
-import com.healthy.BackEnd.DTO.StudentDTO;
+import com.healthy.BackEnd.DTO.Psychologist.PsychologistResponse;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
 import com.healthy.BackEnd.Entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,9 +27,9 @@ public class UsersResponse {
     private String address;
     private String gender;
     private String role;
-    private List<StudentDTO> children;
-    private PsychologistDTO psychologistInfo;
-    private StudentDTO studentInfo;
+    private List<StudentResponse> children;
+    private PsychologistResponse psychologistInfo;
+    private StudentResponse studentInfo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
