@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+
 @Service
 public class UserService {
 
@@ -29,6 +33,7 @@ public class UserService {
 
     @Autowired
     private PsychologistRepository psychologistRepository;
+
     @Autowired
     private ParentRepository parentRepository;
 
@@ -73,6 +78,17 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public UsersResponse convertToChildDTO(Users user) {
+        return
+                UsersResponse.builder()
+                        .fullName(user.getFullName())
+                        .gender(user.getGender().name())
+                        .username(user.getUsername())
+                        .phoneNumber(user.getPhoneNumber())
+                        .email(user.getEmail())
+                        .build();
     }
 
     public UsersResponse convert(Users user) {
