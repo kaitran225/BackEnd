@@ -6,7 +6,6 @@ import com.healthy.BackEnd.Entity.*;
 import com.healthy.BackEnd.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +15,6 @@ import java.time.LocalTime;
 @Service
 @Component
 public class DataInitializer implements CommandLineRunner {
-
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
