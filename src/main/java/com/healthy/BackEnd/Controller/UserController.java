@@ -1,6 +1,5 @@
 package com.healthy.BackEnd.Controller;
 
-import com.healthy.BackEnd.DTO.User.UsersRequest;
 import com.healthy.BackEnd.DTO.User.UsersResponse;
 import com.healthy.BackEnd.Service.ProgramService;
 import com.healthy.BackEnd.Service.UserService;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.hibernate.dialect.unique.CreateTableUniqueDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
