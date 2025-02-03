@@ -1,9 +1,9 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.dto.StudentDTO;
-import com.healthy.BackEnd.entity.Students;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
-import com.healthy.BackEnd.repository.StudentRepository;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
+import com.healthy.BackEnd.Entity.Students;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +39,8 @@ public class StudentService {
         return studentRepository.findByUserID(userId);
     }
 
-    public StudentDTO convertToDTO(Students student) {
-        return StudentDTO.builder()
+    public StudentResponse convertToDTO(Students student) {
+        return StudentResponse.builder()
                 .studentId(student.getStudentID())
                 .userId(student.getUserID())
                 .grade(student.getGrade())
@@ -53,8 +53,8 @@ public class StudentService {
                 .build();
     }
 
-    public StudentDTO convertToChildDTO(Students student) {
-        return StudentDTO.builder()
+    public StudentResponse convertToChildDTO(Students student) {
+        return StudentResponse.builder()
                 .userId(student.getUserID())
                 .studentId(student.getStudentID())
                 .grade(student.getGrade())

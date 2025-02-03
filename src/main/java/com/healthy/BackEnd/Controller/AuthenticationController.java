@@ -2,11 +2,12 @@ package com.healthy.BackEnd.Controller;
 
 import com.healthy.BackEnd.Service.AuthenticationService;
 import com.healthy.BackEnd.Service.LogoutService;
-import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
-import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
-import com.healthy.BackEnd.dto.auth.RegisterRequest;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
+import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/auth")
 @CrossOrigin
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Authentication management APIs")
+@Tag(name = "Authentication Controller", description = "Authentication management APIs")
 public class AuthenticationController {
 
+    @Autowired
     private final AuthenticationService authenticationService;
+    @Autowired
     private final LogoutService logoutHandler;
 
     @Operation(

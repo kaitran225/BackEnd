@@ -1,10 +1,10 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.entity.ProgramParticipation;
-import com.healthy.BackEnd.entity.Programs;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
-import com.healthy.BackEnd.repository.ProgramParticipationRepository;
-import com.healthy.BackEnd.repository.ProgramRepository;
+import com.healthy.BackEnd.Entity.ProgramParticipation;
+import com.healthy.BackEnd.Entity.Programs;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.ProgramParticipationRepository;
+import com.healthy.BackEnd.Repository.ProgramRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
