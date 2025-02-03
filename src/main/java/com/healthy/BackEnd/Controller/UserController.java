@@ -1,8 +1,6 @@
 package com.healthy.BackEnd.Controller;
 
 import com.healthy.BackEnd.DTO.User.UsersResponse;
-import com.healthy.BackEnd.Service.ProgramService;
-import com.healthy.BackEnd.Service.UserService;
 import com.healthy.BackEnd.Entity.Appointments;
 import com.healthy.BackEnd.Entity.Programs;
 import com.healthy.BackEnd.Entity.SurveyResults;
@@ -10,6 +8,8 @@ import com.healthy.BackEnd.Entity.Users;
 import com.healthy.BackEnd.Exception.ResourceNotFoundException;
 import com.healthy.BackEnd.Repository.AppointmentRepository;
 import com.healthy.BackEnd.Repository.SurveyResultRepository;
+import com.healthy.BackEnd.Service.ProgramService;
+import com.healthy.BackEnd.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +44,7 @@ public class UserController {
             summary = "",
             description = ""
     )
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users")
     public ResponseEntity<List<UsersResponse>> getAllUsers(
             @RequestHeader("Authorization") String token
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     // Working but not tested
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users/{userId}")
     public ResponseEntity<UsersResponse> getUserById(
             @PathVariable String userId) {
@@ -64,7 +64,7 @@ public class UserController {
 
     // Working but not tested
     @GetMapping("/users/{userId}/programs")
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<?> getProgramsByUserId(
             @Valid @PathVariable String userId) {
         try {
@@ -78,21 +78,22 @@ public class UserController {
     }
 
     // Not done and not working
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users/{userId}/appointments")
     public List<Appointments> getAppointmentsByUserId(@PathVariable String userId) {
+
         return appointmentRepository.findByStudentID(userId);
     }
 
     // Not done and not working
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users/{userId}/surveys")
     public List<SurveyResults> getSurveyResultsByUserId(@PathVariable String userId) {
         return surveyResultRepository.findByStudentID(userId);
     }
 
     // Not done and not working
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/users/{userId}/edit")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
         if (!userService.isUserExist(userId)) {

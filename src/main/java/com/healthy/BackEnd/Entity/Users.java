@@ -52,8 +52,11 @@ public class Users implements UserDetails {
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "ResetToken")
+    @Column(name = "reset_token")
     private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 
     public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole, Gender gender) {
         this.userId = userId;
@@ -98,6 +101,23 @@ public class Users implements UserDetails {
 
     public boolean isPresent() {
         return userId != null;
+    }
+
+    public void setResetToken(String token) {
+        this.resetToken = token;
+        this.resetTokenExpiry = LocalDateTime.now().plusHours(24);
+    }
+
+    public boolean isResetTokenValid(String token) {
+        return resetToken != null &&
+                resetToken.equals(token) &&
+                resetTokenExpiry != null &&
+                resetTokenExpiry.isAfter(LocalDateTime.now());
+    }
+
+    public void clearResetToken() {
+        this.resetToken = null;
+        this.resetTokenExpiry = null;
     }
 
     public enum UserRole {

@@ -107,7 +107,7 @@ paths:
       summary: Refresh token
       description: Get a new access token using refresh token
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       responses:
         '200':
           description: New tokens generated
@@ -161,7 +161,7 @@ paths:
       summary: Logout user
       description: Logout the current user
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       responses:
         '200':
           description: Successfully logged out
@@ -172,7 +172,7 @@ paths:
         - User Controller
       summary: Get all users
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       responses:
         '200':
           description: List of all users
@@ -191,7 +191,7 @@ paths:
         - User Controller
       summary: Get user by ID
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       parameters:
         - name: userId
           in: path
@@ -214,7 +214,7 @@ paths:
         - User Controller
       summary: Update user details
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       parameters:
         - name: userId
           in: path
@@ -241,7 +241,7 @@ paths:
         - User Controller
       summary: Get programs by user ID
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       parameters:
         - name: userId
           in: path
@@ -262,7 +262,7 @@ paths:
         - User Controller
       summary: Get appointments by user ID
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       parameters:
         - name: userId
           in: path
@@ -279,7 +279,7 @@ paths:
         - User Controller
       summary: Get survey results by user ID
       security:
-        - Bearer Authentication: []
+        - Bearer Authentication: [ ]
       parameters:
         - name: userId
           in: path

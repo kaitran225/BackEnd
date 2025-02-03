@@ -1,10 +1,10 @@
 package com.healthy.BackEnd.Exception;
 
-public class ErrorResponse  {
+public class ErrorResponse {
     private String message;
     private int status;
 
-    public ErrorResponse(String message,int status) {
+    public ErrorResponse(String message, int status) {
         this.message = message;
         this.status = status;
     }
@@ -13,12 +13,12 @@ public class ErrorResponse  {
         return message;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public void setStatus(int status) {
