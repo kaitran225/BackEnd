@@ -1,13 +1,13 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.dto.UserDTO;
-import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
-import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
-import com.healthy.BackEnd.dto.auth.RegisterRequest;
-import com.healthy.BackEnd.entity.Users;
-import com.healthy.BackEnd.repository.AuthenticationRepository;
-import com.healthy.BackEnd.repository.UserRepository;
-import com.healthy.BackEnd.security.JwtService;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
+import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
+import com.healthy.BackEnd.DTO.User.UsersResponse;
+import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Repository.AuthenticationRepository;
+import com.healthy.BackEnd.Repository.UserRepository;
+import com.healthy.BackEnd.Security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -32,21 +32,21 @@ public class AuthenticationService {
         if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
-        UserDTO user = UserDTO.builder()
+        UsersResponse user = UsersResponse.builder()
                 .userId(UUID.randomUUID().toString())
                 .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .email(request.getEmail())
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .role(String.valueOf(Users.UserRole.valueOf(request.getRole().toUpperCase())))
                 .gender(String.valueOf(Users.Gender.valueOf(request.getGender())))
                 .build();
 
-        Users savedUser = userRepository.save(Users.fromDTO(user));
+        Users savedUser = userRepository.save(user.toUser());
 
-        var accessToken = jwtService.generateToken(savedUser);
-        var refreshToken = jwtService.generateRefreshToken(savedUser);
+        String accessToken = jwtService.generateToken(savedUser);
+        String refreshToken = jwtService.generateRefreshToken(savedUser);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

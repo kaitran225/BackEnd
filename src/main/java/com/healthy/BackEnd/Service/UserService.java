@@ -1,24 +1,27 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.dto.StudentDTO;
-import com.healthy.BackEnd.dto.UserDTO;
-import com.healthy.BackEnd.entity.Parents;
-import com.healthy.BackEnd.entity.Psychologists;
-import com.healthy.BackEnd.entity.Students;
-import com.healthy.BackEnd.entity.Users;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
-import com.healthy.BackEnd.repository.ParentRepository;
-import com.healthy.BackEnd.repository.PsychologistRepository;
-import com.healthy.BackEnd.repository.StudentRepository;
-import com.healthy.BackEnd.repository.UserRepository;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
+import com.healthy.BackEnd.DTO.User.UsersResponse;
+import com.healthy.BackEnd.Entity.Parents;
+import com.healthy.BackEnd.Entity.Psychologists;
+import com.healthy.BackEnd.Entity.Students;
+import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.ParentRepository;
+import com.healthy.BackEnd.Repository.PsychologistRepository;
+import com.healthy.BackEnd.Repository.StudentRepository;
+import com.healthy.BackEnd.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     @Autowired
@@ -29,6 +32,7 @@ public class UserService {
 
     @Autowired
     private PsychologistRepository psychologistRepository;
+
     @Autowired
     private ParentRepository parentRepository;
 
@@ -40,35 +44,32 @@ public class UserService {
         return userRepository.existsById(id);
     }
 
-    public List<UserDTO> getAllUsers() {
+    public List<UsersResponse> getAllUsers() {
         if (isEmpty()) {
             throw new ResourceNotFoundException("No users found");
         }
         return userRepository.findAllUsers().stream()
-                .map(this::convertToDTO)
+                .map(this::convert)
                 .toList();
     }
 
-    public Users getUserById(String id) {
+    public UsersResponse getUserById(String id) {
         if (!isUserExist(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
-        for (Users user : userRepository.findAllUsers()) {
-            System.out.printf(user.getFullName());
-        }
-        return userRepository.findById(id).orElse(null);
+        return convert(Objects.requireNonNull(userRepository.findById(id).orElse(null)));
     }
 
-    public Users editUser(Users user) {
-        Users existingUser = userRepository.findById(user.getUserId())
+    public UsersResponse editUser(Users user) {
+        UsersResponse existingUser = userRepository.findById(user.getUserId()).map(this::convert)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + user.getUserId()));
         existingUser.setFullName(user.getFullName());
         existingUser.setEmail(user.getEmail());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setRole(user.getRole());
+        existingUser.setRole(String.valueOf(user.getRole()));
         existingUser.setUsername(user.getUsername());
         existingUser.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(existingUser);
+        return existingUser;
     }
 
     public void deleteUser(String id) {
@@ -78,59 +79,72 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UserDTO convertToDTO(Users user) {
-        if (user.getRole() == Users.UserRole.PARENT) {
-            Parents parents = parentRepository.findByUserID(user.getUserId());
-            List<Students> studentsList = parents.getStudents();
-            StudentService studentService = new StudentService();
-            List<StudentDTO> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();
-            return UserDTO.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .phone(user.getPhoneNumber())
-                    .gender(user.getGender().toString())
-                    .children(childrenList)
-                    .role(user.getRole().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .build();
-        }
-        if (user.getRole() == Users.UserRole.STUDENT) {
-            Students student = studentRepository.findByUserID(user.getUserId());
-            StudentService studentService = new StudentService();
-            return UserDTO.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .gender(user.getGender().toString())
-                    .phone(user.getPhoneNumber())
-                    .role(user.getRole().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .studentInfo(studentService.convertToDTO(student))
-                    .build();
-        }
-        if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
-            Psychologists psychologist = psychologistRepository.findByUserID(user.getUserId());
-            PsychologistService psychologistService = new PsychologistService();
-            return UserDTO.builder()
-                    .userId(user.getUserId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .phone(user.getPhoneNumber())
-                    .role(user.getRole().toString())
-                    .gender(user.getGender().toString())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .psychologistInfo(psychologistService.convertToDTO(psychologist))
-                    .build();
-        }
-        return UserDTO.builder()
+    private UsersResponse convertParent(Users user) {
+        Parents parents = parentRepository.findByUserID(user.getUserId());
+        List<Students> studentsList = parents.getStudents();
+        StudentService studentService = new StudentService();
+        List<StudentResponse> childrenList = studentsList.stream().map(studentService::convertToChildDTO).toList();
+        return UsersResponse.builder()
                 .userId(user.getUserId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
-                .phone(user.getPhoneNumber())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                .children(childrenList)
+                .role(user.getRole().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    private UsersResponse convertStudent(Users user) {
+        Students student = studentRepository.findByUserID(user.getUserId());
+        StudentService studentService = new StudentService();
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .gender(user.getGender().toString())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .studentInfo(studentService.convertToDTO(student))
+                .build();
+    }
+
+    private UsersResponse convertPsychologist(Users user) {
+        Psychologists psychologist = psychologistRepository.findByUserID(user.getUserId());
+        PsychologistService psychologistService = new PsychologistService();
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().toString())
+                .gender(user.getGender().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .psychologistInfo(psychologistService.convertToDTO(psychologist))
+                .build();
+
+    }
+
+    public UsersResponse convert(Users user) {
+        if (user.getRole() == Users.UserRole.PARENT) {
+            return convertParent(user);
+        }
+        if (user.getRole() == Users.UserRole.STUDENT) {
+            return convertStudent(user);
+        }
+        if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
+            return convertPsychologist(user);
+        }
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender().toString())
                 .role(user.getRole().toString())
                 .createdAt(user.getCreatedAt())

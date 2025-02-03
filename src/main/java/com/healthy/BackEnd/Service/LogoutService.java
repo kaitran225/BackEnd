@@ -1,6 +1,6 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.security.JwtService;
+import com.healthy.BackEnd.Security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
