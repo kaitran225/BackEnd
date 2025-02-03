@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.exception;
+package com.healthy.BackEnd.Exception;
 
 public class ErrorResponse  {
     private String message;
@@ -24,9 +24,4 @@ public class ErrorResponse  {
     public void setStatus(int status) {
         this.status = status;
     }
-
-
-
-
-
 }
