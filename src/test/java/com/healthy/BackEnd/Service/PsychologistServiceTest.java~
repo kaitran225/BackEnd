@@ -61,7 +61,7 @@ public class PsychologistServiceTest {
         Users user = new Users();
 
         Psychologists psychologist = new Psychologists();
-
+        
         new Expectations() {{
             psychologistRepository.findById(psychologistId);
             result = Optional.of(psychologist);

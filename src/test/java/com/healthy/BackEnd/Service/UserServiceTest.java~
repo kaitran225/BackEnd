@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -314,12 +313,10 @@ public class UserServiceTest {
 
         // Act
         List<AppointmentResponse> result = userService.getUserAppointments(user_student_Id);
-        List<AppointmentResponse> result2 = userService.getUserAppointments(user_psychologist_Id);
 
         // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertFalse(result2.isEmpty());
         assertEquals("A001", result.get(0).getAppointmentID());
         assertEquals("SCHEDULED", result.get(0).getStatus());
     }

@@ -32,6 +32,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <jmockit.version>1.49</jmockit.version>
+        <mockito.version>5.10.0</mockito.version>
     </properties>
     <dependencies>
         <dependency>
@@ -141,6 +142,7 @@
                 <configuration>
                     <argLine>
                         -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+                        -XX:+EnableDynamicAgentLoading
                     </argLine>
                 </configuration>
             </plugin>
