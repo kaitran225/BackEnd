@@ -39,7 +39,7 @@ public class UserService {
         }
         return userRepository.findAllUsers().stream()
                 .map(this::convert)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public UsersResponse getUserById(String id) {
@@ -79,7 +79,8 @@ public class UserService {
 
     public List<AppointmentResponse> getUserAppointments(String userId) {
         return buildAppointmentResponseList(
-                userRepository.findById(userId).orElseThrow());
+                userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found")));
     }
 
     public List<SurveyResultsResponse> getUserSurveyResults(String userId) {
@@ -173,7 +174,7 @@ public class UserService {
                     }
                     return buildAppointmentResponse(user, a);
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private List<SurveyResultsResponse> buildSurveyResults(String studentId) {
@@ -204,7 +205,7 @@ public class UserService {
                             .questions(entry.getValue())
                             .build();
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private UsersResponse convert(Users user) {
@@ -279,8 +280,8 @@ public class UserService {
                         parent.getParentID() == null ? null :
                                 parent.getStudents().isEmpty()
                                         ? Collections.emptyList() :
-                                        parent.getStudents().stream().map(s ->
-                                                StudentResponse.builder()
+                                        parent.getStudents().stream()
+                                                .map(s -> StudentResponse.builder()
                                                         .userId(s.getUserID())
                                                         .studentId(s.getStudentID())
                                                         .grade(s.getGrade())
@@ -316,10 +317,10 @@ public class UserService {
                                                                                     .questions(entry.getValue())
                                                                                     .build();
                                                                         })
-                                                                        .toList()
+                                                                        .collect(Collectors.toList())
                                                         )
                                                         .build()
-                                        ).toList()
+                                        ).collect(Collectors.toList())
                 )
                 .appointmentsRecord(
                         (psychologist.getPsychologistID() == null && student.getStudentID() == null) ? null :
@@ -363,7 +364,7 @@ public class UserService {
                                                             .UpdatedAt(a.getUpdatedAt())
                                                             .build();
                                                 }
-                                        ).toList()
+                                        ).collect(Collectors.toList())
                 )
                 .surveyResults(
                         student.getStudentID() == null ? null :
@@ -396,7 +397,7 @@ public class UserService {
                                                     .questions(entry.getValue())
                                                     .build();
                                         })
-                                        .toList()
+                                        .collect(Collectors.toList())
                 )
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
