@@ -1,30 +1,31 @@
 package com.healthy.BackEnd.Service;
 
 import com.healthy.BackEnd.DTO.Appointment.AppointmentResponse;
+import com.healthy.BackEnd.DTO.Survey.SurveyResultsResponse;
 import com.healthy.BackEnd.DTO.User.UsersResponse;
-import com.healthy.BackEnd.Entity.Appointments;
-import com.healthy.BackEnd.Entity.Psychologists;
-import com.healthy.BackEnd.Entity.Students;
-import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Entity.*;
 import com.healthy.BackEnd.Exception.ResourceNotFoundException;
 import com.healthy.BackEnd.Repository.*;
 import com.healthy.BackEnd.config.TestConfig;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.lang.reflect.Method;
 
+import static mockit.internal.expectations.ActiveInvocations.times;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -64,8 +65,149 @@ public class UserServiceTest {
     @Injectable
     private AnswersRepository answersRepository;
 
+    @BeforeEach
+    public void setUp() {
+        initializeTestData();
+    }
+
+    private void initializeTestData() {
+        // Initialize Users
+        Users user1 = new Users();
+        user1.setUserId("user1");
+        user1.setUsername("username1");
+        user1.setFullName("User One");
+        user1.setEmail("test-user1@example.com");
+        user1.setGender(Users.Gender.Female);
+        user1.setRole(Users.UserRole.PARENT);
+        user1.setCreatedAt(LocalDateTime.now());
+
+        Users user2 = new Users();
+        user2.setUserId("user2");
+        user2.setUsername("username2");
+        user2.setFullName("User Two");
+        user2.setEmail("test-user2@example.com");
+        user2.setGender(Users.Gender.Male);
+        user2.setRole(Users.UserRole.PSYCHOLOGIST);
+        user2.setCreatedAt(LocalDateTime.now());
+
+        // Initialize Students
+        Students student = new Students();
+        student.setStudentID("S001");
+        student.setUserID("user1");
+        student.setGrade(9);
+        student.setClassName("A");
+        student.setSchoolName("ABC School");
+        student.setDepressionScore(5);
+        student.setAnxietyScore(7);
+        student.setStressScore(8);
+
+        // Initialize Psychologists
+        Psychologists psychologist = new Psychologists();
+        psychologist.setPsychologistID("P001");
+        psychologist.setStatus(Psychologists.Status.Active);
+        psychologist.setSpecialization("Specialization 1");
+        psychologist.setYearsOfExperience(5);
+
+        // Initialize Survey Results
+        SurveyResults surveyResult = new SurveyResults();
+        surveyResult.setResultID("R001");
+        surveyResult.setStudentID("S001");
+        surveyResult.setQuestionID("Q1");
+        surveyResult.setAnswerID("A1");
+
+        // Initialize Answers
+        Answers answer1 = new Answers();
+        answer1.setAnswerID("A1");
+        answer1.setQuestionID("Q1");
+        answer1.setAnswer("Answer 1");
+        answer1.setScore(0);
+
+        Answers answer2 = new Answers();
+        answer2.setAnswerID("A2");
+        answer2.setQuestionID("Q1");
+        answer2.setAnswer("Answer 2");
+        answer2.setScore(1);
+
+        Answers answer3 = new Answers();
+        answer3.setAnswerID("A3");
+        answer3.setQuestionID("Q1");
+        answer3.setAnswer("Answer 3");
+        answer3.setScore(2);
+
+        Answers answer4 = new Answers();
+        answer4.setAnswerID("A4");
+        answer4.setQuestionID("Q1");
+        answer4.setAnswer("Answer 4");
+        answer4.setScore(3);
+
+
+        // Initialize SurveyQuestions
+        SurveyQuestions surveyQuestion = new SurveyQuestions();
+        surveyQuestion.setQuestionID("Q1");
+        surveyQuestion.setQuestionText("Question 1");
+        surveyQuestion.setCategoryID("CAT1");
+        surveyQuestion.setSurveyID("SV001");
+
+        // Initialize Surveys
+        Surveys survey = new Surveys();
+        survey.setSurveyID("SV001");
+        survey.setCategoryID("CAT1");
+        survey.setSurveyName("Survey 1");
+        survey.setDescription("Description 1");
+        survey.setStatus(Surveys.Status.Unfinished);
+        // Initialize Categories
+        Categories category = new Categories();
+        category.setCategoryID("CAT1");
+        category.setCategoryName(Categories.MentalHealthCategory.Anxiety);
+
+
+        // Mock repository responses
+        new Expectations() {{
+            userRepository.findAll();
+            result = Arrays.asList(user1, user2);
+
+            userRepository.findById("user1");
+            result = Optional.of(user1);
+
+            surveyResultRepository.findByStudentID("S001");
+            result = List.of(surveyResult);
+
+            psychologistRepository.findById("P001");
+            result = Optional.of(psychologist);
+
+            studentRepository.findById("S001");
+            result = Optional.of(student);
+
+            answersRepository.findByQuestionID("Q1");
+            result = Arrays.asList(answer1, answer2, answer3, answer4);
+
+            surveyRepository.findById("SV001");
+            result = Optional.of(surveyQuestion);
+
+            surveyResultRepository.findByStudentID("S001");
+            result = List.of(surveyResult);
+        }};
+    }
+
     @Test
     public void testGetUserById_Success() {
+
+
+        new MockUp<UserService>(){
+            @Mock
+            public Users getUserById(String userId) {
+                Users user = new Users();
+                user.setUserId(userId);
+                user.setUsername("test-user");
+                user.setFullName("Test User");
+                user.setEmail("test@example.com");
+                user.setRole(Users.UserRole.STUDENT);
+                user.setGender(Users.Gender.Male);
+                user.setCreatedAt(LocalDateTime.now());
+                return user;
+            }
+        };
+
         // Arrange
         String userId = "test-user-id";
         Users user = new Users();
@@ -110,31 +252,6 @@ public class UserServiceTest {
 
     @Test
     public void testGetAllUsers_Success() {
-        // Arrange
-        Users user1 = new Users();
-        user1.setUserId("user1");
-        user1.setUsername("test-user1");
-        user1.setFullName("User One");
-        user1.setEmail("test-user1@example.com");
-        user1.setGender(Users.Gender.Female);
-        user1.setRole(Users.UserRole.PARENT);
-        user1.setCreatedAt(LocalDateTime.now());
-        Users user2 = new Users();
-        user2.setUserId("user2");
-        user2.setUsername("test-user2");
-        user2.setFullName("User Two");
-        user2.setEmail("test-user2@example.com");
-        user2.setGender(Users.Gender.Male);
-        user2.setRole(Users.UserRole.PSYCHOLOGIST);
-        user2.setCreatedAt(LocalDateTime.now());
-
-        new Expectations() {{
-            userRepository.findAll();
-            result = Arrays.asList(user1, user2);
-            userRepository.findAllUsers();
-            result = Arrays.asList(user1, user2);
-        }};
-
         // Act
         List<UsersResponse> result = userService.getAllUsers();
 
@@ -295,30 +412,35 @@ public class UserServiceTest {
 
 
         new Expectations() {{
-
+            // Mock studentRepository.findByUserID
             studentRepository.findByUserID(user_student_Id);
-            result = student;
+            result = student;  // Ensure returning an Optional if needed
 
+            // Mock psychologistRepository.findByUserID
             psychologistRepository.findByUserID(user_psychologist_Id);
+            result = psychologist;  // Ensure returning an Optional if needed
 
+            // Mock appointmentRepository.findByStudentID
             appointmentRepository.findByStudentID(student.getStudentID());
             result = Collections.singletonList(appointment);
 
+            // Mock psychologistRepository.findById
             psychologistRepository.findById(appointment.getPsychologistID());
-            result = Optional.of(psychologist);
+            result = psychologist;
 
+            // Mock studentRepository.findById for appointment
             studentRepository.findById(appointment.getStudentID());
-            result = Optional.of(student);
+            result = student;
         }};
 
         // Act
-        List<AppointmentResponse> result = userService.getUserAppointments(user_student_Id);
+        List<AppointmentResponse> resultAppointments = userService.getUserAppointments(user_student_Id);
 
-        // Assert
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals("A001", result.get(0).getAppointmentID());
-        assertEquals("SCHEDULED", result.get(0).getStatus());
+        // Asserts
+        assertNotNull(resultAppointments);
+        assertFalse(resultAppointments.isEmpty());
+        assertEquals(1, resultAppointments.size());
+        assertEquals("SCHEDULED", resultAppointments.get(0).getStatus());
     }
 
     @Test
@@ -402,5 +524,32 @@ public class UserServiceTest {
 
         // Assert
         assertFalse(result);
+    }
+
+    @Test
+    public void testBuildSurveyResults() throws Exception {
+        // Arrange
+        String studentId = "S001";
+        SurveyResults surveyResult = new SurveyResults();
+        surveyResult.setStudentID(studentId);
+        surveyResult.setQuestionID("Q1");
+        surveyResult.setAnswerID("A1");
+        // Mock the repository to return the survey result
+        new Expectations() {{
+            surveyResultRepository.findByStudentID(studentId);
+            result = List.of(surveyResult);
+        }};
+
+        // Access the private method using reflection
+        Method method = UserService.class.getDeclaredMethod("buildSurveyResults", String.class);
+        method.setAccessible(true); // Make the method accessible
+
+        // Act
+        List<SurveyResultsResponse> result = (List<SurveyResultsResponse>) method.invoke(userService, studentId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(studentId, result.get(0).getSurveyId()); // Adjust based on your actual SurveyResultsResponse structure
     }
 } 

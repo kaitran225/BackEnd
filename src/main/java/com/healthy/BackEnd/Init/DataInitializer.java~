@@ -76,7 +76,7 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private AuthenticationService authenticationService;
 
-    public void initialize() {
+    private void initialize() {
         // Initialize Users
         authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
         authenticationService.register(new RegisterRequest("john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
