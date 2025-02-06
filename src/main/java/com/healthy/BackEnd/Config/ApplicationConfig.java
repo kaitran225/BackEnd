@@ -2,7 +2,9 @@ package com.healthy.BackEnd.Config;
 
 import com.healthy.BackEnd.Repository.AuthenticationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,19 +13,21 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+@Component
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
     private final AuthenticationRepository authenticationRepository;
 
-    @Bean
+    @Autowired
     public UserDetailsService userDetailsService() {
         return authenticationRepository::findByUsername;
     }
 
-    @Bean
+    @Autowired
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
@@ -31,12 +35,12 @@ public class ApplicationConfig {
         return authProvider;
     }
 
-    @Bean
+    @Autowired
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    @Bean
+    @Autowired
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
