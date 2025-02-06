@@ -1,14 +1,15 @@
 package com.healthy.BackEnd.Service;
 
+import com.healthy.BackEnd.Repository.RefreshTokenRepository;
 import com.healthy.BackEnd.Security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpHeaders;
 
 @Service
 @RequiredArgsConstructor
@@ -16,15 +17,23 @@ public class LogoutService implements LogoutHandler {
 
     private final JwtService jwtService;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
 
         String token = authHeader.substring(7);
+        String userId = jwtService.extractUsername(token);
 
+        // Delete refresh token
+        refreshTokenRepository.deleteByUserId(userId);
+
+        // Check if token is valid
         if (!jwtService.isTokenValid(token, (UserDetails) authentication)) {
             return;
         }

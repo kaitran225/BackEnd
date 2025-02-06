@@ -11,7 +11,9 @@ CREATE TABLE Users (
     PhoneNumber VARCHAR(15),
     Role ENUM('Student', 'Parent', 'Psychologist', 'Manager', 'Staff') NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP
 );
 
 CREATE TABLE Students (
@@ -210,3 +212,14 @@ CREATE TABLE Notifications (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+CREATE TABLE refresh_tokens (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    hashed_token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_refresh_tokens_hashed_token ON refresh_tokens(hashed_token);
+CREATE INDEX idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);

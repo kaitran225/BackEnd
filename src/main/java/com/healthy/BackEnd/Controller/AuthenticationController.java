@@ -1,21 +1,24 @@
 package com.healthy.BackEnd.Controller;
 
-import com.healthy.BackEnd.Service.AuthenticationService;
-import com.healthy.BackEnd.Service.LogoutService;
 import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
 import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
 import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.healthy.BackEnd.Service.AuthenticationService;
+import com.healthy.BackEnd.Service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,8 +33,8 @@ public class AuthenticationController {
     private final LogoutService logoutHandler;
 
     @Operation(
-        summary = "Register new user",
-        description = "Register a new user with the provided details"
+            summary = "Register new user",
+            description = "Register a new user with the provided details"
     )
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
@@ -41,34 +44,32 @@ public class AuthenticationController {
     }
 
     @Operation(
-        summary = "Authenticate user",
-        description = "Authenticate a user and return JWT tokens"
+            summary = "Authenticate user",
+            description = "Authenticate a user and return JWT tokens"
     )
     @PostMapping("/login")
+    @Transactional
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @Valid @RequestBody AuthenticationRequest request,
-            HttpServletResponse response
+            @Valid @RequestBody AuthenticationRequest request
     ) {
         AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
         return ResponseEntity.ok(authenticationResponse);
     }
 
     @Operation(
-        summary = "Refresh token",
-        description = "Get a new access token using refresh token"
+            summary = "Refresh token",
+            description = "Get a new access token using refresh token"
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
+            HttpServletRequest request) {
         return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 
     @Operation(
-        summary = "Initiate password reset",
-        description = "Send password reset email to user"
+            summary = "Initiate password reset",
+            description = "Send password reset email to user"
     )
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(
@@ -79,21 +80,28 @@ public class AuthenticationController {
     }
 
     @Operation(
-        summary = "Reset password",
-        description = "Reset password using token from email"
+            summary = "Reset password",
+            description = "Reset password using token from email"
     )
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
             @RequestParam String token,
-            @RequestParam String newPassword
+            @RequestParam @Size(min = 8, message = "Password must be at least 8 characters long")
+            @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$",
+                    message = "Password must contain at least one digit, one lowercase, one uppercase, and one special character")
+            String newPassword
     ) {
-        authenticationService.resetPassword(token, newPassword);
-        return ResponseEntity.ok("Password successfully reset");
+        try {
+            authenticationService.resetPassword(token, newPassword);
+            return ResponseEntity.ok("Password successfully reset");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @Operation(
-        summary = "Logout user",
-        description = "Logout the current user"
+            summary = "Logout user",
+            description = "Logout the current user"
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/logout")
@@ -102,7 +110,7 @@ public class AuthenticationController {
             HttpServletResponse response,
             Authentication authentication
     ) {
-        logoutHandler.logout(request,response,authentication);
+        logoutHandler.logout(request, response, authentication);
         return ResponseEntity.ok("Successfully logged out");
     }
 }
