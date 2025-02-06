@@ -1,14 +1,11 @@
 package com.healthy.BackEnd.Service;
 
 import com.healthy.BackEnd.DTO.User.UsersResponse;
-import java.time.format.DateTimeFormatter;
-
-import mockit.*;
-
 import com.healthy.BackEnd.Entity.Users;
 import com.healthy.BackEnd.Exception.ResourceNotFoundException;
 import com.healthy.BackEnd.Repository.*;
 import com.healthy.BackEnd.config.TestConfig;
+import mockit.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,12 +14,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static mockit.internal.expectations.ActiveInvocations.times;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @SpringBootTest
@@ -59,7 +57,7 @@ public class JmockitDemoTest {
     @Injectable
     private AnswersRepository answersRepository;
 
-    private Users user1(){
+    private Users user1() {
         Users user1 = new Users();
         user1.setUserId("user1");
         user1.setUsername("username1");
@@ -70,7 +68,8 @@ public class JmockitDemoTest {
         user1.setCreatedAt(LocalDateTime.now());
         return user1;
     }
-    private Users user2(){
+
+    private Users user2() {
         Users user2 = new Users();
         user2.setUserId("user2");
         user2.setUsername("username2");
@@ -81,7 +80,8 @@ public class JmockitDemoTest {
         user2.setCreatedAt(LocalDateTime.now());
         return user2;
     }
-    private Users user(){
+
+    private Users user() {
         String userId = "test-user-id";
         Users user = new Users();
         user.setUserId(userId);
@@ -93,6 +93,7 @@ public class JmockitDemoTest {
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }
+
     private void show(UsersResponse usersResponse) {
         // Header
         System.out.println("=============================================");
@@ -141,24 +142,30 @@ public class JmockitDemoTest {
 
         new Expectations() {{
             userRepository.findAll();
-            result = Arrays.asList(user1, user2); System.out.println("Expectation set for userRepository.findAll() to return a list of 2 users.");
+            result = Arrays.asList(user1, user2);
+            System.out.println("Expectation set for userRepository.findAll() to return a list of 2 users.");
 
             userRepository.findAllUsers();
-            result = Arrays.asList(user1, user2); System.out.println("Expectation set for userRepository.findAllUsers() to return a list of 2 users.");
+            result = Arrays.asList(user1, user2);
+            System.out.println("Expectation set for userRepository.findAllUsers() to return a list of 2 users.");
         }};
 
         // Act
         List<UsersResponse> result = userService.getAllUsers();
 
         // Assert
-        assertNotNull(result, "The result should not be null."); System.out.println("Test Get All Users Success: Result is not null.");
-        assertEquals(2, result.size(), "The size of the result list should be 2.");System.out.println("Test Get All Users Success: Result contains 2 users.");
+        assertNotNull(result, "The result should not be null.");
+        System.out.println("Test Get All Users Success: Result is not null.");
+        assertEquals(2, result.size(), "The size of the result list should be 2.");
+        System.out.println("Test Get All Users Success: Result contains 2 users.");
 
         // Assert that the values for the first user match
         UsersResponse firstUserResponse = result.get(0);
-        assertEquals(user1.getUserId(), firstUserResponse.getUserId(), "User 1 ID mismatch."); System.out.println("Test Get All Users Success: User 1 details match.");
+        assertEquals(user1.getUserId(), firstUserResponse.getUserId(), "User 1 ID mismatch.");
+        System.out.println("Test Get All Users Success: User 1 details match.");
         UsersResponse secondUserResponse = result.get(1);
-        assertEquals(user2.getUserId(), secondUserResponse.getUserId(), "User 2 ID mismatch."); System.out.println("Test Get All Users Success: User 2 details match.");
+        assertEquals(user2.getUserId(), secondUserResponse.getUserId(), "User 2 ID mismatch.");
+        System.out.println("Test Get All Users Success: User 2 details match.");
 
         // Verify that the repository methods were called the expected number of times
         new Verifications() {{
@@ -170,7 +177,8 @@ public class JmockitDemoTest {
             times = 1;
         }};
         for (UsersResponse user : result
-             ) {show(user);
+        ) {
+            show(user);
         }
     }
 
@@ -229,7 +237,8 @@ public class JmockitDemoTest {
         System.out.println("Test Get User By Id Success: Created Date is not null.");
 
         new Verifications() {{
-            userRepository.findById(userId); times = 1;
+            userRepository.findById(userId);
+            times = 1;
             System.out.println("Verification: userRepository.findById() was called once with userId: " + userId);
         }};
         show(result);
