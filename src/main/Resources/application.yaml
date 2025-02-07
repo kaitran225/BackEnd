@@ -4,19 +4,36 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: "HikariCP"
+      maximum-pool-size: 10
+      connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
+      auto-commit: false
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      minimum-idle: 1       # Keep only 1 idle connection to save memory
+      idle-timeout: 30000   # Close idle connections quickly (30s)
+      max-lifetime: 600000  # Prevent stale connections (10 min)
+      keepalive-time: 60000 # Avoid connection timeouts (1 min)
+
   jpa:
     hibernate:
+      transaction:
+        jta:
+          platform: "org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform"
       properties:
         hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    open-in-view: false
+    open-in-view: true
+
   jackson:
     default-property-inclusion: non_null
     serialization:
       fail-on-empty-beans: false
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -27,17 +44,7 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
-  hikari:
-    connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
-    auto-commit: false
-    transaction-isolation: TRANSACTION_READ_COMMITTED
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    pool-name: HikariCP
-    minimum-idle: 1       # Keep only 1 idle connection to save memory
-    maximum-pool-size: 5  # Adjusted to handle more connections
-    idle-timeout: 30000    # Close idle connections quickly (30s)
-    max-lifetime: 600000   # Prevent stale connections (10 min)
-    keepalive-time: 60000  # Avoid connection timeouts (1 min)
+
   cors:
     configuration:
       allowed-origins: "*"
@@ -46,6 +53,7 @@ spring:
       exposed-headers: "*"
       allow-credentials: true
       max-age: 3600
+
   security:
     user:
       password:
@@ -64,18 +72,19 @@ logging:
   level:
     root: INFO
     com.zaxxer.hikari.HikariDataSource: DEBUG
-    org.springframework: DEBUG #INFO  # Reduce log level to save CPU
-    com.zaxxer.hikari: WARN    # Only log critical DB pool issues
-    org.hibernate.SQL: WARN     # Reduce excessive SQL logging
+    org.springframework: DEBUG      # Reduce log level to save CPU
+    com.zaxxer.hikari: WARN         # Only log critical DB pool issues
+    org.hibernate.SQL: WARN         # Reduce excessive SQL logging
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+
 server:
   port: 8080
   address: 0.0.0.0  # Ensures the server binds to all network interfaces
   tomcat:
     threads:
       min-spare: 2
-      max: 5  # Small max thread count to match low CPU
+      max: 5      # Small max thread count to match low CPU
   compression:
     enabled: true
     mime-types: application/json,text/html,text/xml
