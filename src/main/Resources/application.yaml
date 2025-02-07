@@ -11,11 +11,11 @@ spring:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
       ddl-auto: update
       dialect: org.hibernate.dialect.MySQLDialect
+      transaction:
+        jta:
+          platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
+          enabled: true
     open-in-view: true
-    default-transaction:
-      jta:
-        platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
-        enabled: true
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -49,8 +49,13 @@ spring:
           bcrypt:
             strength: 16
   physical_naming_strategy: com.healthy.BackEnd.init.PascalCaseNamingStrategy
-  jwt:
-    secret: your_actual_secret_key_here
-    expiration: your_actual_jwt_expiration_here
-    refresh-token:
-      expiration: your_actual_refresh_token_expiration_here
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000
+  refresh-token:
+    expiration: 604800000
+
+logging:
+  level:
+    org.springframework: DEBUG

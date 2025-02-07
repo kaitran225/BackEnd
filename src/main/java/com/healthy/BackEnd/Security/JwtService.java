@@ -5,6 +5,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,13 @@ public class JwtService {
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshExpiration;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+
+    @PostConstruct
+    public void init() {
+        logger.info("JWT Secret Key: {}", secretKey);
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
