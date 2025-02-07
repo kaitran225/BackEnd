@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,17 +19,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-@RequiredArgsConstructor
 public class JwtService {
 
     @Value("${jwt.secret}")
-    private final String secretKey;
+    private String secretKey;
 
     @Value("${jwt.expiration}")
-    private final long jwtExpiration;
+    private long jwtExpiration;
 
     @Value("${jwt.refresh-token.expiration}")
-    private final long refreshExpiration;
+    private long refreshExpiration;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
