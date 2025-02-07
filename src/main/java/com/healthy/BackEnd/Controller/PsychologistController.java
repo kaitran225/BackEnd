@@ -16,8 +16,7 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 public class PsychologistController {
-    @Autowired
-    public PsychologistService psychologistService;
+    private final PsychologistService psychologistService;
 
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/psychologists")

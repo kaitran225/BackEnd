@@ -15,8 +15,7 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 public class AppointmentController {
-    @Autowired
-    private AppointmentService appointmentService;
+    private final AppointmentService appointmentService;
 
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/appointments")

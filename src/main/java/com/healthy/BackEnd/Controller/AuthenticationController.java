@@ -27,9 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication Controller", description = "Authentication management APIs")
 public class AuthenticationController {
 
-    @Autowired
     private final AuthenticationService authenticationService;
-    @Autowired
     private final LogoutService logoutHandler;
 
     @Operation(

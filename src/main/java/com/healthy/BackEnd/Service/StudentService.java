@@ -4,16 +4,17 @@ import com.healthy.BackEnd.DTO.Student.StudentResponse;
 import com.healthy.BackEnd.Entity.Students;
 import com.healthy.BackEnd.Exception.ResourceNotFoundException;
 import com.healthy.BackEnd.Repository.StudentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
     public boolean isEmpty() {
         return studentRepository.findAll().isEmpty();

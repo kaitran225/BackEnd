@@ -21,12 +21,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AppointmentService {
-    @Autowired
-    AppointmentRepository appointmentRepository;
-    @Autowired
-    StudentRepository studentRepository;
-    @Autowired
-    PsychologistRepository psychologistRepository;
+
+    private final AppointmentRepository appointmentRepository;
+    private final StudentRepository studentRepository;
+    private final PsychologistRepository psychologistRepository;
 
     public AppointmentResponse covertAppointmentDTO(Appointments appointments) {
 

@@ -4,77 +4,36 @@ import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
 import com.healthy.BackEnd.Entity.*;
 import com.healthy.BackEnd.Repository.*;
 import com.healthy.BackEnd.Service.AuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Service
-@Component
+@RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private ProgramRepository programRepository;
-
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-
-    @Autowired
-    private SurveyResultRepository surveyResultRepository;
-
-    @Autowired
-    private BlogRepository blogRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private ParentRepository parentRepository;
-
-    @Autowired
-    private PsychologistRepository psychologistRepository;
-
-    @Autowired
-    private TimeSlotRepository timeSlotRepository;
-
-    @Autowired
-    private ProgramParticipationRepository programParticipationRepository;
-
-    @Autowired
-    private SurveyRepository surveyRepository;
-
-    @Autowired
-    private SurveyQuestionRepository surveyQuestionRepository;
-
-    @Autowired
-    private AnswersRepository answersRepository;
-
-    @Autowired
-    private StudentNoteRepository studentNoteRepository;
-
-    @Autowired
-    private UserLogRepository userLogRepository;
-
-    @Autowired
-    private AppointmentHistoryRepository appointmentHistoryRepository;
-
-    @Autowired
-    private ProgramScheduleRepository programScheduleRepository;
-
-    @Autowired
-    private CategoriesRepository categoryRepository;
-
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final UserRepository userRepository;
+    private final ProgramRepository programRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final SurveyResultRepository surveyResultRepository;
+    private final BlogRepository blogRepository;
+    private final NotificationRepository notificationRepository;
+    private final StudentRepository studentRepository;
+    private final ParentRepository parentRepository;
+    private final PsychologistRepository psychologistRepository;
+    private final TimeSlotRepository timeSlotRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
+    private final SurveyRepository surveyRepository;
+    private final SurveyQuestionRepository surveyQuestionRepository;
+    private final AnswersRepository answersRepository;
+    private final StudentNoteRepository studentNoteRepository;
+    private final UserLogRepository userLogRepository;
+    private final AppointmentHistoryRepository appointmentHistoryRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
+    private final CategoriesRepository categoryRepository;
+    private final AuthenticationService authenticationService;
 
     private void initialize() {
         // Initialize Users

@@ -23,14 +23,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PsychologistService {
 
-    @Autowired
-    public PsychologistRepository psychologistRepository;
+    public final PsychologistRepository psychologistRepository;
 
-    @Autowired
-    public AppointmentRepository appointmentRepository;
+    public final AppointmentRepository appointmentRepository;
 
-    @Autowired
-    public UserRepository userRepository;
+    public final UserRepository userRepository;
 
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
