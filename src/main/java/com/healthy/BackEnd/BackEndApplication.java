@@ -7,6 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BackEndApplication {
 
     public static void main(String[] args) {
+        System.out.println("Database Password: " + System.getenv("DATABASE_PASSWORD"));
+        System.out.println("Database User: " + System.getenv("DATABASE_USER"));
+        System.out.println("Database Url: " + System.getenv("DATABASE_HOST") + ":" + System.getenv("DATABASE_PORT") + "/" + System.getenv("DATABASE_NAME"));
         SpringApplication.run(BackEndApplication.class, args);
     }
 
