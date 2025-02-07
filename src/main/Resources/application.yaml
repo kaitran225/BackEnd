@@ -6,16 +6,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-      transaction:
-        jta:
-          platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
-          enabled: true
-    open-in-view: true
+    open-in-view: false  # Prevents memory leaks (Best practice)
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -29,11 +25,14 @@ spring:
       mail:
         smtp:
           auth: true
-          starttls:
-            enable: true
+          starttls.enable: true
   hikari:
     pool-name: HikariCP
-    maximum-pool-size: 32
+    minimum-idle: 1       # Keep only 1 idle connection to save memory
+    maximum-pool-size: 2   # Limited DB connections (prevents overuse)
+    idle-timeout: 30000    # Close idle connections quickly (30s)
+    max-lifetime: 600000   # Prevent stale connections (10 min)
+    keepalive-time: 60000  # Avoid connection timeouts (1 min)
   cors:
     configuration:
       allowed-origins: "*"
@@ -47,7 +46,7 @@ spring:
       password:
         encoder:
           bcrypt:
-            strength: 16
+            strength: 10  # Reduce from 16 to save CPU cycles
   physical_naming_strategy: com.healthy.BackEnd.init.PascalCaseNamingStrategy
 
 jwt:
@@ -58,4 +57,31 @@ jwt:
 
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework: INFO  # Reduce log level to save CPU
+    com.zaxxer.hikari: WARN    # Only log critical DB pool issues
+    org.hibernate.SQL: WARN     # Reduce excessive SQL logging
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+
+server:
+  port: 8080
+  tomcat:
+    threads:
+      min-spare: 2
+      max: 5  # Small max thread count to match low CPU
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/xml
+    min-response-size: 1024
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  health:
+    defaults:
+      enabled: false
+  info:
+    env:
+      enabled: true
+
