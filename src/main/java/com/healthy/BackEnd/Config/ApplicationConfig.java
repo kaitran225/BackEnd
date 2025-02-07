@@ -1,10 +1,8 @@
 package com.healthy.BackEnd.Config;
 
 import com.healthy.BackEnd.Repository.AuthenticationRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class ApplicationConfig {
 
+    @Autowired
     private AuthenticationRepository authenticationRepository;
 
     @Bean
