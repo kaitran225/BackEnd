@@ -39,7 +39,7 @@ public class StudentService {
         return studentRepository.findByUserID(userId);
     }
 
-    public StudentResponse convertToDTO(Students student) {
+    public StudentResponse convert(Students student) {
         return StudentResponse.builder()
                 .studentId(student.getStudentID())
                 .userId(student.getUserID())
@@ -50,16 +50,6 @@ public class StudentService {
                 .depressionScore(student.getDepressionScore())
                 .anxietyScore(student.getAnxietyScore())
                 .stressScore(student.getStressScore())
-                .build();
-    }
-
-    public StudentResponse convertToChildDTO(Students student) {
-        return StudentResponse.builder()
-                .userId(student.getUserID())
-                .studentId(student.getStudentID())
-                .grade(student.getGrade())
-                .className(student.getClassName())
-                .fullName(student.getUser().getFullName())
                 .build();
     }
 }
