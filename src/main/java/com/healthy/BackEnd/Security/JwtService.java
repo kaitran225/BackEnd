@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.StringJoiner;
 
 @Service
 public class JwtService {
@@ -54,6 +55,11 @@ public class JwtService {
     }
 
     private String buildToken(Map<String, Object> extraClaims, Users user, long expiration) {
+        StringJoiner claimsJoiner = new StringJoiner(", ");
+        claimsJoiner.add("subject=" + user.getUsername());
+        claimsJoiner.add("issuedAt=" + new Date(System.currentTimeMillis()));
+        claimsJoiner.add("expiration=" + new Date(System.currentTimeMillis() + expiration));
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
