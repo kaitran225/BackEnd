@@ -62,6 +62,8 @@ jwt:
 
 logging:
   level:
+    root: INFO
+    com.zaxxer.hikari.HikariDataSource: DEBUG
     org.springframework: DEBUG #INFO  # Reduce log level to save CPU
     com.zaxxer.hikari: WARN    # Only log critical DB pool issues
     org.hibernate.SQL: WARN     # Reduce excessive SQL logging
