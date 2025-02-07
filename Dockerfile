@@ -4,7 +4,7 @@ RUN mvn clean package -DskipTests
 
 # Use OpenJDK for runtime
 FROM openjdk:21-jdk-slim
-COPY --from=build /app/target/swagger-api-server.jar swagger-api-server.jar
+COPY --from=build /target/swagger-api-server.jar swagger-api-server.jar
 
 
 # Expose port 8080 (Render detects automatically)
