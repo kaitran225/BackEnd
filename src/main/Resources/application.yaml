@@ -33,7 +33,7 @@ spring:
             enable: true
   hikari:
     pool-name: HikariCP
-    maximum-pool-size: 10
+    maximum-pool-size: 32
   cors:
     configuration:
       allowed-origins: "*"
