@@ -6,11 +6,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
+      properties:
+        hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    open-in-view: false  # Prevents memory leaks (Best practice)
+    open-in-view: false
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -32,7 +34,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     pool-name: HikariCP
     minimum-idle: 1       # Keep only 1 idle connection to save memory
-    maximum-pool-size: 10  # Adjusted to handle more connections
+    maximum-pool-size: 5  # Adjusted to handle more connections
     idle-timeout: 30000    # Close idle connections quickly (30s)
     max-lifetime: 600000   # Prevent stale connections (10 min)
     keepalive-time: 60000  # Avoid connection timeouts (1 min)
