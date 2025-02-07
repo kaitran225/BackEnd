@@ -79,6 +79,9 @@ logging:
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
 
 server:
+  error:
+    whitelabel:
+      enabled: false
   port: 8080
   address: 0.0.0.0  # Ensures the server binds to all network interfaces
   tomcat:
