@@ -1,18 +1,14 @@
 spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://${DATABASE_URL}
+    url: ${DATABASE_URL}
     #    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: "HikariCP"
-      maximum-pool-size: 10
-      connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
+      maximum-pool-size: 4
       auto-commit: false
-      transaction-isolation: TRANSACTION_READ_COMMITTED
-      driver-class-name: com.mysql.cj.jdbc.Driver
       minimum-idle: 1       # Keep only 1 idle connection to save memory
       idle-timeout: 30000   # Close idle connections quickly (30s)
       max-lifetime: 600000  # Prevent stale connections (10 min)
