@@ -3,7 +3,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Use OpenJDK for runtime
-FROM openjdk:21-jdk-slim
+FROM openjdk:21
 COPY --from=build /target/swagger-api-server.jar swagger-api-server.jar
 
 
@@ -20,4 +20,4 @@ ENV DATABASE_PASSWORD=${DATABASE_PASSWORD}
 ENV JWT_SECRET=${JWT_SECRET}
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "swagger-api-server.jar"]
+ENTRYPOINT ["java", "-jar", "swagger-api-server.jar","--debug"]
