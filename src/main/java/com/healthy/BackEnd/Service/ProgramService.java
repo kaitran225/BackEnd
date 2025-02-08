@@ -1,56 +1,59 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.entity.ProgramParticipation;
-import com.healthy.BackEnd.entity.Programs;
-import com.healthy.BackEnd.exception.ResourceNotFoundException;
-import com.healthy.BackEnd.repository.ProgramParticipationRepository;
-import com.healthy.BackEnd.repository.ProgramRepository;
+import com.healthy.BackEnd.DTO.Programs.ProgramParticipationResponse;
+import com.healthy.BackEnd.Entity.ProgramParticipation;
+import com.healthy.BackEnd.Entity.Programs;
+import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.ProgramParticipationRepository;
+import com.healthy.BackEnd.Repository.ProgramRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProgramService {
 
-    @Autowired
-    private ProgramRepository programRepository;
+    private final ProgramRepository programRepository;
 
-    @Autowired
-    private ProgramParticipationRepository programParticipationRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private StudentService studentService;
+    private final StudentService studentService;
 
     public List<Programs> getAllPrograms() {
-        if (programRepository.findAll().isEmpty()) return null;
-        return programRepository.findAll();
+        List<Programs> programs = programRepository.findAll();
+        return programs.isEmpty() ? List.of() : programs; // Return an empty list instead of null
     }
 
     public List<Programs> getProgramsByUserId(String userId) {
-        if (!userService.isUserExist(userId)) {
-            throw new ResourceNotFoundException("User not found with id: " + userId);
-        }
 
-        String studentID = studentService
-                .getStudentByUserId(userId)
-                .getStudentID()
-                .trim();
+        String studentID = studentService.getStudentByUserId(userId).getStudentID();
 
-        List<ProgramParticipation> programParticipationList =
-                programParticipationRepository.findByStudentID(studentID);
+        List<ProgramParticipation> participations = programParticipationRepository.findByStudentID(studentID);
 
-        if (programParticipationList.isEmpty()) {
+        if (participations.isEmpty()) {
             throw new ResourceNotFoundException(
-                    "No programs found for student with id: " + studentID + " for user with id: " + userId
+                    "No programs found for student ID: " + studentID
             );
         }
-
-        return programParticipationList.stream()
+        return participations.stream()
                 .map(ProgramParticipation::getProgram)
                 .toList();
+    }
+
+    private ProgramParticipationResponse covert(ProgramParticipation participation) {
+        return ProgramParticipationResponse.builder()
+        .       programID(participation.getProgram().getProgramID())
+        .       programName(participation.getProgram().getProgramName())
+        .       category(participation.getProgram().getCategory())
+        .       description(participation.getProgram().getDescription())
+        .       numberParticipants(participation.getProgram().getNumberParticipants())
+        .       duration(participation.getProgram().getDuration())
+        .       status(participation.getStatus())
+        .createdAt(participation.getProgram().getCreatedAt())
+                .build();
     }
 }
