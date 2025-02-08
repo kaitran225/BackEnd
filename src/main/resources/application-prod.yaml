@@ -1,0 +1,48 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
+      auto-commit: false
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      pool-name: HikariCP
+      minimum-idle: 2       # Increase idle connections for production
+      maximum-pool-size: 10 # Adjust for better performance
+      idle-timeout: 60000   # Allow idle connections (60s)
+      max-lifetime: 1800000 # Extend connection lifetime (30 min)
+      keepalive-time: 120000 # Increase keepalive time (2 min)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+  refresh-token:
+    expiration: 604800000
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariDataSource: DEBUG

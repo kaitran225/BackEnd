@@ -1,0 +1,38 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/SWP391Healthy
+    username: root
+    password: 12345678
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
+      auto-commit: false
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      pool-name: HikariCP
+      minimum-idle: 1
+      maximum-pool-size: 6
+      idle-timeout: 30000
+      max-lifetime: 600000
+      keepalive-time: 60000
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mylocalemail@gmail.com
+    password: mylocalpassword
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000
+  refresh-token:
+    expiration: 604800000
