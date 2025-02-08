@@ -1,21 +1,26 @@
 package com.healthy.BackEnd.Service;
 
-import com.healthy.BackEnd.dto.UserDTO;
-import com.healthy.BackEnd.dto.auth.AuthenticationRequest;
-import com.healthy.BackEnd.dto.auth.AuthenticationResponse;
-import com.healthy.BackEnd.dto.auth.RegisterRequest;
-import com.healthy.BackEnd.entity.Users;
-import com.healthy.BackEnd.repository.AuthenticationRepository;
-import com.healthy.BackEnd.repository.UserRepository;
-import com.healthy.BackEnd.security.JwtService;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
+import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
+import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
+import com.healthy.BackEnd.DTO.User.UsersResponse;
+import com.healthy.BackEnd.Entity.RefreshToken;
+import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Repository.AuthenticationRepository;
+import com.healthy.BackEnd.Repository.RefreshTokenRepository;
+import com.healthy.BackEnd.Repository.UserRepository;
+import com.healthy.BackEnd.Security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -27,26 +32,30 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${jwt.refresh-token.expiration}")
+    private long refreshTokenDuration;
 
     public AuthenticationResponse register(RegisterRequest request) {
         if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
-        UserDTO user = UserDTO.builder()
+        UsersResponse user = UsersResponse.builder()
                 .userId(UUID.randomUUID().toString())
                 .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .email(request.getEmail())
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .role(String.valueOf(Users.UserRole.valueOf(request.getRole().toUpperCase())))
                 .gender(String.valueOf(Users.Gender.valueOf(request.getGender())))
                 .build();
 
-        Users savedUser = userRepository.save(Users.fromDTO(user));
+        Users savedUser = userRepository.save(user.toUser());
 
-        var accessToken = jwtService.generateToken(savedUser);
-        var refreshToken = jwtService.generateRefreshToken(savedUser);
+        String accessToken = jwtService.generateToken(savedUser);
+        String refreshToken = jwtService.generateRefreshToken(savedUser);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -60,17 +69,18 @@ public class AuthenticationService {
         UsernamePasswordAuthenticationToken authToken;
         Users user;
         String username;
+
         if (request.getLoginIdentifier().contains("@")) {
             user = authenticationRepository.findByEmail(request.getLoginIdentifier());
-
         } else {
             user = authenticationRepository.findByUsername(request.getLoginIdentifier());
         }
         // Generate authToken
+        assert user != null;
         username = user.getUsername();
         authToken = new UsernamePasswordAuthenticationToken(
-            username,
-            request.getPassword()
+                username,
+                request.getPassword()
         );
 
         authenticationManager.authenticate(authToken);
@@ -79,6 +89,8 @@ public class AuthenticationService {
         String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
+        // Save refresh token to database
+        saveRefreshToken(user.getUserId(), refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -108,15 +120,20 @@ public class AuthenticationService {
             throw new RuntimeException("User not found");
         }
 
-        if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw new RuntimeException("Invalid refresh token");
+        // Verify refresh token exists in database
+        RefreshToken storedToken = refreshTokenRepository.findByHashedToken(hashToken(refreshToken));
+
+        if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenRepository.delete(storedToken);
+            throw new RuntimeException("Refresh token expired");
         }
 
+        // Generate new tokens
         String accessToken = jwtService.generateToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        // Invalidate the old refresh token
-        jwtService.invalidateToken(refreshToken);
+        // Update stored refresh token
+        saveRefreshToken(user.getUserId(), newRefreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -128,20 +145,57 @@ public class AuthenticationService {
 
     public void initiatePasswordReset(String email) {
         Users user = authenticationRepository.findByEmail(email);
-        if (user != null) {
-            // Generate password reset token
-            String resetToken = UUID.randomUUID().toString();
-            user.setResetToken(resetToken);
-            authenticationRepository.save(user);
-            emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+        if (user == null) {
+            // Don't reveal if email exists or not
+            return;
         }
+
+        // Generate password reset token
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetToken(resetToken);
+        authenticationRepository.save(user);
+
+        // Send reset email
+        String resetLink = "https://your-frontend-url/reset-password?token=" + resetToken;
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
     public void resetPassword(String token, String newPassword) {
         Users user = authenticationRepository.findByResetToken(token);
+        if (user == null || !user.isResetTokenValid(token)) {
+            throw new RuntimeException("Invalid or expired reset token");
+        }
 
+        // Update password and clear reset token
         user.setPasswordHash(passwordEncoder.encode(newPassword));
-        user.setResetToken(null);
+        user.clearResetToken();
+
+        // Save user
         authenticationRepository.save(user);
+
+        // Optionally invalidate all refresh tokens for this user
+        refreshTokenRepository.deleteByUserId(user.getUserId());
+    }
+
+    private void saveRefreshToken(String userId, String refreshToken) {
+
+        // Check if refresh token already exists
+        if (!refreshTokenRepository.findByUserId(userId).isEmpty()) {
+            // Delete any existing refresh tokens for this user if they exist
+            refreshTokenRepository.deleteByUserId(userId);
+        }
+
+        // Create new refresh token
+        RefreshToken token = new RefreshToken();
+        token.setUserId(userId);
+        token.setHashedToken(hashToken(refreshToken));
+        token.setExpiresAt(LocalDateTime.now().plus(Duration.ofMillis(refreshTokenDuration)));
+
+        refreshTokenRepository.save(token);
+    }
+
+    private String hashToken(String token) {
+        // Use a secure hashing algorithm
+        return passwordEncoder.encode(token);
     }
 }
