@@ -29,6 +29,7 @@ public class UserService {
 
     @Autowired
     private PsychologistRepository psychologistRepository;
+
     @Autowired
     private ParentRepository parentRepository;
 
