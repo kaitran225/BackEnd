@@ -1,6 +1,7 @@
 package com.healthy.backend.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;

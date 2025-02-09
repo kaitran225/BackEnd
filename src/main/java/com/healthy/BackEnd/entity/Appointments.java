@@ -7,8 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static com.healthy.BackEnd.Entity.Appointments.AppointmentType.Offline;
-import static com.healthy.BackEnd.Entity.Appointments.Status.Scheduled;
 
 @Entity
 @Getter

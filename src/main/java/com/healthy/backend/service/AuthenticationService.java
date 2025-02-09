@@ -1,9 +1,10 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.UserDTO;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.repository.AuthenticationRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.JwtService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,18 +33,18 @@ public class AuthenticationService {
         if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
-        UserDTO user = UserDTO.builder()
+        UsersResponse user = UsersResponse.builder()
                 .userId(UUID.randomUUID().toString())
                 .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .email(request.getEmail())
-                .phone(request.getPhoneNumber())
+                .phoneNumber(request.getPhoneNumber())
                 .role(String.valueOf(Users.UserRole.valueOf(request.getRole().toUpperCase())))
                 .gender(String.valueOf(Users.Gender.valueOf(request.getGender())))
                 .build();
 
-        Users savedUser = userRepository.save(Users.fromDTO(user));
+        Users savedUser = userRepository.save(user.toUser());
 
         String accessToken = jwtService.generateToken(savedUser);
         String refreshToken = jwtService.generateRefreshToken(savedUser);
