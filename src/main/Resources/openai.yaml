@@ -1,0 +1,291 @@
+openapi: 3.0.0
+info:
+  title: Health Management API
+  version: 1.0.0
+  description: API for user management, authentication, and related services
+
+components:
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    Users:
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+    
+    AuthenticationRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    
+    RegisterRequest:
+      type: object
+      required:
+        - fullName
+        - email
+        - password
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    
+    AuthenticationResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Register new user
+      description: Register a new user with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Authenticate user
+      description: Authenticate a user and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationRequest'
+      responses:
+        '200':
+          description: Successfully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+
+  /api/auth/refresh-token:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Refresh token
+      description: Get a new access token using refresh token
+      security:
+        - Bearer Authentication: [ ]
+      responses:
+        '200':
+          description: New tokens generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+
+  /api/auth/forgot-password:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Initiate password reset
+      description: Send password reset email to user
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Password reset email sent
+
+  /api/auth/reset-password:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Reset password
+      description: Reset password using token from email
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: newPassword
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Password successfully reset
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Logout user
+      description: Logout the current user
+      security:
+        - Bearer Authentication: [ ]
+      responses:
+        '200':
+          description: Successfully logged out
+
+  /api/users:
+    get:
+      tags:
+        - User Controller
+      summary: Get all users
+      security:
+        - Bearer Authentication: [ ]
+      responses:
+        '200':
+          description: List of all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+        '500':
+          description: No users found
+
+  /api/users/{userId}:
+    get:
+      tags:
+        - User Controller
+      summary: Get user by ID
+      security:
+        - Bearer Authentication: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '500':
+          description: User not found
+
+  /api/users/{userId}/edit:
+    put:
+      tags:
+        - User Controller
+      summary: Update user details
+      security:
+        - Bearer Authentication: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
+      responses:
+        '200':
+          description: User updated successfully
+        '404':
+          description: User not found
+        '400':
+          description: No changes detected
+
+  /api/users/{userId}/programs:
+    get:
+      tags:
+        - User Controller
+      summary: Get programs by user ID
+      security:
+        - Bearer Authentication: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of programs
+        '404':
+          description: User not found
+        '500':
+          description: An unexpected error occurred
+
+  /api/users/{userId}/appointments:
+    get:
+      tags:
+        - User Controller
+      summary: Get appointments by user ID
+      security:
+        - Bearer Authentication: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of appointments
+
+  /api/users/{userId}/surveys:
+    get:
+      tags:
+        - User Controller
+      summary: Get survey results by user ID
+      security:
+        - Bearer Authentication: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of survey results
