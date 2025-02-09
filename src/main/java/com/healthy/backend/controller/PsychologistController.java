@@ -2,6 +2,7 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.service.PsychologistService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,10 @@ public class PsychologistController {
     @Autowired
     public PsychologistService psychologistService;
 
+    @Operation(
+            summary = "Get all psychologists",
+            description = "Returns a list of all registered psychologists."
+    )
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/psychologists")
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist() {
@@ -29,6 +34,10 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Get psychologist by ID",
+            description = "Returns the psychologist with the specified ID."
+    )
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/psychologist/{id}")
     public ResponseEntity<PsychologistResponse> getPsychologistById(@Valid @PathVariable String id) {

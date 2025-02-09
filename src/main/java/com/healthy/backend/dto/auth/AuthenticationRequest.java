@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
-    @Schema(example = "admin")
-    @NotBlank(message = "Username or Email is required") // Changed message to be more generic
-    private String loginIdentifier; // Combined email and username into a single field
+    @Schema(examples = {"admin@example.com", "admin"})
+    @NotBlank(message = "Username or Email is required")
+    private String loginIdentifier;
 
     @Schema(example = "adminpass")
     @NotBlank(message = "Password is required")

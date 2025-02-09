@@ -52,6 +52,10 @@ public class UserController {
     }
 
     // Working but not tested
+    @Operation(
+            summary = "Get programs by user ID",
+            description = "Returns a list of programs associated with the specified user ID."
+    )
     @GetMapping("/users/{userId}/programs")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<?> getProgramsByUserId(

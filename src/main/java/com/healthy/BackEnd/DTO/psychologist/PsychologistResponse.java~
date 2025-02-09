@@ -22,7 +22,7 @@ public class PsychologistResponse {
     @Schema(example = "PSYP001")
     @NotBlank(message = "Psychologist ID is required")
     private String psychologistId;
-
+    
     private String specialization;
     private Integer yearsOfExperience;
     private String status;
