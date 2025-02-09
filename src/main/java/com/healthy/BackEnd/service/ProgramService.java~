@@ -1,5 +1,7 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.entity.ProgramParticipation;
+import com.healthy.backend.entity.Programs;
 import com.healthy.backend.repository.ProgramParticipationRepository;
 import com.healthy.backend.repository.ProgramRepository;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;

@@ -3,8 +3,6 @@ package com.healthy.backend.controller;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Users;
 import com.healthy.backend.service.ProgramService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

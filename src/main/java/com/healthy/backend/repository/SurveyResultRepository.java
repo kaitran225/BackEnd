@@ -1,6 +1,5 @@
 package com.healthy.backend.repository;
 
-import com.healthy.backend.entity.SurveyResults;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

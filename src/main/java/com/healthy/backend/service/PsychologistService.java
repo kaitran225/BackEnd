@@ -1,7 +1,6 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.PsychologistDTO;
-import com.healthy.backend.entity.Psychologists;
 
 public class PsychologistService {
 

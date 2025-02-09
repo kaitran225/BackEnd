@@ -4,7 +4,6 @@ import com.healthy.backend.dto.UserDTO;
 import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
-import com.healthy.backend.entity.Users;
 import com.healthy.backend.repository.AuthenticationRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.JwtService;

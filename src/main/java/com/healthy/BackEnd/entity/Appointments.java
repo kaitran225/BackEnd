@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.entity;
+package com.healthy.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,8 +7,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static com.healthy.BackEnd.entity.Appointments.AppointmentType.Offline;
-import static com.healthy.BackEnd.entity.Appointments.Status.Scheduled;
+import static com.healthy.BackEnd.Entity.Appointments.AppointmentType.Offline;
+import static com.healthy.BackEnd.Entity.Appointments.Status.Scheduled;
 
 @Entity
 @Getter
@@ -63,15 +63,17 @@ public class Appointments {
     private Psychologists psychologist;
 
     public Appointments() {
-        status = Scheduled;
-        appointmentType = Offline;
+        status = Status.Scheduled;
+        appointmentType = AppointmentType.Offline;
     }
 
-    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, String meetingLink) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, Status status, String meetingLink, AppointmentType appointmentType) {
         this.appointmentID = appointmentID;
         this.timeSlotsID = timeSlotsID;
         this.studentID = studentID;
         this.psychologistID = psychologistID;
+        this.status = status;
+        this.appointmentType = appointmentType;
         this.meetingLink = meetingLink;
     }
 
