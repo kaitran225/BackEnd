@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointments, String> {
     List<Appointments> findByStudentID(String userId);
+    List<Appointments> findByPsychologistID(String userId);
 } 

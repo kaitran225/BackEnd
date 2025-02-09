@@ -1,16 +1,17 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.service.ProgramService;
 import com.healthy.backend.service.UserService;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.SurveyResults;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.repository.AppointmentRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,85 +21,89 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
+@Tag(name = "User Controller", description = "Users related management APIs")
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    ProgramService programService;
+    private final ProgramService programService;
 
-    @Autowired
-    AppointmentRepository appointmentRepository;
-
-    @Autowired
-    SurveyResultRepository surveyResultRepository;
-
-
-    // Working but not tested
-    @SecurityRequirement(name="Bearer Authentication")
+    @Operation(
+            summary = "Get all users",
+            description = "Returns a list of all registered users."
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users")
-    public ResponseEntity<?> getAllUsers() {
-        boolean isEmpty = userService.isEmpty();
-        if (isEmpty) return ResponseEntity.status(500).body("No users found");
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UsersResponse>> getAllUsers() {
+        List<UsersResponse> users = userService.getAllUsers();
+        return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
-    // Working but not tested
+    @Operation(
+            summary = "Get user by ID",
+            description = "Returns the user with the specified ID."
+    )
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable String userId) {
-        if (!userService.isUserExist(userId))
-            return ResponseEntity.status(500).body("User not found with id: " + userId);
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<UsersResponse> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     // Working but not tested
     @GetMapping("/users/{userId}/programs")
-    public ResponseEntity<?> getProgramsByUserId(@PathVariable String userId) {
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<?> getProgramsByUserId(
+            @Valid @PathVariable String userId) {
         try {
             List<Programs> programs = programService.getProgramsByUserId(userId);
             return ResponseEntity.ok(programs);  // Return 200 OK with programs
-        } catch (ResourceNotFoundException ex) {
+        } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
-    // Not done and not working
+    @Operation(
+            summary = "Get user appointments",
+            description = "Retrieves all appointments for a user."
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users/{userId}/appointments")
-    public List<Appointments> getAppointmentsByUserId(@PathVariable String userId) {
-        return appointmentRepository.findByStudentID(userId);
+    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserId(@PathVariable String userId) {
+        List<AppointmentResponse> appointmentResponseList = userService.getUserAppointments(userId);
+        return appointmentResponseList.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(appointmentResponseList);
     }
 
-    // Not done and not working
+
+    @Operation(
+            summary = "Get user survey results",
+            description = "Retrieves all survey results for a user."
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/users/{userId}/surveys")
-    public List<SurveyResults> getSurveyResultsByUserId(@PathVariable String userId) {
-        return surveyResultRepository.findByStudentID(userId);
+    public ResponseEntity<List<SurveyResultsResponse>> getSurveyResultsByUserId(@PathVariable String userId) {
+        List<SurveyResultsResponse> surveyResults = userService.getUserSurveyResults(userId);
+        return surveyResults.isEmpty()
+                ? ResponseEntity.noContent().build() // 204 No Content if list is empty
+                : ResponseEntity.ok(surveyResults);
     }
 
-    // Not done and not working
-    @PutMapping("/users/{userId}/edit")
+
+    @Operation(
+            summary = "Update user details",
+            description = "Updates a user's details."
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PutMapping("/users/{userId}/update")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        if (!userService.isUserExist(userId)) {
-            return ResponseEntity.status(404).body("User not found with id: " + userId);
-        }
-
-        Users existingUser = userService.getUserById(userId);
-
-        // Check for changes before updating
-        if (!existingUser.getFullName().equals(updatedUser.getFullName()) ||
-                !existingUser.getEmail().equals(updatedUser.getEmail()) ||
-                !existingUser.getPhoneNumber().equals(updatedUser.getPhoneNumber())) {
-
-            existingUser.setFullName(updatedUser.getFullName());
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-
-            Users updatedUserEntity = userService.editUser(existingUser);
-            return ResponseEntity.ok(updatedUserEntity);
-        }
-
-        return ResponseEntity.status(400).body("No changes detected to update.");
+        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser);
+        return updatedUserResponse == null
+                ? ResponseEntity.noContent().build() // 204 if no changes detected
+                : ResponseEntity.ok(updatedUserResponse); // 200 if update successful
     }
+
 }
