@@ -4,6 +4,7 @@ import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api")
 @CrossOrigin
 @RequiredArgsConstructor
+@Tag(name = "Psychologist", description = "Psychologist related APIs")
 public class PsychologistController {
     @Autowired
     public PsychologistService psychologistService;
