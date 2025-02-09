@@ -1,7 +1,7 @@
-package com.healthy.BackEnd.Service;
+package com.healthy.backend.service;
 
-import com.healthy.BackEnd.Repository.RefreshTokenRepository;
-import com.healthy.BackEnd.Security.JwtService;
+import com.healthy.backend.repository.RefreshTokenRepository;
+import com.healthy.backend.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

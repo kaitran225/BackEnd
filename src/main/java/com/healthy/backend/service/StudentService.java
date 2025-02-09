@@ -1,9 +1,9 @@
-package com.healthy.BackEnd.Service;
+package com.healthy.backend.service;
 
-import com.healthy.BackEnd.DTO.Student.StudentResponse;
-import com.healthy.BackEnd.Entity.Students;
-import com.healthy.BackEnd.Exception.ResourceNotFoundException;
-import com.healthy.BackEnd.Repository.StudentRepository;
+import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

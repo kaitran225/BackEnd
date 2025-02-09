@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.Service;
+package com.healthy.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

@@ -1,10 +1,10 @@
-package com.healthy.BackEnd.Controller;
+package com.healthy.backend.controller;
 
-import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
-import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
-import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
-import com.healthy.BackEnd.Service.AuthenticationService;
-import com.healthy.BackEnd.Service.LogoutService;
+import com.healthy.backend.dto.auth.AuthenticationRequest;
+import com.healthy.backend.dto.auth.AuthenticationResponse;
+import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.service.AuthenticationService;
+import com.healthy.backend.service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

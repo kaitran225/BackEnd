@@ -1,15 +1,15 @@
-package com.healthy.BackEnd.Service;
+package com.healthy.backend.service;
 
-import com.healthy.BackEnd.DTO.Auth.AuthenticationRequest;
-import com.healthy.BackEnd.DTO.Auth.AuthenticationResponse;
-import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
-import com.healthy.BackEnd.DTO.User.UsersResponse;
-import com.healthy.BackEnd.Entity.RefreshToken;
-import com.healthy.BackEnd.Entity.Users;
-import com.healthy.BackEnd.Repository.AuthenticationRepository;
-import com.healthy.BackEnd.Repository.RefreshTokenRepository;
-import com.healthy.BackEnd.Repository.UserRepository;
-import com.healthy.BackEnd.Security.JwtService;
+import com.healthy.backend.dto.auth.AuthenticationRequest;
+import com.healthy.backend.dto.auth.AuthenticationResponse;
+import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.backend.entity.RefreshToken;
+import com.healthy.backend.entity.Users;
+import com.healthy.backend.repository.AuthenticationRepository;
+import com.healthy.backend.repository.RefreshTokenRepository;
+import com.healthy.backend.repository.UserRepository;
+import com.healthy.backend.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

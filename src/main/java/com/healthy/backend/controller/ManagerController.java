@@ -1,4 +1,4 @@
-package com.healthy.BackEnd.Controller;
+package com.healthy.backend.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
