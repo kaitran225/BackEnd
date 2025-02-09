@@ -16,4 +16,5 @@ public class SurveyResultsResponse {
     private String surveyName;
     private String description;
     private List<SurveyQuestionResultResponse> questions;
+    private String studentId;
 }

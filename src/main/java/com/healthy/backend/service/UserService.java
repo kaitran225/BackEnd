@@ -124,7 +124,6 @@ public class UserService {
                 .build();
     }
 
-
     private AppointmentResponse buildAppointmentResponse(Users user,Appointments appointment) {
         return AppointmentResponse.builder()
                 .appointmentID(appointment.getAppointmentID())
@@ -177,37 +176,57 @@ public class UserService {
     }
 
     private List<SurveyResultsResponse> buildSurveyResults(String studentId) {
-        return surveyResultRepository.findByStudentID(studentId)
-                .stream()
-                .collect(Collectors.groupingBy(result -> result.getQuestion().getSurveyID(),
-                        Collectors.mapping(result -> {
-                            Answers answer = answersRepository.findById(result.getAnswerID())
-                                    .orElseThrow(() -> new ResourceNotFoundException("No answer found with id " + result.getAnswerID()));
-                            return SurveyQuestionResultResponse.builder()
-                                    .questionId(result.getQuestionID())
-                                    .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName()))
-                                    .questionText(result.getQuestion().getQuestionText())
-                                    .resultId(result.getResultID())
-                                    .answerId(answer.getAnswerID())
-                                    .answer(answer.getAnswer())
-                                    .score(answer.getScore())
-                                    .build();
-                        }, Collectors.toList()))).entrySet()
-                .stream()
-                .map(entry -> {
-                    Surveys survey = surveyRepository.findById(entry.getKey())
-                            .orElseThrow(() -> new ResourceNotFoundException("No survey found with id " + entry.getKey()));
-                    return SurveyResultsResponse.builder()
-                            .surveyId(survey.getSurveyID())
-                            .surveyName(survey.getSurveyName())
-                            .description(survey.getDescription())
-                            .questions(entry.getValue())
-                            .build();
-                })
+        List<SurveyResults> results = surveyResultRepository.findByStudentIDWithDetails(studentId);
+
+        Map<String, List<SurveyQuestionResultResponse>> groupedResults = results.stream()
+                .collect(Collectors.groupingBy(
+                        result -> result.getQuestion().getSurveyID(),
+                        Collectors.mapping(this::mapToSurveyQuestionResultResponse, Collectors.toList())
+                ));
+
+        // Fetch all surveys in one query
+        List<String> surveyIds = groupedResults.keySet().stream().toList();
+        List<Surveys> surveys = surveyRepository.findAllById(surveyIds);
+        Map<String, Surveys> surveyMap = surveys.stream()
+                .collect(Collectors.toMap(Surveys::getSurveyID, s -> s));
+
+        return groupedResults.entrySet().stream()
+                .map(entry -> mapToSurveyResultsResponse(surveyMap.get(entry.getKey()), entry.getValue()))
                 .toList();
     }
 
+    private SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyResults result) {
+        return SurveyQuestionResultResponse.builder()
+                .questionId(result.getQuestionID())
+                .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName())) // No LazyInitializationException
+                .questionText(result.getQuestion().getQuestionText())
+                .resultId(result.getResultID())
+                .answerId(result.getAnswer().getAnswerID())
+                .answer(result.getAnswer().getAnswer())
+                .score(result.getAnswer().getScore())
+                .build();
+    }
+
+    private SurveyResultsResponse mapToSurveyResultsResponse(Surveys survey, List<SurveyQuestionResultResponse> questions) {
+        return SurveyResultsResponse.builder()
+                .surveyId(survey.getSurveyID())
+                .surveyName(survey.getSurveyName())
+                .description(survey.getDescription())
+                .questions(questions)
+                .build();
+    }
+
+
     private UsersResponse convert(Users user) {
+        List<StudentResponse> children = null;
+
+        if (user.getRole() == Users.UserRole.PARENT) {
+            Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
+            children = parent.getStudents().stream()
+                    .map(this::buildStudentResponse)
+                    .collect(Collectors.toList());
+        }
+
         return UsersResponse.builder()
                 .userId(user.getUserId())
                 .fullName(user.getFullName())
@@ -217,190 +236,11 @@ public class UserService {
                 .role(user.getRole().toString())
                 .psychologistInfo(buildPsychologistResponse(user))
                 .studentInfo(buildStudentResponse(studentRepository.findByUserID(user.getUserId())))
-                .children(
-                        user.getRole() == Users.UserRole.PARENT ?
-                                parentRepository.findByUserID(user.getUserId()).getStudents()
-                                        .stream()
-                                        .map(this::buildStudentResponse)
-                                        .collect(Collectors.toList()) : null
-                )
-                .appointmentsRecord(
-                        buildAppointmentResponseList(user)
-                )
+                .children(children)
+                .appointmentsRecord(buildAppointmentResponseList(user))
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
-    private UsersResponse convert_(Users user) {
-
-        Psychologists psychologist = new Psychologists();
-        Students student = new Students();
-        Parents parent = new Parents();
-        if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
-            psychologist = psychologistRepository.findByUserID(user.getUserId());
-        }
-        if (user.getRole() == Users.UserRole.PARENT) {
-            parent = parentRepository.findByUserID(user.getUserId());
-        }
-        if (user.getRole() == Users.UserRole.STUDENT) {
-            student = studentRepository.findByUserID(user.getUserId());
-        }
-        return UsersResponse.builder()
-                .userId(user.getUserId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .gender(user.getGender().toString())
-                .role(user.getRole().toString())
-                .psychologistInfo(
-                        psychologist.getPsychologistID() == null ? null :
-                                PsychologistResponse.builder()
-                                        .psychologistId(psychologist.getPsychologistID())
-                                        .status(psychologist.getStatus().name())
-                                        .specialization(psychologist.getSpecialization())
-                                        .yearsOfExperience(psychologist.getYearsOfExperience())
-                                        .build()
-                )
-
-                .studentInfo(
-                        student.getStudentID() == null ? null :
-                                StudentResponse.builder()
-                                        .studentId(student.getStudentID())
-                                        .grade(student.getGrade())
-                                        .className(student.getClassName())
-                                        .schoolName(student.getSchoolName())
-                                        .depressionScore(student.getDepressionScore())
-                                        .anxietyScore(student.getAnxietyScore())
-                                        .stressScore(student.getStressScore())
-                                        .build()
-                )
-                .children(
-                        parent.getParentID() == null ? null :
-                                parent.getStudents().isEmpty()
-                                        ? Collections.emptyList() :
-                                        parent.getStudents().stream().map(s ->
-                                                StudentResponse.builder()
-                                                        .userId(s.getUserID())
-                                                        .studentId(s.getStudentID())
-                                                        .grade(s.getGrade())
-                                                        .className(s.getClassName())
-                                                        .fullName(s.getUser().getFullName())
-                                                        .surveyResults(
-                                                                surveyResultRepository.findByStudentID(s.getStudentID())
-                                                                        .stream()
-                                                                        .collect(Collectors.groupingBy(
-                                                                                result -> result.getQuestion().getSurveyID(),
-                                                                                Collectors.mapping(result -> {
-                                                                                    Answers answer = answersRepository.findById(result.getAnswerID())
-                                                                                            .orElseThrow(() -> new ResourceNotFoundException("No answer found with id " + result.getAnswerID()));
-                                                                                    return SurveyQuestionResultResponse.builder()
-                                                                                            .questionId(result.getQuestionID())
-                                                                                            .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName()))
-                                                                                            .questionText(result.getQuestion().getQuestionText())
-                                                                                            .resultId(result.getResultID())
-                                                                                            .answerId(answer.getAnswerID())
-                                                                                            .answer(answer.getAnswer())
-                                                                                            .score(answer.getScore())
-                                                                                            .build();
-                                                                                }, Collectors.toList())))
-                                                                        .entrySet()
-                                                                        .stream()
-                                                                        .map(entry -> {
-                                                                            Surveys survey = surveyRepository.findById(entry.getKey())
-                                                                                    .orElseThrow(() -> new ResourceNotFoundException("No survey found with id " + entry.getKey()));
-                                                                            return SurveyResultsResponse.builder()
-                                                                                    .surveyId(survey.getSurveyID())
-                                                                                    .surveyName(survey.getSurveyName())
-                                                                                    .description(survey.getDescription())
-                                                                                    .questions(entry.getValue())
-                                                                                    .build();
-                                                                        })
-                                                                        .toList()
-                                                        )
-                                                        .build()
-                                        ).toList()
-                )
-                .appointmentsRecord(
-                        (psychologist.getPsychologistID() == null && student.getStudentID() == null) ? null :
-                                (
-                                        user.getRole() == Users.UserRole.STUDENT ?
-                                                appointmentRepository.findByStudentID(student.getStudentID()) :
-                                                appointmentRepository.findByPsychologistID(psychologist.getPsychologistID())
-                                ).stream()
-                                        .map(a -> {
-                                                    Psychologists p = psychologistRepository.findById(a.getPsychologistID())
-                                                            .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id" + a.getPsychologistID()));
-                                                    Students s = studentRepository.findById(a.getStudentID())
-                                                            .orElseThrow(() -> new ResourceNotFoundException("No student found with id" + a.getStudentID()));
-                                                    return AppointmentResponse.builder()
-                                                            .appointmentID(a.getAppointmentID())
-                                                            .CreatedAt(a.getCreatedAt())
-                                                            .MeetingLink(a.getMeetingLink())
-                                                            .Status(a.getStatus().name())
-                                                            .psychologistResponse(
-                                                                    user.getRole() == Users.UserRole.PSYCHOLOGIST ? null :
-                                                                            PsychologistResponse.builder()
-                                                                                    .psychologistId(p.getPsychologistID())
-                                                                                    .status(p.getStatus().name())
-                                                                                    .specialization(p.getSpecialization())
-                                                                                    .yearsOfExperience(p.getYearsOfExperience())
-                                                                                    .build()
-                                                            )
-                                                            .studentResponse(
-                                                                    user.getRole() == Users.UserRole.STUDENT ? null :
-                                                                            StudentResponse.builder()
-                                                                                    .studentId(s.getStudentID())
-                                                                                    .grade(s.getGrade())
-                                                                                    .className(s.getClassName())
-                                                                                    .schoolName(s.getSchoolName())
-                                                                                    .depressionScore(s.getDepressionScore())
-                                                                                    .anxietyScore(s.getAnxietyScore())
-                                                                                    .stressScore(s.getStressScore())
-                                                                                    .build())
-                                                            .Text(a.getNotes())
-                                                            .timeSlotID(a.getTimeSlotsID())
-                                                            .UpdatedAt(a.getUpdatedAt())
-                                                            .build();
-                                                }
-                                        ).toList()
-                )
-                .surveyResults(
-                        student.getStudentID() == null ? null :
-                                surveyResultRepository.findByStudentID(student.getStudentID())
-                                        .stream()
-                                        .collect(Collectors.groupingBy(
-                                                result -> result.getQuestion().getSurveyID(),
-                                                Collectors.mapping(result -> {
-                                                    Answers answer = answersRepository.findById(result.getAnswerID())
-                                                            .orElseThrow(() -> new ResourceNotFoundException("No answer found with id " + result.getAnswerID()));
-                                                    return SurveyQuestionResultResponse.builder()
-                                                            .questionId(result.getQuestionID())
-                                                            .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName()))
-                                                            .questionText(result.getQuestion().getQuestionText())
-                                                            .resultId(result.getResultID())
-                                                            .answerId(answer.getAnswerID())
-                                                            .answer(answer.getAnswer())
-                                                            .score(answer.getScore())
-                                                            .build();
-                                                }, Collectors.toList())))
-                                        .entrySet()
-                                        .stream()
-                                        .map(entry -> {
-                                            Surveys survey = surveyRepository.findById(entry.getKey())
-                                                    .orElseThrow(() -> new ResourceNotFoundException("No survey found with id " + entry.getKey()));
-                                            return SurveyResultsResponse.builder()
-                                                    .surveyId(survey.getSurveyID())
-                                                    .surveyName(survey.getSurveyName())
-                                                    .description(survey.getDescription())
-                                                    .questions(entry.getValue())
-                                                    .build();
-                                        })
-                                        .toList()
-                )
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-
-                .build();
-    }
 }

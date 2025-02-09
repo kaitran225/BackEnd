@@ -9,22 +9,36 @@ spring:
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      connection-init-sql: "SET SESSION sql_mode='STRICT_TRANS_TABLES'"
       auto-commit: false
-      transaction-isolation: TRANSACTION_READ_COMMITTED
-      driver-class-name: com.mysql.cj.jdbc.Driver
       pool-name: HikariCP
       minimum-idle: 2       # Increase idle connections for production
-      maximum-pool-size: 10 # Adjust for better performance
+      maximum-pool-size: 6 # Adjust for better performance
       idle-timeout: 60000   # Allow idle connections (60s)
       max-lifetime: 1800000 # Extend connection lifetime (30 min)
-      keepalive-time: 120000 # Increase keepalive time (2 min)
+      keepalive-time: 60000 # Increase keepalive time (2 min)
+
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+      database-platform: org.hibernate.dialect.MySQLDialect
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+      open-in-view: false
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      fail-on-empty-beans: false
+
+  cors:
+    configuration:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      exposed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
 
   mail:
     host: smtp.gmail.com
@@ -37,12 +51,37 @@ spring:
           auth: true
           starttls.enable: true
 
+server:
+  # Allow external access on render.com
+  address: 0.0.0.0
+  port: 8080
+  tomcat:
+    threads:
+      min-spare: 2
+      # Small max thread count to match low CPU
+      max: 5
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/xml
+    min-response-size: 1024
+
+hibernate:
+  transaction:
+    jta:
+      platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariDataSource: DEBUG
+    root: INFO
+    org.springframework: INFO
+    com.zaxxer.hikari: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: 86400000
   refresh-token:
     expiration: 604800000
-
-logging:
-  level:
-    com.zaxxer.hikari.HikariDataSource: DEBUG
