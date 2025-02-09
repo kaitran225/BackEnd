@@ -11,20 +11,20 @@ spring:
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 2       # Increase idle connections for production
-      maximum-pool-size: 6 # Adjust for better performance
-      idle-timeout: 60000   # Allow idle connections (60s)
-      max-lifetime: 1800000 # Extend connection lifetime (30 min)
-      keepalive-time: 60000 # Increase keepalive time (2 min)
+      minimum-idle: 2
+      maximum-pool-size: 6
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      keepalive-time: 60000
 
   jpa:
     hibernate:
       ddl-auto: update
-      database-platform: org.hibernate.dialect.MySQLDialect
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-      open-in-view: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    naming:
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
 
   jackson:
     default-property-inclusion: non_null
@@ -32,13 +32,12 @@ spring:
       fail-on-empty-beans: false
 
   cors:
-    configuration:
-      allowed-origins: "*"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      exposed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
+    allowed-origins: "*"
+    allowed-methods: "*"
+    allowed-headers: "*"
+    exposed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
 
   mail:
     host: smtp.gmail.com
@@ -46,19 +45,15 @@ spring:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
-      mail:
-        smtp:
-          auth: true
-          starttls.enable: true
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 
 server:
-  # Allow external access on render.com
   address: 0.0.0.0
   port: 8080
   tomcat:
     threads:
       min-spare: 2
-      # Small max thread count to match low CPU
       max: 5
   compression:
     enabled: true
@@ -72,7 +67,6 @@ hibernate:
 
 logging:
   level:
-    com.zaxxer.hikari.HikariDataSource: DEBUG
     root: INFO
     org.springframework: INFO
     com.zaxxer.hikari: WARN
