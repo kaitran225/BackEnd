@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Health Service API",
+                title = "Health service API",
                 version = "1.0",
-                description = "API documentation for Health Service Application",
+                description = "API documentation for Health service Application",
                 contact = @Contact(
-                        name = "Health Service Team",
+                        name = "Health service Team",
                         email = "support@healthservice.com",
                         url = "https://www.cybriadev.com"
                 )
