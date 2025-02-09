@@ -1,7 +1,7 @@
-package com.healthy.backend.repository;
+package com.healthy.BackEnd.Repository;
 
+import com.healthy.BackEnd.Entity.Programs;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.healthy.backend.entity.Programs;
 
 import java.util.List;
 

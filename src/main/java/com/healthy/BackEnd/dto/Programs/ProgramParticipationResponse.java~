@@ -1,9 +1,7 @@
 package com.healthy.BackEnd.DTO.Programs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.healthy.BackEnd.Entity.ProgramParticipation;
 import com.healthy.BackEnd.Entity.Programs;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

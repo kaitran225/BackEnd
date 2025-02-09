@@ -1,4 +1,4 @@
-package com.healthy.backend.exception;
+package com.healthy.BackEnd.Exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

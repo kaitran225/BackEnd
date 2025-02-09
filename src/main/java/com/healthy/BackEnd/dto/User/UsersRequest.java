@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.user;
+package com.healthy.BackEnd.DTO.User;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

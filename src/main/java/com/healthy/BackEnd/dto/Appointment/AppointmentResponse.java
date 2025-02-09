@@ -1,7 +1,7 @@
-package com.healthy.backend.dto.appointment;
+package com.healthy.BackEnd.DTO.Appointment;
 
-import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.BackEnd.DTO.Psychologist.PsychologistResponse;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

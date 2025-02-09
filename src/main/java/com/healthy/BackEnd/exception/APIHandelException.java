@@ -1,4 +1,4 @@
-package com.healthy.backend.exception;
+package com.healthy.BackEnd.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

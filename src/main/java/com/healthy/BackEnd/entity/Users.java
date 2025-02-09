@@ -1,4 +1,4 @@
-package com.healthy.backend.entity;
+package com.healthy.BackEnd.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;

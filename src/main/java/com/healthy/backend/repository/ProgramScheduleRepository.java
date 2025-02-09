@@ -1,6 +1,6 @@
-package com.healthy.backend.repository;
+package com.healthy.BackEnd.Repository;
 
-import com.healthy.backend.entity.ProgramSchedule;
+import com.healthy.BackEnd.Entity.ProgramSchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProgramScheduleRepository extends JpaRepository<ProgramSchedule, String> {

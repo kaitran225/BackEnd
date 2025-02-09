@@ -1,6 +1,6 @@
-package com.healthy.backend.config;
+package com.healthy.BackEnd.Config;
 
-import com.healthy.backend.repository.AuthenticationRepository;
+import com.healthy.BackEnd.Repository.AuthenticationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,24 +13,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@RequiredArgsConstructor
 public class ApplicationConfig {
 
     private final AuthenticationRepository authenticationRepository;
 
-    public ApplicationConfig(AuthenticationRepository authenticationRepository) {
-        this.authenticationRepository = authenticationRepository;
-    }
-
     @Bean
-    public UserDetailsService userDetailsService(AuthenticationRepository authenticationRepository) {
+    public UserDetailsService userDetailsService() {
         return authenticationRepository::findByUsername;
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService(authenticationRepository));
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
@@ -43,4 +40,4 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
+} 

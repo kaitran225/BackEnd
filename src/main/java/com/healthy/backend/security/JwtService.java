@@ -1,6 +1,6 @@
-package com.healthy.backend.security;
+package com.healthy.BackEnd.Security;
 
-import com.healthy.backend.entity.Users;
+import com.healthy.BackEnd.Entity.Users;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

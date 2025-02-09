@@ -1,21 +1,28 @@
-package com.healthy.backend.controller;
+package com.healthy.BackEnd.Controller;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.service.ProgramService;
-import com.healthy.backend.service.UserService;
+import com.healthy.BackEnd.DTO.Appointment.AppointmentResponse;
+import com.healthy.BackEnd.DTO.Survey.SurveyResultsResponse;
+import com.healthy.BackEnd.DTO.User.UsersResponse;
+import com.healthy.BackEnd.Entity.Appointments;
+import com.healthy.BackEnd.Entity.Programs;
+import com.healthy.BackEnd.Entity.SurveyResults;
+import com.healthy.BackEnd.Entity.Users;
+import com.healthy.BackEnd.Exception.ResourceNotFoundException;
+import com.healthy.BackEnd.Repository.AppointmentRepository;
+import com.healthy.BackEnd.Repository.SurveyResultRepository;
+import com.healthy.BackEnd.Service.ProgramService;
+import com.healthy.BackEnd.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @CrossOrigin
@@ -58,7 +65,7 @@ public class UserController {
         try {
             List<Programs> programs = programService.getProgramsByUserId(userId);
             return ResponseEntity.ok(programs);  // Return 200 OK with programs
-        } catch (RuntimeException ex) {
+        } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");

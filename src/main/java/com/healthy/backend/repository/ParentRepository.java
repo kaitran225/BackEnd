@@ -1,6 +1,6 @@
-package com.healthy.backend.repository;
+package com.healthy.BackEnd.Repository;
 
-import com.healthy.backend.entity.Parents;
+import com.healthy.BackEnd.Entity.Parents;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ParentRepository extends JpaRepository<Parents, String> {

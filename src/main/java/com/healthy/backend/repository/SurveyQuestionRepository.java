@@ -1,6 +1,6 @@
-package com.healthy.backend.repository;
+package com.healthy.BackEnd.Repository;
 
-import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.BackEnd.Entity.SurveyQuestions;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions, String> {

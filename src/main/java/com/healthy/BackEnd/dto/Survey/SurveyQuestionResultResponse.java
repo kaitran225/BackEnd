@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.BackEnd.DTO.Survey;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

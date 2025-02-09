@@ -1,11 +1,11 @@
-package com.healthy.backend.dto.user;
+package com.healthy.BackEnd.DTO.User;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.BackEnd.DTO.Appointment.AppointmentResponse;
+import com.healthy.BackEnd.DTO.Psychologist.PsychologistResponse;
+import com.healthy.BackEnd.DTO.Student.StudentResponse;
+import com.healthy.BackEnd.DTO.Survey.SurveyResultsResponse;
+import com.healthy.BackEnd.Entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

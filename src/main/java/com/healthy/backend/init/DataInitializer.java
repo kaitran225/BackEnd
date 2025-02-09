@@ -1,10 +1,9 @@
-package com.healthy.backend.init;
+package com.healthy.BackEnd.Init;
 
-import com.healthy.backend.dto.auth.RegisterRequest;
-import com.healthy.backend.entity.*;
-import com.healthy.backend.repository.*;
-import com.healthy.backend.service.AuthenticationService;
-
+import com.healthy.BackEnd.DTO.Auth.RegisterRequest;
+import com.healthy.BackEnd.Entity.*;
+import com.healthy.BackEnd.Repository.*;
+import com.healthy.BackEnd.Service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

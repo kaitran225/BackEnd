@@ -1,6 +1,6 @@
-package com.healthy.backend.dto.student;
+package com.healthy.BackEnd.DTO.Student;
 
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.BackEnd.DTO.Survey.SurveyResultsResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

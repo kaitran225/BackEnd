@@ -1,8 +1,8 @@
-package com.healthy.backend.dto.psychologist;
+package com.healthy.BackEnd.DTO.Psychologist;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.BackEnd.DTO.Appointment.AppointmentResponse;
+import com.healthy.BackEnd.DTO.User.UsersResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
