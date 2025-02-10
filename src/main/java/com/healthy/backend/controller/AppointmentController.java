@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api")
 @CrossOrigin
 @RequiredArgsConstructor
-@Tag(name = "Appointments", description = "Appointments related APIs.")
+@Tag(name = "Appointments Controller", description = "Appointments related APIs.")
 public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;

@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api")
 @CrossOrigin
 @RequiredArgsConstructor
-@Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
+@Tag(name = "Psychologist", description = "Psychologist related APIs")
 public class PsychologistController {
     @Autowired
     public PsychologistService psychologistService;
