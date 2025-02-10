@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:mysql://localhost:3306/SWP391Healthy",
         "spring.datasource.username=root",
-        "spring.datasource.password=12345678"})
+        "spring.datasource.password=123456"})
 @ExtendWith(MockitoExtension.class)
 public class JmockitDemoTest {
 

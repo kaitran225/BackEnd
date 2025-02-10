@@ -172,10 +172,6 @@ public class JmockitDemoTest {
             userRepository.findAll();
             result = new ArrayList<>(); // Simulating empty result
             System.out.println("Expectation set for userRepository.findAll() to return an empty list.");
-
-            userRepository.findAllUsers();
-            result = new ArrayList<>(); // Simulating empty result
-            System.out.println("Expectation set for userRepository.findAllUsers() to return an empty list.");
         }};
 
         // Act & Assert: Expect ResourceNotFoundException
@@ -188,12 +184,8 @@ public class JmockitDemoTest {
 
         new Verifications() {{
             userRepository.findAll();
-            System.out.println("Verification: userRepository.findAll() was called once.");
-
-            userRepository.findAllUsers();
-            System.out.println("Verification: userRepository.findAllUsers() was called once.");
-
             times = 1;
+            System.out.println("Verification: userRepository.findAll() was called once.");
         }};
     }
 
