@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/appointments")
 @CrossOrigin
 @RequiredArgsConstructor
+@RequestMapping("/api/appointments")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Appointments Controller", description = "Appointments related APIs.")
 public class AppointmentController {

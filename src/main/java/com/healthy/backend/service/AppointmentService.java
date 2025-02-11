@@ -11,7 +11,6 @@ import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,12 +20,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AppointmentService {
-    @Autowired
-    AppointmentRepository appointmentRepository;
-    @Autowired
-    StudentRepository studentRepository;
-    @Autowired
-    PsychologistRepository psychologistRepository;
+
+    private final AppointmentRepository appointmentRepository;
+
+    private final StudentRepository studentRepository;
+
+    private final PsychologistRepository psychologistRepository;
 
     public AppointmentResponse covertAppointmentDTO(Appointments appointments) {
 
