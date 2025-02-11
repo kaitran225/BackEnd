@@ -69,6 +69,7 @@ application-*.properties
 *.jar
 *.war
 *.ear
+*~
 
 ### Testing ###
 /coverage/
