@@ -1,0 +1,24 @@
+:root {
+    --swagger-ui-background: #1e1e1e;
+    --swagger-ui-text: #ffffff;
+    --swagger-ui-panel: #2d2d2d;
+}
+
+body, .swagger-ui {
+    background-color: var(--swagger-ui-background) !important;
+    color: var(--swagger-ui-text) !important;
+}
+
+.swagger-ui .topbar {
+    background-color: var(--swagger-ui-panel) !important;
+}
+
+.swagger-ui .info, .swagger-ui .opblock {
+    background-color: var(--swagger-ui-panel) !important;
+    border-color: #555 !important;
+}
+
+.swagger-ui .opblock-summary {
+    background-color: #333 !important;
+    color: var(--swagger-ui-text) !important;
+}
