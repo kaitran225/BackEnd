@@ -1,5 +1,6 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,20 +15,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/psychologists")
 @CrossOrigin
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
-    @Autowired
-    public PsychologistService psychologistService;
+
+    private final PsychologistService psychologistService;
 
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists."
     )
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/psychologists")
+    @GetMapping("/")
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist() {
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
         if (!psychologistResponse.isEmpty()) {
@@ -40,14 +41,130 @@ public class PsychologistController {
             summary = "Get psychologist by ID",
             description = "Returns the psychologist with the specified ID."
     )
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/psychologist/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PsychologistResponse> getPsychologistById(@Valid @PathVariable String id) {
         PsychologistResponse psychologistResponse = psychologistService.getPsychologistById(id);
         if (psychologistResponse != null) {
             return ResponseEntity.ok(psychologistResponse);
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Update psychologist details",
+            description = "Updates a psychologist's details."
+    )
+    @PutMapping("/{id}")
+    public String updatePsychologist(@PathVariable String id, @RequestBody PsychologistRequest request) {
+        return "Psychologist updated successfully";
+    }
+
+    @Operation(
+            summary = "Get psychologist appointments",
+            description = "Returns a list of appointments for a psychologist."
+    )
+    @GetMapping("/{id}/appointments")
+    public List<String> getPsychologistAppointments(@PathVariable String id) {
+        return List.of("List of appointments for psychologist " + id);
+    }
+
+    @Operation(
+            summary = "Assign a student to a psychologist",
+            description = "Assigns a student to a psychologist."
+    )
+    @PostMapping("/{id}/assign-student/{studentId}")
+    public String assignStudent(@PathVariable String id, @PathVariable String studentId) {
+        return "Student " + studentId + " assigned to psychologist " + id;
+    }
+
+    @Operation(
+            summary = "Get assigned students",
+            description = "Returns a list of students assigned to a psychologist."
+    )
+    @GetMapping("/{id}/students")
+    public List<String> getAssignedStudents(@PathVariable String id) {
+        return List.of("List of students assigned to psychologist " + id);
+    }
+
+    @Operation(
+            summary = "Add session notes",
+            description = "Adds session notes for an appointment."
+    )
+    @PostMapping("/{id}/notes/{appointmentId}")
+    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
+        return "Session notes added for appointment " + appointmentId;
+    }
+
+    @Operation(
+            summary = "Get session notes",
+            description = "Returns session notes for an appointment."
+    )
+    @GetMapping("/{id}/notes/{appointmentId}")
+    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
+        return "Session notes for appointment " + appointmentId;
+    }
+
+    @Operation(
+            summary = "Submit assessment report",
+            description = "Submits an assessment report for an appointment."
+    )
+    @PostMapping("/{id}/reports/{appointmentId}")
+    public String submitAssessmentReport(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String report) {
+        return "Assessment report submitted for appointment " + appointmentId;
+    }
+
+    @Operation(
+            summary = "Get assessment report",
+            description = "Returns an assessment report for an appointment."
+    )
+    @GetMapping("/{id}/reports/{appointmentId}")
+    public String getAssessmentReport(@PathVariable String id, @PathVariable String appointmentId) {
+        return "Assessment report for appointment " + appointmentId;
+    }
+
+    @Operation(
+            summary = "Get psychologist feedback",
+            description = "Returns feedback for a psychologist."
+    )
+    @GetMapping("/{id}/feedback")
+    public List<String> getFeedback(@PathVariable String id) {
+        return List.of("Feedback for psychologist " + id);
+    }
+
+    @Operation(
+            summary = "Get psychologist dashboard",
+            description = "Returns dashboard details for a psychologist."
+    )
+    @GetMapping("/{id}/dashboard")
+    public String getPsychologistDashboard(@PathVariable String id) {
+        return "Dashboard details for psychologist " + id;
+    }
+
+    @Operation(
+            summary = "Get psychologist specializations",
+            description = "Returns a list of psychologist specializations."
+    )
+    @GetMapping("/specializations")
+    public List<String> getPsychologistSpecializations() {
+        return List.of("List of psychologist specializations");
+    }
+
+    @Operation(
+            summary = "Get psychologist availability status",
+            description = "Returns availability status for psychologists."
+    )
+    @GetMapping("/status")
+    public String getPsychologistsStatus() {
+        return "Psychologists' availability status";
+    }
+
+    @Operation(
+            summary = "Get psychologist time slots",
+            description = "Returns time slots for a psychologist."
+    )
+    @GetMapping("/{id}/timeslots")
+    public List<String> getPsychologistTimeSlots(@PathVariable String id) {
+        return List.of("Available timeslots for psychologist " + id);
     }
 }
 
