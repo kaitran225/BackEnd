@@ -5,13 +5,14 @@ import com.healthy.backend.entity.*;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 @Component
@@ -22,22 +23,23 @@ public class DataInitializer implements CommandLineRunner {
     private final ProgramRepository programRepository;
     private final AppointmentRepository appointmentRepository;
     private final SurveyResultRepository surveyResultRepository;
-    private BlogRepository blogRepository;
-    private NotificationRepository notificationRepository;
-    private StudentRepository studentRepository;
-    private ParentRepository parentRepository;
-    private PsychologistRepository psychologistRepository;
-    private TimeSlotRepository timeSlotRepository;
-    private ProgramParticipationRepository programParticipationRepository;
-    private SurveyRepository surveyRepository;
-    private SurveyQuestionRepository surveyQuestionRepository;
-    private AnswersRepository answersRepository;
-    private StudentNoteRepository studentNoteRepository;
-    private UserLogRepository userLogRepository;
-    private AppointmentHistoryRepository appointmentHistoryRepository;
-    private ProgramScheduleRepository programScheduleRepository;
-    private CategoriesRepository categoryRepository;
-    private AuthenticationService authenticationService;
+    private final BlogRepository blogRepository;
+    private final NotificationRepository notificationRepository;
+    private final StudentRepository studentRepository;
+    private final ParentRepository parentRepository;
+    private final PsychologistRepository psychologistRepository;
+    private final TimeSlotRepository timeSlotRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
+    private final SurveyRepository surveyRepository;
+    private final SurveyQuestionRepository surveyQuestionRepository;
+    private final AnswersRepository answersRepository;
+    private final StudentNoteRepository studentNoteRepository;
+    private final UserLogRepository userLogRepository;
+    private final AppointmentHistoryRepository appointmentHistoryRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
+    private final CategoriesRepository categoryRepository;
+    private final TagRepository tagRepository;
+    private final AuthenticationService authenticationService;
 
     private void initialize() {
         // Initialize Users
@@ -98,12 +100,82 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(new TimeSlots("TS160616", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("12:30:00"), LocalTime.parse("13:00:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS160617", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"), TimeSlots.Status.Available));
 
-        // Initialize Programs
-        programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
-        programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
-        programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
-        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness, "Counseling for individuals with depression", 30, 2, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
+        // Initialize Tags
+        tagRepository.save(new Tags("TAG001", Tags.Tag.Stress));
+        tagRepository.save(new Tags("TAG002", Tags.Tag.Anxiety));
+        tagRepository.save(new Tags("TAG003", Tags.Tag.Mindfulness));
+        tagRepository.save(new Tags("TAG004", Tags.Tag.Depression));
+        tagRepository.save(new Tags("TAG005", Tags.Tag.EatingDisorder));
+        tagRepository.save(new Tags("TAG006", Tags.Tag.Addiction));
+        tagRepository.save(new Tags("TAG007", Tags.Tag.Self_Care));
+        tagRepository.save(new Tags("TAG008", Tags.Tag.Sleep));
+        tagRepository.save(new Tags("TAG009", Tags.Tag.PhysicalHealth));
+        tagRepository.save(new Tags("TAG010", Tags.Tag.MentalHealth));
+        tagRepository.save(new Tags("TAG011", Tags.Tag.Peer_Support));
+        tagRepository.save(new Tags("TAG012", Tags.Tag.Community));
+        tagRepository.save(new Tags("TAG013", Tags.Tag.Social_Skill));
+        tagRepository.save(new Tags("TAG014", Tags.Tag.Exercise));
+        tagRepository.save(new Tags("TAG015", Tags.Tag.Relaxation));
+        tagRepository.save(new Tags("TAG016", Tags.Tag.Meditation));
+        tagRepository.save(new Tags("TAG017", Tags.Tag.Motivation));
+        tagRepository.save(new Tags("TAG018", Tags.Tag.Test_Anxiety));
+        tagRepository.save(new Tags("TAG019", Tags.Tag.Test_Depression));
+        tagRepository.save(new Tags("TAG020", Tags.Tag.Test_Stress));
+        tagRepository.save(new Tags("TAG021", Tags.Tag.Academic_Stress));
+        tagRepository.save(new Tags("TAG022", Tags.Tag.Work_Stress));
+        tagRepository.save(new Tags("TAG023", Tags.Tag.Financial_Stress));
+        tagRepository.save(new Tags("TAG024", Tags.Tag.Relationship_Stress));
+        tagRepository.save(new Tags("TAG025", Tags.Tag.Self_Improvement_Stress));
+        tagRepository.save(new Tags("TAG026", Tags.Tag.Academic_Relationship));
+        tagRepository.save(new Tags("TAG027", Tags.Tag.Work_Relationship));
+        tagRepository.save(new Tags("TAG028", Tags.Tag.Financial_Relationship));
+        tagRepository.save(new Tags("TAG029", Tags.Tag.Relationship));
+        tagRepository.save(new Tags("TAG030", Tags.Tag.Self_Improvement));
+        tagRepository.save(new Tags("TAG031", Tags.Tag.Performance));
+        tagRepository.save(new Tags("TAG032", Tags.Tag.Confidence));
+        tagRepository.save(new Tags("TAG033", Tags.Tag.Self_Esteem));
+        tagRepository.save(new Tags("TAG034", Tags.Tag.Self_Awareness));
+        tagRepository.save(new Tags("TAG035", Tags.Tag.Self_Discipline));
+        tagRepository.save(new Tags("TAG036", Tags.Tag.Self_Reflection));
+        tagRepository.save(new Tags("TAG037", Tags.Tag.Self_Management));
+        tagRepository.save(new Tags("TAG038", Tags.Tag.Resilience));
+        tagRepository.save(new Tags("TAG039", Tags.Tag.Coping_Skills));
+        tagRepository.save(new Tags("TAG040", Tags.Tag.Problem_Solving));
+        tagRepository.save(new Tags("TAG041", Tags.Tag.Decision_Making));
+        tagRepository.save(new Tags("TAG042", Tags.Tag.Time_Management));
+        tagRepository.save(new Tags("TAG043", Tags.Tag.Stress_Management));
+        tagRepository.save(new Tags("TAG044", Tags.Tag.Emotional_Intelligence));
+        tagRepository.save(new Tags("TAG045", Tags.Tag.Emotional_Regulation));
+        tagRepository.save(new Tags("TAG046", Tags.Tag.Emotional_Expression));
+        tagRepository.save(new Tags("TAG047", Tags.Tag.Productivity));
+        tagRepository.save(new Tags("TAG048", Tags.Tag.Boundaries));
+        tagRepository.save(new Tags("TAG049", Tags.Tag.Self_Control));
+        tagRepository.save(new Tags("TAG050", Tags.Tag.Wellness));
+        tagRepository.save(new Tags("TAG051", Tags.Tag.Health));
+        tagRepository.save(new Tags("TAG052", Tags.Tag.Grief));
+        tagRepository.save(new Tags("TAG053", Tags.Tag.Support));
+        tagRepository.save(new Tags("TAG054", Tags.Tag.Healing));
+        tagRepository.save(new Tags("TAG055", Tags.Tag.Body_Image));
+        tagRepository.save(new Tags("TAG056", Tags.Tag.Personal_Development));
+        tagRepository.save(new Tags("TAG057", Tags.Tag.Self_Acceptance));
+        tagRepository.save(new Tags("TAG058", Tags.Tag.Self_Health));
+        tagRepository.save(new Tags("TAG059", Tags.Tag.Social_Support));
+        tagRepository.save(new Tags("TAG060", Tags.Tag.Social_Connectivity));
+        tagRepository.save(new Tags("TAG061", Tags.Tag.Social_Interaction));
+        tagRepository.save(new Tags("TAG062", Tags.Tag.Community_Engagement));
+        tagRepository.save(new Tags("TAG063", Tags.Tag.Community_Involvement));
+        tagRepository.save(new Tags("TAG064", Tags.Tag.Relationship_Building));
+        tagRepository.save(new Tags("TAG065", Tags.Tag.Relationship_Health));
 
+        // Initialize Programs
+        programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),LocalDate.parse("2025-02-13")));
+        programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),LocalDate.parse("2025-02-15")));
+        programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),LocalDate.parse("2025-02-18")));
+        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness, "Counseling for individuals with depression", 30, 2, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),LocalDate.parse("2025-02-28")));
 
         // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));

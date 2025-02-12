@@ -4,9 +4,11 @@ import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Tags;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 @Component
 public class ProgramMapper {
@@ -22,7 +24,8 @@ public class ProgramMapper {
                 .status(program.getStatus())
                 .startDate(LocalDate.from(program.getStartDate()))
                 .managedByStaffID(program.getManagedByStaffID())
-                .tags(program.getTags())
+                .tags(program.getTags().stream().map(Tags::getTagName)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

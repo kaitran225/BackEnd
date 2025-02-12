@@ -2,16 +2,15 @@ package com.healthy.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "Programs")
 public class Programs {
@@ -24,7 +23,7 @@ public class Programs {
     private String programName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Category", length = 50, nullable = false, columnDefinition = "ENUM('Cognitive', 'Social', 'Emotional', 'Physical', 'Self Help', 'Wellness', 'Assessment', 'Support Group', 'Life Skills', 'Prevention', 'Counseling')")
+    @Column(name = "Category", length = 50, nullable = false)
     private Category category;
 
     @Column(name = "Description", columnDefinition = "TEXT")
@@ -37,29 +36,53 @@ public class Programs {
     private Integer duration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", length = 50, columnDefinition = "ENUM('Activate', 'Inactive')", nullable = false)
+    @Column(name = "Status", length = 50, nullable = false)
     private Status status;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "ManagedByStaffID", length = 36)
-    private String managedByStaffID;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ManagedByStaffID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users managedByStaff;
 
+    @Column(name = "ManagedByStaffID", length = 36, nullable = false)
+    private String managedByStaffID;
+
     @Column(name = "StartDate")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @ManyToMany
     @JoinTable(
             name = "ProgramTags",
-            joinColumns = @JoinColumn(name = "program_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+            joinColumns = @JoinColumn(name = "ProgramId"),
+            inverseJoinColumns = @JoinColumn(name = "TagId")
     )
-    private Set<Tag> tags;
+    private Set<Tags> tags = new HashSet<>();
+
+    public Programs(String prg002, String anxietySupportGroup, Category category, String s, int i, int i1, Status status, String staffUser) {
+        this.programID = prg002;
+        this.programName = anxietySupportGroup;
+        this.category = category;
+        this.description = s;
+        this.numberParticipants = i;
+        this.duration = i1;
+        this.status = status;
+        this.managedByStaffID = staffUser;
+    }
+
+    public Programs(String prg001, String stressManagement, Category category, String programToHelpManageStress, int i, int i1, Status status, String staffUser, HashSet<Tags> tags, LocalDate startDate) {
+        this.programID = prg001;
+        this.programName = stressManagement;
+        this.category = category;
+        this.description = programToHelpManageStress;
+        this.numberParticipants = i;
+        this.duration = i1;
+        this.status = status;
+        this.managedByStaffID = staffUser;
+        this.tags = tags;
+        this.startDate = startDate;
+    }
 
     @PrePersist
     protected void onCreate() {

@@ -1,6 +1,5 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.service.ProgramService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,9 +29,8 @@ public class ProgramController {
                 : ResponseEntity.ok(programsResponseList); // 200 OK if list is not empty
     }
 
-
     @Operation(summary = "Get program details", description = "Returns details of a specific program.")
-    @GetMapping("/{programId}")
+    @GetMapping("/{programId}/details")
     public ResponseEntity<?> getProgramDetails(@PathVariable String programId) {
         ProgramsResponse programsResponse = programService.getProgramById(programId);
         return programsResponse == null
@@ -93,12 +91,6 @@ public class ProgramController {
     @DeleteMapping("/{programId}")
     public ResponseEntity<?> deleteProgram(@PathVariable String programId) {
         return ResponseEntity.ok("Program deleted " + programId);
-    }
-
-    @Operation(deprecated = true, summary = "Get program full details", description = "Returns full details of a specific program.")
-    @GetMapping("/{programId}/details")
-    public ResponseEntity<?> getProgramFullDetails(@PathVariable String programId) {
-        return ResponseEntity.ok("Full details for program " + programId);
     }
 
     @Operation(deprecated = true, summary = "Get all program statuses", description = "Returns a list of all program statuses.")
