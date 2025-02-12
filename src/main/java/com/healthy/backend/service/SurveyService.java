@@ -6,11 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SurveyService {
-//    public SurveyResultsResponse convert(SurveyResults surveyResults) {
-//        return SurveyResultsResponse.builder()
-//                .surveyId(surveyResults.getResultID())
-//                .get(surveyResults.getQuestionID())
-//                .answerId(surveyResults.getAnswerID())
-//                .build();
-//    }
+
 }

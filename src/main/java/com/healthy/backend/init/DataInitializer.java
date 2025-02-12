@@ -4,6 +4,7 @@ import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.service.AuthenticationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -14,66 +15,28 @@ import java.time.LocalTime;
 
 @Service
 @Component
+@RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ProgramRepository programRepository;
-
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-
-    @Autowired
-    private SurveyResultRepository surveyResultRepository;
-
-    @Autowired
+    private final UserRepository userRepository;
+    private final ProgramRepository programRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final SurveyResultRepository surveyResultRepository;
     private BlogRepository blogRepository;
-
-    @Autowired
     private NotificationRepository notificationRepository;
-
-    @Autowired
     private StudentRepository studentRepository;
-
-    @Autowired
     private ParentRepository parentRepository;
-
-    @Autowired
     private PsychologistRepository psychologistRepository;
-
-    @Autowired
     private TimeSlotRepository timeSlotRepository;
-
-    @Autowired
     private ProgramParticipationRepository programParticipationRepository;
-
-    @Autowired
     private SurveyRepository surveyRepository;
-
-    @Autowired
     private SurveyQuestionRepository surveyQuestionRepository;
-
-    @Autowired
     private AnswersRepository answersRepository;
-
-    @Autowired
     private StudentNoteRepository studentNoteRepository;
-
-    @Autowired
     private UserLogRepository userLogRepository;
-
-    @Autowired
     private AppointmentHistoryRepository appointmentHistoryRepository;
-
-    @Autowired
     private ProgramScheduleRepository programScheduleRepository;
-
-    @Autowired
     private CategoriesRepository categoryRepository;
-
-    @Autowired
     private AuthenticationService authenticationService;
 
     private void initialize() {

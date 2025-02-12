@@ -29,6 +29,7 @@ public class SurveyController {
 
 
     @Operation(
+            deprecated = true,
             summary = "Get all surveys",
             description = "Returns a list of available surveys."
     )
@@ -38,6 +39,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get survey details",
             description = "Returns details for a specific survey."
     )
@@ -47,6 +49,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Submit survey response",
             description = "Submits a response to a survey."
     )
@@ -56,6 +59,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get survey results",
             description = "Returns results for a specific survey."
     )
@@ -65,6 +69,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Submit survey feedback",
             description = "Submits feedback for a survey."
     )
@@ -74,33 +79,37 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Create survey",
             description = "Creates a new survey."
     )
-    @PostMapping
+    @PostMapping("/create")
     public String createSurvey(@RequestBody String surveyDetails) {
         return "New survey created successfully";
     }
 
     @Operation(
+            deprecated = true,
             summary = "Update survey",
             description = "Updates an existing survey."
     )
-    @PutMapping("/{surveyId}")
+    @PutMapping("/{surveyId}/update")
     public String updateSurvey(@PathVariable String surveyId, @RequestBody String surveyDetails) {
         return "Survey updated successfully";
     }
 
     @Operation(
+            deprecated = true,
             summary = "Cancel survey",
             description = "Cancels a survey."
     )
-    @DeleteMapping("/{surveyId}")
+    @DeleteMapping("/{surveyId}/cancel")
     public String cancelSurvey(@PathVariable String surveyId) {
         return "Survey canceled successfully";
     }
 
     @Operation(
+            deprecated = true,
             summary = "Add question to survey",
             description = "Adds a question to a survey."
     )
@@ -110,6 +119,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Update question in survey",
             description = "Updates a question in a survey."
     )
@@ -119,6 +129,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Delete question from survey",
             description = "Deletes a question from a survey."
     )
@@ -128,6 +139,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Add answer to question",
             description = "Adds an answer to a question."
     )
@@ -137,6 +149,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get student survey results",
             description = "Returns results for a specific student's survey."
     )
@@ -146,6 +159,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get survey dashboard",
             description = "Returns a dashboard overview for surveys."
     )
@@ -155,6 +169,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Schedule survey",
             description = "Schedules a survey."
     )
@@ -164,6 +179,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Update survey status",
             description = "Updates the status of a survey."
     )
@@ -173,6 +189,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Enable anonymous survey",
             description = "Enables anonymous mode for a survey."
     )
@@ -182,6 +199,7 @@ public class SurveyController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Export survey results",
             description = "Exports survey results in a specified format."
     )

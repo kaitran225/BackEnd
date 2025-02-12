@@ -27,9 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication Controller", description = "Authentication management APIs")
 public class AuthenticationController {
 
-    @Autowired
     private final AuthenticationService authenticationService;
-    @Autowired
     private final LogoutService logoutHandler;
 
     @Operation(
@@ -68,6 +66,7 @@ public class AuthenticationController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Initiate password reset",
             description = "Send password reset email to user"
     )
@@ -80,6 +79,7 @@ public class AuthenticationController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Reset password",
             description = "Reset password using token from email"
     )

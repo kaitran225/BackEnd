@@ -1,6 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Programs;
@@ -28,8 +29,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
-    private final ProgramService programService;
 
     @Operation(
             summary = "Get all users",
@@ -59,7 +58,7 @@ public class UserController {
     public ResponseEntity<?> getProgramsByUserId(
             @Valid @PathVariable String userId) {
         try {
-            List<Programs> programs = programService.getProgramsByUserId(userId);
+            List<ProgramParticipationResponse> programs = userService.getUserProgramsParticipation(userId);
             return ResponseEntity.ok(programs);  // Return 200 OK with programs
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -106,6 +105,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Deactivate user account",
             description = "Deactivates a user's account."
     )
@@ -115,6 +115,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Reactivate user account",
             description = "Reactivates a user's account."
     )
@@ -124,6 +125,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Update user role",
             description = "Updates a user's role."
     )
@@ -133,8 +135,9 @@ public class UserController {
     }
 
     @Operation(
-        summary = "Send notification to user",
-        description = "Sends a notification to a specific user."
+            deprecated = true,
+            summary = "Send notification to user",
+            description = "Sends a notification to a specific user."
     )
     @PostMapping("/{userId}/notifications")
     public String sendUserNotification(@PathVariable String userId, @RequestBody String message) {
@@ -142,6 +145,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get user dashboard",
             description = "Retrieves the dashboard for a specific user."
     )
@@ -151,6 +155,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Export user data",
             description = "Exports user data in a specified format."
     )
@@ -160,6 +165,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get completed programs for user",
             description = "Retrieves a list of completed programs for a specific user."
     )
@@ -169,6 +175,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Submit feedback for user",
             description = "Submits feedback for a specific user."
     )
@@ -178,6 +185,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get upcoming appointments for user",
             description = "Retrieves a list of upcoming appointments for a specific user."
     )
@@ -187,6 +195,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get pending surveys for user",
             description = "Retrieves a list of pending surveys for a specific user."
     )
@@ -196,6 +205,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Search users by name",
             description = "Searches for users with a specific name."
     )
@@ -205,6 +215,7 @@ public class UserController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Delete user account",
             description = "Deletes a user's account."
     )

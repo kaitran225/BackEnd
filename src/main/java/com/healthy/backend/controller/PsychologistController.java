@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,7 @@ public class PsychologistController {
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists."
     )
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist() {
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
         if (!psychologistResponse.isEmpty()) {
@@ -49,8 +48,8 @@ public class PsychologistController {
         }
         return ResponseEntity.noContent().build();
     }
-
     @Operation(
+            deprecated = true,
             summary = "Update psychologist details",
             description = "Updates a psychologist's details."
     )
@@ -60,6 +59,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist appointments",
             description = "Returns a list of appointments for a psychologist."
     )
@@ -69,6 +69,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Assign a student to a psychologist",
             description = "Assigns a student to a psychologist."
     )
@@ -78,6 +79,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get assigned students",
             description = "Returns a list of students assigned to a psychologist."
     )
@@ -87,6 +89,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Add session notes",
             description = "Adds session notes for an appointment."
     )
@@ -96,6 +99,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get session notes",
             description = "Returns session notes for an appointment."
     )
@@ -105,6 +109,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Submit assessment report",
             description = "Submits an assessment report for an appointment."
     )
@@ -114,6 +119,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get assessment report",
             description = "Returns an assessment report for an appointment."
     )
@@ -123,6 +129,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist feedback",
             description = "Returns feedback for a psychologist."
     )
@@ -132,6 +139,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist dashboard",
             description = "Returns dashboard details for a psychologist."
     )
@@ -141,6 +149,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist specializations",
             description = "Returns a list of psychologist specializations."
     )
@@ -150,6 +159,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist availability status",
             description = "Returns availability status for psychologists."
     )
@@ -159,6 +169,7 @@ public class PsychologistController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get psychologist time slots",
             description = "Returns time slots for a psychologist."
     )

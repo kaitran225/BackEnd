@@ -6,9 +6,11 @@ import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class UserMapper {
     public UsersResponse buildUserResponse(
             Users user,

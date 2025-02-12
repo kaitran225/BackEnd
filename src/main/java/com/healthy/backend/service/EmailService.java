@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmailService {
+    
     private final JavaMailSender mailSender;
 
     public void sendPasswordResetEmail(String email, String resetLink) {

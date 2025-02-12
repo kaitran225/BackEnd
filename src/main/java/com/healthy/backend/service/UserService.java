@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
@@ -8,10 +9,7 @@ import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AppointmentMapper;
-import com.healthy.backend.mapper.PsychologistsMapper;
-import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.mapper.UserMapper;
+import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,11 +32,15 @@ public class UserService {
     private final PsychologistRepository psychologistRepository;
     private final ParentRepository parentRepository;
     private final AppointmentRepository appointmentRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
 
     private final UserMapper userMapper;
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
+    private final SurveyResultMapper surveyResultsMapper;
     private final AppointmentMapper appointmentMapper;
+    private final ProgramMapper programMapper;
+
 
     public boolean isEmpty() {
         return userRepository.findAll().isEmpty();
@@ -56,6 +59,11 @@ public class UserService {
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return convert(user);
+    }
+
+    public List<SurveyResultsResponse> getUserSurveyResults(String id) {
+        List<SurveyResults> surveyResults = surveyResultRepository.findByStudentID(id);
+        return surveyResultsMapper.getUserSurveyResults(surveyResults);
     }
 
     public UsersResponse updateUser(String userId, Users updatedUser) {
@@ -87,6 +95,22 @@ public class UserService {
         return convert(existingUser); // Convert entity to response DTO
     }
 
+    public List<ProgramParticipationResponse> getUserProgramsParticipation(String id) {
+
+        List<ProgramParticipation> participants = programParticipationRepository
+                .findByStudentID(studentRepository
+                        .findByUserID(id).getStudentID());
+
+        if (participants.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No programs found for userID: " + id
+            );
+        }
+        return participants.stream()
+                .map(programMapper::buildProgramParticipationResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<AppointmentResponse> getUserAppointments(String id) {
         Users user = userRepository.findById(id).orElseThrow();
         PsychologistResponse psychologistResponse = null;
@@ -114,11 +138,18 @@ public class UserService {
         }
 
 
-        return appointmentMapper.buildAppointmentResponseList(
-                user,
-                appointmentsList,
-                psychologistResponse,
-                studentResponse);
+        return appointmentsList.stream()
+                .map(appointment ->
+                        appointmentMapper.buildAppointmentResponse(
+                                appointment,
+                                psychologistsMapper.buildPsychologistResponse(
+                                        Objects.requireNonNull(psychologistRepository.findById(
+                                                appointment.getPsychologistID()).orElse(null))),
+                                studentMapper.buildStudentResponse(
+                                        Objects.requireNonNull(studentRepository.findById(
+                                                appointment.getStudentID()).orElse(null)))
+                        ))
+                .collect(Collectors.toList());
     }
 
 
@@ -146,22 +177,15 @@ public class UserService {
 
         if (user.getRole() == Users.UserRole.STUDENT) {
             Students students = studentRepository.findByUserID(user.getUserId());
-            surveyResultsResponseList = ;
+            surveyResultsResponseList = getUserSurveyResults(user.getUserId());
             studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
-            appointmentsList = appointmentRepository.findByStudentID(students.getStudentID());
-            appointmentsResponseList = appointmentMapper.buildAppointmentResponseList(
-                    user,
-                    appointmentsList,
-                    null,
-                    studentResponse
-            );
-        }
+            appointmentsResponseList =     getUserAppointments(user.getUserId());
+            }
 
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
             Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
             psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
-            appointmentsList = appointmentRepository.findByPsychologistID(psychologists.getPsychologistID());        }
-
+        }
         if (user.getRole() == Users.UserRole.PARENT) {
             Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
             childrenList = parent.getStudents().stream()

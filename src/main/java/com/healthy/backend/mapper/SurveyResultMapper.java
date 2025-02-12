@@ -5,27 +5,28 @@ import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+@Component
 
 public class SurveyResultMapper {
 
-    public List<SurveyResultsResponse> getUserSurveyResults(String userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        return user.getRole() == Users.UserRole.STUDENT
-                ? buildSurveyResults(studentRepository.findByUserID(userId).getStudentID())
-                : null;
+    public List<SurveyResultsResponse> getUserSurveyResults(List<SurveyResults> surveyResults) {
+        if (surveyResults == null) throw new ResourceNotFoundException("No survey results found");
+        return buildSurveyResults(surveyResults);
     }
 
-    private List<SurveyResultsResponse> buildSurveyResults(String studentId) {
-        List<SurveyResults> results = surveyResultRepository.findByStudentIDWithDetails(studentId);
+    private List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
 
         Map<String, List<SurveyQuestionResultResponse>> groupedResults =
-                results
+                surveyResults
                         .stream()
                         .collect(Collectors.groupingBy(
                                 result ->
@@ -33,12 +34,8 @@ public class SurveyResultMapper {
                                 Collectors.mapping(this::mapToSurveyQuestionResultResponse, Collectors.toList())
                         ));
 
-        // Fetch all surveys in one query
-        List<String> surveyIds = groupedResults.keySet().stream().toList();
-        List<Surveys> surveys = surveyRepository.findAllById(surveyIds);
-        Map<String, Surveys> surveyMap = surveys.stream()
-                .collect(Collectors.toMap(Surveys::getSurveyID, s -> s));
-
+        Map<String, Surveys> surveyMap = groupedResults.keySet().stream()
+                .collect(Collectors.toMap(key -> key, key -> new Surveys()));
         return groupedResults.entrySet().stream()
                 .map(entry -> mapToSurveyResultsResponse(surveyMap.get(entry.getKey()), entry.getValue()))
                 .toList();

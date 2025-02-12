@@ -22,8 +22,8 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Appointments Controller", description = "Appointments related APIs.")
 public class AppointmentController {
-    @Autowired
-    private AppointmentService appointmentService;
+
+    private final AppointmentService appointmentService;
 
     @Operation(
             summary = "Get all appointments",
@@ -31,7 +31,7 @@ public class AppointmentController {
     )
     @GetMapping("/")
     public ResponseEntity<?> getAllPsychologistDTO() {
-        List<AppointmentResponse> appointmentResponse = appointmentService.getAllAppointmentDTO();
+        List<AppointmentResponse> appointmentResponse = appointmentService.getAllAppointments();
         if (!appointmentResponse.isEmpty()) {
             return ResponseEntity.ok(appointmentResponse);
         }
@@ -49,8 +49,8 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentResponse);
     }
 
-    // Student Endpoints
     @Operation(
+            deprecated = true,
             summary = "Book an appointment",
             description = "Creates a new appointment."
     )
@@ -60,6 +60,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Cancel an appointment",
             description = "Cancels an appointment."
     )
@@ -69,6 +70,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Request update of an appointment",
             description = "Requests an update of an appointment."
     )
@@ -78,6 +80,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Check in to an appointment",
             description = "Checks in to an appointment."
     )
@@ -87,6 +90,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Check out from an appointment",
             description = "Checks out from an appointment."
     )
@@ -96,6 +100,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Give feedback on an appointment",
             description = "Gives feedback on an appointment."
     )
@@ -105,6 +110,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Request appointment record",
             description = "Requests the record of an appointment."
     )
@@ -114,6 +120,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get appointment result",
             description = "Returns the result of an appointment."
     )
@@ -124,6 +131,7 @@ public class AppointmentController {
 
     // Manager or Psychologist Endpoints
     @Operation(
+            deprecated = true,
             summary = "Create an appointment",
             description = "Creates a new appointment."
     )
@@ -133,6 +141,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Update an appointment",
             description = "Updates an existing appointment."
     )
@@ -142,6 +151,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Cancel an appointment by manager",
             description = "Cancels an appointment by manager."
     )
@@ -151,6 +161,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Make a report for an appointment",
             description = "Creates a report for an appointment."
     )
@@ -160,6 +171,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get all appointments",
             description = "Returns a list of all appointments."
     )
@@ -169,6 +181,7 @@ public class AppointmentController {
     }
 
     @Operation(
+            deprecated = true,
             summary = "Get appointment details",
             description = "Returns detailed information about an appointment."
     )
