@@ -52,13 +52,11 @@ spring:
           starttls.enable: true
 
 server:
-  # Allow external access on render.com
   address: 0.0.0.0
   port: 8080
   tomcat:
     threads:
       min-spare: 2
-      # Small max thread count to match low CPU
       max: 5
   compression:
     enabled: true

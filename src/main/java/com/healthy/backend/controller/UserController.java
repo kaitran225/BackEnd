@@ -4,10 +4,8 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Programs;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.service.ProgramService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -49,7 +47,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    // Working but not tested
     @Operation(
             summary = "Get programs by user ID",
             description = "Returns a list of programs associated with the specified user ID."
@@ -59,7 +56,7 @@ public class UserController {
             @Valid @PathVariable String userId) {
         try {
             List<ProgramParticipationResponse> programs = userService.getUserProgramsParticipation(userId);
-            return ResponseEntity.ok(programs);  // Return 200 OK with programs
+            return ResponseEntity.ok(programs);
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {

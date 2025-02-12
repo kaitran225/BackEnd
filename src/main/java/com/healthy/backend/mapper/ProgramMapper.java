@@ -6,20 +6,23 @@ import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Programs;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 public class ProgramMapper {
 
     public ProgramsResponse buildProgramResponse(Programs program) {
         return ProgramsResponse.builder()
                 .programID(program.getProgramID())
-                .programName(program.getProgramName())
+                .title(program.getProgramName())
                 .category(program.getCategory())
                 .description(program.getDescription())
                 .numberParticipants(program.getNumberParticipants())
                 .duration(program.getDuration())
                 .status(program.getStatus())
-                .createdAt(program.getCreatedAt())
+                .startDate(LocalDate.from(program.getStartDate()))
                 .managedByStaffID(program.getManagedByStaffID())
+                .tags(program.getTags())
                 .build();
     }
 

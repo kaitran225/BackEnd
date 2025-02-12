@@ -102,6 +102,8 @@ public class DataInitializer implements CommandLineRunner {
         programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
         programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
         programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
+        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness, "Counseling for individuals with depression", 30, 2, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId()));
+
 
         // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));

@@ -1,18 +1,18 @@
 package com.healthy.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "Programs")
 public class Programs {
 
@@ -50,16 +50,16 @@ public class Programs {
     @JoinColumn(name = "ManagedByStaffID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users managedByStaff;
 
-    public Programs(String programID, String programName, Category category, String description, Integer numberParticipants, Integer duration, Status status, String managedByStaffID) {
-        this.programID = programID;
-        this.programName = programName;
-        this.category = category;
-        this.description = description;
-        this.numberParticipants = numberParticipants;
-        this.duration = duration;
-        this.managedByStaffID = managedByStaffID;
-        this.status = status;
-    }
+    @Column(name = "StartDate")
+    private LocalDateTime startDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "ProgramTags",
+            joinColumns = @JoinColumn(name = "program_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags;
 
     @PrePersist
     protected void onCreate() {

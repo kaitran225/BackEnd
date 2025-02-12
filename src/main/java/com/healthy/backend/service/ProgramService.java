@@ -28,4 +28,10 @@ public class ProgramService {
         if(programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(programMapper::buildProgramResponse).toList();
     }
+
+    public ProgramsResponse getProgramById(String programId) {
+        Programs program = programRepository.findByProgramID(programId);
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        return programMapper.buildProgramResponse(program);
+    }
 }
