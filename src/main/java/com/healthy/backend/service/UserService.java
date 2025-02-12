@@ -24,22 +24,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final AnswersRepository answersRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final ParentRepository parentRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
+    private final PsychologistRepository psychologistRepository;
     private final StudentRepository studentRepository;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
-    private final AnswersRepository answersRepository;
     private final UserRepository userRepository;
-    private final PsychologistRepository psychologistRepository;
-    private final ParentRepository parentRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final ProgramParticipationRepository programParticipationRepository;
 
-    private final UserMapper userMapper;
+    private final AppointmentMapper appointmentMapper;
+    private final ProgramMapper programMapper;
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
     private final SurveyResultMapper surveyResultsMapper;
-    private final AppointmentMapper appointmentMapper;
-    private final ProgramMapper programMapper;
+    private final UserMapper userMapper;
+
 
 
     public boolean isEmpty() {
