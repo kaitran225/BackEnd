@@ -69,7 +69,6 @@ public class PsychologistService {
                                         .map(a -> AppointmentResponse.builder()
                                                 .appointmentID(a.getAppointmentID())
                                                 .CreatedAt(a.getCreatedAt())
-                                                .MeetingLink(a.getMeetingLink())
                                                 .Status(a.getStatus().name())
                                                 .studentResponse(
                                                         StudentResponse.builder()

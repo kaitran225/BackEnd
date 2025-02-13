@@ -26,8 +26,6 @@ public class AppointmentResponse {
     private PsychologistResponse psychologistResponse;
     private String Status;
     private String Text;
-    private String MeetingLink;
-    private String AppointmentType;
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
 }

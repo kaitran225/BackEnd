@@ -169,13 +169,13 @@ public class DataInitializer implements CommandLineRunner {
 
         // Initialize Programs
         programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),LocalDate.parse("2025-02-13")));
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),LocalDate.parse("2025-02-13"),"https://example.com/meeting1", Programs.Type.Online));
         programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),LocalDate.parse("2025-02-15")));
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),LocalDate.parse("2025-02-15"),"https://example.com/meeting2", Programs.Type.Offline));
         programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),LocalDate.parse("2025-02-18")));
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),LocalDate.parse("2025-02-18"),"https://example.com/meeting3", Programs.Type.Online));
         programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness, "Counseling for individuals with depression", 30, 2, Programs.Status.Activate, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),LocalDate.parse("2025-02-28")));
+                new HashSet<Tags>(tagRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),LocalDate.parse("2025-02-28"),"https://example.com/meeting4", Programs.Type.Online));
 
         // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
@@ -184,7 +184,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Initialize Program Participation
         programParticipationRepository.save(new ProgramParticipation("PP001", "S001", "PRG001", ProgramParticipation.Status.Completed, LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30")));
-        programParticipationRepository.save(new ProgramParticipation("PP002", "S002", "PRG002", ProgramParticipation.Status.InProgress, LocalDate.parse("2023-07-01"), LocalDate.parse("2023-08-15")));
+        programParticipationRepository.save(new ProgramParticipation("PP002", "S002", "PRG002", ProgramParticipation.Status.Joined, LocalDate.parse("2023-07-01"), LocalDate.parse("2023-08-15")));
 
         // Initialize Categories
         categoryRepository.save(new Categories("CAT001", Categories.MentalHealthCategory.Anxiety));
@@ -278,8 +278,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Blog("B002", "Overcoming Anxiety", userRepository.findByUsername("staff_user").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001", "TS150601", "S001", "PSY001", Appointments.Status.Scheduled, "https://example.com/meeting1", Appointments.AppointmentType.Online));
-        appointmentRepository.save(new Appointments("APP002", "TS150602", "S002", "PSY002", Appointments.Status.Scheduled, "https://example.com/meeting2", Appointments.AppointmentType.Online));
+        appointmentRepository.save(new Appointments("APP001", "TS150601", "S001", "PSY001", Appointments.Status.Scheduled));
+        appointmentRepository.save(new Appointments("APP002", "TS150602", "S002", "PSY002", Appointments.Status.Scheduled));
 
         // Initialize Appointment History
         appointmentHistoryRepository.save(new AppointmentHistory("H001", "APP001", AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, userRepository.findByUsername("dr_brown").getUserId()));

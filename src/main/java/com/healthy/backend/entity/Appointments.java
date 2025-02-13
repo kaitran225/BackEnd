@@ -37,13 +37,6 @@ public class Appointments {
     @Column(name = "Notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "MeetingLink", length = 255)
-    private String meetingLink;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "AppointmentType", columnDefinition = "ENUM('Online', 'Offline')")
-    private AppointmentType appointmentType;
-
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
 
@@ -64,17 +57,14 @@ public class Appointments {
 
     public Appointments() {
         status = Scheduled;
-        appointmentType = Offline;
     }
 
-    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, Status status, String meetingLink, AppointmentType appointmentType) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, Status status) {
         this.appointmentID = appointmentID;
         this.timeSlotsID = timeSlotsID;
         this.studentID = studentID;
         this.psychologistID = psychologistID;
         this.status = status;
-        this.appointmentType = appointmentType;
-        this.meetingLink = meetingLink;
     }
 
     @PrePersist

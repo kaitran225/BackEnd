@@ -29,11 +29,11 @@ public class ProgramParticipation {
     @Column(name = "StartDate", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "EndDate", nullable = false)
+    @Column(name = "EndDate", nullable = true)
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", length = 50, columnDefinition = "ENUM('InProgress', 'Completed', 'Cancelled')", nullable = false)
+    @Column(name = "Status", length = 50, nullable = false)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,8 +53,16 @@ public class ProgramParticipation {
         this.endDate = endDate;
     }
 
+    public ProgramParticipation(String participationID, String studentID, String programID, Status status, LocalDate startDate) {
+        this.participationID = participationID;
+        this.studentID = studentID;
+        this.programID = programID;
+        this.status = status;
+        this.startDate = startDate;
+    }
+
     public enum Status {
-        InProgress,
+        Joined,
         Completed,
         Cancelled
     }

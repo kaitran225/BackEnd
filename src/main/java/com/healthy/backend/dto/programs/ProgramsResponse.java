@@ -1,7 +1,9 @@
 package com.healthy.backend.dto.programs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Tags;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,6 +31,9 @@ public class ProgramsResponse {
     private String managedByStaffID;
     private Set<String> tags;
     private LocalDate createdAt;
+    private Programs.Type type;
+    private String meetingLink;
+    private List<StudentResponse> enrolled;
 }
 
 //id: 14,

@@ -52,6 +52,13 @@ public class Programs {
     @Column(name = "StartDate")
     private LocalDate startDate;
 
+    @Column(name = "MeetingLink", length = 255)
+    private String meetingLink;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "AppointmentType", length =  50, nullable = false)
+    private Type type;
+
     @ManyToMany
     @JoinTable(
             name = "ProgramTags",
@@ -60,18 +67,16 @@ public class Programs {
     )
     private Set<Tags> tags = new HashSet<>();
 
-    public Programs(String prg002, String anxietySupportGroup, Category category, String s, int i, int i1, Status status, String staffUser) {
-        this.programID = prg002;
-        this.programName = anxietySupportGroup;
-        this.category = category;
-        this.description = s;
-        this.numberParticipants = i;
-        this.duration = i1;
-        this.status = status;
-        this.managedByStaffID = staffUser;
-    }
-
-    public Programs(String prg001, String stressManagement, Category category, String programToHelpManageStress, int i, int i1, Status status, String staffUser, HashSet<Tags> tags, LocalDate startDate) {
+    public Programs(
+            String prg001,
+            String stressManagement,
+            Category category,
+            String programToHelpManageStress,
+            int i, int i1, Status status,
+            String staffUser, HashSet<Tags> tags,
+            LocalDate startDate,
+            String meetingLink,
+            Type type) {
         this.programID = prg001;
         this.programName = stressManagement;
         this.category = category;
@@ -82,6 +87,8 @@ public class Programs {
         this.managedByStaffID = staffUser;
         this.tags = tags;
         this.startDate = startDate;
+        this.type = type;
+        this.meetingLink = meetingLink;
     }
 
     @PrePersist
@@ -103,6 +110,11 @@ public class Programs {
         LifeSkills,
         Prevention,
         Counseling
+    }
+
+    public enum Type {
+        Online,
+        Offline
     }
 
     public enum Status {
