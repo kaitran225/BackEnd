@@ -3,8 +3,10 @@ package com.healthy.backend.repository;
 import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Students;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,4 +25,8 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
     @Query("SELECT p.studentID FROM ProgramParticipation p WHERE p.programID = :programID")
     List<String> findStudentIDsByProgramID(@Param("programID") String programID);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ProgramParticipation p WHERE p.programID = :programId")
+    void deleteByProgramId(@Param("programId") String programId);
 }

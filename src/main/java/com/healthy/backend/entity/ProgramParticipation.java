@@ -36,11 +36,11 @@ public class ProgramParticipation {
     @Column(name = "Status", length = 50, nullable = false)
     private Status status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
     private Programs program;
 

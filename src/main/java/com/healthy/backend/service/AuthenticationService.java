@@ -38,12 +38,26 @@ public class AuthenticationService {
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenDuration;
 
+    private String getUserLastCode() {
+        if(userRepository.findAll().isEmpty()){
+            return "US001";
+        }
+        String lastCode = userRepository.findLastUserId();
+        if (lastCode == null || lastCode.length() < 3) {
+            throw new IllegalArgumentException("Invalid last participation code");
+        }
+        String prefix = lastCode.substring(0, 2);
+        int number = Integer.parseInt(lastCode.substring(2));
+        return prefix + String.format("%03d", number + 1);
+    }
+
     public AuthenticationResponse register(RegisterRequest request) {
         if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
+        String userId = getUserLastCode();
         UsersResponse user = UsersResponse.builder()
-                .userId(UUID.randomUUID().toString())
+                .userId(getUserLastCode())
                 .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())

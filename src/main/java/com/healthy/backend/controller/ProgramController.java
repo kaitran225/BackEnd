@@ -2,6 +2,7 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.programs.ProgramParticipationRequest;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.exception.OperationFailedException;
@@ -113,10 +114,12 @@ public class ProgramController {
     }
 
     // Create a new program
-    @Operation(deprecated = true, summary = "Create a new program", description = "Creates a new program.")
-    @PostMapping("")
-    public ResponseEntity<?> createProgram() {
-        return ResponseEntity.ok("Program created");
+    @Operation(summary = "Create a new program", description = "Creates a new program.")
+    @PostMapping("/create")
+    public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest) {
+        ProgramsResponse programsResponse = programService.createProgram(programsRequest);
+        if(programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
+        return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
     }
 
 //    // Very low priority
@@ -132,8 +135,8 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Update a program
-    @Operation(deprecated = true, summary = "Update a program", description = "Updates an existing program.")
-    @PutMapping("/{programId}")
+    @Operation(summary = "Update a program", description = "Updates an existing program.")
+    @PutMapping("/{programId}/edit")
     public ResponseEntity<?> updateProgram(@PathVariable String programId) {
         return ResponseEntity.ok("Program updated " + programId);
     }
@@ -162,9 +165,10 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Delete a program
-    @Operation(deprecated = true, summary = "Delete a program", description = "Deletes an existing program.")
-    @DeleteMapping("/{programId}")
+    @Operation(summary = "Delete a program", description = "Deletes an existing program.")
+    @DeleteMapping("/{programId}/delete")
     public ResponseEntity<?> deleteProgram(@PathVariable String programId) {
-        return ResponseEntity.ok("Program deleted " + programId);
+        if(!programService.deleteProgram(programId)) throw new ResourceNotFoundException("Program not found");
+        return ResponseEntity.noContent().build();
     }
 }

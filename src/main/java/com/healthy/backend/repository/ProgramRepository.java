@@ -9,4 +9,6 @@ import java.util.List;
 public interface ProgramRepository extends JpaRepository<Programs, String> {
     List<Programs> findByManagedByStaffID(String userId);
 
-} 
+    @Query("SELECT p.programID FROM Programs p ORDER BY p.programID DESC LIMIT 1")
+    String findLastProgramId();
+}

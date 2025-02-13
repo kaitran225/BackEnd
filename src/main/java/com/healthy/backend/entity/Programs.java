@@ -118,7 +118,7 @@ public class Programs {
     }
 
     public enum Status {
-        Activate,
+        Active,
         Inactive
     }
 } 

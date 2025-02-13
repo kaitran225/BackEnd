@@ -1,23 +1,28 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.programs.ProgramParticipationRequest;
+import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.ProgramParticipation;
+import com.healthy.backend.entity.Tags;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.entity.Programs;
 import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.repository.ProgramParticipationRepository;
-import com.healthy.backend.repository.ProgramRepository;
-import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.*;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,12 @@ public class ProgramService {
     private final ProgramParticipationRepository programParticipationRepository;
 
     private final StudentRepository studentRepository;
+
+    private final ProgramScheduleRepository programScheduleRepository;
+
+    private final TagsRepository tagsRepository;
+
+    private final UserRepository userRepository;
 
     private final ProgramMapper programMapper;
 
@@ -47,6 +58,43 @@ public class ProgramService {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(programMapper::buildProgramResponse).toList();
+    }
+
+    public ProgramsResponse createProgram(ProgramsRequest programsRequest) {
+        String programId = generateNextProgramId(programRepository.findLastProgramId());
+
+        Optional<Users> staffUser = userRepository.findById(programsRequest.getUserId());
+        if (staffUser.isEmpty()) {
+            throw new ResourceNotFoundException("User with ID " + programsRequest.getUserId() + " not found.");
+        }
+
+
+        HashSet<Tags> tags = (HashSet<Tags>) programsRequest.getTags().stream()
+                .map(tagName -> {
+                    return tagsRepository.findByTagName(tagName)
+                            .orElseGet(() -> {
+                                Tags newTag = new Tags(generateNextTagId(tagsRepository.findLastTagId())
+                                        , Tags.Tag.valueOf(tagName));
+                                return tagsRepository.save(newTag);
+                            });
+                })
+                .collect(Collectors.toSet());
+
+        programRepository.save(new Programs(
+                programId,
+                programsRequest.getName(),
+                Programs.Category.valueOf(programsRequest.getCategory()),
+                programsRequest.getDescription(),
+                programsRequest.getNumberParticipants(),
+                programsRequest.getDuration(),
+                Programs.Status.valueOf(programsRequest.getStatus()),
+                programsRequest.getUserId(),
+                tags,
+                LocalDate.parse(programsRequest.getStartDate()),
+                programsRequest.getMeetingLink(),
+                Programs.Type.valueOf(programsRequest.getType())
+        ));
+        return getProgramById(programId);
     }
 
     public ProgramsResponse getProgramById(String programId) {
@@ -116,6 +164,22 @@ public class ProgramService {
         ) != null;
     }
 
+    @Transactional
+    public boolean deleteProgram(String programId) {
+        if (!programRepository.existsById(programId)) {
+            throw new ResourceNotFoundException("Program not found with ID: " + programId);
+        }
+
+        programParticipationRepository.deleteByProgramId(programId);
+
+        programScheduleRepository.deleteByProgramId(programId);
+
+        programRepository.deleteById(programId);
+
+        if(programRepository.findById(programId).isPresent()) return false;
+        return programRepository.findById(programId).isEmpty();
+    }
+
     private List<StudentResponse> getStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
 
@@ -129,6 +193,23 @@ public class ProgramService {
                 .toList();
     }
 
+    private String generateNextTagId(String lastCode) {
+        if (lastCode == null || lastCode.length() < 3) {
+            throw new IllegalArgumentException("Invalid last tag code");
+        }
+        String prefix = lastCode.substring(0, 3);
+        int number = Integer.parseInt(lastCode.substring(3));
+        return prefix + String.format("%03d", number + 1);
+    }
+
+    private String generateNextProgramId(String lastCode) {
+        if (lastCode == null || lastCode.length() < 3) {
+            throw new IllegalArgumentException("Invalid last program code");
+        }
+        String prefix = lastCode.substring(0, 3);
+        int number = Integer.parseInt(lastCode.substring(3));
+        return prefix + String.format("%03d", number + 1);
+    }
 
     private String generateNextProgramParticipationId(String lastCode) {
         if (lastCode == null || lastCode.length() < 3) {

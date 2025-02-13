@@ -161,12 +161,6 @@ public class UserService {
         userRepository.delete(user);
     }
 
-
-
-
-
-
-
     private UsersResponse convert(Users user) {
         List<StudentResponse> childrenList = null;
         List<AppointmentResponse> appointmentsResponseList = null;
