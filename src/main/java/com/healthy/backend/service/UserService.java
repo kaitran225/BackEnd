@@ -124,7 +124,7 @@ public class UserService {
         }
         if(user.getRole().equals(Users.UserRole.STUDENT)){
             studentResponse = studentMapper.buildStudentResponse(
-                    studentRepository.findByStudentID(id)
+                    studentRepository.findByUserID(id)
             );
             appointmentsList = appointmentRepository.findByStudentID(
                     studentResponse.getStudentId()
@@ -154,7 +154,6 @@ public class UserService {
     }
 
 
-
     public void deleteUser(String id) {
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -174,7 +173,7 @@ public class UserService {
             Students students = studentRepository.findByUserID(user.getUserId());
             surveyResultsResponseList = getUserSurveyResults(user.getUserId());
             studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
-            appointmentsResponseList =     getUserAppointments(user.getUserId());
+            appointmentsResponseList = getUserAppointments(user.getUserId());
             }
 
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {

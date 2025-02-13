@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UsersRequest {
-    @Schema(example = "54833773-8bd3-4688-a423-e1cda6ccffa3")
+    @Schema(example = "US002")
     @NotBlank(message = "User ID is required")
     private String userId;
 
