@@ -49,14 +49,16 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
     @Operation(
-            deprecated = true,
             summary = "Update psychologist details",
             description = "Updates a psychologist's details."
     )
     @PutMapping("/{id}")
-    public String updatePsychologist(@PathVariable String id, @RequestBody PsychologistRequest request) {
-        return "Psychologist updated successfully";
+    public ResponseEntity<PsychologistResponse> updatePsychologist(@PathVariable String id, @RequestBody @Valid PsychologistRequest request) {
+        PsychologistResponse updatedPsychologist = psychologistService.
+                updatePsychologist(id, request);
+        return ResponseEntity.ok(updatedPsychologist);
     }
+
 
     @Operation(
             deprecated = true,

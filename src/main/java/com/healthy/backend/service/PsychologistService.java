@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
@@ -8,6 +9,7 @@ import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.UserRepository;
@@ -31,6 +33,9 @@ public class PsychologistService {
 
     @Autowired
     public UserRepository userRepository;
+
+    @Autowired
+    public PsychologistsMapper psychologistsMapper;
 
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
@@ -88,5 +93,19 @@ public class PsychologistService {
                                         .collect(Collectors.toList())
                         )
                         .build();
+    }
+
+    public PsychologistResponse updatePsychologist(String id, PsychologistRequest request) {
+        Psychologists psychologist = psychologistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
+
+        // Map thông tin từ request vào psychologist
+        psychologistsMapper.mapToEntity(request);
+
+        // Lưu thông tin cập nhật vào cơ sở dữ liệu
+        psychologistRepository.save(psychologist);
+
+        // Trả về thông tin psychologist đã cập nhật
+        return convert(psychologist);
     }
 }
