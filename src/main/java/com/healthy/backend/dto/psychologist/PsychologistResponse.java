@@ -19,7 +19,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PsychologistResponse {
 
-    @Schema(example = "PSYP001")
+    @Schema(example = "PSY001")
     @NotBlank(message = "Psychologist ID is required")
     private String psychologistId;
 
