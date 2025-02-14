@@ -4,6 +4,7 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.dto.user.UsersRequest;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Psychologists;
@@ -99,13 +100,22 @@ public class PsychologistService {
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
 
-        // Map thông tin từ request vào psychologist
-        psychologistsMapper.mapToEntity(request);
-
+        // Cập nhật thông tin từ request vào psychologist
+        if (request.getSpecialization() != null) {
+            psychologist.setSpecialization(request.getSpecialization());
+        }
+        if (request.getYearsOfExperience() != null) {
+            psychologist.setYearsOfExperience(request.getYearsOfExperience());
+        }
+        if (request.getStatus() != null) {
+            psychologist.setStatus(Psychologists.Status.valueOf(request.getStatus()));
+        }
         // Lưu thông tin cập nhật vào cơ sở dữ liệu
         psychologistRepository.save(psychologist);
 
         // Trả về thông tin psychologist đã cập nhật
         return convert(psychologist);
     }
+
+
 }
