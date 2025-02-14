@@ -4,7 +4,6 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
@@ -12,12 +11,13 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +40,9 @@ public class UserService {
     private final StudentMapper studentMapper;
     private final SurveyResultMapper surveyResultsMapper;
     private final UserMapper userMapper;
+
+    @Autowired
+    TimeSlotRepository timeSlotsRepository;
 
 
 
@@ -195,4 +198,6 @@ public class UserService {
                 childrenList
         );
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.healthy.backend.exception;
 
+import com.sun.jdi.request.InvalidRequestStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,4 +58,10 @@ public class APIExceptionHandler {
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to cancel participation"));
     }
+    @ExceptionHandler(InvalidRequestStateException.class)
+    public ResponseEntity<String> handleInvalidRequest(InvalidRequestStateException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+
 }

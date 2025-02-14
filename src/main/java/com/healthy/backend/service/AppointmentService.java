@@ -1,7 +1,11 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AppointmentMapper;
 import com.healthy.backend.mapper.PsychologistsMapper;
@@ -9,11 +13,15 @@ import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.TimeSlotRepository;
+import com.sun.jdi.request.InvalidRequestStateException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -32,6 +40,9 @@ public class AppointmentService {
     private final StudentMapper studentMapper;
 
     private final PsychologistsMapper psychologistMapper;
+
+    @Autowired
+    TimeSlotRepository timeSlotRepository;
 
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointments> appointments = appointmentRepository.findAll();
@@ -62,5 +73,46 @@ public class AppointmentService {
                 studentMapper.buildStudentResponse(
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null))));
+    }
+
+
+    public AppointmentResponse bookAppointment(AppointmentRequest request) {
+        // Kiểm tra và lấy thông tin time slot
+        TimeSlots timeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy time slot với ID: " + request.getTimeSlotId()));
+
+        // Validate time slot
+        if (timeSlot.getStatus() != TimeSlots.Status.Available) {
+            throw new InvalidRequestStateException("Time slot không khả dụng");
+        }
+        if (!timeSlot.getPsychologist().getPsychologistID().equals(request.getPsychologistId())) {
+            throw new InvalidRequestStateException("Time slot không thuộc về psychologist này");
+        }
+
+        // Kiểm tra student và psychologist
+        Students student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy student với ID: " + request.getStudentId()));
+        Psychologists psychologist = psychologistRepository.findById(request.getPsychologistId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy psychologist với ID: " + request.getPsychologistId()));
+
+        // Tạo appointment mới
+        Appointments appointment = new Appointments();
+        appointment.setAppointmentID(UUID.randomUUID().toString());
+        appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
+        appointment.setStudentID(student.getStudentID());
+        appointment.setPsychologistID(psychologist.getPsychologistID());
+        appointment.setStatus(Appointments.Status.Scheduled);
+
+        // Lưu appointment và cập nhật time slot
+        Appointments savedAppointment = appointmentRepository.save(appointment);
+        timeSlot.setStatus(TimeSlots.Status.Booked);
+        timeSlotRepository.save(timeSlot);
+
+        // Map sang DTO
+        return appointmentMapper.buildAppointmentResponse(
+                savedAppointment,
+                psychologistMapper.buildPsychologistResponse(psychologist),
+                studentMapper.buildStudentResponse(student)
+        );
     }
 }

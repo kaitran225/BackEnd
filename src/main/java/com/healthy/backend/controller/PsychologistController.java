@@ -2,16 +2,24 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
+import com.healthy.backend.dto.timeslot.PsychologistAvailabilityResponse;
+import com.healthy.backend.dto.timeslot.TimeSlotResponse;
+import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/psychologists")
@@ -22,6 +30,8 @@ import java.util.List;
 public class PsychologistController {
 
     private final PsychologistService psychologistService;
+    @Autowired
+    TimeSlotMapper timeSlotMapper;
 
     @Operation(
             summary = "Get all psychologists",
@@ -171,13 +181,30 @@ public class PsychologistController {
     }
 
     @Operation(
-            deprecated = true,
+
             summary = "Get psychologist time slots",
             description = "Returns time slots for a psychologist."
     )
+//    @GetMapping("/{id}/timeslots")
+//    public List<String> getPsychologistTimeSlots(@PathVariable String id) {
+//        return List.of("Available timeslots for psychologist " + id);
+//    }
+
+
     @GetMapping("/{id}/timeslots")
-    public List<String> getPsychologistTimeSlots(@PathVariable String id) {
-        return List.of("Available timeslots for psychologist " + id);
+    public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
+            @PathVariable String id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<TimeSlots> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
+
+        // Chuyển đổi sang DTO
+        List<TimeSlotResponse> response = timeSlots.stream()
+                .filter(slot -> slot.getStatus() == TimeSlots.Status.Available)
+                .map(timeSlotMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 }
 

@@ -20,21 +20,6 @@ public class AppointmentMapper {
                 .build();
     }
 
-    public AppointmentResponse appointmentResponse(Appointments appointments,
-                                                   PsychologistResponse psychologistResponse,
-                                                   StudentResponse studentResponse
-    ){
-        return AppointmentResponse.builder()
-                .appointmentID(appointments.getAppointmentID())
-                .CreatedAt(appointments.getCreatedAt())
-                .Status(appointments.getStatus().name())
-                .psychologistResponse(psychologistResponse)
-                .studentResponse(studentResponse)
-                .Text(appointments.getNotes())
-                .timeSlotID(appointments.getTimeSlotsID())
-                .UpdatedAt(appointments.getUpdatedAt())
-                .build();
-    }
 
     public AppointmentResponse buildAppointmentResponse(
             Appointments appointment,

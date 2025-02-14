@@ -49,20 +49,16 @@ public class AppointmentController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Book an appointment",
             description = "Creates a new appointment."
     )
     @PostMapping("/book")
-    public String bookAppointment(@RequestBody AppointmentRequest request) {
-        return "Appointment booked successfully";
+    public ResponseEntity<AppointmentResponse> bookAppointment(@RequestBody AppointmentRequest request) {
+        AppointmentResponse response = appointmentService.bookAppointment(request);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Cancel an appointment",
-            description = "Cancels an appointment."
-    )
+
     @PutMapping("/{appointmentId}/cancel")
     public String cancelAppointment(@PathVariable String appointmentId) {
         return "Appointment cancelled successfully";
