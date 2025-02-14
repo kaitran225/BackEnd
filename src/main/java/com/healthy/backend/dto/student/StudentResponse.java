@@ -1,6 +1,7 @@
 package com.healthy.backend.dto.student;
 
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,21 +15,37 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentResponse {
+    @Schema(example = "S001")
     private String studentId;
+    @Schema(example = "US001")
     private String userId;
+    @Schema(example = "10")
     private Integer grade;
+    @Schema(example = "A")
     private String className;
+    @Schema(example = "Example School")
     private String schoolName;
+    @Schema(example = "Student Name")
     private String fullName;
+    @Schema(example = "student@example.com")
     private String email;
+    @Schema(example = "1234567890")
     private String phone;
+    @Schema(example = "Example Address")
     private String address;
+    @Schema(example = "Male")
     private String gender;
+    @Schema(example = "0")
     private Integer depressionScore;
+    @Schema(example = "0")
     private Integer anxietyScore;
+    @Schema(example = "0")
     private Integer stressScore;
+    @Schema(examples = {"General", "Behavior", "Academic", "Emotional"} )
     private List<SurveyResultsResponse> surveyResults;
+    @Schema(example = "2023-01-01")
     private LocalDateTime createdAt;
+    @Schema(example = "2023-01-02")
     private LocalDateTime updatedAt;
 
 }

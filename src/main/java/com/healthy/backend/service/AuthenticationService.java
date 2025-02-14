@@ -3,6 +3,7 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.dto.user.UsersRequest;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.RefreshToken;
 import com.healthy.backend.entity.Users;
@@ -12,6 +13,7 @@ import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,45 +31,23 @@ public class AuthenticationService {
     
     private final AuthenticationRepository authenticationRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final JwtService jwtService;
+    private final EmailService emailService;
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenDuration;
 
-    private String getUserLastCode() {
-        if(userRepository.findAll().isEmpty()){
-            return "US001";
-        }
-        String lastCode = userRepository.findLastUserId();
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last participation code");
-        }
-        String prefix = lastCode.substring(0, 2);
-        int number = Integer.parseInt(lastCode.substring(2));
-        return prefix + String.format("%03d", number + 1);
-    }
 
+    // Register new user
     public AuthenticationResponse register(RegisterRequest request) {
         if (authenticationRepository.findByUsername(request.getUsername()) != null) {
             throw new RuntimeException("Username already exists");
         }
-        String userId = getUserLastCode();
-        UsersResponse user = UsersResponse.builder()
-                .userId(getUserLastCode())
-                .username(request.getUsername())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .role(String.valueOf(Users.UserRole.valueOf(request.getRole().toUpperCase())))
-                .gender(String.valueOf(Users.Gender.valueOf(request.getGender())))
-                .build();
-
-        Users savedUser = userRepository.save(user.toUser());
+        Users savedUser = userRepository.save(buildUserEntity(request));
 
         String accessToken = jwtService.generateToken(savedUser);
         String refreshToken = jwtService.generateRefreshToken(savedUser);
@@ -80,6 +60,7 @@ public class AuthenticationService {
                 .build();
     }
 
+    // Authentication
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         UsernamePasswordAuthenticationToken authToken;
         Users user;
@@ -115,6 +96,7 @@ public class AuthenticationService {
                 .build();
     }
 
+    // Refresh token
     public AuthenticationResponse refreshToken(
             HttpServletRequest request
     ) {
@@ -192,6 +174,7 @@ public class AuthenticationService {
         refreshTokenRepository.deleteByUserId(user.getUserId());
     }
 
+    // Save refresh token to database
     private void saveRefreshToken(String userId, String refreshToken) {
 
         // Check if refresh token already exists
@@ -209,8 +192,36 @@ public class AuthenticationService {
         refreshTokenRepository.save(token);
     }
 
+    // Use a secure hashing algorithm
     private String hashToken(String token) {
-        // Use a secure hashing algorithm
         return passwordEncoder.encode(token);
+    }
+
+    // Convert User entity to UserResponse
+    private Users buildUserEntity(RegisterRequest requestRequest) {
+        return Users.builder()
+                .userId(getUserLastCode())
+                .username(requestRequest.getUsername())
+                .passwordHash(passwordEncoder.encode(requestRequest.getPassword()))
+                .fullName(requestRequest.getFullName())
+                .email(requestRequest.getEmail())
+                .phoneNumber(requestRequest.getPhoneNumber())
+                .role(Users.UserRole.valueOf(requestRequest.getRole()))
+                .gender(Users.Gender.valueOf(requestRequest.getGender()))
+                .build();
+    }
+
+    // Generate user ID
+    private String getUserLastCode() {
+        if(userRepository.findAll().isEmpty()){
+            return "US001";
+        }
+        String lastCode = userRepository.findLastUserId();
+        if (lastCode == null || lastCode.length() < 3) {
+            throw new IllegalArgumentException("Invalid last participation code");
+        }
+        String prefix = lastCode.substring(0, 2);
+        int number = Integer.parseInt(lastCode.substring(2));
+        return prefix + String.format("%03d", number + 1);
     }
 }

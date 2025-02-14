@@ -1,20 +1,9 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.service.ProgramService;
-import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

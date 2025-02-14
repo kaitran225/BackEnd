@@ -59,7 +59,6 @@ public class PsychologistController {
         return ResponseEntity.ok(updatedPsychologist);
     }
 
-
     @Operation(
             deprecated = true,
             summary = "Get psychologist appointments",

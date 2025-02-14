@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationRequest {
+
     @Schema(example = "admin@example.com")
     @NotBlank(message = "Username or Email is required")
     private String loginIdentifier;

@@ -18,14 +18,34 @@ import java.time.LocalDateTime;
 public class AppointmentResponse {
 
     @Schema(example = "APP001")
-    @NotBlank(message = "Appointment ID is required")
     private String appointmentID;
 
+    @Schema(example = "TS150601")
     private String timeSlotID;
+
+    @Schema(examples = "{" +
+            "studentId='S001'," +
+            "studentName='John Doe'," +
+            "}"
+    )
     private StudentResponse studentResponse;
+
+    @Schema(examples = "{" +
+            "psychologistId='PSY001'," +
+            "specialization='Mental Specialist'," +
+            "}"
+    )
     private PsychologistResponse psychologistResponse;
+
+    @Schema(example = "Active")
     private String Status;
+
+    @Schema(example = "Notes")
     private String Text;
+
+    @Schema(example = "2023-01-01")
     private LocalDateTime CreatedAt;
+
+    @Schema(example = "2023-01-01")
     private LocalDateTime UpdatedAt;
 }

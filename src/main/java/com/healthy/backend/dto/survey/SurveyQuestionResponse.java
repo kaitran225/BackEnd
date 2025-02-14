@@ -1,17 +1,24 @@
 package com.healthy.backend.dto.survey;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SurveyQuestionResponse {
+    @Schema(example = "Q001")
     private String questionId;
+    @Schema(example = "How are you feeling today?")
     private String questionText;
+    @Schema(example = "General")
     private String questionCategory;
-    private String questionOptions;
+    @Schema(examples = {"1", "2", "3", "4", "5"})
+    private List<String> questionOptions;
 }

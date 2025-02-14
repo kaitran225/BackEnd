@@ -38,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
         bearerFormat = "JWT",
         scheme = "bearer",
         in = SecuritySchemeIn.HEADER
-
 )
 public class SwaggerConfig {
     // Configuration class can be empty as we're using annotations for configuration

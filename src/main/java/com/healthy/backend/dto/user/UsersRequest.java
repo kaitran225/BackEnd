@@ -17,8 +17,8 @@ public class UsersRequest {
     @Schema(example = "US002")
     @NotBlank(message = "User ID is required")
     private String userId;
-
+    @Schema(example = "John Doe")
     private String username;
-
+    @Schema(example = "user@example.com")
     private String email;
 }

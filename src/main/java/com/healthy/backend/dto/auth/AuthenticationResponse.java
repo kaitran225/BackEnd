@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
-    @Schema(example = "aaaa.bbbb.cccc")
+    @Schema(example = "eyJhbG.eyJzdW.TmCs6rN")
     private String accessToken;
-    @Schema(example = "aaaa.bbbb.cccc")
+    @Schema(example = "eyJhbG.eyJzdW.TmCs6rN")
     private String refreshToken;
     @Schema(example = "U00X")
     private String userId;
