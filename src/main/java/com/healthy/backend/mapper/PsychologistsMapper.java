@@ -16,11 +16,7 @@ public class PsychologistsMapper {
                 .build();
     }
 
-    public Psychologists mapToEntity(PsychologistRequest request) {
-        return Psychologists.builder()
-                .specialization(request.getSpecialization())
-                .yearsOfExperience(request.getYearsOfExperience())
-                .status(Psychologists.Status.valueOf(request.getStatus()))
-                .build();
-    }
+
+
+
 }
