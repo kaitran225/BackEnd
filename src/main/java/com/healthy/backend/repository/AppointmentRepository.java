@@ -10,7 +10,7 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
 
     List<Appointments> findByStudentID(String studentID);
     List<Appointments> findByPsychologistID(String psychologistID);
-    // Đếm tổng số appointment hiện có
-    @Query("SELECT COUNT(a) FROM Appointments a")
-    long countTotalAppointments();
+
+    @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
+    String findLastAppointmentId();
 } 

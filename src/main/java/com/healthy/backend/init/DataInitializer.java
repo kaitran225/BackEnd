@@ -2,6 +2,7 @@ package com.healthy.backend.init;
 
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,6 @@ public class DataInitializer implements CommandLineRunner {
     private final AnswersRepository answersRepository;
     private final StudentNoteRepository studentNoteRepository;
     private final UserLogRepository userLogRepository;
-    private final AppointmentHistoryRepository appointmentHistoryRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final CategoriesRepository categoryRepository;
     private final TagsRepository tagsRepository;
@@ -68,40 +68,33 @@ public class DataInitializer implements CommandLineRunner {
         psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("dr_blue").getUserId(), "Adolescent Psychology", 8, Psychologists.Status.Active));
 
         // Initialize Time Slots
-        timeSlotRepository.save(new TimeSlots("TS150601", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Booked));
-        timeSlotRepository.save(new TimeSlots("TS150602", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"), TimeSlots.Status.Booked));
-        timeSlotRepository.save(new TimeSlots("TS150603", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150604", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150605", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150606", "PSY001", LocalDate.parse("2023-06-15"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150607", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150608", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150609", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150610", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150611", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150612", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150613", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("11:00:00"), LocalTime.parse("11:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150614", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("11:30:00"), LocalTime.parse("12:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150615", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("12:00:00"), LocalTime.parse("12:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150616", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("12:30:00"), LocalTime.parse("13:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS150617", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160601", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160602", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160603", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160604", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160605", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160606", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160607", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160608", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160609", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160610", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160611", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160612", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160613", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("11:00:00"), LocalTime.parse("11:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160614", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("11:30:00"), LocalTime.parse("12:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160615", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("12:00:00"), LocalTime.parse("12:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160616", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("12:30:00"), LocalTime.parse("13:00:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS160617", "PSY002", LocalDate.parse("2023-06-16"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"), TimeSlots.Status.Available));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),6));
+
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),6));
+
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),6));
+
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),6));
 
         // Initialize Tags
         tagsRepository.save(new Tags("TAG001", Tags.Tag.Stress));
@@ -281,13 +274,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Blog("B002", "Overcoming Anxiety", userRepository.findByUsername("staff_user").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001", "TS150601", "S001", "PSY001", Appointments.Status.Scheduled));
-        appointmentRepository.save(new Appointments("APP002", "TS150602", "S002", "PSY002", Appointments.Status.Scheduled));
-
-        // Initialize Appointment History
-        appointmentHistoryRepository.save(new AppointmentHistory("H001", "APP001", AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, userRepository.findByUsername("dr_brown").getUserId()));
-        appointmentHistoryRepository.save(new AppointmentHistory("H002", "APP002", AppointmentHistory.Action.Created, AppointmentHistory.Status.Scheduled, userRepository.findByUsername("dr_blue").getUserId()));
-
+        appointmentRepository.save(new Appointments("APP001", "TSPSY00120022501", "S001", "PSY001", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP002","TSPSY00221022501", "S002", "PSY002", StatusEnum.Scheduled));
         // Initialize Notifications
         notificationRepository.save(new Notifications("NOT001", userRepository.findByUsername("jane_smith").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));
         notificationRepository.save(new Notifications("NOT002", userRepository.findByUsername("john_doe").getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey));

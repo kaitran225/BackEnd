@@ -39,10 +39,12 @@ public class TimeSlots {
     private Psychologists psychologist;
 
     @Column(name = "SlotNumber", nullable = false)
-    private int slotNumber; // Thêm trường này để lưu số thứ tự của slot trong ngày
+    private int slotNumber;
 
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt = LocalDateTime.now();
-
+ 
     public enum Status {
         Available,
         Booked
@@ -55,10 +57,14 @@ public class TimeSlots {
         this.status = Status.Available;
         this.psychologist = psychologist;
         this.slotNumber = slotNumber;
-        this.timeSlotsID = generateTimeSlotsID(date, slotNumber); // Tạo timeSlotsID dựa trên ngày và số thứ tự của slot
+        this.timeSlotsID = generateTimeSlotsID(psychologist.getPsychologistID(),date, slotNumber);
     }
 
-    private String generateTimeSlotsID(LocalDate date, int slotNumber) {
-        return String.format("slot%02d-%s", slotNumber, date.toString());
+    private String generateTimeSlotsID(String psychologistId, LocalDate date, int slotNumber) {
+        String formattedDate = String.format("%02d%02d%02d",
+                date.getDayOfMonth(),
+                date.getMonthValue(),
+                date.getYear() % 100); // Extract last two digits of the year
+        return String.format("TS%s%s%02d", psychologistId, formattedDate, slotNumber);
     }
 }

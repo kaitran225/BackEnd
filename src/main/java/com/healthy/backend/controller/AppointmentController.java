@@ -4,6 +4,7 @@ import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
 import com.healthy.backend.dto.appointment.AppointmentReportRequest;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,10 +59,16 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-
+    @Operation(
+            summary = "Request update of an appointment",
+            description = "Requests an update of an appointment."
+    )
     @PutMapping("/{appointmentId}/cancel")
     public String cancelAppointment(@PathVariable String appointmentId) {
-        return "Appointment cancelled successfully";
+       if(appointmentService.cancelAppointment(appointmentId)) {
+           return ResponseEntity.ok("Appointment cancelled").toString();
+       }
+       throw new OperationFailedException("Failed to cancel appointment");
     }
 
     @Operation(
@@ -74,15 +81,17 @@ public class AppointmentController {
         return "Appointment update requested";
     }
 
+    // Check in
     @Operation(summary = "Check in to an appointment")
-    @PostMapping("/{appointmentId}/check-in")
+    @PutMapping("/{appointmentId}/check-in")
     public ResponseEntity<AppointmentResponse> checkIn(@PathVariable String appointmentId) {
         AppointmentResponse response = appointmentService.checkIn(appointmentId);
         return ResponseEntity.ok(response);
     }
 
+    // Check out
     @Operation(summary = "Check out from an appointment")
-    @PostMapping("/{appointmentId}/check-out")
+    @PutMapping("/{appointmentId}/check-out")
     public ResponseEntity<AppointmentResponse> checkOut(@PathVariable String appointmentId) {
         AppointmentResponse response = appointmentService.checkOut(appointmentId);
         return ResponseEntity.ok(response);
@@ -119,7 +128,6 @@ public class AppointmentController {
     }
 
     // Manager or Psychologist Endpoints
-
 
     @Operation(
             deprecated = true,

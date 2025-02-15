@@ -16,4 +16,5 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlots, String> {
 
     List<TimeSlots> findBySlotDateAndPsychologist(LocalDate slotDate, Psychologists psychologist);
 
+    List<TimeSlots> findByPsychologist(Psychologists psychologist);
 }

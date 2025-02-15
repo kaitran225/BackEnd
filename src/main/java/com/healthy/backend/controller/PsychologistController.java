@@ -2,7 +2,6 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.timeslot.PsychologistAvailabilityResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.mapper.TimeSlotMapper;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +28,7 @@ import java.util.stream.Collectors;
 public class PsychologistController {
 
     private final PsychologistService psychologistService;
-    @Autowired
-    TimeSlotMapper timeSlotMapper;
+    private final TimeSlotMapper timeSlotMapper;
 
     @Operation(
             summary = "Get all psychologists",
@@ -58,6 +55,7 @@ public class PsychologistController {
         }
         return ResponseEntity.noContent().build();
     }
+
     @Operation(
             summary = "Update psychologist details",
             description = "Updates a psychologist's details."
@@ -179,25 +177,38 @@ public class PsychologistController {
         return "Psychologists' availability status";
     }
 
+
     @Operation(
-
-            summary = "Get psychologist time slots",
-            description = "Returns time slots for a psychologist."
+            summary = "Create default time slots",
+            description = "Creates time slots for a psychologist on a given date."
     )
-//    @GetMapping("/{id}/timeslots")
-//    public List<String> getPsychologistTimeSlots(@PathVariable String id) {
-//        return List.of("Available timeslots for psychologist " + id);
-//    }
+    @PostMapping("/{id}/timeslots")
+    public ResponseEntity<Void> createTimeSlots(
+            @PathVariable String id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        if (date == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(!psychologistService.getTimeSlots(date, id).isEmpty()) {
+            throw new RuntimeException("Time slots already exist");
+        }
+        if (psychologistService.createDefaultTimeSlots(date, id)) {
+            return ResponseEntity.ok().build();
+        };
+        throw new RuntimeException("Failed to create time slots");
+    }
 
-
+    @Operation(
+            summary = "Get available time slots",
+            description = "Returns available time slots for a psychologist on a given date."
+    )
     @GetMapping("/{id}/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        List<TimeSlots> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
+        List<TimeSlots> timeSlots = psychologistService.getTimeSlots(date, id);
 
-        // Chuyển đổi sang DTO
         List<TimeSlotResponse> response = timeSlots.stream()
                 .filter(slot -> slot.getStatus() == TimeSlots.Status.Available)
                 .map(timeSlotMapper::toResponse)
@@ -205,7 +216,22 @@ public class PsychologistController {
 
         return ResponseEntity.ok(response);
     }
+//    @Operation(
+//            summary = "Get psychologist time slots",
+//            description = "Returns time slots for a psychologist."
+//    )
+//    @GetMapping("/{id}/timeslots")
+//    public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
+//            @PathVariable String id,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//
+//        List<TimeSlots> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
+//
+//        List<TimeSlotResponse> response = timeSlots.stream()
+//                .filter(slot -> slot.getStatus() == TimeSlots.Status.Available)
+//                .map(timeSlotMapper::toResponse)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(response);
+//    }
 }
-
-
-

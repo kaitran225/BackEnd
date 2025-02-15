@@ -35,23 +35,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PsychologistService {
 
-    @Autowired
-    public PsychologistRepository psychologistRepository;
-
-    @Autowired
-    public AppointmentRepository appointmentRepository;
-
-    @Autowired
-    public UserRepository userRepository;
-
-    @Autowired
-    public PsychologistsMapper psychologistsMapper;
-
-    @Autowired
-    public TimeSlotRepository timeSlotRepository;
-
-    @Autowired
-    public TimeSlotMapper timeSlotMapper;
+    public final PsychologistRepository psychologistRepository;
+    public final AppointmentRepository appointmentRepository;
+    public final UserRepository userRepository;
+    public final TimeSlotRepository timeSlotRepository;
+    public final PsychologistsMapper psychologistsMapper;
+    public final TimeSlotMapper timeSlotMapper;
 
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
@@ -110,12 +99,11 @@ public class PsychologistService {
                         )
                         .build();
     }
-
+    // Update psychologist
     public PsychologistResponse updatePsychologist(String id, PsychologistRequest request) {
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
 
-        // Cập nhật thông tin từ request vào psychologist
         if (request.getSpecialization() != null) {
             psychologist.setSpecialization(request.getSpecialization());
         }
@@ -125,96 +113,57 @@ public class PsychologistService {
         if (request.getStatus() != null) {
             psychologist.setStatus(Psychologists.Status.valueOf(request.getStatus()));
         }
-        // Lưu thông tin cập nhật vào cơ sở dữ liệu
         psychologistRepository.save(psychologist);
 
-        // Trả về thông tin psychologist đã cập nhật
         return convert(psychologist);
     }
 
+    // Get available time slots
+    public List<TimeSlots> getTimeSlots(LocalDate date, String psychologistId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+        if (psychologist == null) {
+            throw new ResourceNotFoundException("Psychologist not found");
+        }
+        if (psychologist.getStatus() != Psychologists.Status.Active) {
+            throw new ResourceNotFoundException("Psychologist is not Active");
+        }
+        return timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
+    }
 
-
-    /**
-     * Lấy danh sách các psychologist có time slot trống trong ngày.
-//     */
-//    public List<PsychologistAvailabilityResponse> getAvailablePsychologistsByDate(LocalDate date) {
-//        // Lấy tất cả timeSlots có trạng thái Available
-//        List<TimeSlots> availableSlots = timeSlotRepository.findBySlotDateAndStatus(date, TimeSlots.Status.Available);
-//
-//        // Nhóm các timeSlot theo psychologistId
-//        Map<String, List<TimeSlots>> slotsByPsychologist = availableSlots.stream()
-//                .collect(Collectors.groupingBy(slot -> slot.getPsychologist().getPsychologistID()));
-//
-//        List<PsychologistAvailabilityResponse> response = new ArrayList<>();
-//
-//        for (Map.Entry<String, List<TimeSlots>> entry : slotsByPsychologist.entrySet()) {
-//            // Lấy psychologist từ database
-//            Psychologists psychologist = psychologistRepository.findById(entry.getKey())
-//                    .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-//
-//            // Chuyển đổi psychologist sang DTO
-//            var psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologist);
-//
-//            // Chuyển đổi danh sách time slots sang DTO
-//            List<TimeSlotResponse> timeSlotResponses = entry.getValue().stream()
-//                    .map(timeSlotMapper::toResponse)
-//                    .collect(Collectors.toList());
-//
-//            // Thêm vào danh sách kết quả
-//            response.add(PsychologistAvailabilityResponse.builder()
-//                    .psychologist(psychologistResponse)
-//                    .availableTimeSlots(timeSlotResponses)
-//                    .build());
-//        }
-//
-//        return response;
-//    }
-
-    /**
-     * Tạo danh sách time slots cố định cho psychologist trong ngày.
-     */
-    public List<TimeSlots> createDefaultTimeSlots(LocalDate date, String psychologistId) {
+    // Create default time slots
+    public boolean createDefaultTimeSlots(LocalDate date, String psychologistId) {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
-        // Check for existing slots on this date for this psychologist
         List<TimeSlots> existingSlots = timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
         if (!existingSlots.isEmpty()) {
-            return existingSlots; // Return existing slots if found
+            return false;
         }
 
-        List<TimeSlots> timeSlots = new ArrayList<>();
-
-        // Reset slotNumber khi bắt đầu tạo slot buổi sáng
-        int slotNumber = 1;
-
-        // Ca sáng: 8h - 11h, cách 30 phút
-        LocalTime morningStart = LocalTime.of(8, 0);
-        LocalTime morningEnd = LocalTime.of(11, 0);
-        timeSlots.addAll(generateTimeSlots(date, morningStart, morningEnd, psychologist, slotNumber));
-
-        // Reset slotNumber khi bắt đầu tạo slot buổi chiều
-        slotNumber = timeSlots.size() + 1; // Tiếp tục từ slotNumber tiếp theo
-
-        // Ca chiều: 13h - 17h, cách 30 phút
-        LocalTime afternoonStart = LocalTime.of(13, 0);
-        LocalTime afternoonEnd = LocalTime.of(17, 0);
-        timeSlots.addAll(generateTimeSlots(date, afternoonStart, afternoonEnd, psychologist, slotNumber));
-
-        // Lưu vào database chỉ khi không có slots sẵn
-        return timeSlotRepository.saveAll(timeSlots);
+        LocalTime start = LocalTime.of(8, 0); // Morning shift: 8h - 11h
+        LocalTime noonBreakStart = LocalTime.of(11, 30); //
+        LocalTime noonBreakEnd = LocalTime.of(12, 30); // Afternoon shift: 13h - 17h
+        LocalTime end = LocalTime.of(17, 0);
+        List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, start, noonBreakStart, noonBreakEnd, end, psychologist));
+        timeSlotRepository.saveAll(timeSlots);
+        return true;
     }
 
-    private List<TimeSlots> generateTimeSlots(LocalDate date, LocalTime start, LocalTime end, Psychologists psychologist, int startSlotNumber) {
+    private List<TimeSlots> generateTimeSlots(
+            LocalDate date, LocalTime start, LocalTime end,
+            LocalTime noonBreakStart, LocalTime noonBreakEnd, Psychologists psychologist) {
         List<TimeSlots> timeSlots = new ArrayList<>();
         LocalTime currentTime = start;
-        int slotNumber = startSlotNumber; // Bắt đầu từ startSlotNumber
-
-        while (currentTime.isBefore(end) && slotNumber <= 14) {
+        int index = 0;
+        while (currentTime.isBefore(end)) {
+            if (currentTime.isAfter(noonBreakStart) && currentTime.isBefore(noonBreakEnd)) {
+                currentTime = currentTime.plusMinutes(30);
+                continue;
+            }
             LocalTime nextTime = currentTime.plusMinutes(30);
-            timeSlots.add(new TimeSlots(date, currentTime, nextTime, psychologist, slotNumber));
+            timeSlots.add(new TimeSlots(date, currentTime, nextTime, psychologist, index++));
             currentTime = nextTime;
-            slotNumber++;
         }
 
         return timeSlots;
