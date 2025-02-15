@@ -15,8 +15,4 @@ public class PsychologistsMapper {
                 .yearsOfExperience(psychologist.getYearsOfExperience())
                 .build();
     }
-
-
-
-
 }

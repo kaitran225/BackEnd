@@ -63,17 +63,4 @@ public class UsersResponse {
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
     private LocalDateTime updatedAt;
-
-    public Users toUser() {
-        return Users.builder()
-                .userId(userId)
-                .username(username)
-                .passwordHash(passwordHash)
-                .fullName(fullName)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .role(Users.UserRole.valueOf(role))
-                .gender(Users.Gender.valueOf(gender))
-                .build();
-    }
 }

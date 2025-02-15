@@ -4,11 +4,16 @@ import com.healthy.backend.dto.programs.ProgramParticipationRequest;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.dto.programs.ProgramsResponse;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.ProgramService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -32,20 +37,74 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Get all programs
+    @ApiResponse(
+            responseCode = "200",
+            description = "Programs retrieved successfully",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProgramsResponse.class),
+                    examples = @ExampleObject(
+                            name = "Success Response",
+                            value = "{ \"status\": \"success\", \"data\": [ { \"programId\": \"P001\", \"name\": \"Program A\", \"status\": \"Active\" }, { \"programId\": \"P002\", \"name\": \"Program B\", \"status\": \"Inactive\" } ] }"
+                    )
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Invalid program ID format",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "Bad Request Example",
+                            value = "{\"error\": \"Invalid program ID format\", \"status\": 400}"
+                    )
+            )
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            name = "Internal Server Error Example",
+                            value = "{\"error\": \"Unexpected error occurred\", \"status\": 500}"
+                    )
+            )
+    )
     @Operation(summary = "Get all programs", description = "Returns a list of all programs.")
     @GetMapping()
     public ResponseEntity<?> getPrograms() {
         List<ProgramsResponse> programsResponseList = programService.getAllPrograms();
-        if(programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
+        if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return ResponseEntity.ok(programsResponseList);
     }
 
     // Get all program details
+    // Get all programs
+    @ApiResponse(
+            responseCode = "200",
+            description = "Programs retrieved successfully",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProgramsResponse.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400", description = "Invalid program ID format"
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Unauthorized access"
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error"
+    )
     @Operation(summary = "Get all program statuses", description = "Returns a list of all program statuses.")
     @GetMapping("/details")
     public ResponseEntity<?> getAllProgramStatuses() {
         List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails();
-        if(programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
+        if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return ResponseEntity.ok(programsResponseList);
     }
 
@@ -70,8 +129,7 @@ public class ProgramController {
     @GetMapping("/{programId}/status")
     public ResponseEntity<?> getRegistrationStatus(@PathVariable String programId) {
         String status = programService.getProgramStatus(programId);
-        if(status.isEmpty())
-        {
+        if (status.isEmpty()) {
             throw new ResourceNotFoundException("Program not found");
         }
         return ResponseEntity.ok("Status for program " + programId + " is " + status);
@@ -82,7 +140,7 @@ public class ProgramController {
     @GetMapping("/enrolled/{studentId}")
     public ResponseEntity<?> getEnrolledPrograms(@PathVariable String studentId) {
         List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId);
-        if(programsResponseList.isEmpty()) throw new ResourceNotFoundException("No enrolled programs found");
+        if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No enrolled programs found");
         return ResponseEntity.ok(programsResponseList);
     }
 
@@ -94,6 +152,7 @@ public class ProgramController {
         if (programParticipationResponseList.isEmpty()) throw new ResourceNotFoundException("No participants found");
         return ResponseEntity.ok(programParticipationResponseList);
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////POST REQUESTS/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +160,7 @@ public class ProgramController {
     @Operation(summary = "Register for a program", description = "Registers a student for a program.")
     @PostMapping("/{programId}/register")
     public ResponseEntity<?> registerForProgram(@RequestBody ProgramParticipationRequest programParticipationRequest) {
-        if(programService.registerForProgram(programParticipationRequest)){
+        if (programService.registerForProgram(programParticipationRequest)) {
             return ResponseEntity.ok("Registration successful for program " + programParticipationRequest.getProgramID());
         }
         throw new ResourceNotFoundException("Failed to register for program");
@@ -119,7 +178,7 @@ public class ProgramController {
     @PostMapping("/create")
     public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest) {
         ProgramsResponse programsResponse = programService.createProgram(programsRequest);
-        if(programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
+        if (programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
     }
 
@@ -169,7 +228,7 @@ public class ProgramController {
     @Operation(summary = "Delete a program", description = "Deletes an existing program.")
     @DeleteMapping("/{programId}/delete")
     public ResponseEntity<?> deleteProgram(@PathVariable String programId) {
-        if(!programService.deleteProgram(programId)) throw new ResourceNotFoundException("Program not found");
+        if (!programService.deleteProgram(programId)) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.noContent().build();
     }
 }
