@@ -2,6 +2,7 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -182,6 +183,52 @@ public class AppointmentService {
         timeSlotRepository.save(timeSlot);
 
         // Trả về thông tin lịch hẹn đã hủy
+        return buildAppointmentResponse(appointment);
+    }
+
+
+
+    public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy cuộc hẹn với ID: " + appointmentId));
+
+        // Xử lý thay đổi time slot
+        if (request.getTimeSlotId() != null && !request.getTimeSlotId().equals(appointment.getTimeSlotsID())) {
+            // Kiểm tra trạng thái cuộc hẹn
+            if (appointment.getStatus() != StatusEnum.Scheduled) {
+                throw new InvalidRequestStateException("Chỉ có thể thay đổi time slot cho cuộc hẹn đang ở trạng thái Scheduled");
+            }
+
+            TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy time slot mới"));
+
+            // Kiểm tra time slot mới có khả dụng không
+            if (newTimeSlot.getStatus() != TimeSlots.Status.Available) {
+                throw new InvalidRequestStateException("Time slot mới không khả dụng");
+            }
+
+            // Khôi phục trạng thái time slot cũ
+            TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy time slot cũ"));
+            oldTimeSlot.setStatus(TimeSlots.Status.Available);
+            timeSlotRepository.save(oldTimeSlot);
+
+            // Cập nhật time slot mới
+            newTimeSlot.setStatus(TimeSlots.Status.Booked);
+            timeSlotRepository.save(newTimeSlot);
+
+            // Cập nhật thông tin cuộc hẹn
+            appointment.setTimeSlotsID(newTimeSlot.getTimeSlotsID());
+            appointment.setPsychologistID(newTimeSlot.getPsychologist().getPsychologistID());
+        }
+
+        // Cập nhật notes nếu có
+        if (request.getNotes() != null) {
+            appointment.setNotes(request.getNotes());
+        }
+
+
+        appointmentRepository.save(appointment);
         return buildAppointmentResponse(appointment);
     }
 }

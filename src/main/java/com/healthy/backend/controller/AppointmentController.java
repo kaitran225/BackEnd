@@ -1,9 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
-import com.healthy.backend.dto.appointment.AppointmentReportRequest;
-import com.healthy.backend.dto.appointment.AppointmentRequest;
-import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -82,13 +79,15 @@ public class AppointmentController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Update an appointment",
-            description = "Updates an existing appointment."
+            description = "Updates time slot, notes, or status of an appointment."
     )
     @PutMapping("/{appointmentId}")
-    public String updateAppointment(@PathVariable String appointmentId, @RequestBody AppointmentRequest request) {
-        return "Appointment updated successfully";
+    public ResponseEntity<AppointmentResponse> updateAppointment(
+            @PathVariable String appointmentId,
+            @RequestBody AppointmentUpdateRequest request) {
+        AppointmentResponse response = appointmentService.updateAppointment(appointmentId, request);
+        return ResponseEntity.ok(response);
     }
 
 
