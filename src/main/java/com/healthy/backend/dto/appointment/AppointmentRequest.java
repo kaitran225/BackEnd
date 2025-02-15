@@ -14,8 +14,6 @@ public class AppointmentRequest {
     @NotBlank(message = "Student ID is required")
     private String studentId; // ID của học sinh đặt lịch hẹn
 
-    @NotBlank(message = "Psychologist ID is required")
-    private String psychologistId; // ID của nhà tâm lý học
 
     @NotBlank(message = "Time slot ID is required")
     private String timeSlotId; // ID của time slot được chọn

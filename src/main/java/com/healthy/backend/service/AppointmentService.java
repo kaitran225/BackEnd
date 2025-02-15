@@ -83,19 +83,15 @@ public class AppointmentService {
         if (timeSlot.getStatus() != TimeSlots.Status.Available) {
             throw new InvalidRequestStateException("Time slot không khả dụng");
         }
-        if (!timeSlot.getPsychologist().getPsychologistID().equals(request.getPsychologistId())) {
-            throw new InvalidRequestStateException("Time slot không thuộc về psychologist này");
-        }
+
 
         // Kiểm tra student và psychologist
         Students student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy student với ID: " + request.getStudentId()));
-        Psychologists psychologist = psychologistRepository.findById(request.getPsychologistId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy psychologist với ID: " + request.getPsychologistId()));
+
 
         long currentCount = appointmentRepository.countTotalAppointments();
 
-// Tạo appointmentID theo định dạng AP01, AP02,...
         String appointmentId = "AP" + String.format("%02d", currentCount + 1);
 
         // Tạo appointment mới
@@ -103,7 +99,7 @@ public class AppointmentService {
         appointment.setAppointmentID(appointmentId);
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
         appointment.setStudentID(student.getStudentID());
-        appointment.setPsychologistID(psychologist.getPsychologistID());
+        appointment.setPsychologistID(timeSlot.getPsychologist().getPsychologistID());
 
         // Lưu appointment và cập nhật time slot
         Appointments savedAppointment = appointmentRepository.save(appointment);
@@ -113,7 +109,7 @@ public class AppointmentService {
         // Map sang DTO
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
-                psychologistMapper.buildPsychologistResponse(psychologist),
+                psychologistMapper.buildPsychologistResponse(timeSlot.getPsychologist()),
                 studentMapper.buildStudentResponse(student)
         );
     }
@@ -163,5 +159,29 @@ public class AppointmentService {
                 psychologistMapper.buildPsychologistResponse(psychologist),
                 studentMapper.buildStudentResponse(student)
         );
+    }
+
+    public AppointmentResponse cancelAppointment(String appointmentId) {
+        // Tìm appointment theo ID
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lịch hẹn với ID: " + appointmentId));
+
+        // Kiểm tra trạng thái hiện tại
+        if (appointment.getStatus() != StatusEnum.Scheduled) {
+            throw new InvalidRequestStateException("Chỉ có thể hủy lịch hẹn đang ở trạng thái Scheduled");
+        }
+
+        // Cập nhật trạng thái lịch hẹn
+        appointment.setStatus(StatusEnum.Cancelled);
+        appointmentRepository.save(appointment);
+
+        // Cập nhật lại TimeSlot về Available
+        TimeSlots timeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy time slot với ID: " + appointment.getTimeSlotsID()));
+        timeSlot.setStatus(TimeSlots.Status.Available);
+        timeSlotRepository.save(timeSlot);
+
+        // Trả về thông tin lịch hẹn đã hủy
+        return buildAppointmentResponse(appointment);
     }
 }

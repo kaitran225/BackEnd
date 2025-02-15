@@ -60,19 +60,12 @@ public class AppointmentController {
 
 
     @PutMapping("/{appointmentId}/cancel")
-    public String cancelAppointment(@PathVariable String appointmentId) {
-        return "Appointment cancelled successfully";
+    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId) {
+        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Request update of an appointment",
-            description = "Requests an update of an appointment."
-    )
-    @PutMapping("/{appointmentId}/update-request")
-    public String requestUpdateAppointment(@PathVariable String appointmentId) {
-        return "Appointment update requested";
-    }
+
 
     @Operation(summary = "Check in to an appointment")
     @PostMapping("/{appointmentId}/check-in")
@@ -90,13 +83,17 @@ public class AppointmentController {
 
     @Operation(
             deprecated = true,
-            summary = "Give feedback on an appointment",
-            description = "Gives feedback on an appointment."
+            summary = "Update an appointment",
+            description = "Updates an existing appointment."
     )
-    @PostMapping("/{appointmentId}/feedback")
-    public String giveFeedback(@PathVariable String appointmentId, @RequestBody AppointmentFeedbackRequest feedback) {
-        return "Feedback submitted successfully";
+    @PutMapping("/{appointmentId}")
+    public String updateAppointment(@PathVariable String appointmentId, @RequestBody AppointmentRequest request) {
+        return "Appointment updated successfully";
     }
+
+
+
+
 
     @Operation(
             deprecated = true,
@@ -121,15 +118,7 @@ public class AppointmentController {
     // Manager or Psychologist Endpoints
 
 
-    @Operation(
-            deprecated = true,
-            summary = "Update an appointment",
-            description = "Updates an existing appointment."
-    )
-    @PutMapping("/{appointmentId}")
-    public String updateAppointment(@PathVariable String appointmentId, @RequestBody AppointmentRequest request) {
-        return "Appointment updated successfully";
-    }
+
 
     @Operation(
             deprecated = true,
