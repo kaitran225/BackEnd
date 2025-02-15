@@ -48,4 +48,6 @@ public class AppointmentResponse {
 
     @Schema(example = "2023-01-01")
     private LocalDateTime UpdatedAt;
+    private LocalDateTime checkInTime;
+    private LocalDateTime checkOutTime;
 }

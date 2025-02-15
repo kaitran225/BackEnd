@@ -9,32 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppointmentMapper {
 
-    public AppointmentResponse appointmentResponse(Appointments appointments){
-        return AppointmentResponse.builder()
-                .appointmentID(appointments.getAppointmentID())
-                .CreatedAt(appointments.getCreatedAt())
-                .Status(appointments.getStatus().name())
-                .Text(appointments.getNotes())
-                .timeSlotID(appointments.getTimeSlotsID())
-                .UpdatedAt(appointments.getUpdatedAt())
-                .build();
-    }
 
-    public AppointmentResponse appointmentResponse(Appointments appointments,
-                                                   PsychologistResponse psychologistResponse,
-                                                   StudentResponse studentResponse
-    ){
-        return AppointmentResponse.builder()
-                .appointmentID(appointments.getAppointmentID())
-                .CreatedAt(appointments.getCreatedAt())
-                .Status(appointments.getStatus().name())
-                .psychologistResponse(psychologistResponse)
-                .studentResponse(studentResponse)
-                .Text(appointments.getNotes())
-                .timeSlotID(appointments.getTimeSlotsID())
-                .UpdatedAt(appointments.getUpdatedAt())
-                .build();
-    }
 
     public AppointmentResponse buildAppointmentResponse(
             Appointments appointment,
@@ -50,6 +25,8 @@ public class AppointmentMapper {
                 .Text(appointment.getNotes())
                 .timeSlotID(appointment.getTimeSlotsID())
                 .UpdatedAt(appointment.getUpdatedAt())
+                .checkInTime(appointment.getCheckInTime())
+                .checkOutTime(appointment.getCheckOutTime())
                 .build();
     }
 }
