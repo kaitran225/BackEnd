@@ -1,5 +1,6 @@
 package com.healthy.backend.repository;
 
+import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.TimeSlots;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,4 +13,7 @@ import java.util.Optional;
 public interface TimeSlotRepository extends JpaRepository<TimeSlots, String> {
     @Query("SELECT ts FROM TimeSlots ts JOIN FETCH ts.psychologist WHERE ts.timeSlotsID = :id")
     Optional<TimeSlots> findByIdWithPsychologist(@Param("id") String id);
+
+    List<TimeSlots> findBySlotDateAndPsychologist(LocalDate slotDate, Psychologists psychologist);
+
 }

@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-
 @Entity
 @Getter
 @Setter
@@ -18,7 +18,6 @@ import java.time.LocalTime;
 public class TimeSlots {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID) // Tự động tạo UUID
     @Column(name = "TimeSlotsID", length = 36, nullable = false, unique = true)
     private String timeSlotsID;
 
@@ -39,17 +38,27 @@ public class TimeSlots {
     @JoinColumn(name = "PsychologistID", nullable = false)
     private Psychologists psychologist;
 
+    @Column(name = "SlotNumber", nullable = false)
+    private int slotNumber; // Thêm trường này để lưu số thứ tự của slot trong ngày
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     public enum Status {
         Available,
         Booked
     }
 
-
-    public TimeSlots(LocalDate date, LocalTime startTime, LocalTime endTime, Psychologists psychologist) {
+    public TimeSlots(LocalDate date, LocalTime startTime, LocalTime endTime, Psychologists psychologist, int slotNumber) {
         this.slotDate = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = Status.Available;
         this.psychologist = psychologist;
+        this.slotNumber = slotNumber;
+        this.timeSlotsID = generateTimeSlotsID(date, slotNumber); // Tạo timeSlotsID dựa trên ngày và số thứ tự của slot
+    }
+
+    private String generateTimeSlotsID(LocalDate date, int slotNumber) {
+        return String.format("slot%02d-%s", slotNumber, date.toString());
     }
 }

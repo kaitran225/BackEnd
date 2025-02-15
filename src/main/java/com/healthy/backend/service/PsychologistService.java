@@ -177,36 +177,46 @@ public class PsychologistService {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
+        // Check for existing slots on this date for this psychologist
+        List<TimeSlots> existingSlots = timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
+        if (!existingSlots.isEmpty()) {
+            return existingSlots; // Return existing slots if found
+        }
+
         List<TimeSlots> timeSlots = new ArrayList<>();
+
+        // Reset slotNumber khi bắt đầu tạo slot buổi sáng
+        int slotNumber = 1;
 
         // Ca sáng: 8h - 11h, cách 30 phút
         LocalTime morningStart = LocalTime.of(8, 0);
         LocalTime morningEnd = LocalTime.of(11, 0);
-        timeSlots.addAll(generateTimeSlots(date, morningStart, morningEnd, psychologist));
+        timeSlots.addAll(generateTimeSlots(date, morningStart, morningEnd, psychologist, slotNumber));
+
+        // Reset slotNumber khi bắt đầu tạo slot buổi chiều
+        slotNumber = timeSlots.size() + 1; // Tiếp tục từ slotNumber tiếp theo
 
         // Ca chiều: 13h - 17h, cách 30 phút
         LocalTime afternoonStart = LocalTime.of(13, 0);
         LocalTime afternoonEnd = LocalTime.of(17, 0);
-        timeSlots.addAll(generateTimeSlots(date, afternoonStart, afternoonEnd, psychologist));
+        timeSlots.addAll(generateTimeSlots(date, afternoonStart, afternoonEnd, psychologist, slotNumber));
 
-        // Lưu vào database
+        // Lưu vào database chỉ khi không có slots sẵn
         return timeSlotRepository.saveAll(timeSlots);
     }
 
-    /**
-     * Sinh time slots cách 30 phút.
-     */
-    private List<TimeSlots> generateTimeSlots(LocalDate date, LocalTime start, LocalTime end, Psychologists psychologist) {
+    private List<TimeSlots> generateTimeSlots(LocalDate date, LocalTime start, LocalTime end, Psychologists psychologist, int startSlotNumber) {
         List<TimeSlots> timeSlots = new ArrayList<>();
         LocalTime currentTime = start;
+        int slotNumber = startSlotNumber; // Bắt đầu từ startSlotNumber
 
-        while (currentTime.isBefore(end)) {
+        while (currentTime.isBefore(end) && slotNumber <= 14) {
             LocalTime nextTime = currentTime.plusMinutes(30);
-            timeSlots.add(new TimeSlots(date, currentTime, nextTime, psychologist));
+            timeSlots.add(new TimeSlots(date, currentTime, nextTime, psychologist, slotNumber));
             currentTime = nextTime;
+            slotNumber++;
         }
 
         return timeSlots;
     }
-
 }
