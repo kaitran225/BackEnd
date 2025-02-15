@@ -22,4 +22,9 @@ public class APIHandelException extends RuntimeException {
 
         return new ResponseEntity<>(messages.toString(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGlobalException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred" + ex.getMessage());
+    }
 }

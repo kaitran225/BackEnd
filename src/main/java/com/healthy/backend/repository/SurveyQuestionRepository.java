@@ -1,7 +1,12 @@
 package com.healthy.backend.repository;
 
-import com.healthy.backend.entity.SurveyQuestions;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.healthy.backend.entity.SurveyQuestions;
+
 public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions, String> {
+    List<SurveyQuestions> findByQuestionIDIn(List<String> QuestionId) ;
+
 } 
