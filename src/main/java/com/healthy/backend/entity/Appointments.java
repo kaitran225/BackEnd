@@ -1,14 +1,12 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.entity.Enum.StatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
-import static com.healthy.backend.entity.Appointments.AppointmentType.Offline;
-import static com.healthy.backend.entity.Appointments.Status.Scheduled;
 
 @Entity
 @Getter
@@ -31,8 +29,8 @@ public class Appointments {
     private String psychologistID;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "ENUM('Scheduled', 'Completed', 'Cancelled')")
-    private Status status;
+    @Column(name = "Status", length = 20)
+    private StatusEnum status;
 
     @Column(name = "Notes", columnDefinition = "TEXT")
     private String notes;
@@ -55,11 +53,17 @@ public class Appointments {
     @JoinColumn(name = "PsychologistID", insertable = false, updatable = false)
     private Psychologists psychologist;
 
+    @Column(name = "CheckInTime")
+    private LocalDateTime checkInTime;
+
+    @Column(name = "CheckOutTime")
+    private LocalDateTime checkOutTime;
+
     public Appointments() {
-        status = Scheduled;
+        this.status = StatusEnum.Scheduled;
     }
 
-    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, Status status) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, StatusEnum status) {
         this.appointmentID = appointmentID;
         this.timeSlotsID = timeSlotsID;
         this.studentID = studentID;
@@ -78,14 +82,10 @@ public class Appointments {
         updatedAt = LocalDateTime.now();
     }
 
-    public enum Status {
-        Scheduled,
-        Completed,
-        Cancelled
-    }
-
     public enum AppointmentType {
         Online,
         Offline
     }
-} 
+
+
+}

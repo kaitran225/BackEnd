@@ -2,23 +2,19 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Psychologists;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AppointmentMapper;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.repository.AppointmentRepository;
-import com.healthy.backend.repository.PsychologistRepository;
-import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.TimeSlotRepository;
+import com.healthy.backend.repository.*;
 import com.sun.jdi.request.InvalidRequestStateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,6 +39,8 @@ public class AppointmentService {
 
     @Autowired
     TimeSlotRepository timeSlotRepository;
+
+
 
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointments> appointments = appointmentRepository.findAll();
@@ -95,13 +93,17 @@ public class AppointmentService {
         Psychologists psychologist = psychologistRepository.findById(request.getPsychologistId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy psychologist với ID: " + request.getPsychologistId()));
 
+        long currentCount = appointmentRepository.countTotalAppointments();
+
+// Tạo appointmentID theo định dạng AP01, AP02,...
+        String appointmentId = "AP" + String.format("%02d", currentCount + 1);
+
         // Tạo appointment mới
         Appointments appointment = new Appointments();
-        appointment.setAppointmentID(UUID.randomUUID().toString());
+        appointment.setAppointmentID(appointmentId);
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
         appointment.setStudentID(student.getStudentID());
         appointment.setPsychologistID(psychologist.getPsychologistID());
-        appointment.setStatus(Appointments.Status.Scheduled);
 
         // Lưu appointment và cập nhật time slot
         Appointments savedAppointment = appointmentRepository.save(appointment);
@@ -111,6 +113,53 @@ public class AppointmentService {
         // Map sang DTO
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
+                psychologistMapper.buildPsychologistResponse(psychologist),
+                studentMapper.buildStudentResponse(student)
+        );
+    }
+
+
+
+    public AppointmentResponse checkIn(String appointmentId) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
+
+        if (appointment.getStatus() != StatusEnum.Scheduled) {
+            throw new InvalidRequestStateException("Appointment is not in Scheduled status");
+        }
+
+        appointment.setStatus(StatusEnum.InProgress);
+        appointment.setCheckInTime(LocalDateTime.now());
+        appointmentRepository.save(appointment);
+
+        return buildAppointmentResponse(appointment);
+    }
+
+    public AppointmentResponse checkOut(String appointmentId) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
+
+        if (appointment.getStatus() != StatusEnum.InProgress) {
+            throw new InvalidRequestStateException("Appointment is not in InProgress status");
+        }
+
+        appointment.setStatus(StatusEnum.Completed);
+        appointment.setCheckOutTime(LocalDateTime.now());
+        appointmentRepository.save(appointment);
+
+        return buildAppointmentResponse(appointment);
+    }
+
+
+
+    private AppointmentResponse buildAppointmentResponse(Appointments appointment) {
+        Students student = studentRepository.findById(appointment.getStudentID())
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        Psychologists psychologist = psychologistRepository.findById(appointment.getPsychologistID())
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        return appointmentMapper.buildAppointmentResponse(
+                appointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),
                 studentMapper.buildStudentResponse(student)
         );

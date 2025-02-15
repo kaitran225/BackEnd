@@ -181,15 +181,15 @@ public class DataInitializer {
             );
             timeSlotRepository.save(timeSlot);
 
-            // Tạo Appointment
-            Appointments appointment = new Appointments(
-                    "appointment-1",
-                    timeSlot.getTimeSlotsID(),
-                    student.getStudentID(),
-                    psychologist.getPsychologistID(),
-                    Appointments.Status.Scheduled
-            );
-            appointmentRepository.save(appointment);
+//            // Tạo Appointment
+//            Appointments appointment = new Appointments(
+//                    "appointment-1",
+//                    timeSlot.getTimeSlotsID(),
+//                    student.getStudentID(),
+//                    psychologist.getPsychologistID(),
+//                    Appointments.Status.Scheduled
+//            );
+//            appointmentRepository.save(appointment);
 
             // Tạo Program Participation
             ProgramParticipation participation = new ProgramParticipation(

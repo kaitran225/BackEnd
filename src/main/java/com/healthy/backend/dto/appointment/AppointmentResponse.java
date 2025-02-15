@@ -28,4 +28,6 @@ public class AppointmentResponse {
     private String Text;
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
+    private LocalDateTime checkInTime;
+    private LocalDateTime checkOutTime;
 }

@@ -74,24 +74,18 @@ public class AppointmentController {
         return "Appointment update requested";
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Check in to an appointment",
-            description = "Checks in to an appointment."
-    )
+    @Operation(summary = "Check in to an appointment")
     @PostMapping("/{appointmentId}/check-in")
-    public String checkIn(@PathVariable String appointmentId) {
-        return "Checked in successfully";
+    public ResponseEntity<AppointmentResponse> checkIn(@PathVariable String appointmentId) {
+        AppointmentResponse response = appointmentService.checkIn(appointmentId);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Check out from an appointment",
-            description = "Checks out from an appointment."
-    )
+    @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
-    public String checkOut(@PathVariable String appointmentId) {
-        return "Checked out successfully";
+    public ResponseEntity<AppointmentResponse> checkOut(@PathVariable String appointmentId) {
+        AppointmentResponse response = appointmentService.checkOut(appointmentId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -125,15 +119,7 @@ public class AppointmentController {
     }
 
     // Manager or Psychologist Endpoints
-    @Operation(
-            deprecated = true,
-            summary = "Create an appointment",
-            description = "Creates a new appointment."
-    )
-    @PostMapping
-    public String createAppointment(@RequestBody AppointmentRequest request) {
-        return "Appointment created successfully";
-    }
+
 
     @Operation(
             deprecated = true,
