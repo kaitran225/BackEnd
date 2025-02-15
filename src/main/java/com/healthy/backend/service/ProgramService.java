@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.programs.ProgramParticipationRequest;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.ProgramParticipation;
@@ -104,8 +105,10 @@ public class ProgramService {
     }
 
     public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest) {
+
         Programs program = programRepository.findById(programParticipationRequest.getProgramID())
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
+
         if (isJoined(programParticipationRequest)) {
             throw new ResourceAlreadyExistsException("Student is already registered for this program");
         }
@@ -158,11 +161,6 @@ public class ProgramService {
                 .toList();
     }
 
-    private boolean isJoined(ProgramParticipationRequest programParticipationRequest) {
-        return programParticipationRepository.findByProgramIDAndStudentID(
-                programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
-        ) != null;
-    }
 
     @Transactional
     public boolean deleteProgram(String programId) {
@@ -192,6 +190,26 @@ public class ProgramService {
                 .map(studentMapper::buildStudentResponse)
                 .toList();
     }
+
+    public List<ProgramParticipationResponse> getProgramParticipants(String programId) {
+
+        List<ProgramParticipation> programParticipants = programParticipationRepository.findByProgramID(programId);
+
+        if (programParticipants.isEmpty()) {
+            throw new ResourceNotFoundException("No programs found");
+        }
+
+        return programParticipants.stream().map(
+                programMapper::buildProgramParticipationResponse
+        ).toList();
+    }
+
+    private boolean isJoined(ProgramParticipationRequest programParticipationRequest) {
+        return programParticipationRepository.findByProgramIDAndStudentID(
+                programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
+        ) != null;
+    }
+
 
     private String generateNextTagId(String lastCode) {
         if (lastCode == null || lastCode.length() < 3) {

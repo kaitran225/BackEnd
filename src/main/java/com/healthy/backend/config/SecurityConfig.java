@@ -61,7 +61,9 @@ public class SecurityConfig {
                                 "/api/auth/logout",
                                 "/api/auth/refresh",
                                 "/api/auth/register",
-                                "/api/auth/login"
+                                "/api/auth/login",
+                                "/api/auth/verify",
+                                "/redirect.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

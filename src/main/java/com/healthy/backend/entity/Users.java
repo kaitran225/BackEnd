@@ -52,31 +52,31 @@ public class Users implements UserDetails {
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "reset_token")
+    @Column(name = "ResetToken")
     private String resetToken;
 
-    @Column(name = "reset_token_expiry")
+    @Column(name = "ResetTokenExpiry")
     private LocalDateTime resetTokenExpiry;
 
-    public Users(String userId, String username, String passwordHash, String fullName, String email, String phoneNumber, UserRole userRole, Gender gender) {
-        this.userId = userId;
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.fullName = fullName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.role = userRole;
-        this.gender = gender;
-    }
+    @Column(name = "IsVerified", nullable = false)
+    private boolean isVerified;
+
+    @Column(name = "VerificationToken", nullable = false)
+    private String verificationToken;
+
+    @Column(name = "TokenExpiration", nullable = false)
+    private LocalDateTime tokenExpiration;
 
     @PrePersist
     protected void onCreate() {
+        isVerified = false;
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+            this.createdAt = LocalDateTime.now();
         }
         if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
+            this.updatedAt = LocalDateTime.now();
         }
+        this.tokenExpiration = LocalDateTime.now().plusHours(12).plusMinutes(30);
     }
 
     @PreUpdate

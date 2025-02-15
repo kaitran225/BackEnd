@@ -3,23 +3,23 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
-import com.healthy.backend.dto.user.UsersRequest;
-import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.backend.dto.auth.VerificationResponse;
 import com.healthy.backend.entity.RefreshToken;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.mapper.UserMapper;
 import com.healthy.backend.repository.AuthenticationRepository;
 import com.healthy.backend.repository.RefreshTokenRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    
+
     private final AuthenticationRepository authenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -37,24 +37,44 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final UserMapper usermapper;
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenDuration;
 
+    @Value("${app.url}")
+    private String siteURL;
 
     // Register new user
     public AuthenticationResponse register(RegisterRequest request) {
-        if (authenticationRepository.findByUsername(request.getUsername()) != null) {
-            throw new RuntimeException("Username already exists");
-        }
-        Users savedUser = userRepository.save(buildUserEntity(request));
 
-        String accessToken = jwtService.generateToken(savedUser);
-        String refreshToken = jwtService.generateRefreshToken(savedUser);
+        if (authenticationRepository.findByPhoneNumber(request.getPhoneNumber()) != null) {
+            throw new RuntimeException("This phone number is already in use for another account");
+        }
+
+        if (authenticationRepository.findByUsername(request.getUsername()) != null) {
+            throw new RuntimeException("This username is already taken");
+        }
+
+        if (authenticationRepository.findByEmail(request.getEmail()) != null) {
+            throw new RuntimeException("This email is already in use for another account");
+        }
+
+        String token = jwtService.generateVerificationToken(request.getEmail());
+        String password = passwordEncoder.encode(request.getPassword());
+        Users savedUser = userRepository.save(
+                usermapper.buildUserEntity(request, token, getUserLastCode(), password));
+
+        // Send verification email
+        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
+                .path("/api/auth/verify")
+                .queryParam("token", token)
+                .toUriString();
+
+        emailService.sendVerificationEmail(request.getEmail(), "Click the link to verify your email: " + verificationUrl,
+                "Verify Your Account");
 
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .userId(savedUser.getUserId())
                 .role(savedUser.getRole().toString())
                 .build();
@@ -100,7 +120,12 @@ public class AuthenticationService {
     public AuthenticationResponse refreshToken(
             HttpServletRequest request
     ) {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String authHeader =
+                request.getHeader(HttpHeaders.AUTHORIZATION) == null
+                        ? (request.getHeader(HttpHeaders.WWW_AUTHENTICATE) == null
+                        ? null : request.getHeader(HttpHeaders.WWW_AUTHENTICATE))
+                        : request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid refresh token");
         }
@@ -140,6 +165,7 @@ public class AuthenticationService {
                 .build();
     }
 
+    // Initiate password reset
     public void initiatePasswordReset(String email) {
         Users user = authenticationRepository.findByEmail(email);
         if (user == null) {
@@ -152,11 +178,17 @@ public class AuthenticationService {
         user.setResetToken(resetToken);
         authenticationRepository.save(user);
 
-        // Send reset email
-        String resetLink = "https://your-frontend-url/reset-password?token=" + resetToken;
+        // Generate password reset link
+        String resetLink = UriComponentsBuilder.fromUriString(siteURL)
+                .path("/api/auth/reset-password")
+                .queryParam("token", resetToken)
+                .toUriString();
+
+        // Send password reset email
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
+    // Reset password
     public void resetPassword(String token, String newPassword) {
         Users user = authenticationRepository.findByResetToken(token);
         if (user == null || !user.isResetTokenValid(token)) {
@@ -172,6 +204,30 @@ public class AuthenticationService {
 
         // Optionally invalidate all refresh tokens for this user
         refreshTokenRepository.deleteByUserId(user.getUserId());
+    }
+
+    // Verify email
+    public VerificationResponse verifyUser(String token) {
+        if (!jwtService.isTokenValid(token)) {
+            throw new RuntimeException("Invalid or expired token");
+        }
+
+        Users user = userRepository.findByEmail(jwtService.extractEmail(token));
+
+        user.setVerified(true);
+        userRepository.save(user);
+
+        return new VerificationResponse("Email verified successfully. You can now log in.", token, true);
+    }
+
+    // Check if verification token is valid
+    public boolean isVerificationTokenValid(String token) {
+        return authenticationRepository.findByVerificationToken(token) != null;
+    }
+
+    // Check if verification token is expired
+    public boolean isVerificationTokenExpired(String token) {
+        return authenticationRepository.findByVerificationToken(token).getTokenExpiration().isAfter(LocalDateTime.now());
     }
 
     // Save refresh token to database
@@ -197,23 +253,10 @@ public class AuthenticationService {
         return passwordEncoder.encode(token);
     }
 
-    // Convert User entity to UserResponse
-    private Users buildUserEntity(RegisterRequest requestRequest) {
-        return Users.builder()
-                .userId(getUserLastCode())
-                .username(requestRequest.getUsername())
-                .passwordHash(passwordEncoder.encode(requestRequest.getPassword()))
-                .fullName(requestRequest.getFullName())
-                .email(requestRequest.getEmail())
-                .phoneNumber(requestRequest.getPhoneNumber())
-                .role(Users.UserRole.valueOf(requestRequest.getRole()))
-                .gender(Users.Gender.valueOf(requestRequest.getGender()))
-                .build();
-    }
 
     // Generate user ID
     private String getUserLastCode() {
-        if(userRepository.findAll().isEmpty()){
+        if (userRepository.findAll().isEmpty()) {
             return "US001";
         }
         String lastCode = userRepository.findLastUserId();

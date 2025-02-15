@@ -79,3 +79,6 @@ jwt:
   expiration: 86400000
   refresh-token:
     expiration: 604800000
+
+app:
+  url: https://api.cybriadev.com

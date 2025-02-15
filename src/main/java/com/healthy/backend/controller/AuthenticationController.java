@@ -3,6 +3,8 @@ package com.healthy.backend.controller;
 import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.dto.auth.VerificationResponse;
+import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,5 +115,29 @@ public class AuthenticationController {
     ) {
         logoutHandler.logout(request, response, authentication);
         return ResponseEntity.ok("Successfully logged out");
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<VerificationResponse> verify(@RequestParam String token) {
+        if (token == null) {
+            throw new RuntimeException("This token is invalid");
+        }
+        if (!authenticationService.isVerificationTokenValid(token)) {
+            throw new ResourceAlreadyExistsException("This token is invalid");
+        }
+        if (!authenticationService.isVerificationTokenExpired(token)) {
+            throw new RuntimeException("This token is expired");
+        }
+
+        boolean isVerified = authenticationService.verifyUser(token).isVerified();
+
+        if (isVerified) {
+            // Redirecting to login page or success page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Content-Type", "text/html")
+                    .header("Location", "http://localhost:8080/redirect.html")
+                    .build();
+        }
+        throw new RuntimeException("This token is invalid");
     }
 }

@@ -87,12 +87,13 @@ public class ProgramController {
     }
 
     // Get program participants
-    @Operation(deprecated = true, summary = "Get program participants", description = "Returns a list of participants for a specific program.")
+    @Operation(summary = "Get program participants", description = "Returns a list of participants for a specific program.")
     @GetMapping("/{programId}/participants")
     public ResponseEntity<?> getProgramParticipants(@PathVariable String programId) {
-        return ResponseEntity.ok("List of participants for program " + programId);
+        List<ProgramParticipationResponse> programParticipationResponseList = programService.getProgramParticipants(programId);
+        if (programParticipationResponseList.isEmpty()) throw new ResourceNotFoundException("No participants found");
+        return ResponseEntity.ok(programParticipationResponseList);
     }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////POST REQUESTS/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

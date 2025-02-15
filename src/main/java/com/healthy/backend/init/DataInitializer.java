@@ -42,16 +42,18 @@ public class DataInitializer implements CommandLineRunner {
     private final AuthenticationService authenticationService;
 
     private void initialize() {
+
         // Initialize Users
-        authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin User", "admin@example.com", "1111111111", Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("john_doe", "password123", "John Doe", "john@example.com", "1234567890", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", Users.UserRole.MANAGER.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("bob_johnson", "bobpass", "Bob Johnson", "bob@example.com", "3333333333", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("dr_blue", "bluepass", "Dr. Blue", "blue@example.com", "4444444444", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("john_green", "greenpass", "John Green", "green@example.com", "6666666666", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin User", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City",Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("john_doe", "password123", "John Doe", "john@example.com", "1234567890","Street 456, Ho Chi Minh City", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("jane_smith", "password456", "Jane Smith", "jane@example.com", "9876543210", "Street 789, Ho Chi Minh City",Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("dr_brown", "password789", "Dr. Brown", "brown@example.com", "5555555555", "Street 101, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("staff_user", "staffpass", "Staff Member", "staff@example.com", "9999999999", "Street 202, Ho Chi Minh City",Users.UserRole.MANAGER.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("alice_jones", "alicepass", "Alice Jones", "alice@example.com", "2222222222", "Street 303, Ho Chi Minh City",Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("bob_johnson", "bobpass", "Bob Johnson", "bob@example.com", "3333333333","Street 404, Ho Chi Minh City", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("dr_blue", "bluepass", "Dr. Blue", "blue@example.com", "4444444444","Street 505, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("john_green", "greenpass", "John Green", "green@example.com", "6666666666", "Street 606, Ho Chi Minh City",Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+
         // Initialize Parents
         parentRepository.save(new Parents("P001", userRepository.findByUsername("jane_smith").getUserId()));
         parentRepository.save(new Parents("P002", userRepository.findByUsername("bob_johnson").getUserId()));
@@ -60,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
         studentRepository.save(new Students("S001", userRepository.findByUsername("john_doe").getUserId(), parentRepository.findById("P001").get().getParentID(), 10, "A", "Example High School", 5, 10, 2));
         studentRepository.save(new Students("S002", userRepository.findByUsername("alice_jones").getUserId(), parentRepository.findById("P002").get().getParentID(), 9, "B", "Example High School", 3, 4, 7));
         studentRepository.save(new Students("S003", userRepository.findByUsername("john_green").getUserId(), parentRepository.findById("P001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
+
         // Initialize Psychologists
         psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("dr_brown").getUserId(), "Child Psychology", 10, Psychologists.Status.Active));
         psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("dr_blue").getUserId(), "Adolescent Psychology", 8, Psychologists.Status.Active));
@@ -82,7 +85,7 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(new TimeSlots("TS150615", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("12:00:00"), LocalTime.parse("12:30:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS150616", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("12:30:00"), LocalTime.parse("13:00:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS150617", "PSY002", LocalDate.parse("2023-06-15"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"), TimeSlots.Status.Available));
-        timeSlotRepository.save(new TimeSlots("TS16 0601", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Available));
+        timeSlotRepository.save(new TimeSlots("TS160601", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS160602", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS160603", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"), TimeSlots.Status.Available));
         timeSlotRepository.save(new TimeSlots("TS160604", "PSY001", LocalDate.parse("2023-06-16"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"), TimeSlots.Status.Available));

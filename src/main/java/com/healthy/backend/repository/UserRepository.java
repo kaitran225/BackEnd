@@ -11,6 +11,10 @@ public interface UserRepository extends JpaRepository<Users, String> {
     @Query("SELECT u FROM Users u")
     List<Users> findAllUsers();
 
+    Users findByUserId(String userId);
+
+    Users findByEmail(String email);
+
     Users findByUsername(String username);
 
     @Query("SELECT u.userId FROM Users u ORDER BY u.userId DESC LIMIT 1")

@@ -2,6 +2,7 @@ package com.healthy.backend.security;
 
 import com.healthy.backend.entity.Users;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Service
@@ -39,6 +41,38 @@ public class JwtService {
         return buildToken(extraClaims, user, jwtExpiration);
     }
 
+    public String generateVerificationToken(String email) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", email);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))  // 24 hours expiry
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String extractEmail(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("email", String.class);
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
     public String generateRefreshToken(Users user) {
         return buildToken(new HashMap<>(), user, refreshExpiration);
     }
@@ -83,13 +117,15 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
+    public boolean isTokenRevoked(String token, Set<String> revokedTokens) {
+        return revokedTokens.contains(token);
+    }
+
     public void invalidateToken(String token) {
         try {
             Claims claims = extractAllClaims(token);
-            // Set expiration to a past date to invalidate the token
             claims.setExpiration(new Date(System.currentTimeMillis() - 1000));
         } catch (Exception e) {
-            // Token is already invalid or malformed, nothing to do
-        }
+            throw new RuntimeException(e);}
     }
 }
