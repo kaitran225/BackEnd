@@ -61,7 +61,7 @@ The project integrates a mail service GMail SMTP to handle email notifications f
 ## 📜 License
 MIT License  
 
-See [LICENSE](./LICENSE) for more details.  
+See [LICENSE](LICENSE) for more details.  
 
 ## 📩 Contact  
 For any inquiries, reach out to me.  

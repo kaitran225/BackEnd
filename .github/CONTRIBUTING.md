@@ -49,7 +49,7 @@ Thank you for your interest in contributing to the **School Mental Health Care S
 Once you submit your pull request, the project maintainers will review your changes. You may be asked to make some modifications or clarifications before your PR is merged.
 
 ## 🚫 Code of Conduct
-By participating in this project, you agree to adhere to the [Code of Conduct](./CODE_OF_CONDUCT.md), ensuring a respectful and welcoming environment for everyone.
+By participating in this project, you agree to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md), ensuring a respectful and welcoming environment for everyone.
 
 ## 🤔 Questions or Issues?
 If you have any questions or encounter any issues, feel free to open an issue on the repository, and we’ll be happy to assist you!
