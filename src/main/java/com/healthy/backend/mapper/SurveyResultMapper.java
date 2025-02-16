@@ -1,19 +1,16 @@
 package com.healthy.backend.mapper;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.entity.Students;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 @Component
 
 public class SurveyResultMapper {
@@ -23,7 +20,7 @@ public class SurveyResultMapper {
         return buildSurveyResults(surveyResults);
     }
 
-    private List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
+    public  List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
 
         Map<String, List<SurveyQuestionResultResponse>> groupedResults =
                 surveyResults
@@ -42,7 +39,7 @@ public class SurveyResultMapper {
     }
 
 
-    private SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyResults result) {
+    public SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyResults result) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(result.getQuestionID())
                 .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName())) // No LazyInitializationException
@@ -54,11 +51,11 @@ public class SurveyResultMapper {
                 .build();
     }
 
-    private SurveyResultsResponse mapToSurveyResultsResponse(Surveys survey, List<SurveyQuestionResultResponse> questions) {
+    public SurveyResultsResponse mapToSurveyResultsResponse(Surveys survey, List<SurveyQuestionResultResponse> questions) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
-                .description(survey.getDescription())
+                .description(survey.getDescription())            
                 .questions(questions)
                 .build();
     }

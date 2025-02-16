@@ -1,11 +1,14 @@
 package com.healthy.backend.mapper;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
 import org.springframework.stereotype.Component;
 

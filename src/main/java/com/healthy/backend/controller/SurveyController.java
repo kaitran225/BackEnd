@@ -1,9 +1,28 @@
 package com.healthy.backend.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.service.SurveyService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,16 +34,24 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Survey Controller", description = "Survey related APIs")
 public class SurveyController {
-
+    private final SurveyService surveyService;
 
     @Operation(
-            deprecated = true,
+
             summary = "Get all surveys",
             description = "Returns a list of available surveys."
     )
-    @GetMapping
-    public List<String> getAllSurveys() {
-        return List.of("List of available surveys");
+    @GetMapping()
+    public ResponseEntity<List<SurveyResultsResponse>> getAllSurveys() {
+
+        List<SurveyResultsResponse> surveyResultsResponses = surveyService.getAllSurveyResults();
+        if(!surveyResultsResponses.isEmpty()) {
+            return ResponseEntity.ok(surveyResultsResponses);
+        }
+            return ResponseEntity.noContent().build();
+
+
+
     }
 
     @Operation(
