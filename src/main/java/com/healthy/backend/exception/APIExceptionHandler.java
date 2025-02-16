@@ -48,20 +48,20 @@ public class APIExceptionHandler {
         logger.error("Unexpected error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred"));
+                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
     }
 
     @ExceptionHandler(ResourceInvalidException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequestStateException(ResourceInvalidException ex){
         logger.error("Invalid request: {}", ex.getMessage(),ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request"));
+                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
     @ExceptionHandler(OperationFailedException.class)
     public ResponseEntity<ErrorResponse> handleOperationFailure(Exception ex){
         logger.error("Operation failure: {}", ex.getMessage(),ex);
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to cancel participation"));
+                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
     }
 }

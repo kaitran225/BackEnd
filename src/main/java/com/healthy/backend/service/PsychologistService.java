@@ -100,11 +100,13 @@ public class PsychologistService {
         LocalTime noonBreakStart = LocalTime.of(11, 30); //
         LocalTime noonBreakEnd = LocalTime.of(12, 30); // Afternoon shift: 13h - 17h
         LocalTime end = LocalTime.of(17, 0);
+
         List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, start, noonBreakStart, noonBreakEnd, end, psychologist));
         timeSlotRepository.saveAll(timeSlots);
         return timeSlotMapper.buildResponse(timeSlots);
     }
 
+    // Generate time slots
     private List<TimeSlots> generateTimeSlots(
             LocalDate date, LocalTime start, LocalTime end,
             LocalTime noonBreakStart, LocalTime noonBreakEnd, Psychologists psychologist) {
