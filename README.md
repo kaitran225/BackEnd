@@ -5,7 +5,7 @@ Here’s a README.md file for your project:
 # School Mental Health Care System (Pre-Release)
 
 ## 📌 Overview  
-The School Mental Health Care System is a platform designed to support student well-being by enabling appointment scheduling with psychologists and providing mental health surveys. The system is currently under development and available for early access.  
+The School Mental Health Care System is a platform designed to support student well-being by enabling psychologists to schedule appointments and providing mental health surveys. It is currently under development and available for early access.  
 
 ## 🚀 Features  
 - Appointment Booking – Students can schedule sessions with psychologists.  
@@ -53,8 +53,16 @@ The project is actively being developed, and new features are continuously being
 ## 🤝 Contributing  
 We appreciate feedback and contributions! Please create an issue or submit a pull request if you’d like to contribute.  
 
-## 📜 License  
-(Include license details if applicable)  
+## 🌐 Deployment
+The application is hosted on Render.com. For deployment, follow the Render.com documentation to set up the environment and connect your repository.
+
+## 📧 Mail Service
+The project integrates a mail service GMail SMTP to handle email notifications for appointment confirmations and reminders. Configure the mail service with your credentials in the environment variables.
+
+## 📜 License
+MIT License  
+
+See [LICENSE](./LICENSE) for more details.  
 
 ## 📩 Contact  
-For any inquiries, reach out to [your contact info].  
+For any inquiries, reach out to me.  
