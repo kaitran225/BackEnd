@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.healthy.backend.entity.SurveyQuestions;
 
 public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions, String> {
-    List<SurveyQuestions> findByQuestionIDIn(List<String> QuestionId) ;
+    List<SurveyQuestions> findByQuestionIDIn(List<String> QuestionID) ;
+    SurveyQuestions findByQuestionIDAndSurveyID(String QuestionID, String surveyID);
+
 
 } 
