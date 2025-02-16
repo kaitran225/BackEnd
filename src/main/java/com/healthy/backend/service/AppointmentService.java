@@ -3,15 +3,18 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
-import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AppointmentMapper;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
-import com.sun.jdi.request.InvalidRequestStateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +65,7 @@ public class AppointmentService {
         Appointments appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No appointment by id" + id + "Not found"));
         return appointmentMapper.buildAppointmentResponse(
-                appointment,  psychologistMapper.buildPsychologistResponse(
+                appointment, psychologistMapper.buildPsychologistResponse(
                         Objects.requireNonNull(psychologistRepository.findById(
                                 appointment.getPsychologistID()).orElse(null))),
                 studentMapper.buildStudentResponse(
@@ -77,10 +80,10 @@ public class AppointmentService {
 
         // Validate time slot
         if (timeSlot.getStatus() != TimeSlots.Status.Available) {
-            throw new InvalidRequestStateException("Time slot is not valid");
+            throw new ResourceInvalidException("Time slot is not valid");
         }
         if (!timeSlot.getPsychologist().getPsychologistID().equals(request.getPsychologistId())) {
-            throw new InvalidRequestStateException("Time slot is not available");
+            throw new ResourceInvalidException("Time slot is not available");
         }
 
         // Validate student and psychologist
@@ -106,20 +109,79 @@ public class AppointmentService {
                 studentMapper.buildStudentResponse(student)
         );
     }
+
     // Cancel
-    public boolean cancelAppointment(String appointmentId) {
+    public AppointmentResponse cancelAppointment(String appointmentId) {
+
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
+        TimeSlots timeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID()).orElseThrow(
+                () -> new ResourceNotFoundException("Timeslot not found with id: " + appointment.getTimeSlotsID())
+        );
 
         if (appointment.getStatus() == StatusEnum.InProgress) {
-            throw new InvalidRequestStateException("Can not cancel an appointment that is In Progress");
+            throw new ResourceInvalidException("Can not cancel an appointment that is In Progress");
         }
         if (appointment.getStatus() == StatusEnum.Completed) {
-            throw new InvalidRequestStateException("Appointment is already completed");
+            throw new ResourceInvalidException("Appointment is already completed");
         }
+        // Update status
         appointment.setStatus(StatusEnum.Cancelled);
         appointmentRepository.save(appointment);
-        return true;
+        // Revert time slot back to available
+        timeSlot.setStatus(TimeSlots.Status.Available);
+        timeSlotRepository.save(timeSlot);
+
+        return appointmentMapper.buildAppointmentResponse(appointment);
+    }
+
+    // Update time slot
+    public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot find appointment with id " + appointmentId));
+
+        //Check time slot null
+        if (request.getTimeSlotId() == null) {
+            throw new ResourceNotFoundException("Can not find time slot");
+        }
+
+        //Check appointment status
+        if (appointment.getStatus() != StatusEnum.Scheduled) {
+            throw new ResourceInvalidException("You can only update a scheduled appointment");
+        }
+
+        if (!request.getTimeSlotId().equals(appointment.getTimeSlotsID())) {
+
+            TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + request.getTimeSlotId()));
+
+            if (newTimeSlot.getStatus() == TimeSlots.Status.Booked) {
+                throw new ResourceNotFoundException("Time slot is not available");
+            }
+
+            TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID()).orElseThrow(
+                    () -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID())
+            );
+
+            newTimeSlot.setStatus(TimeSlots.Status.Booked);
+            timeSlotRepository.save(newTimeSlot);
+            // Only update old time slot if new time slot is updated
+            if(timeSlotRepository.findById(appointment.getTimeSlotsID()).isPresent() &&
+                    timeSlotRepository.findById(appointment.getTimeSlotsID()).get().getStatus().equals(TimeSlots.Status.Booked)) {
+                oldTimeSlot.setStatus(TimeSlots.Status.Available);
+                timeSlotRepository.save(oldTimeSlot);
+            }
+            //Update appointment
+            appointment.setTimeSlotsID(newTimeSlot.getTimeSlotsID());
+            appointment.setPsychologistID(newTimeSlot.getPsychologist().getPsychologistID());
+        }
+
+        if (request.getNotes() != null) {
+            appointment.setNotes(request.getNotes());
+        }
+
+        appointmentRepository.save(appointment);
+        return appointmentMapper.buildAppointmentResponse(appointment);
     }
 
     // Check in

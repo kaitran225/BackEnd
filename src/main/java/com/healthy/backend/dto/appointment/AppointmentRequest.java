@@ -18,12 +18,12 @@ public class AppointmentRequest {
     @Schema(example = "S001")
     private String studentId;
 
-    @Schema(example = "TS150601")
+    @Schema(example = "TSPSY00127022500")
     private String timeSlotId;
 
-    @Schema(example = "Active")
+    @Schema(hidden = true, example = "Active")
     private String status;
 
     @Schema(example = "Notes")
-    private String text;
+    private String note;
 }

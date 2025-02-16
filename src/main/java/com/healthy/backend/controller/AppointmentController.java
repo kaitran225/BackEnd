@@ -1,9 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
-import com.healthy.backend.dto.appointment.AppointmentReportRequest;
-import com.healthy.backend.dto.appointment.AppointmentRequest;
-import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,7 +8,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -60,15 +66,16 @@ public class AppointmentController {
     }
 
     @Operation(
-            summary = "Request update of an appointment",
-            description = "Requests an update of an appointment."
+            summary = "Request cancel of an appointment",
+            description = "Requests an cancel update of an appointment."
     )
     @PutMapping("/{appointmentId}/cancel")
-    public String cancelAppointment(@PathVariable String appointmentId) {
-       if(appointmentService.cancelAppointment(appointmentId)) {
-           return ResponseEntity.ok("Appointment cancelled").toString();
-       }
-       throw new OperationFailedException("Failed to cancel appointment");
+    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId) {
+        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        }
+        throw new OperationFailedException("Failed to cancel appointment");
     }
 
     @Operation(
@@ -106,6 +113,20 @@ public class AppointmentController {
     }
 
     @Operation(
+            summary = "Update an appointment",
+            description = "Updates time slot, notes, or status of an appointment."
+    )
+    @PutMapping("/{appointmentId}")
+    public ResponseEntity<AppointmentResponse> updateAppointment(@PathVariable String appointmentId,
+                                    @RequestBody AppointmentUpdateRequest request) {
+        AppointmentResponse response = appointmentService.updateAppointment(appointmentId, request);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        }
+        throw new OperationFailedException("Failed to update appointment");
+    }
+
+    @Operation(
             deprecated = true,
             summary = "Request appointment record",
             description = "Requests the record of an appointment."
@@ -123,19 +144,6 @@ public class AppointmentController {
     @GetMapping("/{appointmentId}/result")
     public String requestResult(@PathVariable String appointmentId) {
         return "Result requested";
-    }
-
-    // Manager or Psychologist Endpoints
-
-
-    @Operation(
-            deprecated = true,
-            summary = "Cancel an appointment by manager",
-            description = "Cancels an appointment by manager."
-    )
-    @DeleteMapping("/{appointmentId}")
-    public String cancelAppointmentByManager(@PathVariable String appointmentId) {
-        return "Appointment cancelled by manager";
     }
 
     @Operation(

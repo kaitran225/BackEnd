@@ -81,4 +81,4 @@ jwt:
     expiration: 604800000
 
 app:
-  url: https://api.cybriadev.com
+  url: https://api.cybriadev.com/

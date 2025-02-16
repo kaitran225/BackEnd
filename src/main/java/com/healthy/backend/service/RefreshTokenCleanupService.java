@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class RefreshTokenCleanupService {
 
-
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Scheduled(cron = "0 0 * * * *") // Run every hour

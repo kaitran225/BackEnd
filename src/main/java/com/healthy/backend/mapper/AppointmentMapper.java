@@ -29,4 +29,18 @@ public class AppointmentMapper {
                 .checkOutTime(appointment.getCheckOutTime())
                 .build();
     }
+    public AppointmentResponse buildAppointmentResponse(
+            Appointments appointment
+    ) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .CreatedAt(appointment.getCreatedAt())
+                .Status(appointment.getStatus().name())
+                .Text(appointment.getNotes())
+                .timeSlotID(appointment.getTimeSlotsID())
+                .UpdatedAt(appointment.getUpdatedAt())
+                .checkInTime(appointment.getCheckInTime())
+                .checkOutTime(appointment.getCheckOutTime())
+                .build();
+    }
 }

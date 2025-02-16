@@ -3,7 +3,7 @@ package com.healthy.backend.controller;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
-import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +13,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -76,7 +85,6 @@ public class PsychologistController {
         return List.of("List of appointments for psychologist " + id);
     }
 
-
     @Operation(
             deprecated = true,
             summary = "Add session notes",
@@ -106,8 +114,6 @@ public class PsychologistController {
     public String submitAssessmentReport(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String report) {
         return "Assessment report submitted for appointment " + appointmentId;
     }
-
-
 
     @Operation(
             deprecated = true,
@@ -151,11 +157,13 @@ public class PsychologistController {
 
 
     @Operation(
+            deprecated = true,
+            hidden = true,
             summary = "Create default time slots",
             description = "Creates time slots for a psychologist on a given date."
     )
     @PostMapping("/{id}/timeslots")
-    public ResponseEntity<Void> createTimeSlots(
+    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots(
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if (date == null) {
@@ -164,8 +172,9 @@ public class PsychologistController {
         if(!psychologistService.getTimeSlots(date, id).isEmpty()) {
             throw new RuntimeException("Time slots already exist");
         }
-        if (psychologistService.createDefaultTimeSlots(date, id)) {
-            return ResponseEntity.ok().build();
+        List<TimeSlotResponse> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
+        if (!timeSlots.isEmpty()) {
+            return ResponseEntity.ok(timeSlots);
         };
         throw new RuntimeException("Failed to create time slots");
     }
@@ -178,32 +187,9 @@ public class PsychologistController {
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        List<TimeSlots> timeSlots = psychologistService.getTimeSlots(date, id);
-
-        List<TimeSlotResponse> response = timeSlots.stream()
-                .filter(slot -> slot.getStatus() == TimeSlots.Status.Available)
-                .map(timeSlotMapper::toResponse)
-                .collect(Collectors.toList());
-
+        if(date == null) throw new ResourceNotFoundException("Date is required");
+        if(psychologistService.getTimeSlots(date, id).isEmpty()) return createTimeSlots(id, date);
+        List<TimeSlotResponse> response =  psychologistService.getTimeSlots(date, id);
         return ResponseEntity.ok(response);
     }
-//    @Operation(
-//            summary = "Get psychologist time slots",
-//            description = "Returns time slots for a psychologist."
-//    )
-//    @GetMapping("/{id}/timeslots")
-//    public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
-//            @PathVariable String id,
-//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-//
-//        List<TimeSlots> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
-//
-//        List<TimeSlotResponse> response = timeSlots.stream()
-//                .filter(slot -> slot.getStatus() == TimeSlots.Status.Available)
-//                .map(timeSlotMapper::toResponse)
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(response);
-//    }
 }

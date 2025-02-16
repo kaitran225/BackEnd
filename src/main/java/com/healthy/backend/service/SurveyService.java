@@ -31,9 +31,6 @@ public class SurveyService {
     private final SurveyQuestionMapper surveyQuestionMapper;
     private final SurveyRepository surveyRepository;
 
-    
-    
-    
     public List<SurveyResultsResponse> getAllSurveyResults() {
         List<SurveyResults> surveyResults = surveyResultRepository.findAll();
 

@@ -33,6 +33,7 @@ public class UserService {
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
+    private final TimeSlotRepository timeSlotsRepository;
 
     private final AppointmentMapper appointmentMapper;
     private final ProgramMapper programMapper;
@@ -40,9 +41,6 @@ public class UserService {
     private final StudentMapper studentMapper;
     private final SurveyResultMapper surveyResultsMapper;
     private final UserMapper userMapper;
-
-    @Autowired
-    TimeSlotRepository timeSlotsRepository;
 
 
 
