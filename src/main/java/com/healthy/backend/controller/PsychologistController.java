@@ -68,7 +68,6 @@ public class PsychologistController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Get psychologist appointments",
             description = "Returns a list of appointments for a psychologist."
     )
@@ -77,25 +76,6 @@ public class PsychologistController {
         return List.of("List of appointments for psychologist " + id);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Assign a student to a psychologist",
-            description = "Assigns a student to a psychologist."
-    )
-    @PostMapping("/{id}/assign-student/{studentId}")
-    public String assignStudent(@PathVariable String id, @PathVariable String studentId) {
-        return "Student " + studentId + " assigned to psychologist " + id;
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get assigned students",
-            description = "Returns a list of students assigned to a psychologist."
-    )
-    @GetMapping("/{id}/students")
-    public List<String> getAssignedStudents(@PathVariable String id) {
-        return List.of("List of students assigned to psychologist " + id);
-    }
 
     @Operation(
             deprecated = true,
@@ -127,15 +107,7 @@ public class PsychologistController {
         return "Assessment report submitted for appointment " + appointmentId;
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get assessment report",
-            description = "Returns an assessment report for an appointment."
-    )
-    @GetMapping("/{id}/reports/{appointmentId}")
-    public String getAssessmentReport(@PathVariable String id, @PathVariable String appointmentId) {
-        return "Assessment report for appointment " + appointmentId;
-    }
+
 
     @Operation(
             deprecated = true,

@@ -81,17 +81,15 @@ public class AppointmentController {
         return "Appointment update requested";
     }
 
-    // Check in
     @Operation(summary = "Check in to an appointment")
-    @PutMapping("/{appointmentId}/check-in")
+    @PostMapping("/{appointmentId}/check-in")
     public ResponseEntity<AppointmentResponse> checkIn(@PathVariable String appointmentId) {
         AppointmentResponse response = appointmentService.checkIn(appointmentId);
         return ResponseEntity.ok(response);
     }
 
-    // Check out
     @Operation(summary = "Check out from an appointment")
-    @PutMapping("/{appointmentId}/check-out")
+    @PostMapping("/{appointmentId}/check-out")
     public ResponseEntity<AppointmentResponse> checkOut(@PathVariable String appointmentId) {
         AppointmentResponse response = appointmentService.checkOut(appointmentId);
         return ResponseEntity.ok(response);
@@ -129,15 +127,6 @@ public class AppointmentController {
 
     // Manager or Psychologist Endpoints
 
-    @Operation(
-            deprecated = true,
-            summary = "Update an appointment",
-            description = "Updates an existing appointment."
-    )
-    @PutMapping("/{appointmentId}")
-    public String updateAppointment(@PathVariable String appointmentId, @RequestBody AppointmentRequest request) {
-        return "Appointment updated successfully";
-    }
 
     @Operation(
             deprecated = true,

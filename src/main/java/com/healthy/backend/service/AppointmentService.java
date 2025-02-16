@@ -2,6 +2,7 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.OperationFailedException;
