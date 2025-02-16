@@ -7,4 +7,5 @@ public interface StudentRepository extends JpaRepository<Students, String> {
     Students findByUserID(String userID);
 
     Students findByStudentID(String studentID);
+
 } 

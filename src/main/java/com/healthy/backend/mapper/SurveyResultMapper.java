@@ -42,12 +42,7 @@ public class SurveyResultMapper {
     public SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyResults result) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(result.getQuestionID())
-                .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName())) // No LazyInitializationException
                 .questionText(result.getQuestion().getQuestionText())
-                .resultId(result.getResultID())
-                .answerId(result.getAnswer().getAnswerID())
-                .answer(result.getAnswer().getAnswer())
-                .score(result.getAnswer().getScore())
                 .build();
     }
 
@@ -55,7 +50,7 @@ public class SurveyResultMapper {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
-                .description(survey.getDescription())            
+                .description(survey.getDescription())
                 .questions(questions)
                 .build();
     }

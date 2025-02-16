@@ -16,18 +16,14 @@ public class SurveyQuestionMapper {
     public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyResults surveyResults, SurveyQuestions surveyQuestions) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(surveyResults.getQuestionID())
-                .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
                 .questionText(surveyQuestions.getQuestionText())
-                .resultId(surveyResults.getResultID())
-                .answerId(surveyResults.getAnswerID())
-                .score(surveyResults.getAnswer().getScore())               
-                .build();                    
+                .build();
     }
      public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyResults result) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
-                .description(survey.getDescription())            
+                .description(survey.getDescription())
                 .studentId(result.getStudent().getStudentID())
                 .questions(questions)
                 .build();

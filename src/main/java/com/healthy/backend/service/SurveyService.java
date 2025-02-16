@@ -3,23 +3,22 @@ package com.healthy.backend.service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.dto.survey.SubmitSurveyRequest;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResults;
-import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyQuestionMapper;
 import com.healthy.backend.mapper.SurveyResultMapper;
-import com.healthy.backend.repository.SurveyQuestionRepository;
-import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,42 +28,69 @@ public class SurveyService {
     @Autowired
     SurveyResultRepository surveyResultRepository;
     @Autowired
-     SurveyQuestionRepository surveyQuestionRepository;
+    SurveyQuestionRepository surveyQuestionRepository;
     @Autowired
     SurveyResultMapper surveyMapper;
     @Autowired
-     SurveyQuestionMapper surveyQuestionMapper;
+    SurveyQuestionMapper surveyQuestionMapper;
     @Autowired
-     SurveyRepository surveyRepository;
+    SurveyRepository surveyRepository;
+    @Autowired
+    AnswersRepository answersRepository;
+    @Autowired
+    StudentRepository studentRepository;
 
-    public List<SurveyResultsResponse> getAllSurveyResults() {
-        List<SurveyResults> surveyResults = surveyResultRepository.findAll();
+    @Transactional
+    public void submitSurveyResults(String surveyId, SubmitSurveyRequest request) {
+        // Kiểm tra học sinh tồn tại
+        Students student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        List<String> questionID = surveyResults.stream()
-                                  .map(SurveyResults :: getQuestionID)
-                                  .distinct()
-                                  .collect(Collectors.toList());
+        // Lấy tất cả câu hỏi của khảo sát
+        List<SurveyQuestions> questions = surveyQuestionRepository.findBySurveyID(surveyId);
 
-        List<SurveyQuestions> getQuestionID = surveyQuestionRepository.findByQuestionIDIn(questionID);
+        // Kiểm tra số lượng câu trả lời phải bằng số lượng câu hỏi
+        if (request.getAnswers().size() != questions.size()) {
+            throw new IllegalArgumentException("You must answer all questions in the survey");
+        }
 
-        Map<String, SurveyQuestions> surveyQuestionMap = getQuestionID.stream()
-                                                        .collect(Collectors.toMap(SurveyQuestions :: getQuestionID, Function.identity()));
+        // Lưu từng câu trả lời
+        request.getAnswers().forEach(answer -> {
+            // Kiểm tra câu hỏi thuộc survey
+            SurveyQuestions question = surveyQuestionRepository.findById(answer.getQuestionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        return surveyResults.stream()
-               .map(result -> {
-                    SurveyQuestions surveyQuestion = surveyQuestionMap.get(result.getQuestionID());
-                    Surveys surveys = surveyRepository.findById(surveyQuestion.getSurveyID())
-                        .orElseThrow(() -> new ResourceNotFoundException(" Survey not found"));
-                    SurveyQuestionResultResponse surveyResultsResponse = surveyQuestionMapper.mapToSurveyQuestionResponse
-                                                                    (result, surveyQuestion);
-                    // return surveyMapper.mapToSurveyResultsResponse(surveys, Collections.singletonList(surveyResultsResponse))  ;     
-                    return surveyQuestionMapper.mapToSurveyResultsResponse1(surveys, Collections.singletonList(surveyResultsResponse), result);                                            
-               })
-               .collect(Collectors.toList());
-                                                         
+            if (!question.getSurveyID().equals(surveyId)) {
+                throw new IllegalArgumentException("Question does not belong to this survey");
+            }
 
+            // Kiểm tra answer hợp lệ
+            Answers answerEntity = answersRepository.findById(answer.getAnswerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Answer not found"));
+
+            // Tạo và lưu kết quả
+            SurveyResults result = new SurveyResults(
+                    UUID.randomUUID().toString(), // Tạo ResultID ngẫu nhiên
+                    student.getStudentID(),
+                    question.getQuestionID(),
+                    answerEntity.getAnswerID()
+            );
+            surveyResultRepository.save(result);
+        });
     }
 
+    public List<SurveyQuestions> getQuestionsBySurveyId(String surveyId) {
+        return surveyQuestionRepository.findBySurveyID(surveyId);
+    }
+
+    public SurveyQuestionResultResponse mapToQuestionResponse(SurveyQuestions question) {
+        SurveyQuestionResultResponse response = new SurveyQuestionResultResponse();
+        response.setQuestionId(question.getQuestionID());
+        response.setQuestionText(question.getQuestionText());
+        response.setSurveyId(question.getSurveyID());
+        response.setCategoryId(question.getCategoryID());
+        return response;
+    }
 }
 
 
