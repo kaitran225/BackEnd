@@ -146,6 +146,21 @@ public class PsychologistController {
     }
 
     @Operation(
+            summary = "Get all psychologists",
+            description = "Returns a list of all registered psychologists, optionally filtered by specialization."
+    )
+    @GetMapping("/PsychologistBySpecialization")
+    public ResponseEntity<List<PsychologistResponse>> getAllPsychologistBySpecialization(
+            @RequestParam(required = false) String specialization) { // Thêm parameter
+        List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistBySpecialization(specialization);
+        if (!psychologistResponse.isEmpty()) {
+            return ResponseEntity.ok(psychologistResponse);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
             deprecated = true,
             summary = "Get psychologist availability status",
             description = "Returns availability status for psychologists."
@@ -169,13 +184,14 @@ public class PsychologistController {
         if (date == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(!psychologistService.getTimeSlots(date, id).isEmpty()) {
+        if (!psychologistService.getTimeSlots(date, id).isEmpty()) {
             throw new RuntimeException("Time slots already exist");
         }
         List<TimeSlotResponse> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
         if (!timeSlots.isEmpty()) {
             return ResponseEntity.ok(timeSlots);
-        };
+        }
+        ;
         throw new RuntimeException("Failed to create time slots");
     }
 
@@ -187,9 +203,9 @@ public class PsychologistController {
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        if(date == null) throw new ResourceNotFoundException("Date is required");
-        if(psychologistService.getTimeSlots(date, id).isEmpty()) return createTimeSlots(id, date);
-        List<TimeSlotResponse> response =  psychologistService.getTimeSlots(date, id);
+        if (date == null) throw new ResourceNotFoundException("Date is required");
+        if (psychologistService.getTimeSlots(date, id).isEmpty()) return createTimeSlots(id, date);
+        List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, id);
         return ResponseEntity.ok(response);
     }
 }

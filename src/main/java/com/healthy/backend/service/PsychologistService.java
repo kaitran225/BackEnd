@@ -19,27 +19,42 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PsychologistService {
+    private final PsychologistRepository psychologistRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
+    private final TimeSlotRepository timeSlotRepository;
+    private final PsychologistsMapper psychologistsMapper;
+    private final TimeSlotMapper timeSlotMapper;
 
-    public final PsychologistRepository psychologistRepository;
-    public final AppointmentRepository appointmentRepository;
-    public final UserRepository userRepository;
-    public final TimeSlotRepository timeSlotRepository;
-    public final PsychologistsMapper psychologistsMapper;
-    public final TimeSlotMapper timeSlotMapper;
-
+    // Get all psychologist
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
         return psychologists.stream().map(this::callMapper).toList();
     }
 
+    // Get psychologist by specialization
+    public List<PsychologistResponse> getAllPsychologistBySpecialization(String specialization) {
+
+        if (specialization == null || specialization.isEmpty()) {
+            throw new ResourceNotFoundException("Specialization is required");
+        }
+        List<Psychologists> psychologists = psychologistRepository.findBySpecialization(specialization);
+
+        return psychologists.stream()
+                .map(psychologistsMapper::buildPsychologistResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Get psychologist by id
     public PsychologistResponse getPsychologistById(String id) {
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id" + id));
-       return callMapper(psychologist);
+        return callMapper(psychologist);
     }
 
     // Update psychologist
@@ -66,9 +81,7 @@ public class PsychologistService {
                 throw new ResourceNotFoundException("Status is not valid");
             psychologist.setStatus(Psychologists.Status.valueOf(request.getStatus()));
         }
-
         psychologistRepository.save(psychologist);
-
         return callMapper(psychologist);
     }
 
@@ -95,27 +108,28 @@ public class PsychologistService {
         if (!existingSlots.isEmpty()) {
             throw new RuntimeException("Time slots already exist");
         }
+        List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, psychologist));
+
+        timeSlotRepository.saveAll(timeSlots);
+        return timeSlotMapper.buildResponse(timeSlots);
+    }
+
+    // Generate time slots
+    private List<TimeSlots> generateTimeSlots(LocalDate date, Psychologists psychologist) {
 
         LocalTime start = LocalTime.of(8, 0); // Morning shift: 8h - 11h
         LocalTime noonBreakStart = LocalTime.of(11, 30); //
         LocalTime noonBreakEnd = LocalTime.of(12, 30); // Afternoon shift: 13h - 17h
         LocalTime end = LocalTime.of(17, 0);
 
-        List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, start, noonBreakStart, noonBreakEnd, end, psychologist));
-        timeSlotRepository.saveAll(timeSlots);
-        return timeSlotMapper.buildResponse(timeSlots);
-    }
-
-    // Generate time slots
-    private List<TimeSlots> generateTimeSlots(
-            LocalDate date, LocalTime start, LocalTime end,
-            LocalTime noonBreakStart, LocalTime noonBreakEnd, Psychologists psychologist) {
         List<TimeSlots> timeSlots = new ArrayList<>();
         LocalTime currentTime = start;
         int index = 0;
+
         while (currentTime.isBefore(end)) {
-            if (currentTime.isAfter(noonBreakStart) && currentTime.isBefore(noonBreakEnd)) {
-                currentTime = currentTime.plusMinutes(30);
+            if (currentTime.isAfter(noonBreakStart.minusMinutes(1))
+                    && currentTime.isBefore(noonBreakEnd)) {
+                currentTime = noonBreakEnd;
                 continue;
             }
             LocalTime nextTime = currentTime.plusMinutes(30);
