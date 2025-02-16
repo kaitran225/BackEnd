@@ -100,26 +100,35 @@ public class PsychologistService {
         LocalTime noonBreakStart = LocalTime.of(11, 30); //
         LocalTime noonBreakEnd = LocalTime.of(12, 30); // Afternoon shift: 13h - 17h
         LocalTime end = LocalTime.of(17, 0);
-        List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, start, noonBreakStart, noonBreakEnd, end, psychologist));
-        timeSlotRepository.saveAll(timeSlots);
+        List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, start, end, noonBreakStart, noonBreakEnd, psychologist));        timeSlotRepository.saveAll(timeSlots);
         return timeSlotMapper.buildResponse(timeSlots);
     }
 
     private List<TimeSlots> generateTimeSlots(
-            LocalDate date, LocalTime start, LocalTime end,
-            LocalTime noonBreakStart, LocalTime noonBreakEnd, Psychologists psychologist) {
+            LocalDate date,
+            LocalTime start,      // 8:00
+            LocalTime end,        // 17:00
+            LocalTime noonBreakStart, // 11:30
+            LocalTime noonBreakEnd,   // 12:30
+            Psychologists psychologist) {
+
         List<TimeSlots> timeSlots = new ArrayList<>();
         LocalTime currentTime = start;
         int index = 0;
-        while (currentTime.isBefore(end)) {
-            if (currentTime.isAfter(noonBreakStart) && currentTime.isBefore(noonBreakEnd)) {
-                currentTime = currentTime.plusMinutes(30);
+
+        while (currentTime.isBefore(end)) { // Chạy đến trước 17:00
+
+            // Bỏ qua khoảng nghỉ trưa
+            if (currentTime.isAfter(noonBreakStart.minusMinutes(1)) && currentTime.isBefore(noonBreakEnd)) {
+                currentTime = noonBreakEnd; // Nhảy đến 12:30
                 continue;
             }
+
             LocalTime nextTime = currentTime.plusMinutes(30);
             timeSlots.add(new TimeSlots(date, currentTime, nextTime, psychologist, index++));
             currentTime = nextTime;
         }
+
         return timeSlots;
     }
 
