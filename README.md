@@ -25,8 +25,7 @@ The School Mental Health Care System is a platform designed to support student w
 ## 📖 API Documentation  
 Swagger UI is available at:  
 
-https://api.cybriadev.com/swagger-ui.html
-
+https://api.cybriadev.com/swagger-ui/index.html
 
 
 ## 🚧 Development Status  
