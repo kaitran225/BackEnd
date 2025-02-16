@@ -1,6 +1,7 @@
 package com.healthy.backend.dto.psychologist;
 
 import com.healthy.backend.dto.user.UsersRequest;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @Data
@@ -10,7 +11,10 @@ import lombok.*;
 @Getter
 @Setter
 public class PsychologistRequest {
-    private String specialization;
+    @Schema(example = "PSY001")
+    private String departmentID;
+    @Schema(example = "John Smith")
     private Integer yearsOfExperience;
+    @Schema(example = "Psychologist")
     private String status;
 }

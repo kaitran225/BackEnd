@@ -31,6 +31,10 @@ public class ProgramsRequest {
     private String status;
     @Schema(examples = {"tag1", "tag2", "tag3"})
     private HashSet<String> tags;
+    @Schema(example = "")
+    private String facilitatorId;
+    @Schema(example = "")
+    private String departmentId;
     @Schema(example = "Online")
     private String type;
     @Schema(example = "https://zoom.us/j/123456789")

@@ -3,15 +3,13 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
+import com.healthy.backend.entity.Department;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
-import com.healthy.backend.repository.AppointmentRepository;
-import com.healthy.backend.repository.PsychologistRepository;
-import com.healthy.backend.repository.TimeSlotRepository;
-import com.healthy.backend.repository.UserRepository;
+import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +26,7 @@ public class PsychologistService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final DepartmentRepository departmentRepository;
     private final PsychologistsMapper psychologistsMapper;
     private final TimeSlotMapper timeSlotMapper;
 
@@ -38,12 +37,15 @@ public class PsychologistService {
     }
 
     // Get psychologist by specialization
-    public List<PsychologistResponse> getAllPsychologistBySpecialization(String specialization) {
+    public List<PsychologistResponse> getAllPsychologistByDepartment(String departmentID) {
 
-        if (specialization == null || specialization.isEmpty()) {
+        Department department = departmentRepository.findById(departmentID)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+
+        if (departmentID.isEmpty()) {
             throw new ResourceNotFoundException("Specialization is required");
         }
-        List<Psychologists> psychologists = psychologistRepository.findBySpecialization(specialization);
+        List<Psychologists> psychologists = psychologistRepository.findByDepartmentDepartmentID(departmentID);
 
         return psychologists.stream()
                 .map(psychologistsMapper::buildPsychologistResponse)
@@ -61,15 +63,18 @@ public class PsychologistService {
     public PsychologistResponse updatePsychologist(String id, PsychologistRequest request) {
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
-        if (request.getSpecialization() == null
+        if (request.getDepartmentID() == null
                 && request.getYearsOfExperience() == null
                 && request.getStatus() == null) {
             throw new ResourceNotFoundException("No fields to update");
         }
         // Update fields
-        assert request.getSpecialization() != null;
-        if (!request.getSpecialization().equals(psychologist.getSpecialization())) {
-            psychologist.setSpecialization(request.getSpecialization());
+        assert request.getDepartmentID() != null;
+        if (!request.getDepartmentID().equals(psychologist.getDepartment().getName())) {
+            if (!departmentRepository.existsById(request.getDepartmentID())) {
+                throw new ResourceNotFoundException("Department not found");
+            }
+            psychologist.setDepartment(departmentRepository.findById(request.getDepartmentID()).orElseThrow());
         }
         assert request.getYearsOfExperience() != null;
         if (!request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {

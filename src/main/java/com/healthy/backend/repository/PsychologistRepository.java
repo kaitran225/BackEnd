@@ -10,6 +10,5 @@ import java.util.List;
 public interface PsychologistRepository extends JpaRepository<Psychologists, String> {
 
     Psychologists findByUserID(String userID);
-
-    List<Psychologists> findBySpecialization(String specialization);
+    List<Psychologists> findByDepartmentDepartmentID(String departmentID);
 } 

@@ -12,11 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AppointmentRequest {
 
-    @Schema(example = "PSY001")
-    private String psychologistId;
-
-    @Schema(example = "S001")
-    private String studentId;
+    @Schema(example = "US002")
+    private String userId;
 
     @Schema(example = "TSPSY00127022500")
     private String timeSlotId;

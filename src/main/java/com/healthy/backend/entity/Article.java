@@ -19,12 +19,12 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Blog")
-public class Blog {
+@Table(name = "Article")
+public class Article {
 
     @Id
-    @Column(name = "BlogID", length = 36)
-    private String blogID;
+    @Column(name = "ArticleID", length = 36)
+    private String articleID;
 
     @Column(name = "Title", length = 100)
     private String title;
@@ -42,8 +42,8 @@ public class Blog {
     @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
     private Users createdByUser;
 
-    public Blog(String blogID, String title, String createdBy, String content) {
-        this.blogID = blogID;
+    public Article(String articleID, String title, String createdBy, String content) {
+        this.articleID = articleID;
         this.title = title;
         this.createdBy = createdBy;
         this.content = content;

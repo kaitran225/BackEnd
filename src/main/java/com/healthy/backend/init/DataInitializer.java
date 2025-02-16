@@ -38,6 +38,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProgramScheduleRepository programScheduleRepository;
     private final CategoriesRepository categoryRepository;
     private final TagsRepository tagsRepository;
+    private final DepartmentRepository departmentRepository;
     private final AuthenticationService authenticationService;
 
     private void initialize() {
@@ -62,9 +63,22 @@ public class DataInitializer implements CommandLineRunner {
         studentRepository.save(new Students("S002", userRepository.findByUsername("student_user2").getUserId(), parentRepository.findById("P002").get().getParentID(), 9, "B", "Example High School", 3, 4, 7));
         studentRepository.save(new Students("S003", userRepository.findByUsername("student_user3").getUserId(), parentRepository.findById("P001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
 
+        // Initialize Department
+        departmentRepository.save(new Department("DP01", "Child & Adolescent Psychology"));
+        departmentRepository.save(new Department("DP02", "School Counseling"));
+        departmentRepository.save(new Department("DP03", "Behavioral Therapy"));
+        departmentRepository.save(new Department("DP04", "Trauma & Crisis Intervention"));
+        departmentRepository.save(new Department("DP05", "Family & Parent Counseling"));
+        departmentRepository.save(new Department("DP06", "Stress & Anxiety Management"));
+        departmentRepository.save(new Department("DP07", "Depression & Mood Disorders"));
+        departmentRepository.save(new Department("DP08", "Special Education Support"));
+        departmentRepository.save(new Department("DP09", "Social Skills & Peer Relation"));
+        departmentRepository.save(new Department("DP10", "Suicide Prevention & Intervention"));
+        departmentRepository.save(new Department("DP11", "Digital Well-beingIntervention"));
+
         // Initialize Psychologists
-        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), "Child Psychology", 10, Psychologists.Status.Active));
-        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), "Adolescent Psychology", 8, Psychologists.Status.Active));
+        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), 10, Psychologists.Status.Active,"DP01"));
+        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), 8, Psychologists.Status.Active,"DP02"));
 
         // Initialize Time Slots
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
@@ -163,16 +177,32 @@ public class DataInitializer implements CommandLineRunner {
         tagsRepository.save(new Tags("TAG065", Tags.Tag.Relationship_Health));
 
         // Initialize Programs
-        programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness, "Program to help manage stress", 20, 4, Programs.Status.Active, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),LocalDate.parse("2025-02-13"),"https://example.com/meeting1", Programs.Type.Online));
-        programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness, "Support group for individuals with anxiety", 15, 6, Programs.Status.Active, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),LocalDate.parse("2025-02-15"),"https://example.com/meeting2", Programs.Type.Offline));
-        programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness, "Workshop on mindfulness techniques", 25, 3, Programs.Status.Active, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),LocalDate.parse("2025-02-18"),"https://example.com/meeting3", Programs.Type.Online));
-        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness, "Counseling for individuals with depression", 30, 2, Programs.Status.Active, userRepository.findByUsername("staff_user").getUserId(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),LocalDate.parse("2025-02-28"),"https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness,
+                "Program to help manage stress", 20, 4, Programs.Status.Active,
+                departmentRepository.findById("DP06").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
+                LocalDate.parse("2025-02-13"),"https://example.com/meeting1", Programs.Type.Online));
+        programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness,
+                "Support group for individuals with anxiety", 15, 6, Programs.Status.Active,
+                departmentRepository.findById("DP06").orElseThrow(),
+                psychologistRepository.findById("PSY002").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
+                LocalDate.parse("2025-02-15"),"https://example.com/meeting2", Programs.Type.Offline));
+        programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness,
+                "Workshop on mindfulness techniques", 25, 3, Programs.Status.Active,
+                departmentRepository.findById("DP03").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
+                LocalDate.parse("2025-02-18"),"https://example.com/meeting3", Programs.Type.Online));
+        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness,
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY002").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-02-28"),"https://example.com/meeting4", Programs.Type.Online));
 
-        // Initialize Program Schedule
+        // Initialize Program Schedule        departmentRepository.save(new Department("DP01", "Child & Adolescent Psychology"));
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH002", "PRG002", "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH003", "PRG003", "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
@@ -187,10 +217,10 @@ public class DataInitializer implements CommandLineRunner {
         categoryRepository.save(new Categories("CAT003", Categories.MentalHealthCategory.Depression));
 
         // Initialize Surveys
-        surveyRepository.save(new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("john_doe").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("jane_smith").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("john_green").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("john_doe").getUserId(), Surveys.Status.Unfinished));
+        surveyRepository.save(new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Finished));
+        surveyRepository.save(new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("student_user2").getUserId(), Surveys.Status.Finished));
+        surveyRepository.save(new Surveys("SUR003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("student_user3").getUserId(), Surveys.Status.Finished));
+        surveyRepository.save(new Surveys("SUR004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Unfinished));
 
         // Initialize Survey Questions
         surveyQuestionRepository.save(new SurveyQuestions("Q001", "SUR001", "How often do you feel stressed?", "CAT001"));
@@ -259,19 +289,19 @@ public class DataInitializer implements CommandLineRunner {
         surveyResultRepository.save(new SurveyResults("R018", "S003", "Q006", "A023"));
 
         // Initialize User Logs
-        userLogRepository.save(new UserLogs("L001", userRepository.findByUsername("jane_smith").getUserId(), "192.168.0.1"));
-        userLogRepository.save(new UserLogs("L002", userRepository.findByUsername("john_doe").getUserId(), "192.168.0.2"));
+        userLogRepository.save(new UserLogs("L001", userRepository.findByUsername("student_user").getUserId(), "192.168.0.1"));
+        userLogRepository.save(new UserLogs("L002", userRepository.findByUsername("student_user2").getUserId(), "192.168.0.2"));
 
         // Initialize Blogs
-        blogRepository.save(new Blog("B001", "Managing Stress", userRepository.findByUsername("dr_brown").getUserId(), "Tips for managing stress..."));
-        blogRepository.save(new Blog("B002", "Overcoming Anxiety", userRepository.findByUsername("staff_user").getUserId(), "Strategies to cope with anxiety..."));
+        blogRepository.save(new Article("B001", "Managing Stress", userRepository.findByUsername("psychologist_user").getUserId(), "Tips for managing stress..."));
+        blogRepository.save(new Article("B002", "Overcoming Anxiety", userRepository.findByUsername("psychologist_user2").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
         appointmentRepository.save(new Appointments("APP001", "TSPSY00120022501", "S001", "PSY001", StatusEnum.Scheduled));
         appointmentRepository.save(new Appointments("APP002","TSPSY00221022501", "S002", "PSY002", StatusEnum.Scheduled));
         // Initialize Notifications
-        notificationRepository.save(new Notifications("NOT001", userRepository.findByUsername("jane_smith").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));
-        notificationRepository.save(new Notifications("NOT002", userRepository.findByUsername("john_doe").getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey));
+        notificationRepository.save(new Notifications("NOT001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));
+        notificationRepository.save(new Notifications("NOT002", userRepository.findByUsername("student_user").getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey));
     }
 
     @Override

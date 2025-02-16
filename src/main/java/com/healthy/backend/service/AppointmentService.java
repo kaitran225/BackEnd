@@ -3,6 +3,7 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Students;
@@ -12,6 +13,7 @@ import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AppointmentMapper;
+import com.healthy.backend.mapper.DepartmentMapper;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
@@ -34,13 +36,25 @@ public class AppointmentService {
 
     private final PsychologistRepository psychologistRepository;
 
+    private final TimeSlotRepository timeSlotRepository;
+
+    private final DepartmentRepository departmentRepository;
+
     private final AppointmentMapper appointmentMapper;
 
     private final StudentMapper studentMapper;
 
     private final PsychologistsMapper psychologistMapper;
 
-    private final TimeSlotRepository timeSlotRepository;
+    private final DepartmentMapper departmentMapper;
+
+
+    public List<DepartmentResponse> getAllDepartments() {
+        return departmentRepository.findAll()
+                .stream()
+                .map(departmentMapper::buildDepartmentResponse)
+                .collect(Collectors.toList());
+    }
 
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointments> appointments = appointmentRepository.findAll();
@@ -82,15 +96,13 @@ public class AppointmentService {
         if (timeSlot.getStatus() != TimeSlots.Status.Available) {
             throw new ResourceInvalidException("Time slot is not valid");
         }
-        if (!timeSlot.getPsychologist().getPsychologistID().equals(request.getPsychologistId())) {
-            throw new ResourceInvalidException("Time slot is not available");
-        }
-
         // Validate student and psychologist
-        Students student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + request.getStudentId()));
-        Psychologists psychologist = psychologistRepository.findById(request.getPsychologistId())
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + request.getPsychologistId()));
+        Students student = studentRepository.findByUserID(request.getUserId());
+        if (student == null) {
+            throw new ResourceNotFoundException("Student not found with ID: " + request.getUserId());
+        }
+        Psychologists psychologist = psychologistRepository.findById(timeSlot.getPsychologist().getPsychologistID())
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + timeSlot.getPsychologist().getPsychologistID()));
 
         Appointments appointment = new Appointments();
         appointment.setAppointmentID(generateAppointmentId());

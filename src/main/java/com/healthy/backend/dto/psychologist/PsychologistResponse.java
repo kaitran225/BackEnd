@@ -22,9 +22,13 @@ public class PsychologistResponse {
     @Schema(example = "PSY001")
     @NotBlank(message = "Psychologist ID is required")
     private String psychologistId;
-
-    private String specialization;
+    @Schema(example = "Psychologist Name")
+    private String name;
+    @Schema(example = "Department Name")
+    private String departmentName;
+    @Schema(example = "10")
     private Integer yearsOfExperience;
+    @Schema(example = "Active")
     private String status;
     private UsersResponse usersResponse;
     private List<AppointmentResponse> appointment;

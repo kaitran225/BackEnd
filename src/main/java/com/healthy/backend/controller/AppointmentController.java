@@ -1,6 +1,8 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.appointment.*;
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
+import com.healthy.backend.entity.Department;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,11 +34,24 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Get all appointments",
             description = "Returns a list of all appointments."
     )
     @GetMapping("/")
-    public ResponseEntity<?> getAllPsychologistDTO() {
+    public ResponseEntity<List<AppointmentResponse>> getAllPsychologist() {
         List<AppointmentResponse> appointmentResponse = appointmentService.getAllAppointments();
         if (!appointmentResponse.isEmpty()) {
             return ResponseEntity.ok(appointmentResponse);

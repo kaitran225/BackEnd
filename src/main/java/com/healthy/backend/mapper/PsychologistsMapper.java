@@ -22,7 +22,7 @@ public class PsychologistsMapper {
         return PsychologistResponse.builder()
                 .psychologistId(psychologist.getPsychologistID())
                 .status(psychologist.getStatus().name())
-                .specialization(psychologist.getSpecialization())
+                .departmentName(psychologist.getDepartment().getName())
                 .yearsOfExperience(psychologist.getYearsOfExperience())
                 .build();
     }
@@ -33,7 +33,7 @@ public class PsychologistsMapper {
                 PsychologistResponse.builder()
                         .psychologistId(psychologist.getPsychologistID())
                         .status(psychologist.getStatus().name())
-                        .specialization(psychologist.getSpecialization())
+                        .departmentName(psychologist.getDepartment().getName())
                         .yearsOfExperience(psychologist.getYearsOfExperience())
                         .usersResponse(UsersResponse.builder()
                                 .fullName(users.getFullName())

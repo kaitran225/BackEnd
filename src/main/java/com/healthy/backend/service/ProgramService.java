@@ -4,16 +4,14 @@ import com.healthy.backend.dto.programs.ProgramParticipationRequest;
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.entity.ProgramParticipation;
-import com.healthy.backend.entity.Tags;
-import com.healthy.backend.entity.Users;
+import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.mapper.ProgramMapper;
-import com.healthy.backend.entity.Programs;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
+import org.springframework.boot.SpringBootVersion;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +37,10 @@ public class ProgramService {
 
     private final TagsRepository tagsRepository;
 
+    private final  DepartmentRepository departmentRepository;
+
+    private final PsychologistRepository psychologistRepository;
+
     private final UserRepository userRepository;
 
     private final ProgramMapper programMapper;
@@ -52,7 +54,7 @@ public class ProgramService {
                 program -> programMapper.buildProgramsDetailsResponse(
                         program,
                         getStudentsByProgram(program.getProgramID())
-        )).toList();
+                )).toList();
     }
 
     public List<ProgramsResponse> getAllPrograms() {
@@ -81,6 +83,10 @@ public class ProgramService {
                 })
                 .collect(Collectors.toSet());
 
+        Department department = departmentRepository.findById(programsRequest.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + programsRequest.getDepartmentId()));
+        Psychologists facilitator = psychologistRepository.findById(programsRequest.getFacilitatorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + programsRequest.getFacilitatorId()));
         programRepository.save(new Programs(
                 programId,
                 programsRequest.getName(),
@@ -89,7 +95,8 @@ public class ProgramService {
                 programsRequest.getNumberParticipants(),
                 programsRequest.getDuration(),
                 Programs.Status.valueOf(programsRequest.getStatus()),
-                programsRequest.getUserId(),
+                department,
+                facilitator,
                 tags,
                 LocalDate.parse(programsRequest.getStartDate()),
                 programsRequest.getMeetingLink(),
@@ -154,10 +161,10 @@ public class ProgramService {
         }
         return participation.stream()
                 .map(p -> programMapper.buildProgramResponse(
-                                programRepository
-                                        .findById(p.getProgram().getProgramID())
-                                        .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
-                        ))
+                        programRepository
+                                .findById(p.getProgram().getProgramID())
+                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+                ))
                 .toList();
     }
 
@@ -174,7 +181,7 @@ public class ProgramService {
 
         programRepository.deleteById(programId);
 
-        if(programRepository.findById(programId).isPresent()) return false;
+        if (programRepository.findById(programId).isPresent()) return false;
         return programRepository.findById(programId).isEmpty();
     }
 

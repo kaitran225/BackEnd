@@ -15,6 +15,7 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 
 public class SurveyResultMapper {
 
+
     public List<SurveyResultsResponse> getUserSurveyResults(List<SurveyResults> surveyResults) {
         if (surveyResults == null) throw new ResourceNotFoundException("No survey results found");
         return buildSurveyResults(surveyResults);

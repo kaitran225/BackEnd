@@ -42,12 +42,12 @@ public class Programs {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ManagedByStaffID", referencedColumnName = "UserID", insertable = false, updatable = false)
-    private Users managedByStaff;
+    @Column(name = "FacilitatorID", length = 36, nullable = false,insertable=false, updatable=false)
+    private String facilitatorID;
 
-    @Column(name = "ManagedByStaffID", length = 36, nullable = false)
-    private String managedByStaffID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "FacilitatorID", referencedColumnName = "PsychologistID", nullable = false)
+    private Psychologists psychologists;
 
     @Column(name = "StartDate")
     private LocalDate startDate;
@@ -59,6 +59,13 @@ public class Programs {
     @Column(name = "AppointmentType", length =  50, nullable = false)
     private Type type;
 
+    @Column(name = "DepartmentID", length = 36, nullable = false,insertable = false, updatable = false)
+    private String departmentID;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DepartmentID", referencedColumnName = "DepartmentID", nullable = false)
+    private Department department;
+
     @ManyToMany
     @JoinTable(
             name = "ProgramTags",
@@ -68,27 +75,32 @@ public class Programs {
     private Set<Tags> tags = new HashSet<>();
 
     public Programs(
-            String prg001,
-            String stressManagement,
+            String programID,
+            String programName,
             Category category,
-            String programToHelpManageStress,
+            String description,
             int i, int i1, Status status,
-            String staffUser, HashSet<Tags> tags,
+            Department department,
+            Psychologists psychologists,
+            HashSet<Tags> tags,
             LocalDate startDate,
             String meetingLink,
             Type type) {
-        this.programID = prg001;
-        this.programName = stressManagement;
+        this.programID = programID;
+        this.programName = programName;
         this.category = category;
-        this.description = programToHelpManageStress;
+        this.description = description;
         this.numberParticipants = i;
         this.duration = i1;
         this.status = status;
-        this.managedByStaffID = staffUser;
+        this.department = department;
+        this.psychologists = psychologists;
         this.tags = tags;
         this.startDate = startDate;
         this.type = type;
         this.meetingLink = meetingLink;
+        this.facilitatorID = psychologists.getPsychologistID();
+        this.departmentID = department.getDepartmentID();
     }
 
     @PrePersist

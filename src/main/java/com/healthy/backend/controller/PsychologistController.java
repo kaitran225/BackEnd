@@ -136,29 +136,18 @@ public class PsychologistController {
     }
 
     @Operation(
-            deprecated = true,
-            summary = "Get psychologist specializations",
-            description = "Returns a list of psychologist specializations."
+            summary = "Get all psychologists",
+            description = "Returns a list of all registered psychologists filtered by specialization."
     )
     @GetMapping("/specializations")
-    public List<String> getPsychologistSpecializations() {
-        return List.of("List of psychologist specializations");
-    }
-
-    @Operation(
-            summary = "Get all psychologists",
-            description = "Returns a list of all registered psychologists, optionally filtered by specialization."
-    )
-    @GetMapping("/PsychologistBySpecialization")
-    public ResponseEntity<List<PsychologistResponse>> getAllPsychologistBySpecialization(
-            @RequestParam(required = false) String specialization) { // Thêm parameter
-        List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistBySpecialization(specialization);
+    public ResponseEntity<List<PsychologistResponse>> getAllPsychologistByDepartment(
+            @RequestParam(required = false) String department) { // Thêm parameter
+        List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistByDepartment(department);
         if (!psychologistResponse.isEmpty()) {
             return ResponseEntity.ok(psychologistResponse);
         }
         return ResponseEntity.noContent().build();
     }
-
 
     @Operation(
             deprecated = true,
