@@ -11,13 +11,16 @@ spring:
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 2
-      maximum-pool-size: 6
-      idle-timeout: 60000
+      minimum-idle: 4
+      maximum-pool-size: 10
+      idle-timeout: 120000
       max-lifetime: 1800000
-      keepalive-time: 60000
+      keepalive-time: 120000
 
   jpa:
+    properties:
+      hibernate:
+        physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect

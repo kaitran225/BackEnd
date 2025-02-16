@@ -34,7 +34,6 @@ public class DataInitializer implements CommandLineRunner {
     private final SurveyRepository surveyRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final AnswersRepository answersRepository;
-    private final StudentNoteRepository studentNoteRepository;
     private final UserLogRepository userLogRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final CategoriesRepository categoryRepository;
@@ -258,12 +257,6 @@ public class DataInitializer implements CommandLineRunner {
         surveyResultRepository.save(new SurveyResults("R016", "S003", "Q004", "A015"));
         surveyResultRepository.save(new SurveyResults("R017", "S003", "Q005", "A019"));
         surveyResultRepository.save(new SurveyResults("R018", "S003", "Q006", "A023"));
-
-
-        // Initialize Student Notes
-        studentNoteRepository.save(new StudentNotes("N001", "S001", "PSY001", "Student shows signs of stress", StudentNotes.NoteType.General, 2, 5, 7));
-        studentNoteRepository.save(new StudentNotes("N002", "S002", "PSY002", "Student exhibits anxiety symptoms", StudentNotes.NoteType.Behavior, 3, 2, 5));
-        studentNoteRepository.save(new StudentNotes("N003", "S003", "PSY001", "Student behavior is normal", StudentNotes.NoteType.Behavior, 1, 1, 1));
 
         // Initialize User Logs
         userLogRepository.save(new UserLogs("L001", userRepository.findByUsername("jane_smith").getUserId(), "192.168.0.1"));

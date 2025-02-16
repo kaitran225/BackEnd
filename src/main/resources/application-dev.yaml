@@ -18,6 +18,9 @@ spring:
       keepalive-time: 60000
 
   jpa:
+    properties:
+      hibernate:
+        physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
     hibernate:
       ddl-auto: update
       database-platform: org.hibernate.dialect.MySQLDialect
