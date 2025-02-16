@@ -23,24 +23,38 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private final AnswersRepository answersRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final ParentRepository parentRepository;
-    private final ProgramParticipationRepository programParticipationRepository;
-    private final PsychologistRepository psychologistRepository;
-    private final StudentRepository studentRepository;
-    private final SurveyResultRepository surveyResultRepository;
-    private final SurveyRepository surveyRepository;
-    private final UserRepository userRepository;
-    private final TimeSlotRepository timeSlotsRepository;
-
-    private final AppointmentMapper appointmentMapper;
-    private final ProgramMapper programMapper;
-    private final PsychologistsMapper psychologistsMapper;
-    private final StudentMapper studentMapper;
-    private final SurveyResultMapper surveyResultsMapper;
-    private final UserMapper userMapper;
+    @Autowired
+     AnswersRepository answersRepository;
+    @Autowired
+    AppointmentRepository appointmentRepository;
+    @Autowired
+    ParentRepository parentRepository;
+    @Autowired
+    ProgramParticipationRepository programParticipationRepository;
+    @Autowired
+    PsychologistRepository psychologistRepository;
+    @Autowired
+     StudentRepository studentRepository;
+    @Autowired
+     SurveyResultRepository surveyResultRepository;
+    @Autowired
+     SurveyRepository surveyRepository;
+    @Autowired
+     UserRepository userRepository;
+    @Autowired
+    TimeSlotRepository timeSlotsRepository;
+    @Autowired
+     AppointmentMapper appointmentMapper;
+    @Autowired
+     ProgramMapper programMapper;
+    @Autowired
+    PsychologistsMapper psychologistsMapper;
+    @Autowired
+     StudentMapper studentMapper;
+    @Autowired
+     SurveyResultMapper surveyResultsMapper;
+    @Autowired
+     UserMapper userMapper;
 
 
 

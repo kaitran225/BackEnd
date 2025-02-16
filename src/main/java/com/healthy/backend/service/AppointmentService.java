@@ -16,6 +16,7 @@ import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,19 +29,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppointmentService {
 
-    private final AppointmentRepository appointmentRepository;
-
-    private final StudentRepository studentRepository;
-
-    private final PsychologistRepository psychologistRepository;
-
-    private final AppointmentMapper appointmentMapper;
-
-    private final StudentMapper studentMapper;
-
-    private final PsychologistsMapper psychologistMapper;
-
-    private final TimeSlotRepository timeSlotRepository;
+    @Autowired
+   AppointmentRepository appointmentRepository;
+    @Autowired
+    StudentRepository studentRepository;
+    @Autowired
+     PsychologistRepository psychologistRepository;
+    @Autowired
+     AppointmentMapper appointmentMapper;
+    @Autowired
+    StudentMapper studentMapper;
+    @Autowired
+    PsychologistsMapper psychologistMapper;
+    @Autowired
+     TimeSlotRepository timeSlotRepository;
 
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointments> appointments = appointmentRepository.findAll();

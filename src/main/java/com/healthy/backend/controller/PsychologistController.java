@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,12 +37,14 @@ import java.util.stream.Collectors;
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
 
-    private final PsychologistService psychologistService;
-    private final TimeSlotMapper timeSlotMapper;
+    @Autowired
+    PsychologistService psychologistService;
+    @Autowired
+     TimeSlotMapper timeSlotMapper;
 
     @Operation(
             summary = "Get all psychologists",
-            description = "Returns a list of all registered psychologists."
+            description = "Returns a list of all psychologists."
     )
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist() {
@@ -51,6 +54,22 @@ public class PsychologistController {
         }
         return ResponseEntity.noContent().build();
     }
+    @Operation(
+            summary = "Get all psychologists",
+            description = "Returns a list of all registered psychologists, optionally filtered by specialization."
+    )
+    @GetMapping("/PsychologistBySpecialization")
+    public ResponseEntity<List<PsychologistResponse>> getAllPsychologistBySpecialization(
+            @RequestParam(required = false) String specialization) { // Thêm parameter
+        List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistBySpecialization(specialization);
+        if (!psychologistResponse.isEmpty()) {
+            return ResponseEntity.ok(psychologistResponse);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
     @Operation(
             summary = "Get psychologist by ID",

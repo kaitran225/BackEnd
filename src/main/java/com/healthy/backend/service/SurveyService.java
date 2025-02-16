@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
@@ -25,11 +26,16 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SurveyService {
-    private final SurveyResultRepository surveyResultRepository;
-    private final SurveyQuestionRepository surveyQuestionRepository;
-    private final SurveyResultMapper surveyMapper;
-    private final SurveyQuestionMapper surveyQuestionMapper;
-    private final SurveyRepository surveyRepository;
+    @Autowired
+    SurveyResultRepository surveyResultRepository;
+    @Autowired
+     SurveyQuestionRepository surveyQuestionRepository;
+    @Autowired
+    SurveyResultMapper surveyMapper;
+    @Autowired
+     SurveyQuestionMapper surveyQuestionMapper;
+    @Autowired
+     SurveyRepository surveyRepository;
 
     public List<SurveyResultsResponse> getAllSurveyResults() {
         List<SurveyResults> surveyResults = surveyResultRepository.findAll();

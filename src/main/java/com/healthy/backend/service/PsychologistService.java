@@ -13,27 +13,46 @@ import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.TimeSlotRepository;
 import com.healthy.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PsychologistService {
-
-    public final PsychologistRepository psychologistRepository;
-    public final AppointmentRepository appointmentRepository;
-    public final UserRepository userRepository;
-    public final TimeSlotRepository timeSlotRepository;
-    public final PsychologistsMapper psychologistsMapper;
-    public final TimeSlotMapper timeSlotMapper;
+    @Autowired
+     PsychologistRepository psychologistRepository;
+    @Autowired
+     AppointmentRepository appointmentRepository;
+    @Autowired
+     UserRepository userRepository;
+    @Autowired
+    TimeSlotRepository timeSlotRepository;
+    @Autowired
+     PsychologistsMapper psychologistsMapper;
+    @Autowired
+    TimeSlotMapper timeSlotMapper;
 
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
         return psychologists.stream().map(this::callMapper).toList();
+    }
+
+    public List<PsychologistResponse> getAllPsychologistBySpecialization(String specialization) {
+        List<Psychologists> psychologists;
+        if (specialization != null && !specialization.isEmpty()) {
+            psychologists = psychologistRepository.findBySpecialization(specialization); // Lấy danh sách
+        } else {
+            psychologists = psychologistRepository.findAll();
+        }
+        return psychologists.stream() // Trả về List Response
+                .map(psychologistsMapper::buildPsychologistResponse)
+                .collect(Collectors.toList());
     }
 
     public PsychologistResponse getPsychologistById(String id) {
@@ -148,4 +167,6 @@ public class PsychologistService {
             return false;
         }
     }
+
+
 }
