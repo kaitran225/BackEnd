@@ -23,7 +23,8 @@ public class SurveyQuestionMapper {
                 .score(surveyResults.getAnswer().getScore())               
                 .build();                    
     }
-     public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyResults result) {
+    
+    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyResults result) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
@@ -32,5 +33,13 @@ public class SurveyQuestionMapper {
                 .questions(questions)
                 .build();
     }
+
+    public SurveyResultsResponse mapToSurveyUpdate(SurveyQuestions surveyQuestions, List<SurveyQuestionResultResponse> questions) {
+        return SurveyResultsResponse.builder()
+                .questions(questions)
+                .surveyId(surveyQuestions.getSurveyID())
+                .build();
+    }
+
 
 }

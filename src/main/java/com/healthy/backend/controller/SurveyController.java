@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.service.SurveyService;
 
@@ -129,14 +131,14 @@ public class SurveyController {
         return "Question added to survey " + surveyId;
     }
 
-    @Operation(
-            deprecated = true,
+    @Operation(          
             summary = "Update question in survey",
             description = "Updates a question in a survey."
     )
     @PutMapping("/{surveyId}/questions/{questionId}")
-    public String updateSurveyQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody String question) {
-        return "Question updated for survey " + surveyId;
+    public ResponseEntity<?> updateSurveyQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody SurveyQuestionResponse questionDTO, @RequestBody SurveyQuestionResultResponse resultDTO ) {
+        surveyService.updateSurveyQuestion(questionId, surveyId, questionDTO, resultDTO);
+        return ResponseEntity.ok("Survey question updated sucessfully");
     }
 
     @Operation(
