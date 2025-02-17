@@ -13,6 +13,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+    
     private final NotificationRepository notificationRepository;
 
     public void createNotification(String userId, String title, String message, Notifications.Type type) {
@@ -23,7 +24,6 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setType(type);
         notificationRepository.save(notification);
-
     }
 
     public List<Notifications> getUserNotifications(String userId) {

@@ -177,25 +177,25 @@ public class DataInitializer implements CommandLineRunner {
         tagsRepository.save(new Tags("TAG065", Tags.Tag.Relationship_Health));
 
         // Initialize Programs
-        programRepository.save(new Programs("PRG001", "Stress Management", Programs.Category.Wellness,
+        programRepository.save(new Programs("PRG001", "Stress Management",
                 "Program to help manage stress", 20, 4, Programs.Status.Active,
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
                 LocalDate.parse("2025-02-13"),"https://example.com/meeting1", Programs.Type.Online));
-        programRepository.save(new Programs("PRG002", "Anxiety Support Group", Programs.Category.Wellness,
+        programRepository.save(new Programs("PRG002", "Anxiety Support Group",
                 "Support group for individuals with anxiety", 15, 6, Programs.Status.Active,
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
                 LocalDate.parse("2025-02-15"),"https://example.com/meeting2", Programs.Type.Offline));
-        programRepository.save(new Programs("PRG003", "Mindfulness Workshop", Programs.Category.Wellness,
+        programRepository.save(new Programs("PRG003", "Mindfulness Workshop",
                 "Workshop on mindfulness techniques", 25, 3, Programs.Status.Active,
                 departmentRepository.findById("DP03").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
                 LocalDate.parse("2025-02-18"),"https://example.com/meeting3", Programs.Type.Online));
-        programRepository.save(new Programs("PRG004", "Depression Counseling", Programs.Category.Wellness,
+        programRepository.save(new Programs("PRG004", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
                 departmentRepository.findById("DP07").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
@@ -299,6 +299,7 @@ public class DataInitializer implements CommandLineRunner {
         // Initialize Appointments
         appointmentRepository.save(new Appointments("APP001", "TSPSY00120022501", "S001", "PSY001", StatusEnum.Scheduled));
         appointmentRepository.save(new Appointments("APP002","TSPSY00221022501", "S002", "PSY002", StatusEnum.Scheduled));
+
         // Initialize Notifications
         notificationRepository.save(new Notifications("NOT001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));
         notificationRepository.save(new Notifications("NOT002", userRepository.findByUsername("student_user").getUserId(), "Survey Available", "A new survey is available for you to complete", Notifications.Type.Survey));

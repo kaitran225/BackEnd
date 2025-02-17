@@ -121,8 +121,8 @@ public class AppointmentService {
 
         notificationService.createNotification(
                 psychologistUser.getUserId(),
-                "Cuộc hẹn mới",
-                "Bạn có một cuộc hẹn mới với sinh viên " + student.getUser().getFullName(),
+                "New appointment pending",
+                "You have a new appointment with " + student.getUser().getFullName(),
                 Notifications.Type.Appointment
         );
 

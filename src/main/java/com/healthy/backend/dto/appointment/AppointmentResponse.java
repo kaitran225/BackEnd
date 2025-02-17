@@ -1,5 +1,6 @@
 package com.healthy.backend.dto.appointment;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppointmentResponse {
 
     @Schema(example = "APP001")

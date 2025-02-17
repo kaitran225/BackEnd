@@ -39,7 +39,7 @@ public class UserService {
     private final ProgramMapper programMapper;
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
-    private final SurveyResultMapper surveyResultsMapper;
+    private final SurveyMapper surveyMapper;
     private final UserMapper userMapper;
 
 
@@ -65,7 +65,7 @@ public class UserService {
 
     public List<SurveyResultsResponse> getUserSurveyResults(String id) {
         List<SurveyResults> surveyResults = surveyResultRepository.findByStudentID(id);
-        return surveyResultsMapper.getUserSurveyResults(surveyResults);
+        return surveyMapper.getUserSurveyResults(surveyResults);
     }
 
     public UsersResponse updateUser(String userId, Users updatedUser) {

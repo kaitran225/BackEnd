@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.mapper.SurveyMapper;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.SurveyQuestionResult;
@@ -17,8 +18,6 @@ import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.SurveyQuestionMapper;
-import com.healthy.backend.mapper.SurveyResultMapper;
 import com.healthy.backend.repository.SurveyAnswerRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
@@ -31,8 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class SurveyService {
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
-    private final SurveyResultMapper surveyMapper;
-    private final SurveyQuestionMapper surveyQuestionMapper;
+    private final SurveyMapper surveyMapper;
     private final SurveyRepository surveyRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
     private Map<String, String> questionAnswerMap = new HashMap<>();
@@ -55,10 +53,10 @@ public class SurveyService {
                     SurveyQuestions surveyQuestion = surveyQuestionMap.get(result.getQuestionID());
                     Surveys surveys = surveyRepository.findById(surveyQuestion.getSurveyID())
                         .orElseThrow(() -> new ResourceNotFoundException(" Survey not found"));
-                    SurveyQuestionResultResponse surveyResultsResponse = surveyQuestionMapper.mapToSurveyQuestionResponse
+                    SurveyQuestionResultResponse surveyResultsResponse = surveyMapper.mapToSurveyQuestionResponse
                                                                     (result, surveyQuestion);
                     // return surveyMapper.mapToSurveyResultsResponse(surveys, Collections.singletonList(surveyResultsResponse))  ;     
-                    return surveyQuestionMapper.mapToSurveyResultsResponse1(surveys, Collections.singletonList(surveyResultsResponse), result);                                            
+                    return surveyMapper.mapToSurveyResultsResponse1(surveys, Collections.singletonList(surveyResultsResponse), result);
                })
                .collect(Collectors.toList());
                                                          

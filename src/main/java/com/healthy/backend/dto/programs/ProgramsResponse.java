@@ -27,8 +27,6 @@ public class ProgramsResponse {
     private String title;
     @Schema(example = "Program Description")
     private String description;
-    @Schema(example = "Physical")
-    private Programs.Category category;
     @Schema(example = "2023-01-01")
     private LocalDate startDate;
     @Schema(example = "2")

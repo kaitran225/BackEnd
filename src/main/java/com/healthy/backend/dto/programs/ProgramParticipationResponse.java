@@ -20,8 +20,6 @@ public class ProgramParticipationResponse {
     private String programID;
     @Schema(example = "Example Program")
     private String programName;
-    @Schema(example = "Physical")
-    private Programs.Category category;
     @Schema(example = "2023-01-01")
     private String description;
     @Schema(example = "2023-01-01")
@@ -33,6 +31,6 @@ public class ProgramParticipationResponse {
     @Schema(example = "2023-01-01")
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
-    private String managedByStaffID;
+    private String facilitatorName;
 
 }

@@ -90,7 +90,6 @@ public class ProgramService {
         programRepository.save(new Programs(
                 programId,
                 programsRequest.getName(),
-                Programs.Category.valueOf(programsRequest.getCategory()),
                 programsRequest.getDescription(),
                 programsRequest.getNumberParticipants(),
                 programsRequest.getDuration(),

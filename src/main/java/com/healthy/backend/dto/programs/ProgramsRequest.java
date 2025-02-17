@@ -1,5 +1,6 @@
 package com.healthy.backend.dto.programs;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProgramsRequest {
     @Schema(example = "US005")
     private String userId;
@@ -19,8 +21,6 @@ public class ProgramsRequest {
     private String name;
     @Schema(example = "Program Description")
     private String description;
-    @Schema(example = "Physical")
-    private String category;
     @Schema(example = "10")
     private Integer numberParticipants;
     @Schema(example = "2")

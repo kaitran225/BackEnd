@@ -1,5 +1,6 @@
 package com.healthy.backend.dto.auth;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,8 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthenticationResponse {
     @Schema(example = "eyJhbG.eyJzdW.TmCs6rN")
     private String accessToken;

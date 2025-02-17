@@ -22,10 +22,6 @@ public class Programs {
     @Column(name = "ProgramName", length = 100, nullable = false)
     private String programName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Category", length = 50, nullable = false)
-    private Category category;
-
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
@@ -77,7 +73,6 @@ public class Programs {
     public Programs(
             String programID,
             String programName,
-            Category category,
             String description,
             int i, int i1, Status status,
             Department department,
@@ -88,7 +83,6 @@ public class Programs {
             Type type) {
         this.programID = programID;
         this.programName = programName;
-        this.category = category;
         this.description = description;
         this.numberParticipants = i;
         this.duration = i1;
@@ -110,19 +104,19 @@ public class Programs {
         }
     }
 
-    public enum Category {
-        Cognitive,
-        Social,
-        Emotional,
-        Physical,
-        SelfHelp,
-        Wellness,
-        Assessment,
-        SupportGroup,
-        LifeSkills,
-        Prevention,
-        Counseling
-    }
+//    public enum Category {
+//        Cognitive,
+//        Social,
+//        Emotional,
+//        Physical,
+//        SelfHelp,
+//        Wellness,
+//        Assessment,
+//        SupportGroup,
+//        LifeSkills,
+//        Prevention,
+//        Counseling
+//    }
 
     public enum Type {
         Online,
