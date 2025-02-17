@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -8,14 +9,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.healthy.backend.dto.survey.SurveyQuestionResult;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.entity.Answers;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyQuestionMapper;
 import com.healthy.backend.mapper.SurveyResultMapper;
+import com.healthy.backend.repository.SurveyAnswerRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
 import com.healthy.backend.repository.SurveyResultRepository;
@@ -30,6 +34,8 @@ public class SurveyService {
     private final SurveyResultMapper surveyMapper;
     private final SurveyQuestionMapper surveyQuestionMapper;
     private final SurveyRepository surveyRepository;
+    private final SurveyAnswerRepository surveyAnswerRepository;
+    private Map<String, String> questionAnswerMap = new HashMap<>();
 
     public List<SurveyResultsResponse> getAllSurveyResults() {
         List<SurveyResults> surveyResults = surveyResultRepository.findAll();
@@ -56,7 +62,42 @@ public class SurveyService {
                })
                .collect(Collectors.toList());
                                                          
+        
+    }
 
+    public void updateSurveyQuestion(String questionID, String surveyID, 
+                                    String answerID,             
+                                    SurveyQuestionResult result1) {
+        
+        SurveyQuestions surveyQuestions = surveyQuestionRepository.findByQuestionIDAndSurveyID(questionID, surveyID);
+            if(surveyQuestions == null) {
+                throw new ResourceNotFoundException("SurveyQuestion not found with questionID" + questionID + "and surveyID" + surveyID);
+            }
+        
+        // surveyQuestions.setQuestionText(updateSurveyQuestion.getQuestionText());
+        surveyQuestions.setQuestionText(result1.getQuestionText());
+        surveyQuestionRepository.save(surveyQuestions);
+
+
+        Answers surveyResults = surveyAnswerRepository.findById(answerID)
+                                .orElseThrow(() -> new ResourceNotFoundException("Answer not found" + answerID));
+                                                         
+        
+        // Answers surveyAnswer = surveyResultRepository.findByAnswerID(result.getAnswerId());
+        // Answers surveyAnswer = surveyResultRepository.findByAnswerID(result1.getAnswerId());
+
+        // if (surveyAnswer == null) {
+        //     throw new ResourceNotFoundException("Answer not found with answerID " + result1.getAnswerId());
+        // }   
+
+        surveyResults.setAnswer(result1.getAnswer());
+        surveyAnswerRepository.save(surveyResults);
+        questionAnswerMap.put(questionID, result1.getAnswerID());
+
+    }
+    
+    public String getAnswerByQuestionText(String questionId) {
+        return questionAnswerMap.get(questionId);
     }
 
 }
