@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResult;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.entity.Answers;
@@ -19,24 +19,23 @@ import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyQuestionMapper;
 import com.healthy.backend.mapper.SurveyResultMapper;
+import com.healthy.backend.repository.SurveyAnswerRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
 import com.healthy.backend.repository.SurveyResultRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SurveyService {
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final SurveyResultMapper surveyMapper;
     private final SurveyQuestionMapper surveyQuestionMapper;
     private final SurveyRepository surveyRepository;
+    private final SurveyAnswerRepository surveyAnswerRepository;
     private Map<String, String> questionAnswerMap = new HashMap<>();
-    
 
     public List<SurveyResultsResponse> getAllSurveyResults() {
         List<SurveyResults> surveyResults = surveyResultRepository.findAll();
@@ -66,33 +65,37 @@ public class SurveyService {
 
     }
 
-    public void updateSurveyQuestion(String questionID, String surveyID, SurveyQuestionResponse updateSurveyQuestion, SurveyQuestionResultResponse result) {
-        
+    public void updateSurveyQuestion(String questionID, String surveyID,
+                                    String answerID,
+                                    SurveyQuestionResult result1) {
+
         SurveyQuestions surveyQuestions = surveyQuestionRepository.findByQuestionIDAndSurveyID(questionID, surveyID);
             if(surveyQuestions == null) {
                 throw new ResourceNotFoundException("SurveyQuestion not found with questionID" + questionID + "and surveyID" + surveyID);
             }
-        
-        surveyQuestions.setQuestionText(updateSurveyQuestion.getQuestionText());
+
+        // surveyQuestions.setQuestionText(updateSurveyQuestion.getQuestionText());
+        surveyQuestions.setQuestionText(result1.getQuestionText());
         surveyQuestionRepository.save(surveyQuestions);
 
 
-        SurveyResults surveyResults = surveyResultRepository.findByQuestionID(questionID);
-            if(surveyResults == null) {
-                throw new ResourceNotFoundException("QuestionID not found with questionID" + questionID);
-            }                                                
-        
-        Answers surveyAnswer = surveyResultRepository.findByAnswerID(result.getAnswerId());
-         if (surveyAnswer == null) {
-            throw new ResourceNotFoundException("Answer not found with answerID " + result.getAnswerId());
-        }   
+        Answers surveyResults = surveyAnswerRepository.findById(answerID)
+                                .orElseThrow(() -> new ResourceNotFoundException("Answer not found" + answerID));
 
-        surveyResults.setAnswer(surveyAnswer);
-        surveyResultRepository.save(surveyResults);
-        questionAnswerMap.put(questionID, result.getAnswer());
+
+        // Answers surveyAnswer = surveyResultRepository.findByAnswerID(result.getAnswerId());
+        // Answers surveyAnswer = surveyResultRepository.findByAnswerID(result1.getAnswerId());
+
+        // if (surveyAnswer == null) {
+        //     throw new ResourceNotFoundException("Answer not found with answerID " + result1.getAnswerId());
+        // }
+
+        surveyResults.setAnswer(result1.getAnswer());
+        surveyAnswerRepository.save(surveyResults);
+        questionAnswerMap.put(questionID, result1.getAnswerID());
 
     }
-    
+
     public String getAnswerByQuestionText(String questionId) {
         return questionAnswerMap.get(questionId);
     }

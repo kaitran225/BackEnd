@@ -11,7 +11,9 @@ import com.healthy.backend.entity.SurveyResults;
 
 public interface SurveyResultRepository extends JpaRepository<SurveyResults, String> {
     List<SurveyResults> findByStudentID(String userId);
-    SurveyResults findByQuestionID(String questionId);
+    Answers findByQuestionIDAndAnswerID(String questionId, String answerId);
+    Answers findByAnswerID(String answerId);
+
 
     @Query("SELECT sr FROM SurveyResults sr " +
             "JOIN FETCH sr.question q " +
@@ -19,6 +21,4 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResults, Str
             "JOIN FETCH sr.answer a " +
             "WHERE sr.studentID = :studentId")
     List<SurveyResults> findByStudentIDWithDetails(@Param("studentId") String studentId);
-
-    Answers findByAnswerID(String answerId);
 }
