@@ -2,7 +2,6 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
-import com.healthy.backend.entity.Department;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,10 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+
 
 @RestController
 @CrossOrigin
@@ -79,6 +77,13 @@ public class AppointmentController {
         AppointmentResponse response = appointmentService.bookAppointment(request);
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
+
+
 
     @Operation(
             summary = "Request cancel of an appointment",
@@ -141,25 +146,6 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to update appointment");
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Request appointment record",
-            description = "Requests the record of an appointment."
-    )
-    @GetMapping("/{appointmentId}/record")
-    public String requestRecord(@PathVariable String appointmentId) {
-        return "Appointment record requested";
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get appointment result",
-            description = "Returns the result of an appointment."
-    )
-    @GetMapping("/{appointmentId}/result")
-    public String requestResult(@PathVariable String appointmentId) {
-        return "Result requested";
-    }
 
     @Operation(
             deprecated = true,
@@ -171,15 +157,6 @@ public class AppointmentController {
         return "Report created successfully";
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get all appointments",
-            description = "Returns a list of all appointments."
-    )
-    @GetMapping
-    public List<String> getAllAppointments() {
-        return List.of("List of all appointments");
-    }
 
     @Operation(
             deprecated = true,
@@ -191,24 +168,5 @@ public class AppointmentController {
         return "Detailed appointment information";
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get available slots",
-            description = "Returns available slots for a specific date."
-    )
-    @GetMapping("/available-slots")
-    public String getAvailableSlots(@RequestParam String date) {
-        return "Available slots for " + date;
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get virtual meeting link",
-            description = "Returns the virtual meeting link for an appointment."
-    )
-    @GetMapping("/{appointmentId}/meeting-link")
-    public String getMeetingLink(@PathVariable String appointmentId) {
-        return "Virtual meeting link for appointment";
-    }
 }
 

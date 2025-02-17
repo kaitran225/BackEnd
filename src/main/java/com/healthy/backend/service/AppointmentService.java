@@ -4,10 +4,7 @@ import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Psychologists;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceInvalidException;
@@ -47,6 +44,10 @@ public class AppointmentService {
     private final PsychologistsMapper psychologistMapper;
 
     private final DepartmentMapper departmentMapper;
+
+    private  final NotificationService notificationService;
+
+    private final UserRepository userRepository;
 
 
     public List<DepartmentResponse> getAllDepartments() {
@@ -113,6 +114,17 @@ public class AppointmentService {
         Appointments savedAppointment = appointmentRepository.save(appointment);
         timeSlot.setStatus(TimeSlots.Status.Booked);
         timeSlotRepository.save(timeSlot);
+
+        Users psychologistUser = userRepository.findByUserId(psychologist.getUserID())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+
+        notificationService.createNotification(
+                psychologistUser.getUserId(),
+                "Cuộc hẹn mới",
+                "Bạn có một cuộc hẹn mới với sinh viên " + student.getUser().getFullName(),
+                Notifications.Type.Appointment
+        );
 
         // Map sang DTO
         return appointmentMapper.buildAppointmentResponse(
