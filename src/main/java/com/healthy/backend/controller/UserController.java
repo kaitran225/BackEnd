@@ -1,18 +1,12 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
-import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,47 +50,47 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    @Operation(
-            summary = "Get programs by user ID",
-            description = "Returns a list of programs associated with the specified user ID."
-    )
-    @GetMapping("/{userId}/programs")
-    public ResponseEntity<?> getProgramsByUserId(
-            @Valid @PathVariable String userId) {
-        try {
-            List<ProgramParticipationResponse> programs = userService.getUserProgramsParticipation(userId);
-            return ResponseEntity.ok(programs);
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-        }
-    }
+//    @Operation(
+//            summary = "Get programs by user ID",
+//            description = "Returns a list of programs associated with the specified user ID."
+//    )
+//    @GetMapping("/{userId}/programs")
+//    public ResponseEntity<?> getProgramsByUserId(
+//            @Valid @PathVariable String userId) {
+//        try {
+//            List<ProgramParticipationResponse> programs = userService.getUserProgramsParticipation(userId);
+//            return ResponseEntity.ok(programs);
+//        } catch (ResourceNotFoundException ex) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+//        } catch (Exception ex) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+//        }
+//    }
 
-    @Operation(
-            summary = "Get user appointments",
-            description = "Retrieves all appointments for a user."
-    )
-    @GetMapping("/{userId}/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserId(@PathVariable String userId) {
-        List<AppointmentResponse> appointmentResponseList = userService.getUserAppointments(userId);
-        return appointmentResponseList.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(appointmentResponseList);
-    }
+//    @Operation(
+//            summary = "Get user appointments",
+//            description = "Retrieves all appointments for a user."
+//    )
+//    @GetMapping("/{userId}/appointments")
+//    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserId(@PathVariable String userId) {
+//        List<AppointmentResponse> appointmentResponseList = userService.getUserAppointments(userId);
+//        return appointmentResponseList.isEmpty()
+//                ? ResponseEntity.noContent().build()
+//                : ResponseEntity.ok(appointmentResponseList);
+//    }
 
 
-    @Operation(
-            summary = "Get user survey results",
-            description = "Retrieves all survey results for a user."
-    )
-    @GetMapping("/{userId}/surveys")
-    public ResponseEntity<List<SurveyResultsResponse>> getSurveyResultsByUserId(@PathVariable String userId) {
-        List<SurveyResultsResponse> surveyResults = userService.getUserSurveyResults(userId);
-        return surveyResults.isEmpty()
-                ? ResponseEntity.noContent().build() // 204 No Content if list is empty
-                : ResponseEntity.ok(surveyResults);
-    }
+//    @Operation(
+//            summary = "Get user survey results",
+//            description = "Retrieves all survey results for a user."
+//    )
+//    @GetMapping("/{userId}/surveys")
+//    public ResponseEntity<List<SurveyResultsResponse>> getSurveyResultsByUserId(@PathVariable String userId) {
+//        List<SurveyResultsResponse> surveyResults = userService.getUserSurveyResults(userId);
+//        return surveyResults.isEmpty()
+//                ? ResponseEntity.noContent().build() // 204 No Content if list is empty
+//                : ResponseEntity.ok(surveyResults);
+//    }
 
     @Operation(
             summary = "Update user details",
@@ -172,42 +166,12 @@ public class UserController {
 
     @Operation(
             deprecated = true,
-            summary = "Get completed programs for user",
-            description = "Retrieves a list of completed programs for a specific user."
-    )
-    @GetMapping("/{userId}/programs/completed")
-    public List<String> getCompletedPrograms(@PathVariable String userId) {
-        return List.of("Completed programs for user " + userId);
-    }
-
-    @Operation(
-            deprecated = true,
             summary = "Submit feedback for user",
             description = "Submits feedback for a specific user."
     )
     @PostMapping("/{userId}/feedback")
     public String submitFeedback(@PathVariable String userId, @RequestBody String feedback) {
         return "Feedback submitted by user " + userId;
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get upcoming appointments for user",
-            description = "Retrieves a list of upcoming appointments for a specific user."
-    )
-    @GetMapping("/{userId}/appointments/upcoming")
-    public List<String> getUpcomingAppointments(@PathVariable String userId) {
-        return List.of("Upcoming appointments for user " + userId);
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get pending surveys for user",
-            description = "Retrieves a list of pending surveys for a specific user."
-    )
-    @GetMapping("/{userId}/surveys/pending")
-    public List<String> getPendingSurveys(@PathVariable String userId) {
-        return List.of("Pending surveys for user " + userId);
     }
 
     @Operation(
@@ -226,9 +190,11 @@ public class UserController {
             description = "Deletes a user's account."
     )
     @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable String userId) {
-        return "User deleted successfully";
+    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
+        if (userService.deleteUser(userId)){
+            return ResponseEntity.ok("User account " + userId + " deleted");
+        }
+        throw new RuntimeException("Failed to delete user account");
     }
-
 
 }

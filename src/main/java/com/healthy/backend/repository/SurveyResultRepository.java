@@ -14,11 +14,11 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResults, Str
     Answers findByQuestionIDAndAnswerID(String questionId, String answerId);
     Answers findByAnswerID(String answerId);
 
-
     @Query("SELECT sr FROM SurveyResults sr " +
             "JOIN FETCH sr.question q " +
             "JOIN FETCH q.category c " +
             "JOIN FETCH sr.answer a " +
             "WHERE sr.studentID = :studentId")
     List<SurveyResults> findByStudentIDWithDetails(@Param("studentId") String studentId);
+
 }

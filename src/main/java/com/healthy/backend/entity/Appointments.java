@@ -3,7 +3,6 @@ package com.healthy.backend.entity;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -42,8 +41,14 @@ public class Appointments {
     @Column(name = "Status", length = 20)
     private StatusEnum status;
 
-    @Column(name = "Notes", columnDefinition = "TEXT")
-    private String notes;
+    @Column(name = "StudentNote", columnDefinition = "TEXT")
+    private String studentNote;
+
+    @Column(name = "PsychologistNote", columnDefinition = "TEXT")
+    private String psychologistNote;
+
+    @Column(name = "Feedback", columnDefinition = "TEXT")
+    private String feedback;
 
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;

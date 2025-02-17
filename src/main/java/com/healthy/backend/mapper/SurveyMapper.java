@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -86,6 +87,13 @@ public class SurveyMapper {
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
                 .questions(questions)
+                .build();
+    }
+    public SurveysResponse mapToSurveyResultsResponse(Surveys survey) {
+        return SurveysResponse.builder()
+                .surveyID(survey.getSurveyID())
+                .surveyName(survey.getSurveyName())
+                .description(survey.getDescription())
                 .build();
     }
 }

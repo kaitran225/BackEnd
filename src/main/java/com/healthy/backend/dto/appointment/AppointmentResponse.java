@@ -43,7 +43,10 @@ public class AppointmentResponse {
     private String Status;
 
     @Schema(example = "Notes")
-    private String Text;
+    private String studentNotes;
+
+    @Schema(example = "Notes")
+    private String psychologistNotes;
 
     @Schema(example = "2023-01-01")
     private LocalDateTime CreatedAt;

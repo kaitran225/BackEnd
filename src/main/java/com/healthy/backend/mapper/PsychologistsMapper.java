@@ -60,7 +60,7 @@ public class PsychologistsMapper {
                                                                 .stressScore(a.getStudent().getStressScore())
                                                                 .build()
                                                 )
-                                                .Text(a.getNotes())
+                                                .studentNotes(a.getStudentNote())
                                                 .timeSlotID(a.getTimeSlotsID())
                                                 .UpdatedAt(a.getUpdatedAt()).build()
                                         )

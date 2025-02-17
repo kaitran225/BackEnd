@@ -1,7 +1,6 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -11,32 +10,25 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AnswersRepository answersRepository;
     private final AppointmentRepository appointmentRepository;
     private final ParentRepository parentRepository;
-    private final ProgramParticipationRepository programParticipationRepository;
     private final PsychologistRepository psychologistRepository;
     private final StudentRepository studentRepository;
     private final SurveyResultRepository surveyResultRepository;
-    private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
-    private final TimeSlotRepository timeSlotsRepository;
 
     private final AppointmentMapper appointmentMapper;
-    private final ProgramMapper programMapper;
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
     private final SurveyMapper surveyMapper;
@@ -97,26 +89,10 @@ public class UserService {
         return convert(existingUser); // Convert entity to response DTO
     }
 
-    public List<ProgramParticipationResponse> getUserProgramsParticipation(String id) {
-
-        List<ProgramParticipation> participants = programParticipationRepository
-                .findByStudentID(studentRepository
-                        .findByUserID(id).getStudentID());
-
-        if (participants.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "No programs found for userID: " + id
-            );
-        }
-        return participants.stream()
-                .map(programMapper::buildProgramParticipationResponse)
-                .collect(Collectors.toList());
-    }
-
     public List<AppointmentResponse> getUserAppointments(String id) {
         Users user = userRepository.findById(id).orElseThrow();
-        PsychologistResponse psychologistResponse = null;
-        StudentResponse studentResponse = null;
+        PsychologistResponse psychologistResponse;
+        StudentResponse studentResponse;
         List<Appointments> appointmentsList  = null;
 
         if (!user.getRole().equals(Users.UserRole.STUDENT)
@@ -155,17 +131,17 @@ public class UserService {
     }
 
 
-    public void deleteUser(String id) {
+    public boolean deleteUser(String id) {
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
+        return true;
     }
 
     private UsersResponse convert(Users user) {
         List<StudentResponse> childrenList = null;
         List<AppointmentResponse> appointmentsResponseList = null;
-        List<Appointments> appointmentsList = null;
-        List<SurveyResultsResponse> surveyResultsResponseList = null;
+        List<SurveyResultsResponse> surveyResultsResponseList;
         PsychologistResponse psychologistResponse = null;
         StudentResponse studentResponse = null;
 

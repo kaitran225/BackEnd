@@ -201,7 +201,7 @@ public class AppointmentService {
         }
 
         if (request.getNotes() != null) {
-            appointment.setNotes(request.getNotes());
+            appointment.setStudentNote(request.getNotes());
         }
 
         appointmentRepository.save(appointment);
