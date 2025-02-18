@@ -1,5 +1,7 @@
 package com.healthy.backend.dto.survey;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +27,7 @@ public class SurveyQuestionResultResponse {
     private String answer;
     @Schema(example = "1")
     private Integer score;
+
+    private List<SurveyQuestionResultResponse> answers;
+    
 } 

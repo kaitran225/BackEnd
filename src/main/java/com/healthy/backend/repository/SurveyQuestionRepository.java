@@ -9,5 +9,9 @@ import com.healthy.backend.entity.SurveyQuestions;
 public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions, String> {
     List<SurveyQuestions> findByQuestionIDIn(List<String> QuestionId) ;
     SurveyQuestions findByQuestionIDAndSurveyID(String QuestionID, String surveyID);
+    List<SurveyQuestions> findBySurveyID(String surveyID);
+
+    
+    
 
 } 

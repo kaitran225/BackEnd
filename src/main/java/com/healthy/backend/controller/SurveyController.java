@@ -34,6 +34,10 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Survey Controller", description = "Survey related APIs")
 public class SurveyController {
     private final SurveyService surveyService;
+    
+    // Khai báo logger
+    // private static final Logger logger = Logger.getLogger(SurveyController.class);
+
 
     @Operation(
 
@@ -54,13 +58,26 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
+            
             summary = "Get survey details",
             description = "Returns details for a specific survey."
     )
-    @GetMapping("/{surveyId}")
-    public String getSurveyDetails(@PathVariable String surveyId) {
-        return "Survey details for ID " + surveyId;
+    
+    @GetMapping("/{surveyId}/questions")
+    public ResponseEntity<?> getSurveyDetails(@PathVariable String surveyId) {
+        try {
+            SurveyQuestionResult surveyQuestionResults = surveyService.getAllQuestionInSurveyID(surveyId);
+            return ResponseEntity.ok(surveyQuestionResults);
+        }
+        catch(ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occourred while getting data of survey" +  e.getMessage());
+        }
+       
+        
+        
     }
 
     @Operation(
