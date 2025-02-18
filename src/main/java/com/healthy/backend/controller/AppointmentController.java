@@ -62,9 +62,9 @@ public class AppointmentController {
             description = "Returns the appointment with the specified ID."
     )
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAppointmentById(@PathVariable String id) {
-        AppointmentResponse appointmentResponse = appointmentService.getAppointmentById(id);
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable String appointmentId) {
+        AppointmentResponse appointmentResponse = appointmentService.getAppointmentById(appointmentId);
         return ResponseEntity.ok(appointmentResponse);
     }
 
@@ -77,13 +77,6 @@ public class AppointmentController {
         AppointmentResponse response = appointmentService.bookAppointment(request);
         return ResponseEntity.ok(response);
     }
-
-
-
-
-
-
-
 
     @Operation(
             summary = "Request cancel of an appointment",
@@ -146,7 +139,6 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to update appointment");
     }
 
-
     @Operation(
             deprecated = true,
             summary = "Make a report for an appointment",
@@ -156,17 +148,5 @@ public class AppointmentController {
     public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
         return "Report created successfully";
     }
-
-
-    @Operation(
-            deprecated = true,
-            summary = "Get appointment details",
-            description = "Returns detailed information about an appointment."
-    )
-    @GetMapping("/{appointmentId}/details")
-    public String getAppointmentDetails(@PathVariable String appointmentId) {
-        return "Detailed appointment information";
-    }
-
 }
 

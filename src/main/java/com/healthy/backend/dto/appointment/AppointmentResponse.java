@@ -3,6 +3,7 @@ package com.healthy.backend.dto.appointment;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.entity.TimeSlots;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,9 @@ public class AppointmentResponse {
 
     @Schema(example = "TS150601")
     private String timeSlotID;
+
+    @Schema(example = "TimeSlotInfo")
+    private TimeSlots timeSlotInfo;
 
     @Schema(examples = "{" +
             "studentId='S001'," +

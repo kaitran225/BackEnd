@@ -6,6 +6,7 @@ import com.healthy.backend.dto.student.StudentRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.dto.user.EventResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -118,12 +120,21 @@ public class StudentService {
     }
 
     public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
-        return programParticipationRepository.findByStudentID(studentId).stream()
-                .map(p -> programMapper.buildProgramResponse(
-                        programRepository
-                                .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
-                )).toList();
+        List<Programs> programs = programRepository.findAllById(
+                programParticipationRepository.findByStudentID(studentId)
+                        .stream()
+                        .map(p -> p.getProgram().getProgramID())
+                        .toList()
+        ).stream().filter(
+                p -> p.getStartDate().isAfter(LocalDate.now())
+        ).toList();
+//        return programParticipationRepository.findByStudentID(studentId).stream()
+//                .map(p -> programMapper.buildProgramResponse(
+//                        programRepository
+//                                .findById(p.getProgram().getProgramID())
+//                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+//                )).toList();
+        return programs.stream().map(programMapper::buildProgramResponse).toList();
     }
 
     public List<ProgramsResponse> getCompletedPrograms(String studentId) {
@@ -150,7 +161,10 @@ public class StudentService {
     }
 
     public List<AppointmentResponse> getUpcomingAppointments(String studentId) {
-        List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId);
+        List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId)
+                .stream()
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
+                .toList();
         if (appointments.isEmpty()) {
             throw new ResourceNotFoundException("No appointments found");
         }
@@ -158,7 +172,29 @@ public class StudentService {
                 .filter(appointment -> appointment.getStatus() == StatusEnum.Scheduled)
                 .map(appointmentMapper::buildAppointmentResponse).toList();
     }
+
     public void createStudent(StudentRequest student) {
         studentRepository.save(studentMapper.buildStudentEntity(student));
+    }
+
+    public EventResponse getAllEvents(String studentId) {
+        // Get all appointments that is upcoming
+        List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId)
+                .stream()
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
+                .toList();
+        // Get all appointments that is upcoming
+        List<Programs> programs = programRepository.findAllById(
+                programParticipationRepository.findByStudentID(studentId)
+                        .stream()
+                        .map(p -> p.getProgram().getProgramID())
+                        .toList()
+        ).stream().filter(
+                p -> p.getStartDate().isAfter(LocalDate.now())
+        ).toList();
+
+
+
+        return new EventResponse();
     }
 }

@@ -4,6 +4,7 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.Psychologists;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -41,6 +42,19 @@ public class AppointmentMapper {
                 .UpdatedAt(appointment.getUpdatedAt())
                 .checkInTime(appointment.getCheckInTime())
                 .checkOutTime(appointment.getCheckOutTime())
+                .build();
+    }
+    public AppointmentResponse buildBasicAppointmentResponse(
+            Appointments appointment,
+            PsychologistResponse psychologistResponse
+    ) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .CreatedAt(appointment.getCreatedAt())
+                .psychologistResponse(psychologistResponse)
+                .Status(appointment.getStatus().name())
+                .timeSlotID(appointment.getTimeSlotsID())
+                .timeSlotInfo(appointment.getTimeSlot())
                 .build();
     }
 }

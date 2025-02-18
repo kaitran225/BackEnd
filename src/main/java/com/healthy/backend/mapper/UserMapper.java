@@ -1,9 +1,5 @@
 package com.healthy.backend.mapper;
 
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
@@ -12,13 +8,26 @@ import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
 public class UserMapper {
 
     // Convert User entity to UserResponse
+    public UsersResponse buildBasicUserResponse(
+            Users user
+    ) {
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                    .address(user.getAddress())
+                .role(user.getRole().toString())
+                .build();
+    }
+
     public UsersResponse buildUserResponse(
             Users user,
             PsychologistResponse psychologistResponse,
@@ -31,6 +40,7 @@ public class UserMapper {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
                 .gender(user.getGender().toString())
                 .role(user.getRole().toString())
                 .psychologistInfo(psychologistResponse)

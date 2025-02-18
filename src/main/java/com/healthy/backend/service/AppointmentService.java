@@ -9,10 +9,7 @@ import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AppointmentMapper;
-import com.healthy.backend.mapper.DepartmentMapper;
-import com.healthy.backend.mapper.PsychologistsMapper;
-import com.healthy.backend.mapper.StudentMapper;
+import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,11 +38,13 @@ public class AppointmentService {
 
     private final StudentMapper studentMapper;
 
+    private final UserMapper userMapper;
+
     private final PsychologistsMapper psychologistMapper;
 
     private final DepartmentMapper departmentMapper;
 
-    private  final NotificationService notificationService;
+    private final NotificationService notificationService;
 
     private final UserRepository userRepository;
 
@@ -79,13 +78,18 @@ public class AppointmentService {
     public AppointmentResponse getAppointmentById(String id) {
         Appointments appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No appointment by id" + id + "Not found"));
+        Psychologists psychologists = psychologistRepository.findById(appointment.getPsychologistID())
+                .orElseThrow(() -> new ResourceNotFoundException("No psychologist found"));
+        Students students = studentRepository.findById(appointment.getStudentID())
+                .orElseThrow(() -> new ResourceNotFoundException("No student found"));
         return appointmentMapper.buildAppointmentResponse(
                 appointment, psychologistMapper.buildPsychologistResponse(
-                        Objects.requireNonNull(psychologistRepository.findById(
-                                appointment.getPsychologistID()).orElse(null))),
+                        psychologists,
+                        userMapper.buildBasicUserResponse(psychologists.getUser())),
                 studentMapper.buildStudentResponse(
-                        Objects.requireNonNull(studentRepository.findById(
-                                appointment.getStudentID()).orElse(null))));
+                        students,
+                        userMapper.buildBasicUserResponse(students.getUser()))
+                );
     }
 
 
@@ -190,7 +194,7 @@ public class AppointmentService {
             newTimeSlot.setStatus(TimeSlots.Status.Booked);
             timeSlotRepository.save(newTimeSlot);
             // Only update old time slot if new time slot is updated
-            if(timeSlotRepository.findById(appointment.getTimeSlotsID()).isPresent() &&
+            if (timeSlotRepository.findById(appointment.getTimeSlotsID()).isPresent() &&
                     timeSlotRepository.findById(appointment.getTimeSlotsID()).get().getStatus().equals(TimeSlots.Status.Booked)) {
                 oldTimeSlot.setStatus(TimeSlots.Status.Available);
                 timeSlotRepository.save(oldTimeSlot);

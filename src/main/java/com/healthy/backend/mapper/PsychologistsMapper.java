@@ -18,6 +18,16 @@ import java.util.stream.Collectors;
 @Component
 public class PsychologistsMapper {
 
+    public PsychologistResponse buildPsychologistResponse(Psychologists psychologist
+    , UsersResponse usersResponse) {
+        return PsychologistResponse.builder()
+                .psychologistId(psychologist.getPsychologistID())
+                .status(psychologist.getStatus().name())
+                .departmentName(psychologist.getDepartment().getName())
+                .yearsOfExperience(psychologist.getYearsOfExperience())
+                .info(usersResponse)
+                .build();
+    }
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist) {
         return PsychologistResponse.builder()
                 .psychologistId(psychologist.getPsychologistID())
@@ -35,7 +45,7 @@ public class PsychologistsMapper {
                         .status(psychologist.getStatus().name())
                         .departmentName(psychologist.getDepartment().getName())
                         .yearsOfExperience(psychologist.getYearsOfExperience())
-                        .usersResponse(UsersResponse.builder()
+                        .info(UsersResponse.builder()
                                 .fullName(users.getFullName())
                                 .username(users.getUsername())
                                 .phoneNumber(users.getPhoneNumber())

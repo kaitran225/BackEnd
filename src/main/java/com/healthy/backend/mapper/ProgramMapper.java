@@ -72,6 +72,17 @@ public class ProgramMapper {
                 .meetingLink(program.getMeetingLink())
                 .build();
     }
+    public ProgramsResponse buildBasicProgramResponse(Programs program) {
+        return ProgramsResponse.builder()
+                .programID(program.getProgramID())
+                .title(program.getProgramName())
+                .duration(program.getDuration())
+                .status(program.getStatus())
+                .startDate(LocalDate.from(program.getStartDate()))
+                .type(program.getType())
+                .meetingLink(program.getMeetingLink())
+                .build();
+    }
 
     public ProgramParticipationResponse buildProgramParticipationResponse(ProgramParticipation participation) {
         return ProgramParticipationResponse.builder()

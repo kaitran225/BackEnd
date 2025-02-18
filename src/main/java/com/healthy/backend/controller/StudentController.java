@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @CrossOrigin
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -43,7 +44,7 @@ public class StudentController {
     // Get student survey results
     @GetMapping("/{studentId}/surveys")
     public ResponseEntity<List<SurveyResultsResponse>> getStudentSurveys(@PathVariable String studentId) {
-        if(!studentService.isStudentExist(studentId))
+        if (!studentService.isStudentExist(studentId))
             throw new ResourceNotFoundException("No student found with id: " + studentId);
         return ResponseEntity.ok(studentService.getSurveyResults(studentId));
     }
@@ -76,5 +77,11 @@ public class StudentController {
     @GetMapping("/{studentId}/appointments/upcoming")
     public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(@PathVariable String studentId) {
         return ResponseEntity.ok(studentService.getUpcomingAppointments(studentId));
+    }
+
+    // Get all students' events
+    @GetMapping("/{studentId}/events")
+    public ResponseEntity<?> getAllAppointments(@PathVariable String studentId) {
+        return ResponseEntity.ok(studentService.getAllEvents(studentId));
     }
 }
