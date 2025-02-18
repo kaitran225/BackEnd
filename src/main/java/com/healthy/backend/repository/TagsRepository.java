@@ -12,4 +12,6 @@ public interface TagsRepository extends JpaRepository<Tags, String> {
     String findLastTagId();
 
     Optional<Tags> findByTagName(String tagName);
+
+    boolean existsByTagName(String tagName);
 }

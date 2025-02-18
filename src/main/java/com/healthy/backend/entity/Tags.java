@@ -26,10 +26,17 @@ public class Tags {
     @ManyToMany(mappedBy = "tags")
     private Set<Programs> programs;
 
+    public Tags(String tagId, String tagName) {
+        this.tagId = tagId;
+        this.tagName = tagName;
+    }
+
     public Tags(String tagId, Tag tagName) {
         this.tagId = tagId;
         this.tagName = tagName.toString().replace("_", " ");
     }
+
+    // For initialization
     public enum Tag {
         Stress,
         Anxiety,

@@ -23,13 +23,6 @@ public class Students {
     @Column(name = "ParentID", length = 36, nullable = false)
     private String parentID;
 
-    @Column(name = "FullName", length = 100, nullable = false)
-    private String fullName;
-
-    @Schema(example = "student@example.com")
-    @Column(name = "Email", length = 100, nullable = false, unique = true)
-    private String email;
-
     @Column(name = "Grade")
     private Integer grade;
 
@@ -48,7 +41,7 @@ public class Students {
     @Column(name = "DepressionScore")
     private Integer depressionScore;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users user;
 

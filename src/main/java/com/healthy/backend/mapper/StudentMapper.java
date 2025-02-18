@@ -40,8 +40,6 @@ public class StudentMapper {
     public Students buildStudentEntity(StudentRequest student) {
         return Students.builder()
                 .studentID(student.getStudentID())
-                .fullName(student.getName())
-                .email(student.getEmail())
                 .grade(student.getGrade())
                 .className(student.getClassName())
                 .schoolName(student.getSchoolName())

@@ -52,6 +52,7 @@ public class UserMapper {
                 .email(requestRequest.getEmail())
                 .phoneNumber(requestRequest.getPhoneNumber())
                 .role(Users.UserRole.valueOf(requestRequest.getRole()))
+                .address(requestRequest.getAddress())
                 .gender(Users.Gender.valueOf(requestRequest.getGender()))
                 .verificationToken(token)
 //                .createdAt(LocalDateTime.now())

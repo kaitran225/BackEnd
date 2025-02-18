@@ -1,9 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.programs.ProgramParticipationRequest;
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
-import com.healthy.backend.dto.programs.ProgramsRequest;
-import com.healthy.backend.dto.programs.ProgramsResponse;
+import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.ProgramService;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.util.List;
@@ -147,7 +143,7 @@ public class ProgramController {
     // Get enrolled programs of a student
     @Operation(summary = "Get enrolled programs of a student", description = "Returns a list of enrolled programs.")
     @GetMapping("/enrolled/{studentId}")
-    public ResponseEntity<?> getEnrolledPrograms(@PathVariable String studentId) {
+    public ResponseEntity<List<ProgramsResponse>> getEnrolledPrograms(@PathVariable String studentId) {
         List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId);
         if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No enrolled programs found");
         return ResponseEntity.ok(programsResponseList);
@@ -156,10 +152,19 @@ public class ProgramController {
     // Get program participants
     @Operation(summary = "Get program participants", description = "Returns a list of participants for a specific program.")
     @GetMapping("/{programId}/participants")
-    public ResponseEntity<?> getProgramParticipants(@PathVariable String programId) {
-        List<ProgramParticipationResponse> programParticipationResponseList = programService.getProgramParticipants(programId);
-        if (programParticipationResponseList.isEmpty()) throw new ResourceNotFoundException("No participants found");
-        return ResponseEntity.ok(programParticipationResponseList);
+    public ResponseEntity<ProgramsResponse> getProgramParticipants(@PathVariable String programId) {
+        ProgramsResponse programsResponse = programService.getProgramParticipants(programId);
+        if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
+        return ResponseEntity.ok(programsResponse);
+    }
+
+    // Get program tags
+    @Operation(summary = "Get program tags", description = "Returns a list of tags for programs.")
+    @GetMapping("/tags")
+    public ResponseEntity<List<ProgramTagResponse>> getProgramTags(){
+        List<ProgramTagResponse> programTagResponseList = programService.getProgramTags();
+        if (programTagResponseList.isEmpty()) throw new ResourceNotFoundException("No tags found");
+        return ResponseEntity.ok(programTagResponseList);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,6 +178,14 @@ public class ProgramController {
             return ResponseEntity.ok("Registration successful for program " + programParticipationRequest.getProgramID());
         }
         throw new ResourceNotFoundException("Failed to register for program");
+    }
+
+    // Submit feedback
+    @PostMapping("/tags/create")
+    public ResponseEntity<?> createProgramTag(@RequestBody ProgramTagRequest programTagRequest) {
+        ProgramTagResponse programTagResponse = programService.createProgramTag(programTagRequest);
+        if (programTagResponse == null) throw new ResourceNotFoundException("Failed to create tag");
+        return ResponseEntity.status(HttpStatus.CREATED).body(programTagResponse);
     }
 
     // Submit feedback

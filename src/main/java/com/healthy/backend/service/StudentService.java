@@ -16,6 +16,7 @@ import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,12 +69,24 @@ public class StudentService {
         return studentMapper.buildStudentResponse(student);
     }
 
+    @Transactional
     public StudentResponse updateStudent(StudentRequest student) {
         Students existingStudent = studentRepository.findById(student.getStudentID())
                 .orElseThrow(() -> new ResourceNotFoundException("No student found with id: " + student.getStudentID()));
-        existingStudent.setFullName(student.getName());
-        existingStudent.setEmail(student.getEmail());
+
+        existingStudent.setGrade(student.getGrade());
+        existingStudent.setClassName(student.getClassName());
+        existingStudent.setSchoolName(student.getSchoolName());
+
+        Users user = existingStudent.getUser();
+        user.setFullName(student.getName());
+        user.setEmail(student.getEmail());
+        user.setPhoneNumber(student.getPhoneNumber());
+        user.setAddress(student.getAddress());
+        user.setUpdatedAt(LocalDateTime.now());
+
         studentRepository.save(existingStudent);
+
         return studentMapper.buildStudentResponse(existingStudent);
     }
 

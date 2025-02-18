@@ -1,6 +1,7 @@
 package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.programs.ProgramTagResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.ProgramParticipation;
@@ -14,6 +15,26 @@ import java.util.stream.Collectors;
 
 @Component
 public class ProgramMapper {
+
+    public ProgramTagResponse buildProgramTagResponse(Tags tag) {
+        return ProgramTagResponse.builder()
+                .tagID(tag.getTagId())
+                .tagName(tag.getTagName())
+                .build();
+    }
+
+    public ProgramsResponse buildProgramsParticipantResponse(Programs program, List<StudentResponse> enrolled) {
+        return ProgramsResponse.builder()
+                .programID(program.getProgramID())
+                .title(program.getProgramName())
+                .facilitatorName(program.getPsychologists().getFullNameFromUser())
+                .departmentName(program.getPsychologists().getDepartment().getName())
+                .tags(program.getTags().stream().map(Tags::getTagName)
+                        .collect(Collectors.toSet()))
+                .type(program.getType())
+                .enrolled(enrolled)
+                .build();
+    }
 
     public ProgramsResponse buildProgramsDetailsResponse(Programs program, List<StudentResponse> enrolled) {
         return ProgramsResponse.builder()

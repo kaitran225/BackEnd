@@ -29,11 +29,14 @@ public class ProgramsRequest {
     private String startDate;
     @Schema(example = "Active")
     private String status;
-    @Schema(examples = {"tag1", "tag2", "tag3"})
+    @Schema(
+            description = "A set of tags associated with the entity.",
+            example = "[\"TAG001\", \"TAG002\", \"TAG003\"]"
+    )
     private HashSet<String> tags;
-    @Schema(example = "")
+    @Schema(example = "PSY001")
     private String facilitatorId;
-    @Schema(example = "")
+    @Schema(example = "DP01")
     private String departmentId;
     @Schema(example = "Online")
     private String type;

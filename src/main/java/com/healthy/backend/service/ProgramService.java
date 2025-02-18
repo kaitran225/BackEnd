@@ -1,13 +1,10 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.programs.ProgramParticipationRequest;
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
-import com.healthy.backend.dto.programs.ProgramsRequest;
+import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
@@ -37,7 +34,7 @@ public class ProgramService {
 
     private final TagsRepository tagsRepository;
 
-    private final  DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
 
     private final PsychologistRepository psychologistRepository;
 
@@ -63,6 +60,16 @@ public class ProgramService {
         return programs.stream().map(programMapper::buildProgramResponse).toList();
     }
 
+    public ProgramTagResponse createProgramTag(ProgramTagRequest programTagRequest) {
+        if (tagsRepository.existsByTagName(programTagRequest.getTagName())) {
+            throw new ResourceAlreadyExistsException("Tag already exists");
+        }
+        String tagId = generateNextTagId(tagsRepository.findLastTagId());
+        Tags newTag = new Tags(tagId, programTagRequest.getTagName());
+        tagsRepository.save(newTag);
+        return programMapper.buildProgramTagResponse(newTag);
+    }
+
     public ProgramsResponse createProgram(ProgramsRequest programsRequest) {
         String programId = generateNextProgramId(programRepository.findLastProgramId());
 
@@ -71,17 +78,11 @@ public class ProgramService {
             throw new ResourceNotFoundException("User with ID " + programsRequest.getUserId() + " not found.");
         }
 
-
-        HashSet<Tags> tags = (HashSet<Tags>) programsRequest.getTags().stream()
-                .map(tagName -> {
-                    return tagsRepository.findByTagName(tagName)
-                            .orElseGet(() -> {
-                                Tags newTag = new Tags(generateNextTagId(tagsRepository.findLastTagId())
-                                        , Tags.Tag.valueOf(tagName));
-                                return tagsRepository.save(newTag);
-                            });
-                })
-                .collect(Collectors.toSet());
+        HashSet<Tags> tags = programsRequest.getTags()
+                .stream()
+                .map(tag -> tagsRepository.findById(tag)
+                        .orElseThrow(() -> new ResourceNotFoundException("Tag not found with ID: " + tag)))
+                .collect(Collectors.toCollection(HashSet::new));
 
         Department department = departmentRepository.findById(programsRequest.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + programsRequest.getDepartmentId()));
@@ -108,6 +109,12 @@ public class ProgramService {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
         return programMapper.buildProgramResponse(program);
+    }
+
+    public List<ProgramTagResponse> getProgramTags() {
+        List<Tags> tags = tagsRepository.findAll();
+        if (tags.isEmpty()) throw new ResourceNotFoundException("No tags found");
+        return tags.stream().map(programMapper::buildProgramTagResponse).toList();
     }
 
     public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest) {
@@ -184,31 +191,26 @@ public class ProgramService {
         return programRepository.findById(programId).isEmpty();
     }
 
+    public ProgramsResponse getProgramParticipants(String programId) {
+        Programs program = programRepository.findById(programId).orElse(null);
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<StudentResponse> studentResponses = getStudentsByProgram(programId);
+        if (studentResponses.isEmpty()) throw new ResourceNotFoundException("No participants found");
+        return programMapper.buildProgramsParticipantResponse(program, studentResponses);
+    }
+
     private List<StudentResponse> getStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
-
         if (studentIDs.isEmpty()) {
             return new ArrayList<>();
         }
-
         return studentIDs.stream()
                 .map(studentRepository::findByStudentID)
                 .map(studentMapper::buildStudentResponse)
                 .toList();
     }
 
-    public List<ProgramParticipationResponse> getProgramParticipants(String programId) {
 
-        List<ProgramParticipation> programParticipants = programParticipationRepository.findByProgramID(programId);
-
-        if (programParticipants.isEmpty()) {
-            throw new ResourceNotFoundException("No programs found");
-        }
-
-        return programParticipants.stream().map(
-                programMapper::buildProgramParticipationResponse
-        ).toList();
-    }
 
     private boolean isJoined(ProgramParticipationRequest programParticipationRequest) {
         return programParticipationRepository.findByProgramIDAndStudentID(
