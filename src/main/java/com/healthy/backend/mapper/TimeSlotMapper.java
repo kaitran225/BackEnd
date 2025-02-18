@@ -8,6 +8,7 @@ import java.util.List;
 
 @Component
 public class TimeSlotMapper {
+
     public TimeSlotResponse buildResponse(TimeSlots timeSlot) {
         return TimeSlotResponse.builder()
                 .timeSlotId(timeSlot.getTimeSlotsID())

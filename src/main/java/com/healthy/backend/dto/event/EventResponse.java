@@ -15,5 +15,5 @@ public class EventResponse {
 
     private String studentId;
 
-    private List<Map<String, EventDetails>> event;
+    private Map<String, EventDetails> event;
 }

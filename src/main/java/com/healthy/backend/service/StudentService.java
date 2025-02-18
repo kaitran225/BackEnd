@@ -121,21 +121,12 @@ public class StudentService {
     }
 
     public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
-        List<Programs> programs = programRepository.findAllById(
-                programParticipationRepository.findByStudentID(studentId)
-                        .stream()
-                        .map(p -> p.getProgram().getProgramID())
-                        .toList()
-        ).stream().filter(
-                p -> p.getStartDate().isAfter(LocalDate.now())
-        ).toList();
-//        return programParticipationRepository.findByStudentID(studentId).stream()
-//                .map(p -> programMapper.buildProgramResponse(
-//                        programRepository
-//                                .findById(p.getProgram().getProgramID())
-//                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
-//                )).toList();
-        return programs.stream().map(programMapper::buildProgramResponse).toList();
+        return programParticipationRepository.findByStudentID(studentId).stream()
+                .map(p -> programMapper.buildProgramResponse(
+                        programRepository
+                                .findById(p.getProgram().getProgramID())
+                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+                )).toList();
     }
 
     public List<ProgramsResponse> getCompletedPrograms(String studentId) {
@@ -179,20 +170,18 @@ public class StudentService {
     }
 
     public EventResponse getAllEvents(String studentId) {
-        // Get all appointments that is upcoming
+
         List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId)
                 .stream()
                 .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
                 .toList();
-        // Get all appointments that is upcoming
-        List<Programs> programs = programRepository.findAllById(
-                programParticipationRepository.findByStudentID(studentId)
-                        .stream()
-                        .map(p -> p.getProgram().getProgramID())
-                        .toList()
-        ).stream().filter(
-                p -> p.getStartDate().isAfter(LocalDate.now())
-        ).toList();
+
+        List<Programs> programs = programParticipationRepository.findByStudentID(studentId).stream()
+                .filter(participation -> participation.getProgram().getStartDate().isAfter(LocalDate.now()))
+                .map(participation -> programRepository
+                        .findById(participation.getProgram().getProgramID())
+                        .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
+                .toList();
 
         return eventMapper.buildEventResponse(appointments, programs, studentId);
     }
