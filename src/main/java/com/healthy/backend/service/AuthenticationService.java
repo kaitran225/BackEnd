@@ -4,12 +4,12 @@ import com.healthy.backend.dto.auth.AuthenticationRequest;
 import com.healthy.backend.dto.auth.AuthenticationResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.dto.auth.VerificationResponse;
+import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.RefreshToken;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.mapper.AuthenticationMapper;
 import com.healthy.backend.mapper.UserMapper;
-import com.healthy.backend.repository.AuthenticationRepository;
-import com.healthy.backend.repository.RefreshTokenRepository;
-import com.healthy.backend.repository.UserRepository;
+import com.healthy.backend.repository.*;
 import com.healthy.backend.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +33,14 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final PsychologistRepository psychologistsRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final JwtService jwtService;
     private final EmailService emailService;
     private final UserMapper usermapper;
+    private final AuthenticationMapper authenticationMapper;
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenDuration;
@@ -114,12 +117,14 @@ public class AuthenticationService {
         // Save refresh token to database
         saveRefreshToken(user.getUserId(), refreshToken);
 
-        return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userId(user.getUserId())
-                .role(user.getRole().toString())
-                .build();
+        if (user.getRole() == Users.UserRole.STUDENT) {
+
+            return authenticationMapper.toAuthenticationResponse(
+                    user, studentRepository.findByUserID(user.getUserId()), accessToken, refreshToken);
+        }
+        return authenticationMapper.toAuthenticationResponse(
+                user, psychologistsRepository.findByUserID(user.getUserId()), accessToken, refreshToken
+        );
     }
 
     // Refresh token

@@ -37,6 +37,9 @@ public class AuthenticationResponse {
     @Schema(example = "PSY001")
     private String psychologistId;
 
+    @Schema(example = "Name")
+    private String fullName;
+
     @Schema(example = "ROlE")
     private String role;
 } 
