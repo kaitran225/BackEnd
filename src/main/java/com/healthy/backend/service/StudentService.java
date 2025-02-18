@@ -6,14 +6,11 @@ import com.healthy.backend.dto.student.StudentRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.dto.user.EventResponse;
+import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AppointmentMapper;
-import com.healthy.backend.mapper.ProgramMapper;
-import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.mapper.SurveyMapper;
+import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,6 +43,10 @@ public class StudentService {
     private final SurveyMapper surveyMapper;
 
     private final ProgramMapper programMapper;
+
+    private final PsychologistsMapper psychologistsMapper;
+
+    private final EventMapper eventMapper;
 
     public boolean isStudentExist(String id) {
         if (!studentRepository.existsById(id))
@@ -193,8 +194,6 @@ public class StudentService {
                 p -> p.getStartDate().isAfter(LocalDate.now())
         ).toList();
 
-
-
-        return new EventResponse();
+        return eventMapper.buildEventResponse(appointments, programs, studentId);
     }
 }

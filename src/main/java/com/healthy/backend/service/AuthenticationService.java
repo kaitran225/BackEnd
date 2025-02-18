@@ -118,12 +118,15 @@ public class AuthenticationService {
         saveRefreshToken(user.getUserId(), refreshToken);
 
         if (user.getRole() == Users.UserRole.STUDENT) {
-
             return authenticationMapper.toAuthenticationResponse(
                     user, studentRepository.findByUserID(user.getUserId()), accessToken, refreshToken);
         }
+        if(user.getRole() == Users.UserRole.PSYCHOLOGIST) {
+            return authenticationMapper.toAuthenticationResponse(
+                    user, psychologistsRepository.findByUserID(user.getUserId()), accessToken, refreshToken);
+        }
         return authenticationMapper.toAuthenticationResponse(
-                user, psychologistsRepository.findByUserID(user.getUserId()), accessToken, refreshToken
+                user, accessToken, refreshToken
         );
     }
 
