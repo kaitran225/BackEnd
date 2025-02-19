@@ -1,9 +1,7 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.auth.AuthenticationRequest;
-import com.healthy.backend.dto.auth.AuthenticationResponse;
-import com.healthy.backend.dto.auth.RegisterRequest;
-import com.healthy.backend.dto.auth.VerificationResponse;
+import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.LogoutService;
@@ -13,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +47,8 @@ public class AuthenticationController {
     )
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @Valid @RequestBody RegisterRequest request
-    ) {
-        return ResponseEntity.ok(authenticationService.register(request));
+            @Valid @RequestBody StudentRegisterRequest request) {
+        return ResponseEntity.ok(authenticationService.registerStudent(request));
     }
 
     @Operation(
@@ -72,43 +70,42 @@ public class AuthenticationController {
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponse> refreshToken(
-            HttpServletRequest request) {
+    @Transactional
+    public ResponseEntity<AuthenticationResponse> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 
     @Operation(
-            deprecated = true,
             summary = "Initiate password reset",
             description = "Send password reset email to user"
     )
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(
-            @RequestParam String email
-    ) {
-        authenticationService.initiatePasswordReset(email);
-        return ResponseEntity.ok("Password reset email sent if account exists");
+    @Transactional
+    public ResponseEntity<?> forgotPassword(
+            @RequestParam
+            @Email(message = "Invalid email format") String email) {
+
+        if (!authenticationService.initiatePasswordReset(email)) {
+            return ResponseEntity.badRequest().body("User with email " + email + " does not exist");
+        }
+        return ResponseEntity.ok("Password reset link have been sent to " + email);
     }
 
     @Operation(
-            deprecated = true,
             summary = "Reset password",
-            description = "Reset password using token from email"
+            description = "Reset password using token from email (Soon be hidden)"
     )
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
             @RequestParam String token,
-            @RequestParam @Size(min = 8, message = "Password must be at least 8 characters long")
+            @RequestParam @Valid @Size(min = 8, message = "Password must be at least 8 characters long")
             @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$",
                     message = "Password must contain at least one digit, one lowercase, one uppercase, and one special character")
-            String newPassword
-    ) {
-        try {
-            authenticationService.resetPassword(token, newPassword);
-            return ResponseEntity.ok("Password successfully reset");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            String newPassword) {
+        if (!authenticationService.resetPassword(token, newPassword)) {
+            return ResponseEntity.badRequest().body("Invalid or expired password reset token");
         }
+        return ResponseEntity.ok("Password successfully reset");
     }
 
     @Operation(
@@ -120,23 +117,25 @@ public class AuthenticationController {
     public ResponseEntity<String> logout(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         logoutHandler.logout(request, response, authentication);
         return ResponseEntity.ok("Successfully logged out");
     }
 
+    @Operation(
+            summary = "Verify user registration",
+            description = "Verify user registration using verification token"
+    )
     @GetMapping("/verify")
     public ResponseEntity<VerificationResponse> verify(@RequestParam String token) {
-        if (token == null) {
-            throw new RuntimeException("This token is invalid");
-        }
-        if (!authenticationService.isVerificationTokenValid(token)) {
-            throw new ResourceAlreadyExistsException("This token is invalid");
+
+        if (token == null || !authenticationService.isVerificationTokenValid(token)) {
+            throw new InvalidTokenException("This token is invalid");
         }
         if (!authenticationService.isVerificationTokenExpired(token)) {
-            throw new RuntimeException("This token is expired");
+            throw new InvalidTokenException("This token is expired");
         }
+
 
         boolean isVerified = authenticationService.verifyUser(token).isVerified();
 

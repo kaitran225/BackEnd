@@ -2,10 +2,7 @@ package com.healthy.backend.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Data
@@ -13,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RegisterRequest {
+public class StudentRegisterRequest {
     @Schema(example = "username")
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
@@ -42,11 +39,19 @@ public class RegisterRequest {
     @Schema(example = "Example Address")
     private String address;
 
-    @Schema(example = "STUDENT")
-    @NotBlank(message = "Role is required")
-    private String role;
-
     @Schema(example = "Male")
     @NotBlank(message = "Gender is required")
     private String gender;
-} 
+
+    @Schema(example = "10")
+    @NotNull(message = "Grade is required")
+    private Integer grade;
+
+    @NotBlank(message = "Class name is required")
+    @Schema(example = "A")
+    private String className;
+
+    @NotBlank(message = "School name is required")
+    @Schema(example = "Example School")
+    private String schoolName;
+}

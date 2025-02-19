@@ -2,7 +2,9 @@ package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.dto.auth.StudentRegisterRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
+import com.healthy.backend.dto.student.StudentRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
@@ -51,9 +53,31 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+    // Convert User entity to UserResponse (Student)
+    public Users buildUserStudentEntity(StudentRegisterRequest requestRequest,
+                                 String token, String userId, String password) {
+        return Users.builder()
+                .userId(userId)
+                .username(requestRequest.getUsername())
+                .passwordHash(password)
+                .fullName(requestRequest.getFullName())
+                .email(requestRequest.getEmail())
+                .phoneNumber(requestRequest.getPhoneNumber())
+                .role(Users.UserRole.valueOf("STUDENT"))
+                .address(requestRequest.getAddress())
+                .gender(Users.Gender.valueOf(requestRequest.getGender()))
+                .verificationToken(token)
+//                .createdAt(LocalDateTime.now())
+//                .updatedAt(LocalDateTime.now())
+//                .isVerified(false)
+//                // Set the token expiration to 12 hours from now
+//                .tokenExpiration(LocalDateTime.now().plusHours(12).plusMinutes(30))
+                .build();
+    }
 
     // Convert User entity to UserResponse
-    public Users buildUserEntity(RegisterRequest requestRequest, String token, String userId, String password) {
+    public Users buildUserEntity(RegisterRequest requestRequest,
+                                 String token, String userId, String password) {
         return Users.builder()
                 .userId(userId)
                 .username(requestRequest.getUsername())

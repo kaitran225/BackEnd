@@ -20,7 +20,7 @@ public class Students {
     @Column(name = "UserID", length = 36, nullable = false)
     private String userID;
 
-    @Column(name = "ParentID", length = 36, nullable = false)
+    @Column(name = "ParentID", length = 36)
     private String parentID;
 
     @Column(name = "Grade")

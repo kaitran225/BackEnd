@@ -165,9 +165,10 @@ public class StudentService {
                 .map(appointmentMapper::buildAppointmentResponse).toList();
     }
 
-    public void createStudent(StudentRequest student) {
-        studentRepository.save(studentMapper.buildStudentEntity(student));
-    }
+//
+//    public void createStudent(StudentRequest student) {
+//        studentRepository.save(studentMapper.buildStudentEntity(student));
+//    }
 
     public EventResponse getAllEvents(String studentId) {
 

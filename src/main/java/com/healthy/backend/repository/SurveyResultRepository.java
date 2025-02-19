@@ -8,7 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import com.healthy.backend.entity.Answers;
 import com.healthy.backend.entity.SurveyResults;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface SurveyResultRepository extends JpaRepository<SurveyResults, String> {
     List<SurveyResults> findByStudentID(String userId);
     Answers findByQuestionIDAndAnswerID(String questionId, String answerId);

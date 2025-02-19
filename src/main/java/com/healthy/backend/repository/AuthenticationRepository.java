@@ -3,7 +3,9 @@ package com.healthy.backend.repository;
 import com.healthy.backend.entity.Users;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AuthenticationRepository extends JpaRepository<Users, String> {
     Users findByUsername(
             @NotBlank(message = "Username is required")
@@ -12,10 +14,6 @@ public interface AuthenticationRepository extends JpaRepository<Users, String> {
     Users findByEmail(
             @NotBlank(message = "Email is required")
             String email);
-
-    Users findByResetToken(
-            @NotBlank(message = "Token is required")
-            String resetToken);
 
     Users findByVerificationToken(
             @NotBlank(message = "Token is required")

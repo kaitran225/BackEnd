@@ -28,6 +28,15 @@ public class AuthenticationResponse {
     @Schema(example = "eyJhbG.eyJzdW.TmCs6rN")
     private String verificationToken;
 
+    @Schema(example = "eyJhbG.eyJzdW.TmCs6rN")
+    private String resetPasswordToken;
+
+    @Schema(example = "2023-01-01")
+    private String resetPasswordExpiresAt;
+
+    @Schema(example = "true")
+    private boolean verified;
+
     @Schema(example = "US001")
     private String userId;
 

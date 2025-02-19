@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface PsychologistRepository extends JpaRepository<Psychologists, String> {
-
     Psychologists findByUserID(String userID);
     List<Psychologists> findByDepartmentDepartmentID(String departmentID);
 } 

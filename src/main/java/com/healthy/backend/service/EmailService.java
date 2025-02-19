@@ -40,6 +40,18 @@ public class EmailService {
                 "Mental Health Care Support Team";
     }
 
+    private String getForgotPasswordMailBody(String verificationLink) {
+        return "Subject: Password Reset Request\n\n" +
+                "Dear User,\n\n" +
+                "We have received a request to reset your account password. To proceed, please click the link below:\n\n" +
+                verificationLink + "\n\n" +
+                "This link will remain valid for the next **12 hours**. If you do not reset your password within this timeframe, you will need to submit a new request.\n\n" +
+                "If you did not initiate this request, please disregard this email. No further action is required on your part.\n\n" +
+                "For any assistance, please contact our support team.\n\n" +
+                "Best regards,\n" +
+                "Mental Health Care Support Team";
+    }
+
 
     @Async
     public void sendVerificationEmail(String email, String verificationLink, String subject) {
@@ -68,6 +80,21 @@ public class EmailService {
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println("Error sending password reset email: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendForgotPasswordEmail(String email, String resetLink) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(mail);
+            message.setTo(email);
+            message.setSubject("Forgot Password Request");
+            message.setText(getForgotPasswordMailBody(resetLink));
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Error sending forgot password email: " + e.getMessage());
         }
     }
 }

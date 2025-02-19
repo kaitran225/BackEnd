@@ -35,7 +35,7 @@ public class Users implements UserDetails {
     @Column(name = "Email", length = 100, unique = true)
     private String email;
 
-    @Column(name = "Address", length = 100, unique = true)
+    @Column(name = "Address", length = 100)
     private String address;
 
     @Column(name = "PhoneNumber", length = 15)
@@ -54,12 +54,6 @@ public class Users implements UserDetails {
 
     @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
-
-    @Column(name = "ResetToken")
-    private String resetToken;
-
-    @Column(name = "ResetTokenExpiry")
-    private LocalDateTime resetTokenExpiry;
 
     @Column(name = "IsVerified", nullable = false)
     private boolean isVerified;
@@ -106,22 +100,6 @@ public class Users implements UserDetails {
         return userId != null;
     }
 
-    public void setResetToken(String token) {
-        this.resetToken = token;
-        this.resetTokenExpiry = LocalDateTime.now().plusHours(24);
-    }
-
-    public boolean isResetTokenValid(String token) {
-        return resetToken != null &&
-                resetToken.equals(token) &&
-                resetTokenExpiry != null &&
-                resetTokenExpiry.isAfter(LocalDateTime.now());
-    }
-
-    public void clearResetToken() {
-        this.resetToken = null;
-        this.resetTokenExpiry = null;
-    }
 
     public enum UserRole {
         STUDENT,
