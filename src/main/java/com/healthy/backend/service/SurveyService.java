@@ -1,18 +1,22 @@
 package com.healthy.backend.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.healthy.backend.dto.survey.*;
-import com.healthy.backend.mapper.SurveyMapper;
 import org.springframework.stereotype.Service;
 
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Answers;
 import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.SurveyAnswerRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
@@ -47,6 +51,37 @@ public class SurveyService {
                 })
                 .toList();
     }
+
+
+    public void updateSurveyQuestion(String surveyID,SurveyQuestionResponse surveyQuestionResponse) {
+        List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
+        
+        if(surveyQuestions.isEmpty()) {
+                throw new ResourceNotFoundException("surveyID not found"  + surveyID);
+        }
+        Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
+                .collect(Collectors.toMap(SurveyQuestions::getQuestionID , Function.identity()));
+        for(QuestionResponse sqr : surveyQuestionResponse.getQuestionList()) {
+                SurveyQuestions surveyQuestion1 = surveyQuestionMap.get(sqr.getId());
+                List<QuestionOption> questionOptions = new ArrayList<>();
+                if(surveyQuestion1 != null) {
+                        surveyQuestion1.setQuestionText(sqr.getQuestionText());
+                        surveyQuestion1.setCategory(surveyQuestion1.getCategory());
+
+                        List<Answers> answer = surveyAnswerRepository.findByQuestionID(surveyQuestion1.getQuestionID());
+                        answer
+                                .forEach(ans -> {
+                                        QuestionOption QP = new QuestionOption();
+                                        QP.setValue(ans.getScore());
+                                        QP.setLabel(ans.getAnswer()); 
+                                        questionOptions.add(QP);                                   
+                                });
+
+                        sqr.setQuestionOptions(questionOptions);
+                        surveyQuestionRepository.save(surveyQuestion1);                
+                }
+        }
+}
 
 //    public void updateSurveyQuestion(String questionID, String surveyID,
 //                                     String answerID,
