@@ -28,6 +28,7 @@ public class PsychologistsMapper {
                 .info(usersResponse)
                 .build();
     }
+
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist) {
         return PsychologistResponse.builder()
                 .name(psychologist.getFullNameFromUser())
@@ -37,6 +38,7 @@ public class PsychologistsMapper {
                 .yearsOfExperience(psychologist.getYearsOfExperience())
                 .build();
     }
+
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist,
                                         List<Appointments> appointments,
                                         Users users) {

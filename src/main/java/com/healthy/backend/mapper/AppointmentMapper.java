@@ -38,6 +38,7 @@ public class AppointmentMapper {
                 .appointmentID(appointment.getAppointmentID())
                 .Status(appointment.getStatus().name())
                 .slot(appointment.getTimeSlotsID().substring(appointment.getTimeSlotsID().length() - 2))
+                .psychologistID(psychologistResponse.getPsychologistId())
                 .psychologistName(psychologistResponse.getName())
                 .build();
     }
