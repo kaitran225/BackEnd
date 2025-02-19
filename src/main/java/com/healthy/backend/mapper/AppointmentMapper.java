@@ -30,6 +30,18 @@ public class AppointmentMapper {
                 .checkOutTime(appointment.getCheckOutTime())
                 .build();
     }
+
+    public AppointmentResponse buildBasicAppointmentResponse(
+            Appointments appointment,
+            PsychologistResponse psychologistResponse) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .Status(appointment.getStatus().name())
+                .slot(appointment.getTimeSlotsID().substring(appointment.getTimeSlotsID().length() - 2))
+                .psychologistName(psychologistResponse.getName())
+                .build();
+    }
+
     public AppointmentResponse buildAppointmentResponse(
             Appointments appointment
     ) {
@@ -42,19 +54,6 @@ public class AppointmentMapper {
                 .UpdatedAt(appointment.getUpdatedAt())
                 .checkInTime(appointment.getCheckInTime())
                 .checkOutTime(appointment.getCheckOutTime())
-                .build();
-    }
-    public AppointmentResponse buildBasicAppointmentResponse(
-            Appointments appointment,
-            PsychologistResponse psychologistResponse
-    ) {
-        return AppointmentResponse.builder()
-                .appointmentID(appointment.getAppointmentID())
-                .CreatedAt(appointment.getCreatedAt())
-                .psychologistResponse(psychologistResponse)
-                .Status(appointment.getStatus().name())
-                .timeSlotID(appointment.getTimeSlotsID())
-                .timeSlotInfo(appointment.getTimeSlot())
                 .build();
     }
 }

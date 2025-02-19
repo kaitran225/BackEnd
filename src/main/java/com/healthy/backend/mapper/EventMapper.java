@@ -33,21 +33,23 @@ public class EventMapper {
 
         List<AppointmentResponse> appointmentResponses = appointments.stream()
                 .map(appointment -> {
-                    PsychologistResponse psychologistResponse = psychologistsMapper.buildPsychologistResponse(appointment.getPsychologist());
-                    return appointmentMapper.buildBasicAppointmentResponse(appointment, psychologistResponse);
+                    Psychologists psychologists = appointment.getPsychologist();
+                    return appointmentMapper.buildBasicAppointmentResponse(
+                            appointment,
+                            psychologistsMapper.buildPsychologistResponse(psychologists)
+                    );
                 })
                 .toList();
-
 
         List<ProgramsResponse> programsResponses = programs.stream()
                 .map(programMapper::buildBasicProgramResponse)
                 .toList();
 
-//        for (Appointments appointment : appointments){
-//            String date = appointment.getTimeSlot().getSlotDate().toString();
-//            dateMap.putIfAbsent(date, new EventDetails(new ArrayList<>(), new ArrayList<>()));
-//            dateMap.get(date).getAppointment().add(appointmentResponses.get(appointments.indexOf(appointment)));
-//        }
+        for (Appointments appointment : appointments) {
+            String date = appointment.getTimeSlot().getSlotDate().toString();
+            dateMap.putIfAbsent(date, new EventDetails(new ArrayList<>(), new ArrayList<>()));
+            dateMap.get(date).getAppointment().add(appointmentResponses.get(appointments.indexOf(appointment)));
+        }
         for (Programs program : programs) {
             String date = program.getStartDate().toString();
             dateMap.putIfAbsent(date, new EventDetails(new ArrayList<>(), new ArrayList<>()));

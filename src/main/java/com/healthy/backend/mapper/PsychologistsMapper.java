@@ -30,6 +30,7 @@ public class PsychologistsMapper {
     }
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist) {
         return PsychologistResponse.builder()
+                .name(psychologist.getFullNameFromUser())
                 .psychologistId(psychologist.getPsychologistID())
                 .status(psychologist.getStatus().name())
                 .departmentName(psychologist.getDepartment().getName())
