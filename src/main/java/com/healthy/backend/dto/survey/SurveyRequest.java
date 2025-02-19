@@ -7,18 +7,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SurveysResponse {
-    @Schema(example = "SUR001")
-    private String id;
+public class SurveyRequest {
     @Schema(example = "Example Survey")
     private String title;
     @Schema (example = "Survey Description")
     private String description;
+    @Schema (example = "Details")
+    private String detailedDescription;
     @Schema (example = "General")
     private String categoryID;
     @Schema (example = "15-20")
@@ -29,10 +31,9 @@ public class SurveysResponse {
     private String categoryName;
     @Schema (example = "Finished")
     private String status;
-    @Schema (example = "Details")
-    private String detailedDescription;
     @Schema (example = "2023-01-01")
     private String createdAt;
     @Schema (example = "US001")
     private String createBy;
+    private List<SurveyQuestionRequest> question;
 }

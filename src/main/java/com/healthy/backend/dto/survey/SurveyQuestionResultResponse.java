@@ -29,7 +29,6 @@ public class SurveyQuestionResultResponse {
     private String answer;
     @Schema(example = "1")
     private Integer score;
-
     private List<SurveyQuestionResultResponse> answers;
 
 }

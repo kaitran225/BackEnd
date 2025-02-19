@@ -4,12 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.dto.survey.*;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
@@ -89,11 +87,57 @@ public class SurveyMapper {
                 .questions(questions)
                 .build();
     }
-    public SurveysResponse mapToSurveyResultsResponse(Surveys survey) {
+
+    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions) {
         return SurveysResponse.builder()
-                .surveyID(survey.getSurveyID())
-                .surveyName(survey.getSurveyName())
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
                 .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .numberOfQuestions(numberOfQuestions)
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createdAt(survey.getCreatedAt().toString())
+                .createBy(survey.getCreator().getFullName())
+                .build();
+    }
+
+    public SurveyQuestionResponse buildSurveyQuestionResponse(
+            List<QuestionResponse> questionResponseList,
+            Surveys survey
+    ) {
+        return SurveyQuestionResponse.builder()
+                .surveyId(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .questionList(questionResponseList)
+                .build();
+    }
+
+    public QuestionResponse buildQuestionResponse(
+            List<QuestionOption> questionOption,
+            SurveyQuestions surveyQuestions,
+            Integer index) {
+        return QuestionResponse.builder()
+                .id(index.toString())
+                .questionText(surveyQuestions.getQuestionText())
+                .questionCategory(surveyQuestions.getCategory().getCategoryName().name())
+                .questionOptions(questionOption)
+                .build();
+    }
+
+    public SurveysResponse buildSurveysResponse(Surveys survey) {
+        return SurveysResponse.builder()
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createBy(survey.getCreator().getFullName())
                 .build();
     }
 }

@@ -108,7 +108,7 @@ public class StudentService {
                 .filter(survey -> {
                     return surveyResultRepository.findByStudentID(id).stream().noneMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
                 })
-                .map(surveyMapper::mapToSurveyResultsResponse).toList();
+                .map(surveyMapper::buildSurveysResponse).toList();
     }
 
     public List<SurveysResponse> getCompletedSurveys(String id) {
@@ -117,7 +117,7 @@ public class StudentService {
                 .stream()
                 .filter(survey -> {
                     return surveyResultRepository.findByStudentID(id).stream().anyMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
-                }).map(surveyMapper::mapToSurveyResultsResponse).toList();
+                }).map(surveyMapper::buildSurveysResponse).toList();
     }
 
     public List<ProgramsResponse> getEnrolledPrograms(String studentId) {

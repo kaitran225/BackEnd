@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,12 @@ public class Surveys {
 
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "Details", columnDefinition = "TEXT")
+    private String details;
+
+    @Column(name = "Duration", length = 100)
+    private String duration;
 
     @Column(name = "CategoryID", length = 36, nullable = false)
     private String categoryID;
