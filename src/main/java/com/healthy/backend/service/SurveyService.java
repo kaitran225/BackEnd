@@ -1,6 +1,6 @@
 package com.healthy.backend.service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +55,11 @@ public class SurveyService {
                         .orElseThrow(() -> new ResourceNotFoundException(" Survey not found"));
                     SurveyQuestionResultResponse surveyResultsResponse = surveyMapper.mapToSurveyQuestionResponse
                                                                     (result, surveyQuestion);
-                    // return surveyMapper.mapToSurveyResultsResponse(surveys, Collections.singletonList(surveyResultsResponse))  ;     
+                    // return surveyMapper.mapToSurveyResultsResponse(surveys, Collections.singletonList(surveyResultsResponse))  ;
                     return surveyMapper.mapToSurveyResultsResponse1(surveys, Collections.singletonList(surveyResultsResponse), result);
                })
                .collect(Collectors.toList());
-                                                         
+
 
     }
 
@@ -97,6 +97,54 @@ public class SurveyService {
     public String getAnswerByQuestionText(String questionId) {
         return questionAnswerMap.get(questionId);
     }
+
+    public SurveyQuestionResult getAllQuestionInSurveyID(String surveyID) {
+    List<SurveyQuestions> surveyQuestionsList = surveyQuestionRepository.findBySurveyID(surveyID);
+    List<SurveyResults> surveyResultses = new ArrayList<>();
+
+    if(surveyQuestionsList.isEmpty()) {
+        throw new ResourceNotFoundException("No questions found for surveyID " + surveyID);
+    }
+
+    Map<String, List<SurveyQuestionResultResponse>> answerMap = new HashMap<>();
+
+    for (SurveyQuestions surveyQuestions : surveyQuestionsList) {
+        List<SurveyResults> surveyResults = surveyResultRepository.findByQuestionID(surveyQuestions.getQuestionID());
+
+        for (SurveyResults surveyResult : surveyResults) {
+            Answers answer = surveyAnswerRepository.findByAnswerID(surveyResult.getAnswerID());
+            SurveyQuestionResultResponse ans = surveyQuestionMapper.mapToSurveyAns(surveyResult, answer);
+
+            answerMap.computeIfAbsent(surveyResult.getQuestionID(), r -> new ArrayList<>()).add(ans);
+        }
+        surveyResultses.addAll(surveyResults);
+    }
+
+    List<SurveyQuestionResultResponse> surveyRes = new ArrayList<>();
+
+    answerMap.entrySet().stream()
+        .map(ansMap -> {
+            String questionID = ansMap.getKey();
+            List<SurveyQuestionResultResponse> sqr = ansMap.getValue();
+
+            SurveyQuestions surveyQuestions = surveyQuestionRepository.findById(questionID)
+                .orElseThrow(() -> new ResourceNotFoundException("QuestionID not found: " + questionID));
+
+            SurveyResults surveyResult = surveyResultses.stream()
+                .filter(s -> s.getQuestionID().equals(questionID))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("SurveyResults not found"));
+
+
+            SurveyQuestionResultResponse surveyQuestionResultResponse = surveyQuestionMapper.mapToSurveyQuestionResponse2(surveyResult, surveyQuestions, sqr);
+            surveyRes.add(surveyQuestionResultResponse);
+
+            return surveyQuestionMapper.mapToListQuestion(surveyRes, surveyQuestionsList);
+        })
+        .collect(Collectors.toList());
+
+    return surveyQuestionMapper.mapToListQuestion(surveyRes, surveyQuestionsList);
+}
 
 }
 

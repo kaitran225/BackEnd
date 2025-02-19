@@ -10,6 +10,6 @@ import com.healthy.backend.entity.Answers;
 
 
 public interface SurveyAnswerRepository extends JpaRepository<Answers, String> {
+    Answers findByAnswerID(String answerId);
     
-
 }
