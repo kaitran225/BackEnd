@@ -1,7 +1,6 @@
 package com.healthy.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @Table(name = "Notifications")
 public class Notifications {
 
@@ -40,6 +38,13 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
+
+    @Column(name = "AppointmentID", length = 36)
+    private String appointmentID;
+
+    @ManyToOne
+    @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
+    private Appointments appointment;
 
     public Notifications() {
         isRead = false;
