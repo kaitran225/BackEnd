@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -47,6 +48,8 @@ public class AppointmentService {
     private final NotificationService notificationService;
 
     private final UserRepository userRepository;
+
+    private final EmailService emailService;
 
 
 
@@ -103,43 +106,58 @@ public class AppointmentService {
         if (timeSlot.getStatus() != TimeSlots.Status.Available) {
             throw new ResourceInvalidException("Time slot is not valid");
         }
+
         // Validate student and psychologist
         Students student = studentRepository.findByUserID(request.getUserId());
         if (student == null) {
             throw new ResourceNotFoundException("Student not found with ID: " + request.getUserId());
         }
+
         Psychologists psychologist = psychologistRepository.findById(timeSlot.getPsychologist().getPsychologistID())
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + timeSlot.getPsychologist().getPsychologistID()));
 
+        // Create new appointment
         Appointments appointment = new Appointments();
         appointment.setAppointmentID(generateAppointmentId());
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
         appointment.setStudentID(student.getStudentID());
         appointment.setPsychologistID(psychologist.getPsychologistID());
 
+        // Save appointment and update time slot status
         Appointments savedAppointment = appointmentRepository.save(appointment);
         timeSlot.setStatus(TimeSlots.Status.Booked);
         timeSlotRepository.save(timeSlot);
 
+        // Lấy thông tin user của psychologist
         Users psychologistUser = userRepository.findByUserId(psychologist.getUserID())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        // Gửi email thông báo cho psychologist
+        if (psychologistUser.getEmail() != null) {
+            String emailSubject = "New Appointment Booked";
+            String emailBody = "You have a new appointment with student: " + student.getUser().getFullName() +
+                    "\nAppointment ID: " + savedAppointment.getAppointmentID() +
+                    "\nTime: " + timeSlot.getStartTime() + " - " + timeSlot.getEndTime() +
+                    "\nDate: " + timeSlot.getSlotDate();
 
+            emailService.sendNotificationEmail(psychologistUser.getEmail(), emailSubject, emailBody);
+        }
+
+        // Tạo notification cho psychologist
         notificationService.createNotification(
                 psychologistUser.getUserId(),
-                "New appointment pending",
+                "New Appointment Booked",
                 "You have a new appointment with " + student.getUser().getFullName(),
                 Notifications.Type.Appointment
         );
 
-        // Map sang DTO
+        // Map sang DTO và trả về response
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),
                 studentMapper.buildStudentResponse(student)
         );
     }
-
     // Cancel
     public AppointmentResponse cancelAppointment(String appointmentId) {
 
@@ -165,35 +183,17 @@ public class AppointmentService {
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
 
-    // Update time slot
+
     public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot find appointment with id " + appointmentId));
-        TimeSlots TimeSlot = timeSlotRepository.findById(request.getTimeSlotId()).orElseThrow();
 
-        if(!appointment.getPsychologist().getPsychologistID().equals(TimeSlot.getPsychologist().getPsychologistID())){
-            notificationService.createNotification(
-                    appointment.getPsychologist().getPsychologistID(),
-                    " appointment change psychogotist",
-                    "Your application has been changed to someone else" ,
-                    Notifications.Type.Appointment
-            );
-        }
-        //Check time slot null
-        if (request.getTimeSlotId() == null) {
-            throw new ResourceNotFoundException("Can not find time slot");
-        }
-
-
-        //Check appointment status
+        // Check appointment status
         if (appointment.getStatus() != StatusEnum.Scheduled) {
             throw new ResourceInvalidException("You can only update a scheduled appointment");
         }
 
-
-
         if (!request.getTimeSlotId().equals(appointment.getTimeSlotsID())) {
-
             TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + request.getTimeSlotId()));
 
@@ -201,21 +201,69 @@ public class AppointmentService {
                 throw new ResourceNotFoundException("Time slot is not available");
             }
 
-            TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID()).orElseThrow(
-                    () -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID())
-            );
+            TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID()));
 
+            // Lấy thông tin psychologist cũ và mới
+            String oldPsychId = appointment.getPsychologistID();
+            String newPsychId = newTimeSlot.getPsychologist().getPsychologistID();
+
+            // Xử lý khi chuyển sang psychologist khác
+            if (!oldPsychId.equals(newPsychId)) {
+                Psychologists oldPsychologist = psychologistRepository.findById(oldPsychId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Old psychologist not found"));
+                Psychologists newPsychologist = newTimeSlot.getPsychologist();
+
+                // Lấy thông tin user
+                Optional<Users> oldUser = userRepository.findByUserId(oldPsychologist.getUserID());
+                Optional<Users> newUser = userRepository.findByUserId(newPsychologist.getUserID());
+
+                // Gửi thông báo cho psychologist cũ
+                if (oldUser.isPresent()) {
+
+                    String emailSubject = " Appointment Transferred";
+                    String emailBody = " appointment Transferred with student: " + appointment.getStudent().getUser().getFullName() +
+                            "\nAppointment ID: " + appointment.getAppointmentID() +
+                            "\nTime: " + oldTimeSlot.getStartTime() + " - " + newTimeSlot.getEndTime() +
+                            "\nDate: " + oldTimeSlot.getSlotDate();
+                    emailService.sendNotificationEmail(oldUser.get().getEmail(), emailSubject, emailBody);
+
+                    notificationService.createNotification(
+                            oldUser.get().getUserId(),
+                            "Appointment Transferred",
+                            "Your appointment has been transferred to another psychologist.",
+                            Notifications.Type.Appointment
+                    );
+                }
+
+                // Gửi thông báo cho psychologist mới
+                if (newUser.isPresent()) {
+                    String emailSubject = "New Appointment Booked";
+                    String emailBody = "You have a new appointment with student: " + appointment.getStudent().getUser().getFullName() +
+                            "\nAppointment ID: " + appointment.getAppointmentID() +
+                            "\nTime: " + newTimeSlot.getStartTime() + " - " + newTimeSlot.getEndTime() +
+                            "\nDate: " + newTimeSlot.getSlotDate();
+                    emailService.sendNotificationEmail(newUser.get().getEmail(), emailSubject, emailBody);
+                    notificationService.createNotification(
+                            newUser.get().getUserId(),
+                            "New Appointment",
+                            "New appointment assigned to you.",
+                            Notifications.Type.Appointment
+                    );
+                }
+            }
+
+            // Cập nhật trạng thái time slot
             newTimeSlot.setStatus(TimeSlots.Status.Booked);
             timeSlotRepository.save(newTimeSlot);
-            // Only update old time slot if new time slot is updated
-            if (timeSlotRepository.findById(appointment.getTimeSlotsID()).isPresent() &&
-                    timeSlotRepository.findById(appointment.getTimeSlotsID()).get().getStatus().equals(TimeSlots.Status.Booked)) {
+
+            if (oldTimeSlot.getStatus() == TimeSlots.Status.Booked) {
                 oldTimeSlot.setStatus(TimeSlots.Status.Available);
                 timeSlotRepository.save(oldTimeSlot);
             }
-            //Update appointment
+
             appointment.setTimeSlotsID(newTimeSlot.getTimeSlotsID());
-            appointment.setPsychologistID(newTimeSlot.getPsychologist().getPsychologistID());
+            appointment.setPsychologistID(newPsychId);
         }
 
         if (request.getNotes() != null) {
@@ -224,9 +272,10 @@ public class AppointmentService {
 
         appointmentRepository.save(appointment);
         return appointmentMapper.buildAppointmentResponse(appointment);
-
-
     }
+
+
+
 
     // Check in
     public AppointmentResponse checkIn(String appointmentId) {

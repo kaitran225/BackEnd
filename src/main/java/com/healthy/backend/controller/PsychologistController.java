@@ -1,10 +1,12 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
+import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,6 +40,8 @@ public class PsychologistController {
 
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
+
+    private  final AppointmentService appointmentService;
 
     @Operation(
             summary = "Get all psychologists",
@@ -127,6 +131,18 @@ public class PsychologistController {
         return "Psychologists' availability status";
     }
 
+    @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
+    }
 
     @Operation(
             deprecated = true,
