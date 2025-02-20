@@ -210,6 +210,8 @@ public class AppointmentService {
 
         appointmentRepository.save(appointment);
         return appointmentMapper.buildAppointmentResponse(appointment);
+
+
     }
 
     // Check in
