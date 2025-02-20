@@ -90,32 +90,12 @@ public class PsychologistController {
 
     @Operation(
             deprecated = true,
-            summary = "Submit assessment report",
-            description = "Submits an assessment report for an appointment."
-    )
-    @PostMapping("/{id}/reports/{appointmentId}")
-    public String submitAssessmentReport(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String report) {
-        return "Assessment report submitted for appointment " + appointmentId;
-    }
-
-    @Operation(
-            deprecated = true,
             summary = "Get psychologist feedback",
             description = "Returns feedback for a psychologist."
     )
     @GetMapping("/{id}/feedback")
     public List<String> getFeedback(@PathVariable String id) {
         return List.of("Feedback for psychologist " + id);
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get psychologist dashboard",
-            description = "Returns dashboard details for a psychologist."
-    )
-    @GetMapping("/{id}/dashboard")
-    public String getPsychologistDashboard(@PathVariable String id) {
-        return "Dashboard details for psychologist " + id;
     }
 
     @Operation(

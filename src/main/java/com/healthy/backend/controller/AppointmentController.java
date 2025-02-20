@@ -31,18 +31,7 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
-    @Operation(
-            summary = "Get all departments",
-            description = "Returns a list of all departments."
-    )
-    @GetMapping("/departments")
-    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
-        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
-        if (!appointmentResponse.isEmpty()) {
-            return ResponseEntity.ok(appointmentResponse);
-        }
-        return ResponseEntity.noContent().build();
-    }
+
 
     @Operation(
             summary = "Get all appointments",
@@ -90,6 +79,8 @@ public class AppointmentController {
         }
         throw new OperationFailedException("Failed to cancel appointment");
     }
+
+
 
     @Operation(
             deprecated = true,
@@ -142,12 +133,16 @@ public class AppointmentController {
     @PutMapping("/{appointmentId}")
     public ResponseEntity<AppointmentResponse> updateAppointment(@PathVariable String appointmentId,
                                     @RequestBody AppointmentUpdateRequest request) {
+
         AppointmentResponse response = appointmentService.updateAppointment(appointmentId, request);
         if (response != null) {
             return ResponseEntity.ok(response);
         }
+
         throw new OperationFailedException("Failed to update appointment");
     }
+
+
 
     @Operation(
             deprecated = true,
@@ -158,5 +153,8 @@ public class AppointmentController {
     public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
         return "Report created successfully";
     }
+
+
+
 }
 

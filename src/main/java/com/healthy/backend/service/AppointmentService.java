@@ -124,6 +124,7 @@ public class AppointmentService {
         timeSlot.setStatus(TimeSlots.Status.Booked);
         timeSlotRepository.save(timeSlot);
 
+        // Lấy thông tin user của psychologist
         Users psychologistUser = userRepository.findByUserId(psychologist.getUserID())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -134,7 +135,7 @@ public class AppointmentService {
                     "New Appointment Booked",
                     emailService.getNewAppointmentMailBody(
                             appointment.getPsychologist().getFullNameFromUser(),
-                            appointment.getStudent()   ,
+                            appointment.getStudent(),
                             appointment.getAppointmentID(),
                             appointment.getTimeSlot()
                     )
@@ -149,7 +150,7 @@ public class AppointmentService {
                 Notifications.Type.Appointment
         );
 
-        // Build response
+        // Map sang DTO và trả về response
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),
@@ -203,16 +204,17 @@ public class AppointmentService {
             TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID()));
 
-            // Getting psychologist
+            // Lấy thông tin psychologist cũ và mới
             String oldPsychId = appointment.getPsychologistID();
             String newPsychId = newTimeSlot.getPsychologist().getPsychologistID();
 
-            // Process transfer to new psychologist
+            // Xử lý khi chuyển sang psychologist khác
             if (!oldPsychId.equals(newPsychId)) {
                 Psychologists oldPsychologist = psychologistRepository.findById(oldPsychId)
                         .orElseThrow(() -> new ResourceNotFoundException("Old psychologist not found"));
                 Psychologists newPsychologist = newTimeSlot.getPsychologist();
 
+                // Lấy thông tin user
                 Users oldUser = userRepository.findByUserId(oldPsychologist.getUserID()).orElseThrow(
                         () -> new ResourceNotFoundException("Old User not found")
                 );
@@ -227,7 +229,7 @@ public class AppointmentService {
                             "New Appointment Booked",
                             emailService.getAppointmentTransferredMailBody(
                                     appointment.getPsychologist().getFullNameFromUser(),
-                                    appointment.getStudent()   ,
+                                    appointment.getStudent(),
                                     appointment.getAppointmentID(),
                                     appointment.getTimeSlot()
                             )
@@ -247,7 +249,7 @@ public class AppointmentService {
                             "New Appointment Booked",
                             emailService.getNewAppointmentMailBody(
                                     appointment.getPsychologist().getFullNameFromUser(),
-                                    appointment.getStudent()   ,
+                                    appointment.getStudent(),
                                     appointment.getAppointmentID(),
                                     appointment.getTimeSlot()
                             )
