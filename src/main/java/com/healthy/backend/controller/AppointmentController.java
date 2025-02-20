@@ -91,14 +91,26 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to cancel appointment");
     }
 
+
+
     @Operation(
             deprecated = true,
-            summary = "Request update of an appointment",
-            description = "Requests an update of an appointment."
+            summary = "Add session notes",
+            description = "Adds session notes for an appointment."
     )
-    @PutMapping("/{appointmentId}/update-request")
-    public String requestUpdateAppointment(@PathVariable String appointmentId) {
-        return "Appointment update requested";
+    @PostMapping("/{id}/notes/{appointmentId}")
+    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
+        return "Session notes added for appointment " + appointmentId;
+    }
+
+    @Operation(
+            deprecated = true,
+            summary = "Get session notes",
+            description = "Returns session notes for an appointment."
+    )
+    @GetMapping("/{id}/notes/{appointmentId}")
+    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
+        return "Session notes for appointment " + appointmentId;
     }
 
     @Operation(summary = "Check in to an appointment")
@@ -132,12 +144,16 @@ public class AppointmentController {
     @PutMapping("/{appointmentId}")
     public ResponseEntity<AppointmentResponse> updateAppointment(@PathVariable String appointmentId,
                                     @RequestBody AppointmentUpdateRequest request) {
+
         AppointmentResponse response = appointmentService.updateAppointment(appointmentId, request);
         if (response != null) {
             return ResponseEntity.ok(response);
         }
+
         throw new OperationFailedException("Failed to update appointment");
     }
+
+
 
     @Operation(
             deprecated = true,
@@ -148,5 +164,8 @@ public class AppointmentController {
     public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
         return "Report created successfully";
     }
+
+
+
 }
 

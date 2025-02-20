@@ -49,6 +49,8 @@ public class AppointmentService {
     private final UserRepository userRepository;
 
 
+
+
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
                 .stream()
@@ -167,16 +169,28 @@ public class AppointmentService {
     public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot find appointment with id " + appointmentId));
+        TimeSlots TimeSlot = timeSlotRepository.findById(request.getTimeSlotId()).orElseThrow();
 
+        if(!appointment.getPsychologist().getPsychologistID().equals(TimeSlot.getPsychologist().getPsychologistID())){
+            notificationService.createNotification(
+                    appointment.getPsychologist().getPsychologistID(),
+                    " appointment change psychogotist",
+                    "Your application has been changed to someone else" ,
+                    Notifications.Type.Appointment
+            );
+        }
         //Check time slot null
         if (request.getTimeSlotId() == null) {
             throw new ResourceNotFoundException("Can not find time slot");
         }
 
+
         //Check appointment status
         if (appointment.getStatus() != StatusEnum.Scheduled) {
             throw new ResourceInvalidException("You can only update a scheduled appointment");
         }
+
+
 
         if (!request.getTimeSlotId().equals(appointment.getTimeSlotsID())) {
 

@@ -85,35 +85,9 @@ public class PsychologistController {
         return List.of("List of appointments for psychologist " + id);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Add session notes",
-            description = "Adds session notes for an appointment."
-    )
-    @PostMapping("/{id}/notes/{appointmentId}")
-    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
-        return "Session notes added for appointment " + appointmentId;
-    }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get session notes",
-            description = "Returns session notes for an appointment."
-    )
-    @GetMapping("/{id}/notes/{appointmentId}")
-    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
-        return "Session notes for appointment " + appointmentId;
-    }
 
-    @Operation(
-            deprecated = true,
-            summary = "Submit assessment report",
-            description = "Submits an assessment report for an appointment."
-    )
-    @PostMapping("/{id}/reports/{appointmentId}")
-    public String submitAssessmentReport(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String report) {
-        return "Assessment report submitted for appointment " + appointmentId;
-    }
+
 
     @Operation(
             deprecated = true,
@@ -125,15 +99,9 @@ public class PsychologistController {
         return List.of("Feedback for psychologist " + id);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get psychologist dashboard",
-            description = "Returns dashboard details for a psychologist."
-    )
-    @GetMapping("/{id}/dashboard")
-    public String getPsychologistDashboard(@PathVariable String id) {
-        return "Dashboard details for psychologist " + id;
-    }
+
+
+
 
     @Operation(
             summary = "Get all psychologists",
