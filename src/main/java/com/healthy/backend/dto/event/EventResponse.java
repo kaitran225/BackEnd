@@ -13,7 +13,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventResponse {
 
-    private String studentId;
+    private String userId;
 
     private Map<String, EventDetails> event;
 }

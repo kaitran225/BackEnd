@@ -78,10 +78,4 @@ public class StudentController {
     public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(@PathVariable String studentId) {
         return ResponseEntity.ok(studentService.getUpcomingAppointments(studentId));
     }
-
-    // Get all students' events
-    @GetMapping("/{studentId}/events")
-    public ResponseEntity<?> getAllAppointments(@PathVariable String studentId) {
-        return ResponseEntity.ok(studentService.getAllEvents(studentId));
-    }
 }

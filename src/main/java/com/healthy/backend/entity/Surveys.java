@@ -71,8 +71,6 @@ public class Surveys {
     }
 
     public enum Status {
-        Unfinished,
-        Finished,
-        Cancelled
+        Active, Inactive, Cancelled
     }
 } 

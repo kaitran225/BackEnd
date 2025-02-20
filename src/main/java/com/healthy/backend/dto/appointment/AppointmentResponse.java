@@ -63,6 +63,8 @@ public class AppointmentResponse {
     private LocalDateTime checkOutTime;
     private String psychologistID;
     private String psychologistName;
+    private String studentID;
     private String studentName;
-    private String slot;
+    private String startTime;
+    private String endTime;
 }

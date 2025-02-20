@@ -35,6 +35,10 @@ public class AppointmentService {
 
     private final DepartmentRepository departmentRepository;
 
+    private final UserRepository userRepository;
+
+    private final EmailService emailService;
+
     private final AppointmentMapper appointmentMapper;
 
     private final StudentMapper studentMapper;
@@ -50,9 +54,6 @@ public class AppointmentService {
     private final UserRepository userRepository;
 
     private final EmailService emailService;
-
-
-
 
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
@@ -94,7 +95,7 @@ public class AppointmentService {
                 studentMapper.buildStudentResponse(
                         students,
                         userMapper.buildBasicUserResponse(students.getUser()))
-                );
+        );
     }
 
 
@@ -134,16 +135,18 @@ public class AppointmentService {
 
         // Gửi email thông báo cho psychologist
         if (psychologistUser.getEmail() != null) {
-            String emailSubject = "New Appointment Booked";
-            String emailBody = "You have a new appointment with student: " + student.getUser().getFullName() +
-                    "\nAppointment ID: " + savedAppointment.getAppointmentID() +
-                    "\nTime: " + timeSlot.getStartTime() + " - " + timeSlot.getEndTime() +
-                    "\nDate: " + timeSlot.getSlotDate();
-
-            emailService.sendNotificationEmail(psychologistUser.getEmail(), emailSubject, emailBody);
+            emailService.sendNotificationEmail(
+                    psychologistUser.getEmail(),
+                    "New Appointment Booked",
+                    emailService.getNewAppointmentMailBody(
+                            appointment.getPsychologist().getFullNameFromUser(),
+                            appointment.getStudent()   ,
+                            appointment.getAppointmentID(),
+                            appointment.getTimeSlot()
+                    )
+            );
         }
-
-        // Tạo notification cho psychologist
+   // Tạo notification cho psychologist
         notificationService.createNotification(
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
@@ -203,7 +206,7 @@ public class AppointmentService {
 
             TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID()));
-
+          
             // Lấy thông tin psychologist cũ và mới
             String oldPsychId = appointment.getPsychologistID();
             String newPsychId = newTimeSlot.getPsychologist().getPsychologistID();
@@ -221,13 +224,16 @@ public class AppointmentService {
                 // Gửi thông báo cho psychologist cũ
                 if (oldUser.isPresent()) {
 
-                    String emailSubject = " Appointment Transferred";
-                    String emailBody = " appointment Transferred with student: " + appointment.getStudent().getUser().getFullName() +
-                            "\nAppointment ID: " + appointment.getAppointmentID() +
-                            "\nTime: " + oldTimeSlot.getStartTime() + " - " + newTimeSlot.getEndTime() +
-                            "\nDate: " + oldTimeSlot.getSlotDate();
-                    emailService.sendNotificationEmail(oldUser.get().getEmail(), emailSubject, emailBody);
-
+                  emailService.sendNotificationEmail(
+                            oldUser.getEmail(),
+                            "New Appointment Booked",
+                            emailService.getAppointmentTransferredMailBody(
+                                    appointment.getPsychologist().getFullNameFromUser(),
+                                    appointment.getStudent()   ,
+                                    appointment.getAppointmentID(),
+                                    appointment.getTimeSlot()
+                            )
+                    );
                     notificationService.createNotification(
                             oldUser.get().getUserId(),
                             "Appointment Transferred",
@@ -238,12 +244,16 @@ public class AppointmentService {
 
                 // Gửi thông báo cho psychologist mới
                 if (newUser.isPresent()) {
-                    String emailSubject = "New Appointment Booked";
-                    String emailBody = "You have a new appointment with student: " + appointment.getStudent().getUser().getFullName() +
-                            "\nAppointment ID: " + appointment.getAppointmentID() +
-                            "\nTime: " + newTimeSlot.getStartTime() + " - " + newTimeSlot.getEndTime() +
-                            "\nDate: " + newTimeSlot.getSlotDate();
-                    emailService.sendNotificationEmail(newUser.get().getEmail(), emailSubject, emailBody);
+                     emailService.sendNotificationEmail(
+                            newUser.getEmail(),
+                            "New Appointment Booked",
+                            emailService.getNewAppointmentMailBody(
+                                    appointment.getPsychologist().getFullNameFromUser(),
+                                    appointment.getStudent()   ,
+                                    appointment.getAppointmentID(),
+                                    appointment.getTimeSlot()
+                            )
+                    );
                     notificationService.createNotification(
                             newUser.get().getUserId(),
                             "New Appointment",

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
 
+    private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
 
@@ -89,10 +90,6 @@ public class PsychologistController {
         return List.of("List of appointments for psychologist " + id);
     }
 
-
-
-
-
     @Operation(
             deprecated = true,
             summary = "Get psychologist feedback",
@@ -102,9 +99,6 @@ public class PsychologistController {
     public List<String> getFeedback(@PathVariable String id) {
         return List.of("Feedback for psychologist " + id);
     }
-
-
-
 
 
     @Operation(
@@ -166,6 +160,19 @@ public class PsychologistController {
         }
         ;
         throw new RuntimeException("Failed to create time slots");
+    }
+
+    @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

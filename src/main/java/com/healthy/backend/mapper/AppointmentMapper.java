@@ -4,12 +4,10 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Psychologists;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AppointmentMapper {
-
 
 
     public AppointmentResponse buildAppointmentResponse(
@@ -31,15 +29,45 @@ public class AppointmentMapper {
                 .build();
     }
 
-    public AppointmentResponse buildBasicAppointmentResponse(
+    public AppointmentResponse buildBasicStudentAppointmentResponse(
             Appointments appointment,
             PsychologistResponse psychologistResponse) {
         return AppointmentResponse.builder()
                 .appointmentID(appointment.getAppointmentID())
                 .Status(appointment.getStatus().name())
-                .slot(appointment.getTimeSlotsID().substring(appointment.getTimeSlotsID().length() - 2))
+                .startTime(String.valueOf(appointment.getTimeSlot().getStartTime()))
+                .endTime(String.valueOf(appointment.getTimeSlot().getEndTime()))
                 .psychologistID(psychologistResponse.getPsychologistId())
                 .psychologistName(psychologistResponse.getName())
+                .build();
+    }
+
+    public AppointmentResponse buildBasicPsychologistAppointmentResponse(
+            Appointments appointment,
+            StudentResponse studentResponse) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .Status(appointment.getStatus().name())
+                .startTime(String.valueOf(appointment.getTimeSlot().getStartTime()))
+                .endTime(String.valueOf(appointment.getTimeSlot().getEndTime()))
+                .studentID(studentResponse.getStudentId())
+                .studentName(studentResponse.getFullName())
+                .build();
+    }
+
+    public AppointmentResponse buildBasicAppointmentResponse(
+            Appointments appointment,
+            StudentResponse studentResponse,
+            PsychologistResponse psychologistResponse) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .Status(appointment.getStatus().name())
+                .startTime(String.valueOf(appointment.getTimeSlot().getStartTime()))
+                .endTime(String.valueOf(appointment.getTimeSlot().getEndTime()))
+                .studentID(studentResponse.getStudentId())
+                .studentName(studentResponse.getFullName())
+                .psychologistID(studentResponse.getStudentId())
+                .psychologistName(studentResponse.getFullName())
                 .build();
     }
 
