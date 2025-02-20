@@ -148,7 +148,8 @@ public class AppointmentService {
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
                 "You have a new appointment with " + student.getUser().getFullName(),
-                Notifications.Type.Appointment
+                Notifications.Type.Appointment,
+                savedAppointment.getAppointmentID()
         );
 
         // Map sang DTO và trả về response
@@ -220,7 +221,6 @@ public class AppointmentService {
 
                 // Gửi thông báo cho psychologist cũ
                 if (oldUser.isPresent()) {
-
                     String emailSubject = " Appointment Transferred";
                     String emailBody = " appointment Transferred with student: " + appointment.getStudent().getUser().getFullName() +
                             "\nAppointment ID: " + appointment.getAppointmentID() +
@@ -232,7 +232,8 @@ public class AppointmentService {
                             oldUser.get().getUserId(),
                             "Appointment Transferred",
                             "Your appointment has been transferred to another psychologist.",
-                            Notifications.Type.Appointment
+                            Notifications.Type.Appointment,
+                            appointmentId
                     );
                 }
 
@@ -248,7 +249,8 @@ public class AppointmentService {
                             newUser.get().getUserId(),
                             "New Appointment",
                             "New appointment assigned to you.",
-                            Notifications.Type.Appointment
+                            Notifications.Type.Appointment,
+                            appointmentId
                     );
                 }
             }

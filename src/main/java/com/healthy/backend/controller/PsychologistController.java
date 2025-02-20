@@ -181,4 +181,7 @@ public class PsychologistController {
         List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, id);
         return ResponseEntity.ok(response);
     }
+
+
+
 }

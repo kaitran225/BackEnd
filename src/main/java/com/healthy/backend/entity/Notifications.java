@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @Table(name = "Notifications")
 public class Notifications {
 
@@ -41,6 +40,15 @@ public class Notifications {
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
 
+    @Column(name = "AppointmentID", length = 36)
+    private String appointmentID;
+
+    @ManyToOne
+    @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
+    private Appointments appointment;
+
+
+
     public Notifications() {
         isRead = false;
     }
@@ -52,6 +60,7 @@ public class Notifications {
         this.message = message;
         this.type = type;
     }
+
 
     @PrePersist
     protected void onCreate() {

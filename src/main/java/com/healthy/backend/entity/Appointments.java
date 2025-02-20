@@ -1,21 +1,13 @@
 package com.healthy.backend.entity;
 
 import com.healthy.backend.entity.Enum.StatusEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -73,6 +65,9 @@ public class Appointments {
 
     @Column(name = "CheckOutTime")
     private LocalDateTime checkOutTime;
+
+    @OneToMany(mappedBy = "appointment")
+    private List<Notifications> notifications;
 
     public Appointments() {
         this.status = StatusEnum.Scheduled;
