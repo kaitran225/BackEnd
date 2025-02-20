@@ -49,5 +49,12 @@ public class SurveyResults {
         this.studentID = studentID;
         this.questionID = questionID;
         this.answerID = answerID;
+        this.createdAt = LocalDateTime.now();
     }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
 } 

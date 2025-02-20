@@ -43,7 +43,7 @@ public class Surveys {
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", length = 50, columnDefinition = "ENUM('Unfinished', 'Finished', 'Cancelled')", nullable = false)
+    @Column(name = "Status", length = 50, nullable = false)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)

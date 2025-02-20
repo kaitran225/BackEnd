@@ -91,7 +91,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Initialize Time Slots
         for (int i = 1; i < 31; i++) {
-            LocalDate input = LocalDate.of(2025, 3, i);
+            LocalDate input = LocalDate.of(2025, 5, i);
             psychologistService.createDefaultTimeSlots(input, "PSY001");
             psychologistService.createDefaultTimeSlots(input, "PSY002");
         }
@@ -109,30 +109,74 @@ public class DataInitializer implements CommandLineRunner {
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
-                LocalDate.parse("2025-02-13"), "https://example.com/meeting1", Programs.Type.Online));
+                LocalDate.parse("2025-02-23"), "https://example.com/meeting1", Programs.Type.Online));
         programRepository.save(new Programs("PRG002", "Anxiety Support Group",
                 "Support group for individuals with anxiety", 15, 6, Programs.Status.Active,
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
-                LocalDate.parse("2025-02-15"), "https://example.com/meeting2", Programs.Type.Offline));
+                LocalDate.parse("2025-02-25"), "https://example.com/meeting2", Programs.Type.Offline));
         programRepository.save(new Programs("PRG003", "Mindfulness Workshop",
                 "Workshop on mindfulness techniques", 25, 3, Programs.Status.Active,
                 departmentRepository.findById("DP03").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
-                LocalDate.parse("2025-02-18"), "https://example.com/meeting3", Programs.Type.Online));
+                LocalDate.parse("2025-02-28"), "https://example.com/meeting3", Programs.Type.Online));
         programRepository.save(new Programs("PRG004", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-01"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG005", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
                 departmentRepository.findById("DP07").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-02-28"), "https://example.com/meeting4", Programs.Type.Online));
+                LocalDate.parse("2025-03-12"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG006", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-22"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG007", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-28"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG008", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY002").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-20"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG009", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-22"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG010", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-28"), "https://example.com/meeting4", Programs.Type.Online));
 
         // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH002", "PRG002", "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH003", "PRG003", "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH004", "PRG004", "Friday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH005", "PRG005", "Saturday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH006", "PRG006", "Wednesday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH007", "PRG007", "Tuesday", LocalTime.parse("08:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH008", "PRG008", "Monday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH009", "PRG009", "Tuesday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH0010", "PRG010", "Monday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+
 
         // Initialize Program Participation
         programParticipationRepository.save(new ProgramParticipation("PP001", "S001", "PRG001", ProgramParticipation.Status.Completed, LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30")));
@@ -224,8 +268,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Article("B002", "Overcoming Anxiety", userRepository.findByUsername("psychologist_user2").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001", "TSPSY00120022501", "S001", "PSY001", StatusEnum.Scheduled));
-        appointmentRepository.save(new Appointments("APP002", "TSPSY00221022501", "S002", "PSY002", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP001", "TSPSY00101052500", "S001", "PSY001", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP002", "TSPSY00201052501", "S002", "PSY002", StatusEnum.Scheduled));
 
         // Initialize Notifications
         notificationRepository.save(new Notifications("NOT001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));
