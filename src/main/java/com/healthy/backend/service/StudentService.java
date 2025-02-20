@@ -164,26 +164,4 @@ public class StudentService {
                 .filter(appointment -> appointment.getStatus() == StatusEnum.Scheduled)
                 .map(appointmentMapper::buildAppointmentResponse).toList();
     }
-
-//
-//    public void createStudent(StudentRequest student) {
-//        studentRepository.save(studentMapper.buildStudentEntity(student));
-//    }
-
-    public EventResponse getAllEvents(String studentId) {
-
-        List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId)
-                .stream()
-                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
-                .toList();
-
-        List<Programs> programs = programParticipationRepository.findByStudentID(studentId).stream()
-                .filter(participation -> participation.getProgram().getStartDate().isAfter(LocalDate.now()))
-                .map(participation -> programRepository
-                        .findById(participation.getProgram().getProgramID())
-                        .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
-                .toList();
-
-        return eventMapper.buildEventResponse(appointments, programs, studentId);
-    }
 }
