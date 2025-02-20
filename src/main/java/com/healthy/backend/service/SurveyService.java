@@ -1,6 +1,5 @@
 package com.healthy.backend.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,10 +12,12 @@ import com.healthy.backend.dto.survey.QuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Answers;
+import com.healthy.backend.entity.Categories;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
+import com.healthy.backend.repository.CategoriesRepository;
 import com.healthy.backend.repository.SurveyAnswerRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
@@ -32,6 +33,7 @@ public class SurveyService {
     private final SurveyMapper surveyMapper;
     private final SurveyRepository surveyRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
+    private final CategoriesRepository categoriesRepository;
 
     public List<SurveysResponse> getAllSurveys() {
 
@@ -61,25 +63,34 @@ public class SurveyService {
         }
         Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
                 .collect(Collectors.toMap(SurveyQuestions::getQuestionID , Function.identity()));
+
         for(QuestionResponse sqr : surveyQuestionResponse.getQuestionList()) {
                 SurveyQuestions surveyQuestion1 = surveyQuestionMap.get(sqr.getId());
-                List<QuestionOption> questionOptions = new ArrayList<>();
-                if(surveyQuestion1 != null) {
-                        surveyQuestion1.setQuestionText(sqr.getQuestionText());
-                        surveyQuestion1.setCategory(surveyQuestion1.getCategory());
+                Categories categories = categoriesRepository.findById(surveyQuestion1.getCategoryID())
+                                .orElseThrow(() -> new ResourceNotFoundException("Categories not found" + surveyQuestion1.getCategoryID()));
+                
+                
+                
+                surveyQuestion1.setQuestionText(sqr.getQuestionText());
+                categories.setCategoryName(Categories.MentalHealthCategory.valueOf(sqr.getQuestionCategory()));
+                List<QuestionOption> questionOption = sqr.getQuestionOptions();
 
-                        List<Answers> answer = surveyAnswerRepository.findByQuestionID(surveyQuestion1.getQuestionID());
-                        answer
-                                .forEach(ans -> {
-                                        QuestionOption QP = new QuestionOption();
-                                        QP.setValue(ans.getScore());
-                                        QP.setLabel(ans.getAnswer()); 
-                                        questionOptions.add(QP);                                   
-                                });
+                List<Answers> answers = surveyAnswerRepository.findByQuestionID(surveyQuestion1.getQuestionID());
 
-                        sqr.setQuestionOptions(questionOptions);
-                        surveyQuestionRepository.save(surveyQuestion1);                
+                if(!answers.isEmpty()) {
+                        for(int i = 0; i < answers.size(); i++) {
+                                Answers ans = answers.get(i);
+                                        
+                                if(i < questionOption.size()) {
+                                        ans.setAnswer(questionOption.get(i).getLabel());
+                                        ans.setScore(questionOption.get(i).getValue()); 
+
+                                }                                                                 
+                        }
                 }
+                surveyAnswerRepository.saveAll(answers);
+                surveyQuestionRepository.save(surveyQuestion1); 
+                categoriesRepository.save(categories);              
         }
 }
 
