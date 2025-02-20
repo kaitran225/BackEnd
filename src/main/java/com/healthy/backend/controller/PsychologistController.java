@@ -98,7 +98,6 @@ public class PsychologistController {
         return List.of("Feedback for psychologist " + id);
     }
 
-
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists filtered by specialization."
@@ -123,18 +122,6 @@ public class PsychologistController {
         return "Psychologists' availability status";
     }
 
-    @Operation(
-            summary = "Get all departments",
-            description = "Returns a list of all departments."
-    )
-    @GetMapping("/departments")
-    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
-        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
-        if (!appointmentResponse.isEmpty()) {
-            return ResponseEntity.ok(appointmentResponse);
-        }
-        return ResponseEntity.noContent().build();
-    }
 
     @Operation(
             deprecated = true,
@@ -158,6 +145,19 @@ public class PsychologistController {
         }
         ;
         throw new RuntimeException("Failed to create time slots");
+    }
+
+    @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

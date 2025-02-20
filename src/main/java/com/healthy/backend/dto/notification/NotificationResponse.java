@@ -20,6 +20,6 @@ public class NotificationResponse {
     private String type;
     private LocalDateTime createdAt;
     private Boolean isRead;
-
+    private String AppointmentId;
 
 }

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -216,15 +215,14 @@ public class AppointmentService {
 
                 // Lấy thông tin user
                 Users oldUser = userRepository.findByUserId(oldPsychologist.getUserID()).orElseThrow(
-                        () -> new ResourceNotFoundException("Old   user not found")
+                        () -> new ResourceNotFoundException("Old user not found")
                 );
                 Users newUser = userRepository.findByUserId(newPsychologist.getUserID()).orElseThrow(
-                        () -> new ResourceNotFoundException("New user not found")
+                        () -> new ResourceNotFoundException("New User not found")
                 );
 
                 // Gửi thông báo cho psychologist cũ
                 if (oldUser.isPresent()) {
-
                     emailService.sendNotificationEmail(
                             oldUser.getEmail(),
                             "New Appointment Booked",
@@ -284,7 +282,6 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
-
 
     // Check in
     public AppointmentResponse checkIn(String appointmentId) {
