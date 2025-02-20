@@ -51,8 +51,8 @@ public class DataInitializer implements CommandLineRunner {
         authenticationService.register(new RegisterRequest("student_user3", "student_pass", "Alice Jones", "student3@example.com", "5555555555", "Street 303, Ho Chi Minh City",Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
         authenticationService.register(new RegisterRequest("parent_user", "parent_pass", "Jane Smith", "parent@example.com", "6666666666", "Street 789, Ho Chi Minh City",Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
         authenticationService.register(new RegisterRequest("parent_user2", "parent_pass", "Bob Johnson", "parent2@example.com", "7777777777","Street 404, Ho Chi Minh City", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("psychologist_user", "psychologist_pass", "Dr. Brown", "psychologist@example.com", "8888888888", "Street 101, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("psychologist_user2", "psychologist_pass", "Dr. Blue", "psychologist2@example.com", "9999999999","Street 505, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("psychologist_user", "psychologist_pass", "Dr. Brown", "caoleanhcuong78@gmail.com", "8888888888", "Street 101, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("psychologist_user2", "psychologist_pass", "Dr. Blue", "cuongcaoleanh@gmail.com", "9999999999","Street 505, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
 
         // Initialize Parents
         parentRepository.save(new Parents("P001", userRepository.findByUsername("parent_user").getUserId()));

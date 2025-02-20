@@ -42,6 +42,8 @@ public class PsychologistController {
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
 
+    private  final AppointmentService appointmentService;
+
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists."
@@ -90,16 +92,6 @@ public class PsychologistController {
 
     @Operation(
             deprecated = true,
-            summary = "Submit assessment report",
-            description = "Submits an assessment report for an appointment."
-    )
-    @PostMapping("/{id}/reports/{appointmentId}")
-    public String submitAssessmentReport(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String report) {
-        return "Assessment report submitted for appointment " + appointmentId;
-    }
-
-    @Operation(
-            deprecated = true,
             summary = "Get psychologist feedback",
             description = "Returns feedback for a psychologist."
     )
@@ -108,15 +100,6 @@ public class PsychologistController {
         return List.of("Feedback for psychologist " + id);
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get psychologist dashboard",
-            description = "Returns dashboard details for a psychologist."
-    )
-    @GetMapping("/{id}/dashboard")
-    public String getPsychologistDashboard(@PathVariable String id) {
-        return "Dashboard details for psychologist " + id;
-    }
 
     @Operation(
             summary = "Get all psychologists",
@@ -142,6 +125,18 @@ public class PsychologistController {
         return "Psychologists' availability status";
     }
 
+    @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
+    }
 
     @Operation(
             deprecated = true,

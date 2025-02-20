@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -49,6 +50,10 @@ public class AppointmentService {
     private final DepartmentMapper departmentMapper;
 
     private final NotificationService notificationService;
+
+    private final UserRepository userRepository;
+
+    private final EmailService emailService;
 
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
@@ -124,10 +129,11 @@ public class AppointmentService {
         timeSlot.setStatus(TimeSlots.Status.Booked);
         timeSlotRepository.save(timeSlot);
 
+        // Lấy thông tin user của psychologist
         Users psychologistUser = userRepository.findByUserId(psychologist.getUserID())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Send email
+        // Gửi email thông báo cho psychologist
         if (psychologistUser.getEmail() != null) {
             emailService.sendNotificationEmail(
                     psychologistUser.getEmail(),
@@ -140,8 +146,7 @@ public class AppointmentService {
                     )
             );
         }
-
-        // Create notification
+   // Tạo notification cho psychologist
         notificationService.createNotification(
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
@@ -149,14 +154,13 @@ public class AppointmentService {
                 Notifications.Type.Appointment
         );
 
-        // Build response
+        // Map sang DTO và trả về response
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),
                 studentMapper.buildStudentResponse(student)
         );
     }
-
     // Cancel
     public AppointmentResponse cancelAppointment(String appointmentId) {
 
@@ -202,27 +206,25 @@ public class AppointmentService {
 
             TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID()));
-
-            // Getting psychologist
+          
+            // Lấy thông tin psychologist cũ và mới
             String oldPsychId = appointment.getPsychologistID();
             String newPsychId = newTimeSlot.getPsychologist().getPsychologistID();
 
-            // Process transfer to new psychologist
+            // Xử lý khi chuyển sang psychologist khác
             if (!oldPsychId.equals(newPsychId)) {
                 Psychologists oldPsychologist = psychologistRepository.findById(oldPsychId)
                         .orElseThrow(() -> new ResourceNotFoundException("Old psychologist not found"));
                 Psychologists newPsychologist = newTimeSlot.getPsychologist();
 
-                Users oldUser = userRepository.findByUserId(oldPsychologist.getUserID()).orElseThrow(
-                        () -> new ResourceNotFoundException("Old User not found")
-                );
-                Users newUser = userRepository.findByUserId(newPsychologist.getUserID()).orElseThrow(
-                        () -> new ResourceNotFoundException("New User not found")
-                );
+                // Lấy thông tin user
+                Optional<Users> oldUser = userRepository.findByUserId(oldPsychologist.getUserID());
+                Optional<Users> newUser = userRepository.findByUserId(newPsychologist.getUserID());
 
                 // Gửi thông báo cho psychologist cũ
                 if (oldUser.isPresent()) {
-                    emailService.sendNotificationEmail(
+
+                  emailService.sendNotificationEmail(
                             oldUser.getEmail(),
                             "New Appointment Booked",
                             emailService.getAppointmentTransferredMailBody(
@@ -233,16 +235,16 @@ public class AppointmentService {
                             )
                     );
                     notificationService.createNotification(
-                            oldUser.getUserId(),
+                            oldUser.get().getUserId(),
                             "Appointment Transferred",
                             "Your appointment has been transferred to another psychologist.",
                             Notifications.Type.Appointment
                     );
                 }
 
-                // Send email to new psychologist
+                // Gửi thông báo cho psychologist mới
                 if (newUser.isPresent()) {
-                    emailService.sendNotificationEmail(
+                     emailService.sendNotificationEmail(
                             newUser.getEmail(),
                             "New Appointment Booked",
                             emailService.getNewAppointmentMailBody(
@@ -253,7 +255,7 @@ public class AppointmentService {
                             )
                     );
                     notificationService.createNotification(
-                            newUser.getUserId(),
+                            newUser.get().getUserId(),
                             "New Appointment",
                             "New appointment assigned to you.",
                             Notifications.Type.Appointment
@@ -261,7 +263,7 @@ public class AppointmentService {
                 }
             }
 
-            // Update timeslot status
+            // Cập nhật trạng thái time slot
             newTimeSlot.setStatus(TimeSlots.Status.Booked);
             timeSlotRepository.save(newTimeSlot);
 
@@ -281,6 +283,9 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
+
+
+
 
     // Check in
     public AppointmentResponse checkIn(String appointmentId) {
