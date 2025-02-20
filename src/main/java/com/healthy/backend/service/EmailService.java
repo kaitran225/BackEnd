@@ -1,5 +1,7 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.TimeSlots;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -52,6 +54,44 @@ public class EmailService {
                 "Mental Health Care Support Team";
     }
 
+    public String getAppointmentTransferredMailBody(String psychologistName,
+                                                     Students student,
+                                                     String ID,
+                                                     TimeSlots timeSlots) {
+        return "Subject: Appointment Transferred\n\n" +
+                "Dear " + psychologistName + ",\n\n" +
+                "Please be informed that an appointment has been transferred.\n\n" +
+                "The details of the transferred appointment are as follows:\n\n" +
+                "**Student:** " + student.getUser().getFullName() + "\n" +
+                "**Class:**" + student.getGrade() + student.getClassName() + "\n" +
+                "**Appointment ID:** " + ID + "\n" +
+                "**Date:** " + timeSlots.getSlotDate() + "\n" +
+                "**Time:** " + timeSlots.getStartTime() + " - " + timeSlots.getEndTime() + "\n\n" +
+                "Please log in to the system for further details.\n\n" +
+                "If you have any questions, feel free to contact our support team.\n\n" +
+                "Best regards,\n" +
+                "Mental Health Care Support Team";
+    }
+
+    public String getNewAppointmentMailBody(String psychologistName,
+                                             Students student,
+                                             String ID,
+                                             TimeSlots timeSlots) {
+        return "Subject: New Appointment Scheduled\n\n" +
+                "Dear " + psychologistName + ",\n\n" +
+                "We are pleased to inform you that a new appointment has been scheduled.\n\n" +
+                "You have a new appointment scheduled with the following details:\n" +
+                "**Student:** " + student.getUser().getFullName() + "\n" +
+                "**Class:**" + student.getGrade() + student.getClassName() + "\n" +
+                "**Appointment ID:** " + ID + "\n" +
+                "**Date:** " + timeSlots.getSlotDate() + "\n" +
+                "**Time:** " + timeSlots.getStartTime() + " - " + timeSlots.getEndTime() + "\n\n" +
+                "Please log in to the system to view more details or manage your appointments.\n\n" +
+                "If you have any questions or need assistance, please contact our support team.\n\n" +
+                "Best regards,\n" +
+                "Mental Health Care Support Team";
+    }
+
 
     @Async
     public void sendVerificationEmail(String email, String verificationLink, String subject) {
@@ -68,6 +108,7 @@ public class EmailService {
         }
 
     }
+
     @Async
     public void sendPasswordResetEmail(String email, String resetLink) {
         try {
@@ -96,5 +137,15 @@ public class EmailService {
         } catch (Exception e) {
             System.err.println("Error sending forgot password email: " + e.getMessage());
         }
+    }
+
+    @Async
+    public void sendNotificationEmail(String toEmail, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(mail);
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
     }
 }

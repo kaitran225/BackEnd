@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -26,6 +28,9 @@ public class SurveyResults {
 
     @Column(name = "AnswerID", length = 36, nullable = false)
     private String answerID;
+
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)

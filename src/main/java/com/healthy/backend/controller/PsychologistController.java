@@ -1,10 +1,12 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
+import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
 
+    private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
 
@@ -83,26 +86,6 @@ public class PsychologistController {
     @GetMapping("/{id}/appointments")
     public List<String> getPsychologistAppointments(@PathVariable String id) {
         return List.of("List of appointments for psychologist " + id);
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Add session notes",
-            description = "Adds session notes for an appointment."
-    )
-    @PostMapping("/{id}/notes/{appointmentId}")
-    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
-        return "Session notes added for appointment " + appointmentId;
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get session notes",
-            description = "Returns session notes for an appointment."
-    )
-    @GetMapping("/{id}/notes/{appointmentId}")
-    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
-        return "Session notes for appointment " + appointmentId;
     }
 
     @Operation(
@@ -182,6 +165,19 @@ public class PsychologistController {
         }
         ;
         throw new RuntimeException("Failed to create time slots");
+    }
+
+    @Operation(
+            summary = "Get all departments",
+            description = "Returns a list of all departments."
+    )
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getDepartments() {
+        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
+        if (!appointmentResponse.isEmpty()) {
+            return ResponseEntity.ok(appointmentResponse);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

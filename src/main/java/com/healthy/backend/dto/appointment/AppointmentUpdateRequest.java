@@ -10,11 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppointmentUpdateRequest {
-
-    @Schema(example = "TSPSY001160225")
     private String timeSlotId;
-    @Schema(example = "Scheduled")
-    private String status;
     @Schema(example = "Notes")
     private String notes;
 }
