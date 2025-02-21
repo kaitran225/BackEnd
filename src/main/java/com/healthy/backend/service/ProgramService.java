@@ -8,7 +8,6 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
-import org.springframework.boot.SpringBootVersion;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +42,8 @@ public class ProgramService {
     private final ProgramMapper programMapper;
 
     private final StudentMapper studentMapper;
+
+    private final NotificationService notificationService;
 
     public List<ProgramsResponse> getAllProgramsDetails() {
         List<Programs> programs = programRepository.findAll();
@@ -135,6 +136,17 @@ public class ProgramService {
                         LocalDate.now()
                 )
         );
+
+        Psychologists psychologist = psychologistRepository.findById(program.getFacilitatorID())
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + program.getFacilitatorID()));
+        Users psychologistUser = psychologist.getUser();
+
+        // Send notification
+        notificationService.createProgramNotification(
+                psychologistUser.getUserId(),
+                "New Program Registration",
+                "You have a new program registration for " + program.getProgramName(),
+                program.getProgramID());
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
 
@@ -152,11 +164,20 @@ public class ProgramService {
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID());
         if (participation.getStatus().equals(ProgramParticipation.Status.Cancelled))
             throw new ResourceAlreadyExistsException("Participation is already cancelled");
+
         if (participation.getStatus().equals(ProgramParticipation.Status.Completed)) {
             throw new ResourceAlreadyExistsException("Participation is already completed");
         }
+
         participation.setStatus(ProgramParticipation.Status.Cancelled);
         ProgramParticipation updatedParticipation = programParticipationRepository.save(participation);
+
+        notificationService.createProgramNotification(
+                participation.getStudent().getUser().getUserId(),
+                "New Program Registration",
+                "You have a new program registration for " + participation.getProgram().getProgramName(),
+                participation.getProgram().getProgramID());
+
         return updatedParticipation.getStatus().equals(ProgramParticipation.Status.Cancelled);
     }
 
@@ -173,7 +194,6 @@ public class ProgramService {
                 ))
                 .toList();
     }
-
 
     @Transactional
     public boolean deleteProgram(String programId) {
@@ -210,14 +230,11 @@ public class ProgramService {
                 .toList();
     }
 
-
-
     private boolean isJoined(ProgramParticipationRequest programParticipationRequest) {
         return programParticipationRepository.findByProgramIDAndStudentID(
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
         ) != null;
     }
-
 
     private String generateNextTagId(String lastCode) {
         if (lastCode == null || lastCode.length() < 3) {

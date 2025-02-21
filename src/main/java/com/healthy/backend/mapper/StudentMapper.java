@@ -42,6 +42,22 @@ public class StudentMapper {
                 .surveyResults(surveyResultsResponseList)
                 .build();
     }
+
+    public StudentResponse buildBasicStudentResponse(
+            Students student) {
+        return StudentResponse.builder()
+                .studentId(student.getStudentID())
+                .grade(student.getGrade())
+                .fullName(student.getUser().getFullName())
+                .email(student.getUser().getEmail())
+                .phone(student.getUser().getPhoneNumber())
+                .address(student.getUser().getAddress())
+                .gender(student.getUser().getGender().toString())
+                .className(student.getClassName())
+                .schoolName(student.getSchoolName())
+                .build();
+    }
+
     public StudentResponse buildStudentResponse(
             Students student) {
         return StudentResponse.builder()

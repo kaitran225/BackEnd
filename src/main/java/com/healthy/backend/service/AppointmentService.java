@@ -7,6 +7,7 @@ import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
@@ -69,7 +70,7 @@ public class AppointmentService {
                                 psychologistMapper.buildPsychologistResponse(
                                         Objects.requireNonNull(psychologistRepository.findById(
                                                 appointment.getPsychologistID()).orElse(null))),
-                                studentMapper.buildStudentResponse(
+                                studentMapper.buildBasicStudentResponse(
                                         Objects.requireNonNull(studentRepository.findById(
                                                 appointment.getStudentID()).orElse(null)))
                         ))
@@ -100,7 +101,7 @@ public class AppointmentService {
 
         // Validate time slot
         if (timeSlot.getStatus() != TimeSlots.Status.Available) {
-            throw new ResourceInvalidException("Time slot is not valid");
+            throw new ResourceAlreadyExistsException("Time slot is not available");
         }
 
         // Validate student and psychologist
@@ -118,6 +119,10 @@ public class AppointmentService {
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
         appointment.setStudentID(student.getStudentID());
         appointment.setPsychologistID(psychologist.getPsychologistID());
+        appointment.setPsychologist(psychologist);
+        appointment.setStudent(student);
+        appointment.setTimeSlot(timeSlot);
+        appointment.setStatus(StatusEnum.Scheduled);
 
         // Save appointment and update time slot status
         Appointments savedAppointment = appointmentRepository.save(appointment);
@@ -134,19 +139,18 @@ public class AppointmentService {
                     psychologistUser.getEmail(),
                     "New Appointment Booked",
                     emailService.getNewAppointmentMailBody(
-                            appointment.getPsychologist().getFullNameFromUser(),
-                            appointment.getStudent(),
-                            appointment.getAppointmentID(),
-                            appointment.getTimeSlot()
+                            savedAppointment.getPsychologist().getFullNameFromUser(),
+                            savedAppointment.getStudent(),
+                            savedAppointment.getAppointmentID(),
+                            savedAppointment.getTimeSlot()
                     )
             );
         }
         // Tạo notification cho psychologist
-        notificationService.createNotification(
+        notificationService.createAppointmentNotification(
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
                 "You have a new appointment with " + student.getUser().getFullName(),
-                Notifications.Type.Appointment,
                 savedAppointment.getAppointmentID()
         );
 
@@ -154,7 +158,7 @@ public class AppointmentService {
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),
-                studentMapper.buildStudentResponse(student)
+                studentMapper.buildBasicStudentResponse(student)
         );
     }
 
@@ -235,11 +239,10 @@ public class AppointmentService {
                             )
                     );
 
-                    notificationService.createNotification(
+                    notificationService.createAppointmentNotification(
                             oldUser.getUserId(),
                             "Appointment Transferred",
                             "Your appointment has been transferred to another psychologist.",
-                            Notifications.Type.Appointment,
                             appointmentId
                     );
                 }
@@ -256,11 +259,10 @@ public class AppointmentService {
                                     appointment.getTimeSlot()
                             )
                     );
-                    notificationService.createNotification(
+                    notificationService.createAppointmentNotification(
                             newUser.getUserId(),
                             "New Appointment",
                             "New appointment assigned to you.",
-                            Notifications.Type.Appointment,
                             appointmentId
                     );
                 }
@@ -314,7 +316,7 @@ public class AppointmentService {
                 psychologistMapper.buildPsychologistResponse(
                         Objects.requireNonNull(psychologistRepository.findById(
                                 appointment.getPsychologistID()).orElse(null))),
-                studentMapper.buildStudentResponse(
+                studentMapper.buildBasicStudentResponse(
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null)))
         );
@@ -346,7 +348,7 @@ public class AppointmentService {
                 psychologistMapper.buildPsychologistResponse(
                         Objects.requireNonNull(psychologistRepository.findById(
                                 appointment.getPsychologistID()).orElse(null))),
-                studentMapper.buildStudentResponse(
+                studentMapper.buildBasicStudentResponse(
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null)))
         );

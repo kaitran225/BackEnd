@@ -45,6 +45,20 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
     private Appointments appointment;
+
+    @Column(name = "ProgramID", length = 36)
+    private String programID;
+
+    @ManyToOne
+    @JoinColumn(name = "ProgramID", insertable = false, updatable = false)
+    private Programs programs;
+
+    @Column(name = "SurveyID", length = 36)
+    private String surveyID;
+
+    @ManyToOne
+    @JoinColumn(name = "SurveyID", insertable = false, updatable = false)
+    private Surveys surveys;
   
     public Notifications() {
         isRead = false;
@@ -57,7 +71,6 @@ public class Notifications {
         this.message = message;
         this.type = type;
     }
-
 
     @PrePersist
     protected void onCreate() {

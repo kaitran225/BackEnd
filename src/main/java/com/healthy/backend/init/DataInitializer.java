@@ -84,6 +84,10 @@ public class DataInitializer implements CommandLineRunner {
             departmentRepository.save(department);
         }
 
+        // Initialize Psychologists
+        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), 10, Psychologists.Status.Active, "DP01"));
+        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), 8, Psychologists.Status.Active, "DP02"));
+
         // Initialize Time Slots
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),2));
@@ -112,19 +116,14 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("15:30:00"), LocalTime.parse("16:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),10));
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:00:00"), LocalTime.parse("16:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),11));
         timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:30:00"), LocalTime.parse("17:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),12));
-   
-
-        // Initialize Psychologists
-        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), 10, Psychologists.Status.Active, "DP01"));
-        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), 8, Psychologists.Status.Active, "DP02"));
 
         // Initialize Time Slots
         for (int i = 1; i < 31; i++) {
-            LocalDate input = LocalDate.of(2025, 5, i);
+            LocalDate input = LocalDate.of(2025, 3, i);
             psychologistService.createDefaultTimeSlots(input, "PSY001");
             psychologistService.createDefaultTimeSlots(input, "PSY002");
         }
-      
+
         // Initialize Tags
         int index = 1;
         for (Tags.Tag tag : Tags.Tag.values()) {
@@ -298,8 +297,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Article("B002", "Overcoming Anxiety", userRepository.findByUsername("psychologist_user2").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001", "TSPSY00101052500", "S001", "PSY001", StatusEnum.Scheduled));
-        appointmentRepository.save(new Appointments("APP002", "TSPSY00201052501", "S002", "PSY002", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP001", "TSPSY00101032500", "S001", "PSY001", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP002", "TSPSY00201032500", "S002", "PSY002", StatusEnum.Scheduled));
 
         // Initialize Notifications
         notificationRepository.save(new Notifications("001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));

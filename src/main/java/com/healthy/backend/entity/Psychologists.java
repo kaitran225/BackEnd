@@ -65,7 +65,5 @@ public class Psychologists {
         Active,
         OnLeave,
         Inactive
-    }
-
-
+    }   
 } 
