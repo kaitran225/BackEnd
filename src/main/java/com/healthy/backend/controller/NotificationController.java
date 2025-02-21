@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "Notification Controller", description = "Quản lý thông báo")
+@Tag(name = "Notification Controller", description = "Notification Management APIs")
 public class NotificationController {
 
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
 
-    @Operation(summary = "Lấy tất cả thông báo của người dùng")
+    @Operation(summary = "Get all notifications")
     @GetMapping("/{id}")
     public ResponseEntity<List<NotificationResponse>> getNotifications(@PathVariable String id) {
         List<Notifications> notifications = notificationService.getUserNotifications(id);
@@ -37,16 +37,14 @@ public class NotificationController {
         return ResponseEntity.ok(responses);
     }
 
-    @Operation(summary = "Đánh dấu thông báo đã đọc")
+    @Operation(summary = "Mark notification as read")
     @PostMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable String id) {
         notificationService.markAsRead(id);
-
-
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Lấy tất cả thông báo đã đọc của người dùng")
+    @Operation(summary = "Get all read notifications")
     @GetMapping("/{userId}/read")
     public ResponseEntity<List<NotificationResponse>> getReadNotifications(@PathVariable String userId) {
         List<Notifications> notifications = notificationService.getUserReadNotifications(userId);
@@ -56,7 +54,7 @@ public class NotificationController {
         return ResponseEntity.ok(responses);
     }
 
-    @Operation(summary = "Lấy tất cả thông báo chưa đọc của người dùng")
+    @Operation(summary = "Get all unread notifications")
     @GetMapping("/{userId}/unread")
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(@PathVariable String userId) {
         List<Notifications> notifications = notificationService.getUserUnreadNotifications(userId);
@@ -65,6 +63,4 @@ public class NotificationController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
-
-
 }
