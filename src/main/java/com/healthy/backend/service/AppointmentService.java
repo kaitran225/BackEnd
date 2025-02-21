@@ -146,7 +146,8 @@ public class AppointmentService {
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
                 "You have a new appointment with " + student.getUser().getFullName(),
-                Notifications.Type.Appointment
+                Notifications.Type.Appointment,
+                savedAppointment.getAppointmentID()
         );
 
         // Map sang DTO và trả về response
@@ -233,11 +234,13 @@ public class AppointmentService {
                                     appointment.getTimeSlot()
                             )
                     );
+
                     notificationService.createNotification(
                             oldUser.getUserId(),
                             "Appointment Transferred",
                             "Your appointment has been transferred to another psychologist.",
-                            Notifications.Type.Appointment
+                            Notifications.Type.Appointment,
+                            appointmentId
                     );
                 }
 
@@ -257,7 +260,8 @@ public class AppointmentService {
                             newUser.getUserId(),
                             "New Appointment",
                             "New appointment assigned to you.",
-                            Notifications.Type.Appointment
+                            Notifications.Type.Appointment,
+                            appointmentId
                     );
                 }
             }

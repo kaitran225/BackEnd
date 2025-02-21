@@ -21,5 +21,4 @@ public class NotificationResponse {
     private LocalDateTime createdAt;
     private Boolean isRead;
     private String AppointmentId;
-
 }

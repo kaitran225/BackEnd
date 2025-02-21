@@ -17,4 +17,5 @@ public class NotificationMapper {
                 .isRead(notification.getIsRead())
                 .build();
     }
+
 }

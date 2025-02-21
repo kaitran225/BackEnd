@@ -45,7 +45,7 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
     private Appointments appointment;
-
+  
     public Notifications() {
         isRead = false;
     }
@@ -57,6 +57,7 @@ public class Notifications {
         this.message = message;
         this.type = type;
     }
+
 
     @PrePersist
     protected void onCreate() {
