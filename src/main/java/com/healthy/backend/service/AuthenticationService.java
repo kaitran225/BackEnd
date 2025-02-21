@@ -102,6 +102,61 @@ public class AuthenticationService {
                 .role(savedUser.getRole().toString())
                 .build();
     }
+
+    public AuthenticationResponse registerParent(ParentRegisterRequest request) {
+
+//        // Normalize inputs
+//        String normalizedEmail = request.getEmail().trim().toLowerCase();
+//        String normalizedUsername = request.getUsername().trim();
+//        String normalizedPhone = request.getPhoneNumber().trim();
+//
+//        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
+//            throw new RuntimeException("This phone number is already in use for another account");
+//        }
+//
+//        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
+//            throw new RuntimeException("This username is already taken");
+//        }
+//
+//        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
+//            throw new RuntimeException("This email is already in use for another account");
+//        }
+//
+//        // Generate verification token and encode password
+//        String token = jwtService.generateVerificationToken(normalizedEmail);
+//        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+//
+//        Users savedUser = userRepository.save(
+//                usermapper.buildUserStudentEntity(request, token, getUserLastCode(), encodedPassword));
+//
+//        Students savedStudent = studentRepository.save(studentmapper.buildStudentEntity(request, savedUser, getStudentLastCode()));
+//
+//        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
+//                .path("/api/auth/verify")
+//                .queryParam("token", token)
+//                .toUriString();
+//
+//        if (savedUser.getEmail().contains("example")) {
+//            return AuthenticationResponse.builder()
+//                    .userId(savedUser.getUserId())
+//                    .studentId(savedStudent.getStudentID())
+//                    .role(savedUser.getRole().toString())
+//                    .build();
+//        }
+//
+//        emailService.sendVerificationEmail(
+//                normalizedEmail,
+//                "Click the link to verify your email: " + verificationUrl,
+//                "Verify Your Account"
+//        );
+//
+//        return AuthenticationResponse.builder()
+//                .userId(savedUser.getUserId())
+//                .role(savedUser.getRole().toString())
+//                .build();
+        return AuthenticationResponse.builder().build();
+    }
+
     public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
 
         // Normalize inputs
@@ -242,16 +297,14 @@ public class AuthenticationService {
             throw new InvalidTokenException("Refresh token has expired.");
         }
 
-        // Generate new tokens
         String accessToken = jwtService.generateToken(user);
-        String newRefreshToken = jwtService.generateRefreshToken(user);
 
         // Update stored refresh token
-        saveRefreshToken(user.getUserId(), newRefreshToken);
+        saveRefreshToken(user.getUserId(), refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(newRefreshToken)
+                .refreshToken(refreshToken)
                 .userId(user.getUserId())
                 .role(user.getRole().toString())
                 .build();
@@ -410,6 +463,7 @@ public class AuthenticationService {
         int number = Integer.parseInt(lastCode.substring(2));
         return prefix + String.format("%03d", number + 1);
     }
+
     private String getStudentLastCode() {
         if (userRepository.findAll().isEmpty()) {
             return "S001";

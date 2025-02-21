@@ -127,7 +127,7 @@ public class DataInitializer implements CommandLineRunner {
         // Initialize Tags
         int index = 1;
         for (Tags.Tag tag : Tags.Tag.values()) {
-            String tagID = String.format("TAG%02d", index);
+            String tagID = String.format("TAG%03d", index);
             tagsRepository.save(new Tags(tagID, tag));
             index++;
         }
@@ -297,8 +297,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Article("B002", "Overcoming Anxiety", userRepository.findByUsername("psychologist_user2").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001", "TSPSY00101032500", "S001", "PSY001", StatusEnum.Scheduled));
-        appointmentRepository.save(new Appointments("APP002", "TSPSY00201032500", "S002", "PSY002", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP001", "TS00125022801", "S001", "PSY001", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP002", "TS00125022801", "S002", "PSY002", StatusEnum.Scheduled));
 
         // Initialize Notifications
         notificationRepository.save(new Notifications("001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));

@@ -10,6 +10,7 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.StudentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,16 +18,13 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
+@RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Student Controller", description = "Student related management APIs")
 @RequestMapping("/api/students")
 public class StudentController {
 
     private final StudentService studentService;
-
-    public StudentController(StudentService studentService) {
-        this.studentService = studentService;
-    }
 
     // Get student by ID
     @GetMapping("/{studentId}")

@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -69,6 +70,9 @@ public class Programs {
             inverseJoinColumns = @JoinColumn(name = "TagId")
     )
     private Set<Tags> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "programs",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notifications> notifications;
 
     public Programs(
             String programID,

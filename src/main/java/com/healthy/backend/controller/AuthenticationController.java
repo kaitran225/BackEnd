@@ -1,6 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.entity.Parents;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.service.AuthenticationService;
@@ -42,13 +43,24 @@ public class AuthenticationController {
     private final LogoutService logoutHandler;
 
     @Operation(
-            summary = "Register new user",
-            description = "Register a new user with the provided details"
+            summary = "Register new student",
+            description = "Register a new student with the provided details"
     )
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @Valid @RequestBody StudentRegisterRequest request) {
         return ResponseEntity.ok(authenticationService.registerStudent(request));
+    }
+
+    @Operation(
+            deprecated = true,
+            summary = "Register new parent",
+            description = "Register a new parent with the provided details"
+    )
+    @PostMapping("/register-parent")
+    public ResponseEntity<AuthenticationResponse> register(
+            @Valid @RequestBody ParentRegisterRequest request) {
+        return ResponseEntity.ok(authenticationService.registerParent(request));
     }
 
     @Operation(

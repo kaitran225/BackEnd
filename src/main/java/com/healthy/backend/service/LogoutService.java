@@ -46,7 +46,6 @@ public class LogoutService implements LogoutHandler {
             request.getSession().invalidate();
         }
 
-
         try {
             response.setHeader("Clear-Site-Data", "\"auth\""); // Clear authentication data
             response.setHeader("Location", "/swagger-ui.html"); // Redirect to Swagger UI

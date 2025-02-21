@@ -66,7 +66,7 @@ public class Appointments {
     @Column(name = "CheckOutTime")
     private LocalDateTime checkOutTime;
 
-    @OneToMany(mappedBy = "appointment")
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
     public Appointments() {

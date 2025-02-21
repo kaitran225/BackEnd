@@ -32,7 +32,9 @@ public class ProgramsResponse {
     @Schema(example = "2")
     private Integer duration;
     @Schema(example = "10")
-    private Integer numberParticipants;
+    private Integer currentParticipants;
+    @Schema(example = "20")
+    private Integer maxParticipants;
     @Schema(example = "Active")
     private Programs.Status status;
     @Schema(example = "Prof. John Anderson")

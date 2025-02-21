@@ -61,10 +61,11 @@ public class TimeSlots {
     }
 
     private String generateTimeSlotsID(String psychologistId, LocalDate date, int slotNumber) {
+        String cleanedPsychologistId = psychologistId.replaceFirst("^PSY", "");
         String formattedDate = String.format("%02d%02d%02d",
-                date.getDayOfMonth(),
+                date.getYear() % 100,
                 date.getMonthValue(),
-                date.getYear() % 100); // Extract last two digits of the year
-        return String.format("TS%s%s%02d", psychologistId, formattedDate, slotNumber);
+                date.getDayOfMonth());
+        return String.format("TS%s%s%02d", cleanedPsychologistId, formattedDate, slotNumber);
     }
 }

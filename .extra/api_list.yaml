@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
   title: Health service API
   description: API documentation for Health service Application
@@ -15,12 +15,16 @@ servers:
 tags:
   - name: Survey Controller
     description: Survey related APIs
+  - name: Notification Controller
+    description: Notification Management APIs
   - name: Programs Controller
     description: Program related APIs
   - name: Authentication Controller
     description: Authentication management APIs
   - name: Psychologist Controller
     description: Psychologist related APIs
+  - name: Student Controller
+    description: Student related management APIs
   - name: User Controller
     description: Users related management APIs
   - name: Appointments Controller
@@ -79,7 +83,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/update:
@@ -108,7 +112,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/status:
@@ -137,10 +141,30 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
-  /api/surveys/{surveyId}/questions/{questionId}:
+  /api/surveys/{surveyId}/questions:
+    get:
+      tags:
+        - Survey Controller
+      summary: Get survey details
+      description: Returns details for a specific survey.
+      operationId: getSurveyDetails
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema: {}
+      security:
+        - BearerAuthentication: []
     put:
       tags:
         - Survey Controller
@@ -153,21 +177,11 @@ paths:
           required: true
           schema:
             type: string
-        - name: questionId
-          in: path
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                questionDTO:
-                  $ref: '#/components/schemas/SurveyQuestionResponse'
-                resultDTO:
-                  $ref: '#/components/schemas/SurveyQuestionResultResponse'
+              $ref: '#/components/schemas/SurveyQuestionResponse'
         required: true
       responses:
         '200':
@@ -177,23 +191,24 @@ paths:
               schema: {}
       security:
         - BearerAuthentication: []
-    delete:
+    post:
       tags:
         - Survey Controller
-      summary: Delete question from survey
-      description: Deletes a question from a survey.
-      operationId: deleteSurveyQuestion
+      summary: Add question to survey
+      description: Adds a question to a survey.
+      operationId: addSurveyQuestion
       parameters:
         - name: surveyId
           in: path
           required: true
           schema:
             type: string
-        - name: questionId
-          in: path
-          required: true
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
       responses:
         '200':
           description: OK
@@ -201,7 +216,33 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/update:
+    put:
+      tags:
+        - Student Controller
+      operationId: updateStudent
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
       security:
         - BearerAuthentication: []
   /api/psychologists/{id}:
@@ -282,8 +323,8 @@ paths:
       description: Cancels registration for a program.
       operationId: cancelParticipation
       parameters:
-        - in: path
-          name: programId
+        - name: programId
+          in: path
           required: true
           schema:
             type: string
@@ -303,6 +344,27 @@ paths:
       security:
         - BearerAuthentication: []
   /api/appointments/{appointmentId}:
+    get:
+      tags:
+        - Appointments Controller
+      summary: Get appointment by ID
+      description: Returns the appointment with the specified ID.
+      operationId: getAppointmentById
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AppointmentResponse'
+      security:
+        - BearerAuthentication: []
     put:
       tags:
         - Appointments Controller
@@ -328,29 +390,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/AppointmentResponse'
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{appointmentId}/update-request:
-    put:
-      tags:
-        - Appointments Controller
-      summary: Request update of an appointment
-      description: Requests an update of an appointment.
-      operationId: requestUpdateAppointment
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
       security:
         - BearerAuthentication: []
   /api/appointments/{appointmentId}/cancel:
@@ -395,7 +434,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/{userId}/notifications:
@@ -424,7 +463,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/{userId}/feedback:
@@ -453,7 +492,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/{userId}/deactivate:
@@ -476,7 +515,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/take:
@@ -505,7 +544,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/schedule:
@@ -534,36 +573,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/surveys/{surveyId}/questions:
-    post:
-      tags:
-        - Survey Controller
-      summary: Add question to survey
-      description: Adds a question to a survey.
-      operationId: addSurveyQuestion
-      parameters:
-        - name: surveyId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/questions/{questionId}/answers:
@@ -597,7 +607,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/feedback:
@@ -626,7 +636,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/anonymous:
@@ -649,7 +659,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/create:
@@ -663,7 +673,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/SurveyRequest'
         required: true
       responses:
         '200':
@@ -671,103 +681,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/psychologists/{id}/reports/{appointmentId}:
-    post:
-      tags:
-        - Psychologist Controller
-      summary: Submit assessment report
-      description: Submits an assessment report for an appointment.
-      operationId: submitAssessmentReport
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/psychologists/{id}/notes/{appointmentId}:
-    get:
-      tags:
-        - Psychologist Controller
-      summary: Get session notes
-      description: Returns session notes for an appointment.
-      operationId: getSessionNotes
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-    post:
-      tags:
-        - Psychologist Controller
-      summary: Add session notes
-      description: Adds session notes for an appointment.
-      operationId: addSessionNotes
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
+                $ref: '#/components/schemas/SurveyRequest'
       security:
         - BearerAuthentication: []
   /api/programs/{programId}/register:
@@ -778,8 +692,8 @@ paths:
       description: Registers a student for a program.
       operationId: registerForProgram
       parameters:
-        - in: path
-          name: programId
+        - name: programId
+          in: path
           required: true
           schema:
             type: string
@@ -816,7 +730,26 @@ paths:
           content:
             '*/*':
               schema: {}
-
+      deprecated: true
+      security:
+        - BearerAuthentication: []
+  /api/programs/tags/create:
+    post:
+      tags:
+        - Programs Controller
+      operationId: createProgramTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramTagRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema: {}
       security:
         - BearerAuthentication: []
   /api/programs/create:
@@ -840,12 +773,29 @@ paths:
               schema: {}
       security:
         - BearerAuthentication: []
+  /api/notifications/{id}/read:
+    post:
+      tags:
+        - Notification Controller
+      summary: Mark notification as read
+      operationId: markAsRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+      security:
+        - BearerAuthentication: []
   /api/auth/reset-password:
     post:
       tags:
         - Authentication Controller
       summary: Reset password
-      description: Reset password using token from email
+      description: Reset password using token from email (Soon be hidden)
       operationId: resetPassword
       parameters:
         - name: token
@@ -868,19 +818,18 @@ paths:
             '*/*':
               schema:
                 type: string
-
   /api/auth/register:
     post:
       tags:
         - Authentication Controller
-      summary: Register new user
-      description: Register a new user with the provided details
+      summary: Register new student
+      description: Register a new student with the provided details
       operationId: register
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: '#/components/schemas/StudentRegisterRequest'
         required: true
       responses:
         '200':
@@ -889,13 +838,34 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/AuthenticationResponse'
+  /api/auth/register-parent:
+    post:
+      tags:
+        - Authentication Controller
+      summary: Register new parent
+      description: Register a new parent with the provided details
+      operationId: register_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParentRegisterRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+      deprecated: true
   /api/auth/refresh-token:
     post:
       tags:
         - Authentication Controller
       summary: Refresh token
       description: Get a new access token using refresh token
-      operationId: refreshToken
+      operationId: refresh
       responses:
         '200':
           description: OK
@@ -959,9 +929,68 @@ paths:
           description: OK
           content:
             '*/*':
+              schema: {}
+  /api/appointments/{id}/notes/{appointmentId}:
+    get:
+      tags:
+        - Appointments Controller
+      summary: Get session notes
+      description: Returns session notes for an appointment.
+      operationId: getSessionNotes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
               schema:
                 type: string
-
+      deprecated: true
+      security:
+        - BearerAuthentication: []
+    post:
+      tags:
+        - Appointments Controller
+      summary: Add session notes
+      description: Adds session notes for an appointment.
+      operationId: addSessionNotes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+      deprecated: true
+      security:
+        - BearerAuthentication: []
   /api/appointments/{appointmentId}/report:
     post:
       tags:
@@ -988,7 +1017,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/appointments/{appointmentId}/feedback:
@@ -1017,7 +1046,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/appointments/{appointmentId}/check-out:
@@ -1123,104 +1152,8 @@ paths:
           description: OK
           content:
             '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/surveys:
-    get:
-      tags:
-        - User Controller
-      summary: Get user survey results
-      description: Retrieves all survey results for a user.
-      operationId: getSurveyResultsByUserId
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SurveyResultsResponse'
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/surveys/pending:
-    get:
-      tags:
-        - User Controller
-      summary: Get pending surveys for user
-      description: Retrieves a list of pending surveys for a specific user.
-      operationId: getPendingSurveys
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/programs:
-    get:
-      tags:
-        - User Controller
-      summary: Get programs by user ID
-      description: Returns a list of programs associated with the specified user ID.
-      operationId: getProgramsByUserId
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
               schema: {}
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/programs/completed:
-    get:
-      tags:
-        - User Controller
-      summary: Get completed programs for user
-      description: Retrieves a list of completed programs for a specific user.
-      operationId: getCompletedPrograms
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/{userId}/export:
@@ -1248,7 +1181,26 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
+      security:
+        - BearerAuthentication: []
+  /api/users/{userId}/events:
+    get:
+      tags:
+        - User Controller
+      operationId: getAllAppointments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema: {}
       security:
         - BearerAuthentication: []
   /api/users/{userId}/dashboard:
@@ -1271,56 +1223,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/appointments:
-    get:
-      tags:
-        - User Controller
-      summary: Get user appointments
-      description: Retrieves all appointments for a user.
-      operationId: getAppointmentsByUserId
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AppointmentResponse'
-      security:
-        - BearerAuthentication: []
-  /api/users/{userId}/appointments/upcoming:
-    get:
-      tags:
-        - User Controller
-      summary: Get upcoming appointments for user
-      description: Retrieves a list of upcoming appointments for a specific user.
-      operationId: getUpcomingAppointments
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/search:
@@ -1345,7 +1248,7 @@ paths:
                 type: array
                 items:
                   type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/users/:
@@ -1381,30 +1284,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SurveyResultsResponse'
-      security:
-        - BearerAuthentication: []
-  /api/surveys/{surveyId}:
-    get:
-      tags:
-        - Survey Controller
-      summary: Get survey details
-      description: Returns details for a specific survey.
-      operationId: getSurveyDetails
-      parameters:
-        - name: surveyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
+                  $ref: '#/components/schemas/SurveysResponse'
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/students-results:
@@ -1427,7 +1307,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/result:
@@ -1450,7 +1330,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/export:
@@ -1478,7 +1358,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/dashboard:
@@ -1495,7 +1375,159 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}:
+    get:
+      tags:
+        - Student Controller
+      operationId: getStudentById
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/surveys:
+    get:
+      tags:
+        - Student Controller
+      operationId: getStudentSurveys
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveyResultsResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/surveys/pending:
+    get:
+      tags:
+        - Student Controller
+      operationId: getPendingSurveys
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveysResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/programs:
+    get:
+      tags:
+        - Student Controller
+      operationId: getStudentPrograms
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgramsResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/programs/completed:
+    get:
+      tags:
+        - Student Controller
+      operationId: getCompletedPrograms
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgramsResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/appointments:
+    get:
+      tags:
+        - Student Controller
+      operationId: getStudentAppointments
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppointmentResponse'
+      security:
+        - BearerAuthentication: []
+  /api/students/{studentId}/appointments/upcoming:
+    get:
+      tags:
+        - Student Controller
+      operationId: getUpcomingAppointments
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppointmentResponse'
       security:
         - BearerAuthentication: []
   /api/psychologists:
@@ -1568,30 +1600,7 @@ paths:
                 type: array
                 items:
                   type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/psychologists/{id}/dashboard:
-    get:
-      tags:
-        - Psychologist Controller
-      summary: Get psychologist dashboard
-      description: Returns dashboard details for a psychologist.
-      operationId: getPsychologistDashboard
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/psychologists/{id}/appointments:
@@ -1632,7 +1641,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/psychologists/specializations:
@@ -1640,9 +1649,7 @@ paths:
       tags:
         - Psychologist Controller
       summary: Get all psychologists
-      description: >-
-        Returns a list of all registered psychologists filtered by
-        specialization.
+      description: Returns a list of all registered psychologists filtered by specialization.
       operationId: getAllPsychologistByDepartment
       parameters:
         - name: department
@@ -1659,6 +1666,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PsychologistResponse'
+      security:
+        - BearerAuthentication: []
+  /api/psychologists/departments:
+    get:
+      tags:
+        - Psychologist Controller
+      summary: Get all departments
+      description: Returns a list of all departments.
+      operationId: getDepartments
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DepartmentResponse'
       security:
         - BearerAuthentication: []
   /api/programs:
@@ -1748,7 +1773,8 @@ paths:
           description: OK
           content:
             '*/*':
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ProgramsResponse'
       security:
         - BearerAuthentication: []
   /api/programs/{programId}/location:
@@ -1770,7 +1796,7 @@ paths:
           content:
             '*/*':
               schema: {}
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/programs/{programId}/details:
@@ -1794,6 +1820,24 @@ paths:
               schema: {}
       security:
         - BearerAuthentication: []
+  /api/programs/tags:
+    get:
+      tags:
+        - Programs Controller
+      summary: Get program tags
+      description: Returns a list of tags for programs.
+      operationId: getProgramTags
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgramTagResponse'
+      security:
+        - BearerAuthentication: []
   /api/programs/enrolled/{studentId}:
     get:
       tags:
@@ -1812,7 +1856,10 @@ paths:
           description: OK
           content:
             '*/*':
-              schema: {}
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgramsResponse'
       security:
         - BearerAuthentication: []
   /api/programs/details:
@@ -1846,10 +1893,81 @@ paths:
               schema: {}
       security:
         - BearerAuthentication: []
+  /api/notifications/{userId}/unread:
+    get:
+      tags:
+        - Notification Controller
+      summary: Get all unread notifications
+      operationId: getUnreadNotifications
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - BearerAuthentication: []
+  /api/notifications/{userId}/read:
+    get:
+      tags:
+        - Notification Controller
+      summary: Get all read notifications
+      operationId: getReadNotifications
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - BearerAuthentication: []
+  /api/notifications/{id}:
+    get:
+      tags:
+        - Notification Controller
+      summary: Get all notifications
+      operationId: getNotifications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - BearerAuthentication: []
   /api/auth/verify:
     get:
       tags:
         - Authentication Controller
+      summary: Verify user registration
+      description: Verify user registration using verification token
       operationId: verify
       parameters:
         - name: token
@@ -1864,179 +1982,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/VerificationResponse'
-  /api/appointments:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get all appointments
-      description: Returns a list of all appointments.
-      operationId: getAllAppointments
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{id}:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get appointment by ID
-      description: Returns the appointment with the specified ID.
-      operationId: getAppointmentById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema: {}
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{appointmentId}/result:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get appointment result
-      description: Returns the result of an appointment.
-      operationId: requestResult
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{appointmentId}/record:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Request appointment record
-      description: Requests the record of an appointment.
-      operationId: requestRecord
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{appointmentId}/meeting-link:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get virtual meeting link
-      description: Returns the virtual meeting link for an appointment.
-      operationId: getMeetingLink
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/appointments/{appointmentId}/details:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get appointment details
-      description: Returns detailed information about an appointment.
-      operationId: getAppointmentDetails
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
-  /api/appointments/departments:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get all departments
-      description: Returns a list of all departments.
-      operationId: getDepartments
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DepartmentResponse'
-      security:
-        - BearerAuthentication: []
-  /api/appointments/available-slots:
-    get:
-      tags:
-        - Appointments Controller
-      summary: Get available slots
-      description: Returns available slots for a specific date.
-      operationId: getAvailableSlots
-      parameters:
-        - name: date
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: string
-
-      security:
-        - BearerAuthentication: []
   /api/appointments/:
     get:
       tags:
@@ -2053,6 +1998,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AppointmentResponse'
+      security:
+        - BearerAuthentication: []
+  /api/surveys/{surveyId}/questions/{questionId}:
+    delete:
+      tags:
+        - Survey Controller
+      summary: Delete question from survey
+      description: Deletes a question from a survey.
+      operationId: deleteSurveyQuestion
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/surveys/{surveyId}/cancel:
@@ -2075,7 +2048,7 @@ paths:
             '*/*':
               schema:
                 type: string
-
+      deprecated: true
       security:
         - BearerAuthentication: []
   /api/programs/{programId}/delete:
@@ -2119,6 +2092,8 @@ components:
           type: string
         email:
           type: string
+        address:
+          type: string
         phoneNumber:
           type: string
         role:
@@ -2140,11 +2115,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-        resetToken:
-          type: string
-        resetTokenExpiry:
-          type: string
-          format: date-time
         verificationToken:
           type: string
         tokenExpiration:
@@ -2152,26 +2122,34 @@ components:
           format: date-time
         present:
           type: boolean
-        authorities:
-          type: array
-          items:
-            $ref: '#/components/schemas/GrantedAuthority'
         password:
           type: string
         verified:
           type: boolean
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/GrantedAuthority'
         enabled:
+          type: boolean
+        credentialsNonExpired:
           type: boolean
         accountNonExpired:
           type: boolean
         accountNonLocked:
           type: boolean
-        credentialsNonExpired:
-          type: boolean
-    SurveyQuestionResponse:
+    QuestionOption:
       type: object
       properties:
-        questionId:
+        value:
+          type: integer
+          format: int32
+        label:
+          type: string
+    QuestionResponse:
+      type: object
+      properties:
+        id:
           type: string
           example: Q001
         questionText:
@@ -2183,45 +2161,48 @@ components:
         questionOptions:
           type: array
           items:
-            type: string
-    SurveyQuestionResultResponse:
+            $ref: '#/components/schemas/QuestionOption'
+    SurveyQuestionResponse:
       type: object
       properties:
-        questionId:
+        surveyId:
           type: string
-          example: Q001
-        categoryName:
+          example: SUR001
+        title:
           type: string
-          example: Anxiety
-        questionText:
-          type: string
-          example: How often do you have panic attacks?
-        resultId:
-          type: string
-          example: SUR002
-        answerId:
-          type: string
-          example: A001
-        answer:
-          type: string
-          example: Good
-        score:
-          type: integer
-          format: int32
-          example: 1
-    PsychologistRequest:
+          example: How are you feeling today?
+        questionList:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionResponse'
+    StudentRequest:
       type: object
       properties:
-        departmentID:
+        studentID:
           type: string
-          example: PSY001
-        yearsOfExperience:
+          example: S001
+        name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          example: stutdent@example.com
+        phoneNumber:
+          type: string
+          example: 1234567890
+        address:
+          type: string
+          example: Example Address
+        grade:
           type: integer
           format: int32
-          example: John Smith
-        status:
+          example: 10
+        className:
           type: string
-          example: Psychologist
+          example: A
+        schoolName:
+          type: string
+          example: Example School
     AppointmentResponse:
       type: object
       properties:
@@ -2231,10 +2212,19 @@ components:
         timeSlotID:
           type: string
           example: TS150601
+        timeSlotInfo:
+          $ref: '#/components/schemas/TimeSlots'
+          example: TimeSlotInfo
         studentResponse:
           $ref: '#/components/schemas/StudentResponse'
         psychologistResponse:
           $ref: '#/components/schemas/PsychologistResponse'
+        studentNotes:
+          type: string
+          example: Notes
+        psychologistNotes:
+          type: string
+          example: Notes
         checkInTime:
           type: string
           format: date-time
@@ -2243,9 +2233,49 @@ components:
           type: string
           format: date-time
           example: '2023-01-01 00:00:00'
-        text:
+        psychologistID:
+          type: string
+        psychologistName:
+          type: string
+        studentID:
+          type: string
+        studentName:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+    Appointments:
+      type: object
+      properties:
+        appointmentID:
+          type: string
+        timeSlotsID:
+          type: string
+        studentID:
+          type: string
+        psychologistID:
           type: string
         status:
+          type: string
+          enum:
+            - Scheduled
+            - Completed
+            - Cancelled
+            - InProgress
+        studentNote:
+          type: string
+        psychologistNote:
+          type: string
+        feedback:
           type: string
         createdAt:
           type: string
@@ -2253,6 +2283,165 @@ components:
         updatedAt:
           type: string
           format: date-time
+        student:
+          $ref: '#/components/schemas/Students'
+        timeSlot:
+          $ref: '#/components/schemas/TimeSlots'
+        psychologist:
+          $ref: '#/components/schemas/Psychologists'
+        checkInTime:
+          type: string
+          format: date-time
+        checkOutTime:
+          type: string
+          format: date-time
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notifications'
+    Categories:
+      type: object
+      properties:
+        categoryID:
+          type: string
+        categoryName:
+          type: string
+          enum:
+            - Stress
+            - Anxiety
+            - Depression
+    Department:
+      type: object
+      properties:
+        departmentID:
+          type: string
+        name:
+          type: string
+        psychologists:
+          type: array
+          items:
+            $ref: '#/components/schemas/Psychologists'
+          uniqueItems: true
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Programs'
+          uniqueItems: true
+    LocalTime:
+      type: object
+      properties:
+        hour:
+          type: integer
+          format: int32
+        minute:
+          type: integer
+          format: int32
+        second:
+          type: integer
+          format: int32
+        nano:
+          type: integer
+          format: int32
+    Notifications:
+      type: object
+      properties:
+        notificationID:
+          type: string
+        userID:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - Appointment
+            - Survey
+            - Program
+            - Done
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/Users'
+        appointmentID:
+          type: string
+        appointment:
+          $ref: '#/components/schemas/Appointments'
+        programID:
+          type: string
+        programs:
+          $ref: '#/components/schemas/Programs'
+        surveyID:
+          type: string
+        surveys:
+          $ref: '#/components/schemas/Surveys'
+    Parents:
+      type: object
+      properties:
+        parentID:
+          type: string
+        userID:
+          type: string
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Students'
+        user:
+          $ref: '#/components/schemas/Users'
+    Programs:
+      type: object
+      properties:
+        programID:
+          type: string
+        programName:
+          type: string
+        description:
+          type: string
+        numberParticipants:
+          type: integer
+          format: int32
+        duration:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+            - Active
+            - Inactive
+        createdAt:
+          type: string
+          format: date-time
+        facilitatorID:
+          type: string
+        psychologists:
+          $ref: '#/components/schemas/Psychologists'
+        startDate:
+          type: string
+          format: date
+        meetingLink:
+          type: string
+        type:
+          type: string
+          enum:
+            - Online
+            - Offline
+        departmentID:
+          type: string
+        department:
+          $ref: '#/components/schemas/Department'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tags'
+          uniqueItems: true
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notifications'
     PsychologistResponse:
       type: object
       properties:
@@ -2272,7 +2461,7 @@ components:
         status:
           type: string
           example: Active
-        usersResponse:
+        info:
           $ref: '#/components/schemas/UsersResponse'
         appointment:
           type: array
@@ -2280,6 +2469,30 @@ components:
             $ref: '#/components/schemas/AppointmentResponse'
       required:
         - psychologistId
+    Psychologists:
+      type: object
+      properties:
+        psychologistID:
+          type: string
+        userID:
+          type: string
+        yearsOfExperience:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+            - Active
+            - OnLeave
+            - Inactive
+        user:
+          $ref: '#/components/schemas/Users'
+        departmentID:
+          type: string
+        department:
+          $ref: '#/components/schemas/Department'
+        fullNameFromUser:
+          type: string
     StudentResponse:
       type: object
       properties:
@@ -2338,6 +2551,63 @@ components:
           type: string
           format: date-time
           example: '2023-01-02'
+        info:
+          $ref: '#/components/schemas/UsersResponse'
+          example: UsersResponse
+    Students:
+      type: object
+      properties:
+        studentID:
+          type: string
+        userID:
+          type: string
+        parentID:
+          type: string
+        grade:
+          type: integer
+          format: int32
+        className:
+          type: string
+        schoolName:
+          type: string
+        anxietyScore:
+          type: integer
+          format: int32
+        stressScore:
+          type: integer
+          format: int32
+        depressionScore:
+          type: integer
+          format: int32
+        user:
+          $ref: '#/components/schemas/Users'
+        parents:
+          $ref: '#/components/schemas/Parents'
+    SurveyQuestionResultResponse:
+      type: object
+      properties:
+        questionId:
+          type: string
+          example: Q001
+        categoryName:
+          type: string
+          example: Anxiety
+        questionText:
+          type: string
+          example: How often do you have panic attacks?
+        resultId:
+          type: string
+          example: SUR002
+        answerId:
+          type: string
+          example: A001
+        answer:
+          type: string
+          example: Good
+        score:
+          type: integer
+          format: int32
+          example: 1
     SurveyResultsResponse:
       type: object
       properties:
@@ -2356,6 +2626,77 @@ components:
             $ref: '#/components/schemas/SurveyQuestionResultResponse'
         studentId:
           type: string
+    Surveys:
+      type: object
+      properties:
+        surveyID:
+          type: string
+        surveyName:
+          type: string
+        description:
+          type: string
+        details:
+          type: string
+        duration:
+          type: string
+        categoryID:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - Active
+            - Inactive
+            - Cancelled
+        category:
+          $ref: '#/components/schemas/Categories'
+        creator:
+          $ref: '#/components/schemas/Users'
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notifications'
+    Tags:
+      type: object
+      properties:
+        tagId:
+          type: string
+        tagName:
+          type: string
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Programs'
+          uniqueItems: true
+    TimeSlots:
+      type: object
+      properties:
+        timeSlotsID:
+          type: string
+        slotDate:
+          type: string
+          format: date
+        startTime:
+          $ref: '#/components/schemas/LocalTime'
+        endTime:
+          $ref: '#/components/schemas/LocalTime'
+        status:
+          type: string
+          enum:
+            - Available
+            - Booked
+        psychologist:
+          $ref: '#/components/schemas/Psychologists'
+        slotNumber:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
     UsersResponse:
       type: object
       properties:
@@ -2367,8 +2708,7 @@ components:
           example: username1
         passwordHash:
           type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTUzNTI2NiwiZXhwIjoxNzM5NjIxNjY2fQ.WWZ2yAdX80F6H1HZuqRGrre4C7YBmarUdQFyXbxKpLc
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTUzNTI2NiwiZXhwIjoxNzM5NjIxNjY2fQ.WWZ2yAdX80F6H1HZuqRGrre4C7YBmarUdQFyXbxKpLc
         fullName:
           type: string
           example: John Doe
@@ -2389,18 +2729,10 @@ components:
           example: Psychologist
         psychologistInfo:
           $ref: '#/components/schemas/PsychologistResponse'
-          example: >-
-            Psychologist{psychologistId='PSY001',specialization='Mental
-            Specialist',}
+          example: Psychologist{psychologistId='PSY001',specialization='Mental Specialist',}
         studentInfo:
           $ref: '#/components/schemas/StudentResponse'
-          example: >-
-            Student{studentId='S001',grade=10,className='A',schoolName='Example
-            School',}
-        children:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentResponse'
+          example: Student{studentId='S001',grade=10,className='A',schoolName='Example School',}
         appointmentsRecord:
           type: array
           items:
@@ -2417,6 +2749,19 @@ components:
           type: string
           format: date-time
           example: '2023-01-01'
+    PsychologistRequest:
+      type: object
+      properties:
+        departmentID:
+          type: string
+          example: PSY001
+        yearsOfExperience:
+          type: integer
+          format: int32
+          example: John Smith
+        status:
+          type: string
+          example: Psychologist
     ProgramParticipationRequest:
       type: object
       properties:
@@ -2434,13 +2779,63 @@ components:
       properties:
         timeSlotId:
           type: string
-          example: TSPSY001160225
-        status:
-          type: string
-          example: Scheduled
         notes:
           type: string
           example: Notes
+    SurveyQuestionRequest:
+      type: object
+      properties:
+        questionText:
+          type: string
+        categoryID:
+          type: string
+        questionOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionOption'
+    SurveyRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Example Survey
+        description:
+          type: string
+          example: Survey Description
+        detailedDescription:
+          type: string
+          example: Details
+        categoryID:
+          type: string
+          example: General
+        duration:
+          type: string
+          example: 15-20
+        numberOfQuestions:
+          type: integer
+          format: int32
+          example: 10
+        categoryName:
+          type: string
+          example: Anxiety
+        status:
+          type: string
+          example: Finished
+        createdAt:
+          type: string
+          example: '2023-01-01'
+        createBy:
+          type: string
+          example: US001
+        question:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurveyQuestionRequest'
+    ProgramTagRequest:
+      type: object
+      properties:
+        tagName:
+          type: string
     ProgramsRequest:
       type: object
       properties:
@@ -2453,9 +2848,6 @@ components:
         description:
           type: string
           example: Program Description
-        category:
-          type: string
-          example: Physical
         numberParticipants:
           type: integer
           format: int32
@@ -2472,20 +2864,27 @@ components:
           example: Active
         tags:
           type: array
+          description: A set of tags associated with the entity.
+          example:
+            - TAG001
+            - TAG002
+            - TAG003
           items:
             type: string
           uniqueItems: true
         facilitatorId:
           type: string
+          example: PSY001
         departmentId:
           type: string
+          example: DP01
         type:
           type: string
           example: Online
         meetingLink:
           type: string
           example: https://zoom.us/j/123456789
-    RegisterRequest:
+    StudentRegisterRequest:
       type: object
       properties:
         username:
@@ -2497,7 +2896,100 @@ components:
           type: string
           example: '@User_password123'
           maxLength: 2147483647
-          minLength: 6
+          minLength: 8
+          pattern: ^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$
+        fullName:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: user@example.com
+        phoneNumber:
+          type: string
+          example: 1234567890
+        address:
+          type: string
+          example: Example Address
+        gender:
+          type: string
+          example: Male
+        grade:
+          type: integer
+          format: int32
+          example: 10
+        className:
+          type: string
+          example: A
+        schoolName:
+          type: string
+          example: Example School
+      required:
+        - className
+        - email
+        - fullName
+        - gender
+        - grade
+        - password
+        - phoneNumber
+        - schoolName
+        - username
+    AuthenticationResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbG.eyJzdW.TmCs6rN
+        refreshToken:
+          type: string
+          example: eyJhbG.eyJzdW.TmCs6rN
+        expiresIn:
+          type: integer
+          format: int32
+          example: 12
+        verificationExpiresAt:
+          type: string
+          example: '2023-01-01'
+        verificationToken:
+          type: string
+          example: eyJhbG.eyJzdW.TmCs6rN
+        resetPasswordToken:
+          type: string
+          example: eyJhbG.eyJzdW.TmCs6rN
+        resetPasswordExpiresAt:
+          type: string
+          example: '2023-01-01'
+        verified:
+          type: boolean
+          example: true
+        userId:
+          type: string
+          example: US001
+        studentId:
+          type: string
+          example: S001
+        psychologistId:
+          type: string
+          example: PSY001
+        fullName:
+          type: string
+          example: Name
+        role:
+          type: string
+          example: ROlE
+    ParentRegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: username
+          maxLength: 50
+          minLength: 3
+        password:
+          type: string
+          example: '@User_password123'
+          maxLength: 2147483647
+          minLength: 8
+          pattern: ^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$
         fullName:
           type: string
           example: John Doe
@@ -2524,37 +3016,6 @@ components:
         - phoneNumber
         - role
         - username
-    AuthenticationResponse:
-      type: object
-      properties:
-        accessToken:
-          type: string
-          example: eyJhbG.eyJzdW.TmCs6rN
-        refreshToken:
-          type: string
-          example: eyJhbG.eyJzdW.TmCs6rN
-        expiresIn:
-          type: integer
-          format: int32
-          example: 12
-        verificationExpiresAt:
-          type: string
-          example: '2023-01-01'
-        verificationToken:
-          type: string
-          example: eyJhbG.eyJzdW.TmCs6rN
-        userId:
-          type: string
-          example: US001
-        studentId:
-          type: string
-          example: S001
-        psychologistId:
-          type: string
-          example: PSY001
-        role:
-          type: string
-          example: ROlE
     AuthenticationRequest:
       type: object
       properties:
@@ -2569,8 +3030,56 @@ components:
         - password
     AppointmentReportRequest:
       type: object
+      properties:
+        title:
+          type: string
+          example: title
+        reason:
+          type: string
+          example: 1
+        comment:
+          type: string
+          example: Good
+        appointmentId:
+          type: string
+          example: APP001
+        psychologistId:
+          type: string
+          example: PSY001
+        studentId:
+          type: string
+          example: S001
+        depressionScore:
+          type: integer
+          format: int32
+          example: 0
+        anxietyScore:
+          type: integer
+          format: int32
+          example: 0
+        stressScore:
+          type: integer
+          format: int32
+          example: 0
+        totalScore:
+          type: integer
+          format: int32
+          example: 10
+        status:
+          type: string
     AppointmentFeedbackRequest:
       type: object
+      properties:
+        rating:
+          type: integer
+          format: int32
+          example: 5
+        comment:
+          type: string
+          example: Good
+        appointmentId:
+          type: string
+          example: APP001
     AppointmentRequest:
       type: object
       properties:
@@ -2583,40 +3092,43 @@ components:
         note:
           type: string
           example: Notes
-    LocalTime:
+    SurveysResponse:
       type: object
       properties:
-        hour:
-          type: integer
-          format: int32
-        minute:
-          type: integer
-          format: int32
-        second:
-          type: integer
-          format: int32
-        nano:
-          type: integer
-          format: int32
-    TimeSlotResponse:
-      type: object
-      properties:
-        timeSlotId:
+        id:
           type: string
-          example: TSPSY00127022500
-        slotDate:
+          example: SUR001
+        title:
           type: string
-          format: date
-          example: '2023-01-01'
-        startTime:
-          $ref: '#/components/schemas/LocalTime'
-          example: '2023-01-01 00:00:00'
-        endTime:
-          $ref: '#/components/schemas/LocalTime'
-          example: '2023-01-01 00:00:00'
+          example: Example Survey
+        description:
+          type: string
+          example: Survey Description
+        categoryID:
+          type: string
+          example: General
+        duration:
+          type: string
+          example: 15-20
+        numberOfQuestions:
+          type: integer
+          format: int32
+          example: 10
+        categoryName:
+          type: string
+          example: Anxiety
         status:
           type: string
-          example: Available
+          example: Finished
+        detailedDescription:
+          type: string
+          example: Details
+        createdAt:
+          type: string
+          example: '2023-01-01'
+        createBy:
+          type: string
+          example: US001
     ProgramsResponse:
       type: object
       properties:
@@ -2629,21 +3141,6 @@ components:
         description:
           type: string
           example: Program Description
-        category:
-          type: string
-          enum:
-            - Cognitive
-            - Social
-            - Emotional
-            - Physical
-            - SelfHelp
-            - Wellness
-            - Assessment
-            - SupportGroup
-            - LifeSkills
-            - Prevention
-            - Counseling
-          example: Physical
         startDate:
           type: string
           format: date
@@ -2652,10 +3149,14 @@ components:
           type: integer
           format: int32
           example: 2
-        numberParticipants:
+        currentParticipants:
           type: integer
           format: int32
           example: 10
+        maxParticipants:
+          type: integer
+          format: int32
+          example: 20
         status:
           type: string
           enum:
@@ -2691,6 +3192,59 @@ components:
           example: 10
           items:
             $ref: '#/components/schemas/StudentResponse'
+    TimeSlotResponse:
+      type: object
+      properties:
+        timeSlotId:
+          type: string
+          example: TSPSY00127022500
+        slotDate:
+          type: string
+          format: date
+          example: '2023-01-01'
+        startTime:
+          $ref: '#/components/schemas/LocalTime'
+          example: '2023-01-01 00:00:00'
+        endTime:
+          $ref: '#/components/schemas/LocalTime'
+          example: '2023-01-01 00:00:00'
+        status:
+          type: string
+          example: Available
+    DepartmentResponse:
+      type: object
+      properties:
+        departmentId:
+          type: string
+          example: DP01
+        departmentName:
+          type: string
+          example: Psychology
+    ProgramTagResponse:
+      type: object
+      properties:
+        tagID:
+          type: string
+        tagName:
+          type: string
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isRead:
+          type: boolean
+        appointmentId:
+          type: string
     VerificationResponse:
       type: object
       properties:
@@ -2703,15 +3257,6 @@ components:
         verified:
           type: boolean
           example: true
-    DepartmentResponse:
-      type: object
-      properties:
-        departmentId:
-          type: string
-          example: DP01
-        departmentName:
-          type: string
-          example: Psychology
   securitySchemes:
     BearerAuthentication:
       type: http

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -53,6 +54,9 @@ public class Surveys {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatedBy", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users creator;
+
+    @OneToMany(mappedBy = "surveys", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notifications> notifications;
 
     public Surveys(String surveyID, String surveyName, String description, String categoryID, String createdBy, Status status) {
         this.surveyID = surveyID;
