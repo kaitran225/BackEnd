@@ -46,5 +46,25 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Lấy tất cả thông báo đã đọc của người dùng")
+    @GetMapping("/{userId}/read")
+    public ResponseEntity<List<NotificationResponse>> getReadNotifications(@PathVariable String userId) {
+        List<Notifications> notifications = notificationService.getUserReadNotifications(userId);
+        List<NotificationResponse> responses = notifications.stream()
+                .map(notificationMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
+    @Operation(summary = "Lấy tất cả thông báo chưa đọc của người dùng")
+    @GetMapping("/{userId}/unread")
+    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(@PathVariable String userId) {
+        List<Notifications> notifications = notificationService.getUserUnreadNotifications(userId);
+        List<NotificationResponse> responses = notifications.stream()
+                .map(notificationMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
 
 }

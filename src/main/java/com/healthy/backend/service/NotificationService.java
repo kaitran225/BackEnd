@@ -50,6 +50,14 @@ public class NotificationService {
         return String.format("NOT%01d", nextID);
     }
 
+    public List<Notifications> getUserReadNotifications(String userId) {
+        return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(userId);
+    }
+
+    public List<Notifications> getUserUnreadNotifications(String userId) {
+        return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(userId);
+    }
+
     public List<Notifications> getUserNotifications(String userId) {
 
         return notificationRepository.findByUserIDOrderByCreatedAtDesc(userId);
