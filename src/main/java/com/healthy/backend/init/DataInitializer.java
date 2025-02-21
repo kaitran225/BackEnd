@@ -5,6 +5,7 @@ import com.healthy.backend.entity.*;
 import com.healthy.backend.entity.Enum.StatusEnum;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.service.AuthenticationService;
+import com.healthy.backend.service.PsychologistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -40,19 +41,20 @@ public class DataInitializer implements CommandLineRunner {
     private final TagsRepository tagsRepository;
     private final DepartmentRepository departmentRepository;
     private final AuthenticationService authenticationService;
+    private final PsychologistService psychologistService;
 
     private void initialize() {
 
         // Initialize Users
-        authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin Admin", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City",Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("staff_member", "staff_pass", "Staff Member", "staff@example.com", "2222222222", "Street 202, Ho Chi Minh City",Users.UserRole.MANAGER.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("student_user", "student_pass", "John Doe", "student@example.com", "3333333333","Street 456, Ho Chi Minh City", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("student_user2", "student_pass", "John Green", "student2@example.com", "4444444444", "Street 606, Ho Chi Minh City",Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("student_user3", "student_pass", "Alice Jones", "student3@example.com", "5555555555", "Street 303, Ho Chi Minh City",Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("parent_user", "parent_pass", "Jane Smith", "parent@example.com", "6666666666", "Street 789, Ho Chi Minh City",Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
-        authenticationService.register(new RegisterRequest("parent_user2", "parent_pass", "Bob Johnson", "parent2@example.com", "7777777777","Street 404, Ho Chi Minh City", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("psychologist_user", "psychologist_pass", "Dr. Brown", "caoleanhcuong78@gmail.com", "8888888888", "Street 101, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
-        authenticationService.register(new RegisterRequest("psychologist_user2", "psychologist_pass", "Dr. Blue", "cuongcaoleanh@gmail.com", "9999999999","Street 505, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("admin", "adminpass", "Admin Admin", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City", Users.UserRole.MANAGER.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("staff_member", "staff_pass", "Staff Member", "staff@example.com", "2222222222", "Street 202, Ho Chi Minh City", Users.UserRole.MANAGER.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("student_user", "student_pass", "John Doe", "student@example.com", "3333333333", "Street 456, Ho Chi Minh City", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("student_user2", "student_pass", "John Green", "student2@example.com", "4444444444", "Street 606, Ho Chi Minh City", Users.UserRole.STUDENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("student_user3", "student_pass", "Alice Jones", "student3@example.com", "5555555555", "Street 303, Ho Chi Minh City", Users.UserRole.STUDENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("parent_user", "parent_pass", "Jane Smith", "parent@example.com", "6666666666", "Street 789, Ho Chi Minh City", Users.UserRole.PARENT.toString(), Users.Gender.Female.toString()));
+        authenticationService.register(new RegisterRequest("parent_user2", "parent_pass", "Bob Johnson", "parent2@example.com", "7777777777", "Street 404, Ho Chi Minh City", Users.UserRole.PARENT.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("psychologist_user", "psychologist_pass", "Dr. Brown", "psychologist@example.com", "8888888888", "Street 101, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
+        authenticationService.register(new RegisterRequest("psychologist_user2", "psychologist_pass", "Dr. Blue", "psychologist2@example.com", "9999999999", "Street 505, Ho Chi Minh City", Users.UserRole.PSYCHOLOGIST.toString(), Users.Gender.Male.toString()));
 
         // Initialize Parents
         parentRepository.save(new Parents("P001", userRepository.findByUsername("parent_user").getUserId()));
@@ -64,117 +66,72 @@ public class DataInitializer implements CommandLineRunner {
         studentRepository.save(new Students("S003", userRepository.findByUsername("student_user3").getUserId(), parentRepository.findById("P001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
 
         // Initialize Department
-        departmentRepository.save(new Department("DP01", "Child & Adolescent Psychology"));
-        departmentRepository.save(new Department("DP02", "School Counseling"));
-        departmentRepository.save(new Department("DP03", "Behavioral Therapy"));
-        departmentRepository.save(new Department("DP04", "Trauma & Crisis Intervention"));
-        departmentRepository.save(new Department("DP05", "Family & Parent Counseling"));
-        departmentRepository.save(new Department("DP06", "Stress & Anxiety Management"));
-        departmentRepository.save(new Department("DP07", "Depression & Mood Disorders"));
-        departmentRepository.save(new Department("DP08", "Special Education Support"));
-        departmentRepository.save(new Department("DP09", "Social Skills & Peer Relation"));
-        departmentRepository.save(new Department("DP10", "Suicide Prevention & Intervention"));
-        departmentRepository.save(new Department("DP11", "Digital Well-beingIntervention"));
-
-        // Initialize Psychologists
-        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), 10, Psychologists.Status.Active,"DP01"));
-        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), 8, Psychologists.Status.Active,"DP02"));
+        List<Department> departments = List.of(
+                new Department("DP01", "Child & Adolescent Psychology"),
+                new Department("DP02", "School Counseling"),
+                new Department("DP03", "Behavioral Therapy"),
+                new Department("DP04", "Trauma & Crisis Intervention"),
+                new Department("DP05", "Family & Parent Counseling"),
+                new Department("DP06", "Stress & Anxiety Management"),
+                new Department("DP07", "Depression & Mood Disorders"),
+                new Department("DP08", "Special Education Support"),
+                new Department("DP09", "Social Skills & Peer Relation"),
+                new Department("DP10", "Suicide Prevention & Intervention"),
+                new Department("DP11", "Digital Well-being Intervention")
+        );
+      
+        for (Department department : departments) {
+            departmentRepository.save(department);
+        }
 
         // Initialize Time Slots
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),2));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),3));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),4));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),5));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),6));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),6));
 
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),7));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("13:30:00"), LocalTime.parse("14:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),8));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),9));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("15:30:00"), LocalTime.parse("16:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),10));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("16:00:00"), LocalTime.parse("16:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),11));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-20"), LocalTime.parse("16:30:00"), LocalTime.parse("17:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),12));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),7));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("13:30:00"), LocalTime.parse("14:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),8));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),9));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("15:30:00"), LocalTime.parse("16:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),10));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:00:00"), LocalTime.parse("16:30:00"),psychologistRepository.findById("PSY001").orElseThrow(),11));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:30:00"), LocalTime.parse("17:00:00"),psychologistRepository.findById("PSY001").orElseThrow(),12));
 
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),1));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),2));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),3));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),4));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),5));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),6));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:00:00"), LocalTime.parse("08:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),1));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("08:30:00"), LocalTime.parse("09:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),2));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("09:00:00"), LocalTime.parse("09:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),3));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("09:30:00"), LocalTime.parse("10:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),4));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("10:00:00"), LocalTime.parse("10:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),5));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("10:30:00"), LocalTime.parse("11:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),6));
 
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),7));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("14:30:00"), LocalTime.parse("15:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),8));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("15:00:00"), LocalTime.parse("15:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),9));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("15:30:00"), LocalTime.parse("16:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),10));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("16:00:00"), LocalTime.parse("16:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),11));
-        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-21"), LocalTime.parse("16:30:00"), LocalTime.parse("17:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),12));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("13:00:00"), LocalTime.parse("13:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),7));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("13:30:00"), LocalTime.parse("14:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),8));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),9));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("15:30:00"), LocalTime.parse("16:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),10));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:00:00"), LocalTime.parse("16:30:00"),psychologistRepository.findById("PSY002").orElseThrow(),11));
+        timeSlotRepository.save(new TimeSlots(LocalDate.parse("2025-02-28"), LocalTime.parse("16:30:00"), LocalTime.parse("17:00:00"),psychologistRepository.findById("PSY002").orElseThrow(),12));
+   
 
+        // Initialize Psychologists
+        psychologistRepository.save(new Psychologists("PSY001", userRepository.findByUsername("psychologist_user").getUserId(), 10, Psychologists.Status.Active, "DP01"));
+        psychologistRepository.save(new Psychologists("PSY002", userRepository.findByUsername("psychologist_user2").getUserId(), 8, Psychologists.Status.Active, "DP02"));
+
+        // Initialize Time Slots
+        for (int i = 1; i < 31; i++) {
+            LocalDate input = LocalDate.of(2025, 5, i);
+            psychologistService.createDefaultTimeSlots(input, "PSY001");
+            psychologistService.createDefaultTimeSlots(input, "PSY002");
+        }
+      
         // Initialize Tags
-        tagsRepository.save(new Tags("TAG001", Tags.Tag.Stress));
-        tagsRepository.save(new Tags("TAG002", Tags.Tag.Anxiety));
-        tagsRepository.save(new Tags("TAG003", Tags.Tag.Mindfulness));
-        tagsRepository.save(new Tags("TAG004", Tags.Tag.Depression));
-        tagsRepository.save(new Tags("TAG005", Tags.Tag.EatingDisorder));
-        tagsRepository.save(new Tags("TAG006", Tags.Tag.Addiction));
-        tagsRepository.save(new Tags("TAG007", Tags.Tag.Self_Care));
-        tagsRepository.save(new Tags("TAG008", Tags.Tag.Sleep));
-        tagsRepository.save(new Tags("TAG009", Tags.Tag.PhysicalHealth));
-        tagsRepository.save(new Tags("TAG010", Tags.Tag.MentalHealth));
-        tagsRepository.save(new Tags("TAG011", Tags.Tag.Peer_Support));
-        tagsRepository.save(new Tags("TAG012", Tags.Tag.Community));
-        tagsRepository.save(new Tags("TAG013", Tags.Tag.Social_Skill));
-        tagsRepository.save(new Tags("TAG014", Tags.Tag.Exercise));
-        tagsRepository.save(new Tags("TAG015", Tags.Tag.Relaxation));
-        tagsRepository.save(new Tags("TAG016", Tags.Tag.Meditation));
-        tagsRepository.save(new Tags("TAG017", Tags.Tag.Motivation));
-        tagsRepository.save(new Tags("TAG018", Tags.Tag.Test_Anxiety));
-        tagsRepository.save(new Tags("TAG019", Tags.Tag.Test_Depression));
-        tagsRepository.save(new Tags("TAG020", Tags.Tag.Test_Stress));
-        tagsRepository.save(new Tags("TAG021", Tags.Tag.Academic_Stress));
-        tagsRepository.save(new Tags("TAG022", Tags.Tag.Work_Stress));
-        tagsRepository.save(new Tags("TAG023", Tags.Tag.Financial_Stress));
-        tagsRepository.save(new Tags("TAG024", Tags.Tag.Relationship_Stress));
-        tagsRepository.save(new Tags("TAG025", Tags.Tag.Self_Improvement_Stress));
-        tagsRepository.save(new Tags("TAG026", Tags.Tag.Academic_Relationship));
-        tagsRepository.save(new Tags("TAG027", Tags.Tag.Work_Relationship));
-        tagsRepository.save(new Tags("TAG028", Tags.Tag.Financial_Relationship));
-        tagsRepository.save(new Tags("TAG029", Tags.Tag.Relationship));
-        tagsRepository.save(new Tags("TAG030", Tags.Tag.Self_Improvement));
-        tagsRepository.save(new Tags("TAG031", Tags.Tag.Performance));
-        tagsRepository.save(new Tags("TAG032", Tags.Tag.Confidence));
-        tagsRepository.save(new Tags("TAG033", Tags.Tag.Self_Esteem));
-        tagsRepository.save(new Tags("TAG034", Tags.Tag.Self_Awareness));
-        tagsRepository.save(new Tags("TAG035", Tags.Tag.Self_Discipline));
-        tagsRepository.save(new Tags("TAG036", Tags.Tag.Self_Reflection));
-        tagsRepository.save(new Tags("TAG037", Tags.Tag.Self_Management));
-        tagsRepository.save(new Tags("TAG038", Tags.Tag.Resilience));
-        tagsRepository.save(new Tags("TAG039", Tags.Tag.Coping_Skills));
-        tagsRepository.save(new Tags("TAG040", Tags.Tag.Problem_Solving));
-        tagsRepository.save(new Tags("TAG041", Tags.Tag.Decision_Making));
-        tagsRepository.save(new Tags("TAG042", Tags.Tag.Time_Management));
-        tagsRepository.save(new Tags("TAG043", Tags.Tag.Stress_Management));
-        tagsRepository.save(new Tags("TAG044", Tags.Tag.Emotional_Intelligence));
-        tagsRepository.save(new Tags("TAG045", Tags.Tag.Emotional_Regulation));
-        tagsRepository.save(new Tags("TAG046", Tags.Tag.Emotional_Expression));
-        tagsRepository.save(new Tags("TAG047", Tags.Tag.Productivity));
-        tagsRepository.save(new Tags("TAG048", Tags.Tag.Boundaries));
-        tagsRepository.save(new Tags("TAG049", Tags.Tag.Self_Control));
-        tagsRepository.save(new Tags("TAG050", Tags.Tag.Wellness));
-        tagsRepository.save(new Tags("TAG051", Tags.Tag.Health));
-        tagsRepository.save(new Tags("TAG052", Tags.Tag.Grief));
-        tagsRepository.save(new Tags("TAG053", Tags.Tag.Support));
-        tagsRepository.save(new Tags("TAG054", Tags.Tag.Healing));
-        tagsRepository.save(new Tags("TAG055", Tags.Tag.Body_Image));
-        tagsRepository.save(new Tags("TAG056", Tags.Tag.Personal_Development));
-        tagsRepository.save(new Tags("TAG057", Tags.Tag.Self_Acceptance));
-        tagsRepository.save(new Tags("TAG058", Tags.Tag.Self_Health));
-        tagsRepository.save(new Tags("TAG059", Tags.Tag.Social_Support));
-        tagsRepository.save(new Tags("TAG060", Tags.Tag.Social_Connectivity));
-        tagsRepository.save(new Tags("TAG061", Tags.Tag.Social_Interaction));
-        tagsRepository.save(new Tags("TAG062", Tags.Tag.Community_Engagement));
-        tagsRepository.save(new Tags("TAG063", Tags.Tag.Community_Involvement));
-        tagsRepository.save(new Tags("TAG064", Tags.Tag.Relationship_Building));
-        tagsRepository.save(new Tags("TAG065", Tags.Tag.Relationship_Health));
+        int index = 1;
+        for (Tags.Tag tag : Tags.Tag.values()) {
+            String tagID = String.format("TAG%02d", index);
+            tagsRepository.save(new Tags(tagID, tag));
+            index++;
+        }
 
         // Initialize Programs
         programRepository.save(new Programs("PRG001", "Stress Management",
@@ -182,30 +139,74 @@ public class DataInitializer implements CommandLineRunner {
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
-                LocalDate.parse("2025-02-13"),"https://example.com/meeting1", Programs.Type.Online));
+                LocalDate.parse("2025-02-23"), "https://example.com/meeting1", Programs.Type.Online));
         programRepository.save(new Programs("PRG002", "Anxiety Support Group",
                 "Support group for individuals with anxiety", 15, 6, Programs.Status.Active,
                 departmentRepository.findById("DP06").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
-                LocalDate.parse("2025-02-15"),"https://example.com/meeting2", Programs.Type.Offline));
+                LocalDate.parse("2025-02-25"), "https://example.com/meeting2", Programs.Type.Offline));
         programRepository.save(new Programs("PRG003", "Mindfulness Workshop",
                 "Workshop on mindfulness techniques", 25, 3, Programs.Status.Active,
                 departmentRepository.findById("DP03").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
-                LocalDate.parse("2025-02-18"),"https://example.com/meeting3", Programs.Type.Online));
+                LocalDate.parse("2025-02-28"), "https://example.com/meeting3", Programs.Type.Online));
         programRepository.save(new Programs("PRG004", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-01"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG005", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
                 departmentRepository.findById("DP07").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-02-28"),"https://example.com/meeting4", Programs.Type.Online));
+                LocalDate.parse("2025-03-12"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG006", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-22"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG007", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-03-28"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG008", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY002").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-20"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG009", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-22"), "https://example.com/meeting4", Programs.Type.Online));
+        programRepository.save(new Programs("PRG010", "Depression Counseling",
+                "Counseling for individuals with depression", 30, 2, Programs.Status.Active,
+                departmentRepository.findById("DP07").orElseThrow(),
+                psychologistRepository.findById("PSY001").orElseThrow(),
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
+                LocalDate.parse("2025-04-28"), "https://example.com/meeting4", Programs.Type.Online));
 
-        // Initialize Program Schedule        departmentRepository.save(new Department("DP01", "Child & Adolescent Psychology"));
+        // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule("SCH001", "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH002", "PRG002", "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
         programScheduleRepository.save(new ProgramSchedule("SCH003", "PRG003", "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH004", "PRG004", "Friday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH005", "PRG005", "Saturday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH006", "PRG006", "Wednesday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH007", "PRG007", "Tuesday", LocalTime.parse("08:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH008", "PRG008", "Monday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH009", "PRG009", "Tuesday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule("SCH0010", "PRG010", "Monday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+
 
         // Initialize Program Participation
         programParticipationRepository.save(new ProgramParticipation("PP001", "S001", "PRG001", ProgramParticipation.Status.Completed, LocalDate.parse("2023-06-01"), LocalDate.parse("2023-06-30")));
@@ -217,10 +218,10 @@ public class DataInitializer implements CommandLineRunner {
         categoryRepository.save(new Categories("CAT003", Categories.MentalHealthCategory.Depression));
 
         // Initialize Surveys
-        surveyRepository.save(new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("student_user2").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("student_user3").getUserId(), Surveys.Status.Finished));
-        surveyRepository.save(new Surveys("SUR004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Unfinished));
+        surveyRepository.save(new Surveys("SUR001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Active));
+        surveyRepository.save(new Surveys("SUR002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("student_user2").getUserId(), Surveys.Status.Active));
+        surveyRepository.save(new Surveys("SUR003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("student_user3").getUserId(), Surveys.Status.Active));
+        surveyRepository.save(new Surveys("SUR004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), Surveys.Status.Inactive));
 
         // Initialize Survey Questions
         surveyQuestionRepository.save(new SurveyQuestions("Q001", "SUR001", "How often do you feel stressed?", "CAT001"));
@@ -297,8 +298,8 @@ public class DataInitializer implements CommandLineRunner {
         blogRepository.save(new Article("B002", "Overcoming Anxiety", userRepository.findByUsername("psychologist_user2").getUserId(), "Strategies to cope with anxiety..."));
 
         // Initialize Appointments
-        appointmentRepository.save(new Appointments("APP001","TSPSY00120022501", "S001", "PSY001", StatusEnum.Scheduled));
-        appointmentRepository.save(new Appointments("APP002","TSPSY00221022501", "S002", "PSY002", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP001", "TSPSY00101052500", "S001", "PSY001", StatusEnum.Scheduled));
+        appointmentRepository.save(new Appointments("APP002", "TSPSY00201052501", "S002", "PSY002", StatusEnum.Scheduled));
 
         // Initialize Notifications
         notificationRepository.save(new Notifications("001", userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled for 2023-06-15 at 10:00 AM", Notifications.Type.Appointment));

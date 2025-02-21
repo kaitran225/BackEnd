@@ -65,16 +65,14 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Update question in survey",
             description = "Updates a question in a survey."
     )
     @PutMapping("/{surveyId}/questions")
     public ResponseEntity<?> updateSurveyQuestion(
             @PathVariable String surveyId,
-            @Valid @RequestBody SurveyQuestionResponse surveyQuestionResponse
-    ) {
-            return ResponseEntity.ok("Question updated successfully");
+            @Valid @RequestBody SurveyQuestionResponse surveyQuestionResponse) {
+        return ResponseEntity.ok("Question updated successfully");
     }
 
     @Operation(

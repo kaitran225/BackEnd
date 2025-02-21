@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -12,6 +13,7 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -26,14 +28,16 @@ public class UserService {
     private final PsychologistRepository psychologistRepository;
     private final StudentRepository studentRepository;
     private final SurveyResultRepository surveyResultRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
     private final UserRepository userRepository;
+    private final ProgramRepository programRepository;
 
     private final AppointmentMapper appointmentMapper;
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
     private final SurveyMapper surveyMapper;
     private final UserMapper userMapper;
-
+    private final EventMapper eventMapper;
 
 
     public boolean isEmpty() {
@@ -93,13 +97,13 @@ public class UserService {
         Users user = userRepository.findById(id).orElseThrow();
         PsychologistResponse psychologistResponse;
         StudentResponse studentResponse;
-        List<Appointments> appointmentsList  = null;
+        List<Appointments> appointmentsList = null;
 
         if (!user.getRole().equals(Users.UserRole.STUDENT)
                 && !user.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
             return null;
         }
-        if(user.getRole().equals(Users.UserRole.STUDENT)){
+        if (user.getRole().equals(Users.UserRole.STUDENT)) {
             studentResponse = studentMapper.buildStudentResponse(
                     studentRepository.findByUserID(id)
             );
@@ -107,7 +111,7 @@ public class UserService {
                     studentResponse.getStudentId()
             );
         }
-        if(user.getRole().equals(Users.UserRole.PSYCHOLOGIST)){
+        if (user.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
             psychologistResponse = psychologistsMapper.buildPsychologistResponse(
                     psychologistRepository.findByUserID(id)
             );
@@ -151,7 +155,7 @@ public class UserService {
             surveyResultsResponseList = getUserSurveyResults(user.getUserId());
             studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
             appointmentsResponseList = getUserAppointments(user.getUserId());
-            }
+        }
 
         if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
             Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
@@ -173,5 +177,49 @@ public class UserService {
         );
     }
 
+    public EventResponse getAllEvents(String userId) {
 
+        if (userId == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Users users = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<Appointments> appointments = List.of();
+        List<Programs> programs = List.of();
+        if (users.getRole().equals(Users.UserRole.STUDENT)) {
+            String studentID = studentRepository.findByUserID(userId).getStudentID();
+            appointments = appointmentRepository.findByStudentID(studentID);
+            programs = programParticipationRepository.findByStudentID(studentID)
+                    .stream()
+                    .map(participation -> programRepository
+                            .findById(participation.getProgram().getProgramID())
+                            .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
+                    .toList();
+        }
+        if (users.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
+            String psychologistID = psychologistRepository.findByUserID(userId).getPsychologistID();
+            appointments = appointmentRepository.findByPsychologistID(psychologistID);
+            programs = programRepository.findByFacilitatorID(psychologistID);
+        }
+        if(users.getRole().equals(Users.UserRole.MANAGER)){
+            appointments = appointmentRepository.findAll();
+            programs = programRepository.findAll();
+        }
+        appointments = appointments.stream()
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
+                .toList();
+
+        programs = programs.stream()
+                .filter(program -> program.getStartDate().isAfter(LocalDate.now())).toList();
+        if (appointments.isEmpty() && programs.isEmpty()) {
+            return null;
+        }
+        return switch (users.getRole()) {
+            case STUDENT -> eventMapper.buildStudentEventResponse(appointments, programs, userId);
+            case PSYCHOLOGIST -> eventMapper.buildPsychologistEventResponse(appointments, programs, userId);
+            case MANAGER -> eventMapper.buildManagerEventResponse(appointments, programs, userId);
+            default -> throw new ResourceNotFoundException("User not found with id: " + userId);
+        };
+    }
 }

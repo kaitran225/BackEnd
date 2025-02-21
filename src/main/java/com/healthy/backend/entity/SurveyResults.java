@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -27,6 +29,9 @@ public class SurveyResults {
     @Column(name = "AnswerID", length = 36, nullable = false)
     private String answerID;
 
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
@@ -44,5 +49,12 @@ public class SurveyResults {
         this.studentID = studentID;
         this.questionID = questionID;
         this.answerID = answerID;
+        this.createdAt = LocalDateTime.now();
     }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
 } 

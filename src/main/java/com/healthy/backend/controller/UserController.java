@@ -1,7 +1,11 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.Programs;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin
@@ -195,6 +200,12 @@ public class UserController {
             return ResponseEntity.ok("User account " + userId + " deleted");
         }
         throw new RuntimeException("Failed to delete user account");
+    }
+
+    // Get all students' events
+    @GetMapping("/{userId}/events")
+    public ResponseEntity<?> getAllAppointments(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getAllEvents(userId));
     }
 
 }

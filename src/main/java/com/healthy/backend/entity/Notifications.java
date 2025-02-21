@@ -1,7 +1,6 @@
 package com.healthy.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,9 +45,7 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
     private Appointments appointment;
-
-
-
+  
     public Notifications() {
         isRead = false;
     }
