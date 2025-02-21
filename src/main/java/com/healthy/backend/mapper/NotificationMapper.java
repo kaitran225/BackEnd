@@ -10,7 +10,6 @@ public class NotificationMapper {
         return NotificationResponse.builder()
                 .id(notification.getNotificationID())
                 .AppointmentId(notification.getAppointmentID())
-
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .type(notification.getType().name())
