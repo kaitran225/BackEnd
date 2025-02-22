@@ -9,29 +9,28 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResults;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.Surveys;
 
 @Component
 public class SurveyMapper {
 
-    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyResults surveyResults, SurveyQuestions surveyQuestions) {
+    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyQuestionOptionsChoices choices, SurveyQuestions surveyQuestions) {
         return SurveyQuestionResultResponse.builder()
-                .questionId(surveyResults.getQuestionID())
+                .questionId(choices.getQuestionID())
                 .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
                 .questionText(surveyQuestions.getQuestionText())
-                .resultId(surveyResults.getResultID())
-                .answerId(surveyResults.getAnswerID())
-                .score(surveyResults.getAnswer().getScore())
+                .resultId(choices.getOptionsChoicesID())
+                .answerId(choices.getOptionID())
+                .score(choices.getOptions().getScore())
                 .build();
     }
 
-    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyResults result) {
+    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyQuestionOptionsChoices result) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
-                .studentId(result.getStudent().getStudentID())
                 .questions(questions)
                 .build();
     }
@@ -43,12 +42,12 @@ public class SurveyMapper {
                 .build();
     }
 
-    public List<SurveyResultsResponse> getUserSurveyResults(List<SurveyResults> surveyResults) {
+    public List<SurveyResultsResponse> getUserSurveyResults(List<SurveyQuestionOptionsChoices> surveyResults) {
         if (surveyResults == null) throw new ResourceNotFoundException("No survey results found");
         return buildSurveyResults(surveyResults);
     }
 
-    public  List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
+    public  List<SurveyResultsResponse> buildSurveyResults(List<SurveyQuestionOptionsChoices> surveyResults) {
 
         Map<String, List<SurveyQuestionResultResponse>> groupedResults =
                 surveyResults
@@ -67,15 +66,15 @@ public class SurveyMapper {
     }
 
 
-    public SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyResults result) {
+    public SurveyQuestionResultResponse mapToSurveyQuestionResultResponse(SurveyQuestionOptionsChoices result) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(result.getQuestionID())
                 .categoryName(String.valueOf(result.getQuestion().getCategory().getCategoryName())) // No LazyInitializationException
                 .questionText(result.getQuestion().getQuestionText())
-                .resultId(result.getResultID())
-                .answerId(result.getAnswer().getAnswerID())
-                .answer(result.getAnswer().getAnswer())
-                .score(result.getAnswer().getScore())
+                .resultId(result.getOptionsChoicesID())
+                .answerId(result.getOptions().getOptionID())
+                .answer(result.getOptions().getOptionText())
+                .score(result.getOptions().getScore())
                 .build();
     }
 

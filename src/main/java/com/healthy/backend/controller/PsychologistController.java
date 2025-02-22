@@ -56,9 +56,9 @@ public class PsychologistController {
             summary = "Get psychologist by ID",
             description = "Returns the psychologist with the specified ID."
     )
-    @GetMapping("/{id}")
-    public ResponseEntity<PsychologistResponse> getPsychologistById(@Valid @PathVariable String id) {
-        PsychologistResponse psychologistResponse = psychologistService.getPsychologistById(id);
+    @GetMapping("/{psychologistId}")
+    public ResponseEntity<PsychologistResponse> getPsychologistById(@Valid @PathVariable String psychologistId) {
+        PsychologistResponse psychologistResponse = psychologistService.getPsychologistById(psychologistId);
         if (psychologistResponse != null) {
             return ResponseEntity.ok(psychologistResponse);
         }
@@ -69,10 +69,10 @@ public class PsychologistController {
             summary = "Update psychologist details",
             description = "Updates a psychologist's details."
     )
-    @PutMapping("/{id}")
-    public ResponseEntity<PsychologistResponse> updatePsychologist(@PathVariable String id, @RequestBody @Valid PsychologistRequest request) {
+    @PutMapping("/{psychologistId}")
+    public ResponseEntity<PsychologistResponse> updatePsychologist(@PathVariable String psychologistId, @RequestBody @Valid PsychologistRequest request) {
         PsychologistResponse updatedPsychologist = psychologistService.
-                updatePsychologist(id, request);
+                updatePsychologist(psychologistId, request);
         return ResponseEntity.ok(updatedPsychologist);
     }
 
@@ -80,9 +80,9 @@ public class PsychologistController {
             summary = "Get psychologist appointments",
             description = "Returns a list of appointments for a psychologist."
     )
-    @GetMapping("/{id}/appointments")
-    public List<String> getPsychologistAppointments(@PathVariable String id) {
-        return List.of("List of appointments for psychologist " + id);
+    @GetMapping("/{psychologistId}/appointments")
+    public List<String> getPsychologistAppointments(@PathVariable String psychologistId) {
+        return List.of("List of appointments for psychologist " + psychologistId);
     }
 
     @Operation(
@@ -90,9 +90,9 @@ public class PsychologistController {
             summary = "Get psychologist feedback",
             description = "Returns feedback for a psychologist."
     )
-    @GetMapping("/{id}/feedback")
-    public List<String> getFeedback(@PathVariable String id) {
-        return List.of("Feedback for psychologist " + id);
+    @GetMapping("/{psychologistId}/feedback")
+    public List<String> getFeedback(@PathVariable String psychologistId) {
+        return List.of("Feedback for psychologist " + psychologistId);
     }
 
     @Operation(
@@ -109,26 +109,23 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-
     @Operation(
             deprecated = true,
             hidden = true,
             summary = "Create default time slots",
             description = "Creates time slots for a psychologist on a given date."
     )
-    @PostMapping("/{id}/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots( @Valid
-            @PathVariable String id,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    @PostMapping("/{psychologistId}/timeslots")
+    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots(@Valid
+                                                                  @PathVariable String psychologistId,
+                                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if (date == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (!psychologistService.getTimeSlots(date, id).isEmpty()) {
+        if (!psychologistService.getTimeSlots(date, psychologistId).isEmpty()) {
             throw new RuntimeException("Time slots already exist");
         }
-        List<TimeSlotResponse> timeSlots = psychologistService.createDefaultTimeSlots(date, id);
+        List<TimeSlotResponse> timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
         if (!timeSlots.isEmpty()) {
             return ResponseEntity.ok(timeSlots);
         }
@@ -153,18 +150,21 @@ public class PsychologistController {
             summary = "Get available time slots",
             description = "Returns available time slots for a psychologist on a given date."
     )
-    @GetMapping("/{id}/timeslots")
+    @GetMapping("/{psychologistId}/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
-            @PathVariable String id,
+            @PathVariable String psychologistId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if (date == null) throw new ResourceNotFoundException("Date is required");
-        if (psychologistService.getTimeSlots(date, id).isEmpty()) return createTimeSlots(id, date);
-        List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, id);
+        if (psychologistService.getTimeSlots(date, psychologistId).isEmpty())
+            return createTimeSlots(psychologistId, date);
+        List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, psychologistId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Create leave request")
-    @PostMapping("/{id}/leave-requests")
+    @Operation(
+            summary = "Create leave request",
+            description = "Creates a new leave request for a psychologist.")
+    @PostMapping("/{psychologistId}/leave-requests")
     public ResponseEntity<LeaveResponse> createLeaveRequest(
             @RequestBody @Valid LeaveRequest dto
     ) {
@@ -172,14 +172,38 @@ public class PsychologistController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Get my leave requests")
-    @GetMapping("/{id}/leave-requests")
+    @Operation(
+            summary = "Get leave-requests",
+            description = "Returns a list of leave requests for a psychologist.")
+    @GetMapping("/{psychologistId}/leave-requests")
     public ResponseEntity<List<LeaveResponse>> getMyLeaveRequests(
-            @PathVariable String id
+            @PathVariable String psychologistId
     ) {
-        List<LeaveResponse> requests = psychologistService.getLeaveRequestsByPsychologist(id);
+        List<LeaveResponse> requests = psychologistService.getLeaveRequestsByPsychologist(psychologistId);
         return ResponseEntity.ok(requests);
     }
 
+    @Operation(
+            summary = "Cancel leave request",
+            description = "Requests a cancel update for a psychologist."
+    )
+    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/cancel")
+    public ResponseEntity<LeaveResponse> cancelLeave(
+            @PathVariable String psychologistId,
+            @PathVariable String onLeaveId
+    ) {
+        return ResponseEntity.ok(psychologistService.cancelLeave(psychologistId, onLeaveId));
+    }
 
+    @Operation(
+            summary = "Request return",
+            description = "Requests a return for a psychologist."
+    )
+    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/return")
+    public ResponseEntity<PsychologistResponse> onReturn(
+            @PathVariable String psychologistId,
+            @PathVariable String onLeaveId
+    ) {
+        return ResponseEntity.ok(psychologistService.onReturn(psychologistId, onLeaveId));
+    }
 }

@@ -26,6 +26,7 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setType(NotificationType.APPOINTMENT);
         notification.setAppointmentID(appointmentId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 
@@ -36,7 +37,8 @@ public class NotificationService {
         notification.setTitle(title);
         notification.setMessage(message);
         notification.setType(NotificationType.PROGRAM);
-        notification.setAppointmentID(programId);
+        notification.setProgramID(programId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 
@@ -47,7 +49,8 @@ public class NotificationService {
         notification.setTitle(title);
         notification.setMessage(message);
         notification.setType(NotificationType.SURVEY);
-        notification.setAppointmentID(surveyId);
+        notification.setSurveyID(surveyId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 

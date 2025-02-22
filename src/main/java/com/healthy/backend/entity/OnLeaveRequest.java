@@ -14,7 +14,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "leave_requests")
+@Table(name = "OnLeaveRequest")
 public class OnLeaveRequest {
     @Id
     @Column(name = "LeaveRequestID", length = 36)
@@ -35,10 +35,10 @@ public class OnLeaveRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private OnLeaveStatus status = OnLeaveStatus.PENDING;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-
 }

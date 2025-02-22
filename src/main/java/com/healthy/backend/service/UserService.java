@@ -61,8 +61,8 @@ public class UserService {
     }
 
     public List<SurveyResultsResponse> getUserSurveyResults(String id) {
-        List<SurveyResults> surveyResults = surveyResultRepository.findByStudentID(id);
-        return surveyMapper.getUserSurveyResults(surveyResults);
+        List<SurveyResult> surveyResults = surveyResultRepository.findByStudentID(id);
+        return surveyMapper.getUserSurveyResults(List.of()); //TEMP
     }
 
     public UsersResponse updateUser(String userId, Users updatedUser) {
@@ -188,6 +188,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<Appointments> appointments = List.of();
         List<Programs> programs = List.of();
+
         if (users.getRole().equals(Role.STUDENT)) {
             String studentID = studentRepository.findByUserID(userId).getStudentID();
             appointments = appointmentRepository.findByStudentID(studentID);

@@ -80,32 +80,32 @@ public class StudentService {
         return studentMapper.buildStudentResponse(existingStudent);
     }
 
-    public List<SurveyResultsResponse> getSurveyResults(String id) {
-        List<SurveyResults> surveyResults = surveyResultRepository.findByStudentID(id);
-        return surveyMapper.getUserSurveyResults(surveyResults);
-    }
-
-    public List<SurveysResponse> getPendingSurveys(String id) {
-        List<Surveys> surveys = surveyRepository.findAll();
-        if (surveys.isEmpty()) {
-            throw new ResourceNotFoundException("No surveys found");
-        }
-        return surveys
-                .stream()
-                .filter(survey -> {
-                    return surveyResultRepository.findByStudentID(id).stream().noneMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
-                })
-                .map(surveyMapper::buildSurveysResponse).toList();
-    }
-
-    public List<SurveysResponse> getCompletedSurveys(String id) {
-        List<Surveys> surveyResults = surveyRepository.findAll();
-        return surveyResults
-                .stream()
-                .filter(survey -> {
-                    return surveyResultRepository.findByStudentID(id).stream().anyMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
-                }).map(surveyMapper::buildSurveysResponse).toList();
-    }
+//    public List<SurveyResultsResponse> getSurveyResults(String id) {
+//        List<SurveyQuestionOptionsChoices> surveyResults = surveyResultRepository.findByStudentID(id);
+//        return surveyMapper.getUserSurveyResults(surveyResults);
+//    }
+//
+//    public List<SurveysResponse> getPendingSurveys(String id) {
+//        List<Surveys> surveys = surveyRepository.findAll();
+//        if (surveys.isEmpty()) {
+//            throw new ResourceNotFoundException("No surveys found");
+//        }
+//        return surveys
+//                .stream()
+//                .filter(survey -> {
+//                    return surveyResultRepository.findByStudentID(id).stream().noneMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
+//                })
+//                .map(surveyMapper::buildSurveysResponse).toList();
+//    }
+//
+//    public List<SurveysResponse> getCompletedSurveys(String id) {
+//        List<Surveys> surveyResults = surveyRepository.findAll();
+//        return surveyResults
+//                .stream()
+//                .filter(survey -> {
+//                    return surveyResultRepository.findByStudentID(id).stream().anyMatch(sr -> sr.getQuestion().getSurveyID().equals(survey.getSurveyID()));
+//                }).map(surveyMapper::buildSurveysResponse).toList();
+//    }
 
     public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
         return programParticipationRepository.findByStudentID(studentId).stream()

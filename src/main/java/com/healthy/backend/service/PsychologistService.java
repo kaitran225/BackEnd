@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -206,7 +207,7 @@ public class PsychologistService {
                 );
 
         if (!overlappingLeaves.isEmpty()) {
-            throw new IllegalStateException("Existing approved leave in this period");
+            throw new IllegalStateException("Existing approved/pending leave in this period");
         }
 
         // Create and save request
@@ -217,7 +218,6 @@ public class PsychologistService {
         OnLeaveRequest saved = leaveRequestRepository.save(onRequest);
         return psychologistsMapper.buildLeaveResponse(saved);
     }
-
 
     public List<LeaveResponse> getPendingRequests() {
         return leaveRequestRepository.findByStatus(OnLeaveStatus.PENDING)
@@ -280,5 +280,51 @@ public class PsychologistService {
     @EventListener(ApplicationReadyEvent.class)
     public void updatePsychologistStatusOnStartup() {
         this.updatePsychologistStatusBasedOnLeaveRequests();
+    }
+
+    public LeaveResponse cancelLeave(String psychologistId, String leaveId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        OnLeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found"));
+
+        if (leaveRequest.getStatus() != OnLeaveStatus.PENDING) {
+            throw new IllegalStateException("Leave request is not pending");
+        }
+
+        leaveRequest.setStatus(OnLeaveStatus.CANCELLED);
+        leaveRequestRepository.save(leaveRequest);
+
+        psychologist.setStatus(PsychologistStatus.ACTIVE);
+        psychologistRepository.save(psychologist);
+        return psychologistsMapper.buildLeaveResponse(leaveRequest);
+    }
+
+    public PsychologistResponse onReturn(String psychologistId, String leaveId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        OnLeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found"));
+
+        if (leaveRequest.getStatus() != OnLeaveStatus.APPROVED) {
+            throw new IllegalStateException("Leave request is not approved");
+        }
+
+        leaveRequest.setStatus(OnLeaveStatus.EXPIRED);
+        leaveRequestRepository.save(leaveRequest);
+
+        psychologist.setStatus(PsychologistStatus.ACTIVE);
+        psychologistRepository.save(psychologist);
+        return psychologistsMapper.buildPsychologistResponse(psychologist);
+    }
+
+    @Transactional
+    public PsychologistResponse deletePsychologist(String psychologistId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+        psychologistRepository.delete(psychologist);
+        return psychologistsMapper.buildPsychologistResponse(psychologist);
     }
 }

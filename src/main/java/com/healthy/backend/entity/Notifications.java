@@ -27,7 +27,7 @@ public class Notifications {
     private String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Type", nullable = false, columnDefinition = "ENUM('Appointment', 'Survey', 'Program', 'Done')")
+    @Column(name = "Type", nullable = false)
     private NotificationType type;
 
     @Column(name = "IsRead")
@@ -71,10 +71,12 @@ public class Notifications {
         this.title = title;
         this.message = message;
         this.type = type;
+        this.isRead = false;
     }
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        isRead = false;
     }
 } 

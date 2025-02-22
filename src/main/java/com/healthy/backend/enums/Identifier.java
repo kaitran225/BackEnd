@@ -11,6 +11,8 @@ public enum Identifier {
     SUV,  // Survey
     SQR,  // SurveyQuestion
     SRS,  // SurveyResult
+    SQO,  // SurveyQuestionOptions
+    SQC,  // SurveyQuestionChoices
     PRG,  // Program
     PRT,  // ProgramParticipation
     PRS,  // ProgramSchedule
@@ -20,6 +22,5 @@ public enum Identifier {
     DPT,  // Department
     TAG,  // Tag
     CAT,  // Category
-    ANS,  // Answer
     SCH,  // Schedule
 }

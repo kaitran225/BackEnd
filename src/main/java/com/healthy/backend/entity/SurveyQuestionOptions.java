@@ -17,18 +17,18 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Answers")
-public class Answers {
+@Table(name = "SurveyQuestionOptions")
+public class SurveyQuestionOptions {
 
     @Id
-    @Column(name = "AnswerID", length = 36, nullable = false)
-    private String answerID;
+    @Column(name = "OptionID", length = 36, nullable = false)
+    private String optionID;
 
     @Column(name = "QuestionID", length = 36, nullable = false)
     private String questionID;
 
-    @Column(name = "Answer", columnDefinition = "TEXT", nullable = false)
-    private String answer;
+    @Column(name = "OptionText", columnDefinition = "TEXT", nullable = false)
+    private String optionText;
 
     @Column(name = "Score")
     private Integer score;
@@ -37,10 +37,10 @@ public class Answers {
     @JoinColumn(name = "QuestionID", referencedColumnName = "QuestionID", insertable = false, updatable = false)
     private SurveyQuestions question;
 
-    public Answers(String answerID, String questionID, String answer, Integer score) {
-        this.answerID = answerID;
+    public SurveyQuestionOptions(String answerID, String questionID, String optionText, Integer score) {
+        this.optionID = answerID;
         this.questionID = questionID;
-        this.answer = answer;
+        this.optionText = optionText;
         this.score = score;
     }
 } 

@@ -77,6 +77,7 @@ public class ProgramService {
 
         HashSet<Tags> tags = programsRequest.getTags()
                 .stream()
+                .map(String::toUpperCase)
                 .map(tag -> tagsRepository.findById(tag)
                         .orElseThrow(() -> new ResourceNotFoundException("Tag not found with ID: " + tag)))
                 .collect(Collectors.toCollection(HashSet::new));
@@ -91,13 +92,13 @@ public class ProgramService {
                 programsRequest.getDescription(),
                 programsRequest.getNumberParticipants(),
                 programsRequest.getDuration(),
-                ProgramStatus.valueOf(programsRequest.getStatus()),
+                ProgramStatus.valueOf(programsRequest.getStatus().toUpperCase()),
                 department,
                 facilitator,
                 tags,
                 LocalDate.parse(programsRequest.getStartDate()),
                 programsRequest.getMeetingLink(),
-                ProgramType.valueOf(programsRequest.getType())
+                ProgramType.valueOf(programsRequest.getType().toUpperCase())
         ));
         return getProgramById(programId);
     }
@@ -133,16 +134,13 @@ public class ProgramService {
                 )
         );
 
-        Psychologists psychologist = psychologistRepository.findById(program.getFacilitatorID())
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + program.getFacilitatorID()));
-        Users psychologistUser = psychologist.getUser();
-
         // Send notification
         notificationService.createProgramNotification(
-                psychologistUser.getUserId(),
+                studentRepository.findById(programParticipationRequest.getStudentID()).get().getUserID(),
                 "New Program Registration",
                 "You have a new program registration for " + program.getProgramName(),
                 program.getProgramID());
+
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
 

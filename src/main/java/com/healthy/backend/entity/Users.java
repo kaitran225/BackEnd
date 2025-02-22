@@ -48,7 +48,7 @@ public class Users implements UserDetails {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Gender", columnDefinition = "ENUM('Male', 'Female', 'Other')")
+    @Column(name = "Gender")
     private Gender gender;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
