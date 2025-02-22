@@ -15,7 +15,7 @@ import java.util.HashSet;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProgramsRequest {
-    @Schema(example = "US005")
+    @Schema(example = "UID005")
     private String userId;
     @Schema(example = "Program Name")
     private String name;
@@ -36,7 +36,7 @@ public class ProgramsRequest {
     private HashSet<String> tags;
     @Schema(example = "PSY001")
     private String facilitatorId;
-    @Schema(example = "DP01")
+    @Schema(example = "DPT01")
     private String departmentId;
     @Schema(example = "Online")
     private String type;

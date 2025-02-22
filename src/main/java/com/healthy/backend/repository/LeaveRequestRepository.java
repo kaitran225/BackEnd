@@ -2,6 +2,7 @@ package com.healthy.backend.repository;
 
 import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.enums.OnLeaveStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LeaveRequestRepository extends JpaRepository<OnLeaveRequest, String> {
-    List<OnLeaveRequest> findByStatus(OnLeaveRequest.Status status);
+    List<OnLeaveRequest> findByStatus(OnLeaveStatus status);
     List<OnLeaveRequest> findByPsychologistPsychologistID(String psychologistId);
 
     @Query("SELECT lr FROM LeaveRequest lr " +
@@ -21,7 +22,7 @@ public interface LeaveRequestRepository extends JpaRepository<OnLeaveRequest, St
             "AND lr.endDate >= :date")
     List<OnLeaveRequest> findByPsychologistPsychologistIDAndStatusAndDateRange(
             @Param("psychologistId") String psychologistId,
-            @Param("status") OnLeaveRequest.Status status,
+            @Param("status") OnLeaveStatus status,
             @Param("date") LocalDate date
     );
 
@@ -37,10 +38,10 @@ public interface LeaveRequestRepository extends JpaRepository<OnLeaveRequest, St
 
     List<OnLeaveRequest> findByPsychologistPsychologistIDAndStatus(
             @Param("psychologistId") String psychologistId,
-            @Param("status") OnLeaveRequest.Status status
+            @Param("status") OnLeaveStatus status
     );
 
     @Query("SELECT lr.leaveRequestID FROM LeaveRequest lr ORDER BY lr.leaveRequestID DESC LIMIT 1")
-    Optional<String> findLastLeaveRequestID();
+    String findLastLeaveRequestId();
 
 }

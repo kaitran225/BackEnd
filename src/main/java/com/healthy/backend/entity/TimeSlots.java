@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.TimeslotStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class TimeSlots {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
-    private Status status;
+    private TimeslotStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PsychologistID", nullable = false)
@@ -44,17 +45,12 @@ public class TimeSlots {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt = LocalDateTime.now();
- 
-    public enum Status {
-        Available,
-        Booked
-    }
 
     public TimeSlots(LocalDate date, LocalTime startTime, LocalTime endTime, Psychologists psychologist, int slotNumber) {
         this.slotDate = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = Status.Available;
+        this.status = TimeslotStatus.Available;
         this.psychologist = psychologist;
         this.slotNumber = slotNumber;
         this.timeSlotsID = generateTimeSlotsID(psychologist.getPsychologistID(),date, slotNumber);

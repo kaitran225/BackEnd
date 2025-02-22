@@ -12,7 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventResponse {
-
+    
     private String userId;
 
     private Map<String, EventDetails> event;

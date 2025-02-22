@@ -1,5 +1,7 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.ProgramStatus;
+import com.healthy.backend.enums.ProgramType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +36,7 @@ public class Programs {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50, nullable = false)
-    private Status status;
+    private ProgramStatus status;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -54,7 +56,7 @@ public class Programs {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "AppointmentType", length =  50, nullable = false)
-    private Type type;
+    private ProgramType type;
 
     @Column(name = "DepartmentID", length = 36, nullable = false,insertable = false, updatable = false)
     private String departmentID;
@@ -78,13 +80,13 @@ public class Programs {
             String programID,
             String programName,
             String description,
-            int i, int i1, Status status,
+            int i, int i1, ProgramStatus status,
             Department department,
             Psychologists psychologists,
             HashSet<Tags> tags,
             LocalDate startDate,
             String meetingLink,
-            Type type) {
+            ProgramType type) {
         this.programID = programID;
         this.programName = programName;
         this.description = description;
@@ -106,29 +108,5 @@ public class Programs {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
-    }
-
-//    public enum Category {
-//        Cognitive,
-//        Social,
-//        Emotional,
-//        Physical,
-//        SelfHelp,
-//        Wellness,
-//        Assessment,
-//        SupportGroup,
-//        LifeSkills,
-//        Prevention,
-//        Counseling
-//    }
-
-    public enum Type {
-        Online,
-        Offline
-    }
-
-    public enum Status {
-        Active,
-        Inactive
     }
 } 

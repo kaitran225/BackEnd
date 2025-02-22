@@ -17,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LeaveResponse {
-    @Schema(example = "LE001")
+    @Schema(example = "OLR001")
     private String requestId;
     @Schema(example = "PSY001")
     private String psychologistName;

@@ -11,6 +11,7 @@ import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -63,7 +64,7 @@ public class PsychologistsMapper {
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .reason(request.getReason())
-                .status(OnLeaveRequest.Status.Pending)
+                .status(OnLeaveStatus.PENDING)
                 .build();
     }
 

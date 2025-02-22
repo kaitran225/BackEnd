@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.enums.SurveyCategory;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.QuestionOption;
@@ -54,7 +55,6 @@ public class SurveyService {
                 .toList();
     }
 
-
     public void updateSurveyQuestion(String surveyID,SurveyQuestionResponse surveyQuestionResponse) {
         List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
         
@@ -72,7 +72,7 @@ public class SurveyService {
                 
                 
                 surveyQuestion1.setQuestionText(sqr.getQuestionText());
-                categories.setCategoryName(Categories.MentalHealthCategory.valueOf(sqr.getQuestionCategory()));
+                categories.setCategoryName(SurveyCategory.valueOf(sqr.getQuestionCategory()));
                 List<QuestionOption> questionOption = sqr.getQuestionOptions();
 
                 List<Answers> answers = surveyAnswerRepository.findByQuestionID(surveyQuestion1.getQuestionID());

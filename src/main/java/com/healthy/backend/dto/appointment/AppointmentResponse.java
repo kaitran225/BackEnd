@@ -23,14 +23,14 @@ public class AppointmentResponse {
     @Schema(example = "APP001")
     private String appointmentID;
 
-    @Schema(example = "TS150601")
+    @Schema(example = "TSL150601")
     private String timeSlotID;
 
     @Schema(example = "TimeSlotInfo")
     private TimeSlots timeSlotInfo;
 
     @Schema(examples = "{" +
-            "studentId='S001'," +
+            "studentId='STU001'," +
             "studentName='John Doe'," +
             "}"
     )

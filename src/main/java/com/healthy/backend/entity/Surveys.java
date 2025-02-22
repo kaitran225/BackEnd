@@ -1,6 +1,6 @@
 package com.healthy.backend.entity;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.healthy.backend.enums.SurveyStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class Surveys {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50, nullable = false)
-    private Status status;
+    private SurveyStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CategoryID", referencedColumnName = "CategoryID", insertable = false, updatable = false)
@@ -58,7 +58,7 @@ public class Surveys {
     @OneToMany(mappedBy = "surveys", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
-    public Surveys(String surveyID, String surveyName, String description, String categoryID, String createdBy, Status status) {
+    public Surveys(String surveyID, String surveyName, String description, String categoryID, String createdBy, SurveyStatus status) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
@@ -72,9 +72,5 @@ public class Surveys {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
-    }
-
-    public enum Status {
-        Active, Inactive, Cancelled
     }
 } 

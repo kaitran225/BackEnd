@@ -12,7 +12,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProgramParticipationRequest {
     @NotBlank(message = "Student ID is required")
-    @Schema(example = "S001")
+    @Schema(example = "STU001")
     String studentID;
 
     @NotBlank(message = "Program ID is required")

@@ -3,6 +3,9 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.ParticipationStatus;
+import com.healthy.backend.enums.ProgramStatus;
+import com.healthy.backend.enums.ProgramType;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
@@ -23,26 +26,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProgramService {
 
+    private final UserRepository userRepository;
+    private final TagsRepository tagsRepository;
     private final ProgramRepository programRepository;
-
+    private final StudentRepository studentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PsychologistRepository psychologistRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
-    private final StudentRepository studentRepository;
-
-    private final ProgramScheduleRepository programScheduleRepository;
-
-    private final TagsRepository tagsRepository;
-
-    private final DepartmentRepository departmentRepository;
-
-    private final PsychologistRepository psychologistRepository;
-
-    private final UserRepository userRepository;
-
     private final ProgramMapper programMapper;
-
     private final StudentMapper studentMapper;
 
+    private final GeneralService __;
     private final NotificationService notificationService;
 
     public List<ProgramsResponse> getAllProgramsDetails() {
@@ -65,14 +61,14 @@ public class ProgramService {
         if (tagsRepository.existsByTagName(programTagRequest.getTagName())) {
             throw new ResourceAlreadyExistsException("Tag already exists");
         }
-        String tagId = generateNextTagId(tagsRepository.findLastTagId());
+        String tagId = __.generateTagID();
         Tags newTag = new Tags(tagId, programTagRequest.getTagName());
         tagsRepository.save(newTag);
         return programMapper.buildProgramTagResponse(newTag);
     }
 
     public ProgramsResponse createProgram(ProgramsRequest programsRequest) {
-        String programId = generateNextProgramId(programRepository.findLastProgramId());
+        String programId = __.generateProgramID();
 
         Optional<Users> staffUser = userRepository.findById(programsRequest.getUserId());
         if (staffUser.isEmpty()) {
@@ -95,13 +91,13 @@ public class ProgramService {
                 programsRequest.getDescription(),
                 programsRequest.getNumberParticipants(),
                 programsRequest.getDuration(),
-                Programs.Status.valueOf(programsRequest.getStatus()),
+                ProgramStatus.valueOf(programsRequest.getStatus()),
                 department,
                 facilitator,
                 tags,
                 LocalDate.parse(programsRequest.getStartDate()),
                 programsRequest.getMeetingLink(),
-                Programs.Type.valueOf(programsRequest.getType())
+                ProgramType.valueOf(programsRequest.getType())
         ));
         return getProgramById(programId);
     }
@@ -126,13 +122,13 @@ public class ProgramService {
         if (isJoined(programParticipationRequest)) {
             throw new ResourceAlreadyExistsException("Student is already registered for this program");
         }
-        String programParticipationId = generateNextProgramParticipationId(programParticipationRepository.findLastParticipationCode());
+        String programParticipationId = __.generateParticipantID();
         programParticipationRepository.save(
                 new ProgramParticipation(
                         programParticipationId,
                         programParticipationRequest.getStudentID(),
                         programParticipationRequest.getProgramID(),
-                        ProgramParticipation.Status.Joined,
+                        ParticipationStatus.JOINED,
                         LocalDate.now()
                 )
         );
@@ -162,14 +158,14 @@ public class ProgramService {
         }
         ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID());
-        if (participation.getStatus().equals(ProgramParticipation.Status.Cancelled))
+        if (participation.getStatus().equals(ParticipationStatus.CANCELLED))
             throw new ResourceAlreadyExistsException("Participation is already cancelled");
 
-        if (participation.getStatus().equals(ProgramParticipation.Status.Completed)) {
+        if (participation.getStatus().equals(ParticipationStatus.COMPLETED)) {
             throw new ResourceAlreadyExistsException("Participation is already completed");
         }
 
-        participation.setStatus(ProgramParticipation.Status.Cancelled);
+        participation.setStatus(ParticipationStatus.CANCELLED);
         ProgramParticipation updatedParticipation = programParticipationRepository.save(participation);
 
         notificationService.createProgramNotification(
@@ -178,7 +174,7 @@ public class ProgramService {
                 "You have a new program registration for " + participation.getProgram().getProgramName(),
                 participation.getProgram().getProgramID());
 
-        return updatedParticipation.getStatus().equals(ProgramParticipation.Status.Cancelled);
+        return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
     public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
@@ -202,9 +198,7 @@ public class ProgramService {
         }
 
         programParticipationRepository.deleteByProgramId(programId);
-
         programScheduleRepository.deleteByProgramId(programId);
-
         programRepository.deleteById(programId);
 
         if (programRepository.findById(programId).isPresent()) return false;
@@ -234,32 +228,5 @@ public class ProgramService {
         return programParticipationRepository.findByProgramIDAndStudentID(
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
         ) != null;
-    }
-
-    private String generateNextTagId(String lastCode) {
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last tag code");
-        }
-        String prefix = lastCode.substring(0, 3);
-        int number = Integer.parseInt(lastCode.substring(3));
-        return prefix + String.format("%03d", number + 1);
-    }
-
-    private String generateNextProgramId(String lastCode) {
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last program code");
-        }
-        String prefix = lastCode.substring(0, 3);
-        int number = Integer.parseInt(lastCode.substring(3));
-        return prefix + String.format("%03d", number + 1);
-    }
-
-    private String generateNextProgramParticipationId(String lastCode) {
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last participation code");
-        }
-        String prefix = lastCode.substring(0, 2);
-        int number = Integer.parseInt(lastCode.substring(2));
-        return prefix + String.format("%03d", number + 1);
     }
 }

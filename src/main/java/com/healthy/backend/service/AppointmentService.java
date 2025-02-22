@@ -5,7 +5,8 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
-import com.healthy.backend.entity.Enum.StatusEnum;
+import com.healthy.backend.enums.AppointmentStatus;
+import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceInvalidException;
@@ -20,36 +21,27 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 public class AppointmentService {
 
-    private final AppointmentRepository appointmentRepository;
-
-    private final StudentRepository studentRepository;
-
     private final PsychologistRepository psychologistRepository;
-
-    private final TimeSlotRepository timeSlotRepository;
-
+    private final AppointmentRepository appointmentRepository;
     private final DepartmentRepository departmentRepository;
-
+    private final TimeSlotRepository timeSlotRepository;
+    private final StudentRepository studentRepository;
     private final UserRepository userRepository;
 
+    private final GeneralService __;
     private final EmailService emailService;
-
-    private final AppointmentMapper appointmentMapper;
-
-    private final StudentMapper studentMapper;
-
-    private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
     private final PsychologistsMapper psychologistMapper;
-
+    private final AppointmentMapper appointmentMapper;
     private final DepartmentMapper departmentMapper;
+    private final StudentMapper studentMapper;
+    private final UserMapper userMapper;
 
-    private final NotificationService notificationService;
 
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
@@ -94,13 +86,12 @@ public class AppointmentService {
         );
     }
 
-
     public AppointmentResponse bookAppointment(AppointmentRequest request) {
         TimeSlots timeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Timeslot not found with id: " + request.getTimeSlotId()));
 
         // Validate time slot
-        if (timeSlot.getStatus() != TimeSlots.Status.Available) {
+        if (timeSlot.getStatus() == TimeslotStatus.BOOKED) {
             throw new ResourceAlreadyExistsException("Time slot is not available");
         }
 
@@ -115,18 +106,18 @@ public class AppointmentService {
 
         // Create new appointment
         Appointments appointment = new Appointments();
-        appointment.setAppointmentID(generateAppointmentId());
+        appointment.setAppointmentID(__.generateAppointmentId());
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
         appointment.setStudentID(student.getStudentID());
         appointment.setPsychologistID(psychologist.getPsychologistID());
         appointment.setPsychologist(psychologist);
         appointment.setStudent(student);
         appointment.setTimeSlot(timeSlot);
-        appointment.setStatus(StatusEnum.Scheduled);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
 
         // Save appointment and update time slot status
         Appointments savedAppointment = appointmentRepository.save(appointment);
-        timeSlot.setStatus(TimeSlots.Status.Booked);
+        timeSlot.setStatus(TimeslotStatus.BOOKED);
         timeSlotRepository.save(timeSlot);
 
         // Lấy thông tin user của psychologist
@@ -171,29 +162,28 @@ public class AppointmentService {
                 () -> new ResourceNotFoundException("Timeslot not found with id: " + appointment.getTimeSlotsID())
         );
 
-        if (appointment.getStatus() == StatusEnum.InProgress) {
+        if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
             throw new ResourceInvalidException("Can not cancel an appointment that is In Progress");
         }
-        if (appointment.getStatus() == StatusEnum.Completed) {
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new ResourceInvalidException("Appointment is already completed");
         }
         // Update status
-        appointment.setStatus(StatusEnum.Cancelled);
+        appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
         // Revert time slot back to available
-        timeSlot.setStatus(TimeSlots.Status.Available);
+        timeSlot.setStatus(TimeslotStatus.AVAILABLE);
         timeSlotRepository.save(timeSlot);
 
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
-
 
     public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot find appointment with id " + appointmentId));
 
         // Check appointment status
-        if (appointment.getStatus() != StatusEnum.Scheduled) {
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
             throw new ResourceInvalidException("You can only update a scheduled appointment");
         }
 
@@ -201,7 +191,7 @@ public class AppointmentService {
             TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + request.getTimeSlotId()));
 
-            if (newTimeSlot.getStatus() == TimeSlots.Status.Booked) {
+            if (newTimeSlot.getStatus() == TimeslotStatus.BOOKED) {
                 throw new ResourceNotFoundException("Time slot is not available");
             }
 
@@ -269,11 +259,11 @@ public class AppointmentService {
             }
 
             // Cập nhật trạng thái time slot
-            newTimeSlot.setStatus(TimeSlots.Status.Booked);
+            newTimeSlot.setStatus(TimeslotStatus.BOOKED);
             timeSlotRepository.save(newTimeSlot);
 
-            if (oldTimeSlot.getStatus() == TimeSlots.Status.Booked) {
-                oldTimeSlot.setStatus(TimeSlots.Status.Available);
+            if (oldTimeSlot.getStatus() == TimeslotStatus.BOOKED) {
+                oldTimeSlot.setStatus(TimeslotStatus.AVAILABLE);
                 timeSlotRepository.save(oldTimeSlot);
             }
 
@@ -294,20 +284,20 @@ public class AppointmentService {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
 
-        if (appointment.getStatus() == StatusEnum.Cancelled) {
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new OperationFailedException("Appointment is cancelled");
         }
 
-        if (appointment.getStatus() == StatusEnum.Completed) {
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new OperationFailedException("Appointment is already completed");
         }
 
-        if (appointment.getStatus() == StatusEnum.InProgress) {
+        if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
             throw new OperationFailedException("Appointment is already in progress");
         }
 
 
-        appointment.setStatus(StatusEnum.InProgress);
+        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
         appointment.setCheckInTime(LocalDateTime.now());
         appointmentRepository.save(appointment);
 
@@ -327,19 +317,19 @@ public class AppointmentService {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
 
-        if (appointment.getStatus() == StatusEnum.Cancelled) {
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new OperationFailedException("Appointment is cancelled");
         }
 
-        if (appointment.getStatus() == StatusEnum.Completed) {
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new OperationFailedException("Appointment is already completed");
         }
 
-        if (appointment.getStatus() == StatusEnum.Scheduled) {
+        if (appointment.getStatus() == AppointmentStatus.SCHEDULED) {
             throw new OperationFailedException("You have not checked in yet");
         }
 
-        appointment.setStatus(StatusEnum.Completed);
+        appointment.setStatus(AppointmentStatus.COMPLETED);
         appointment.setCheckOutTime(LocalDateTime.now());
         appointmentRepository.save(appointment);
 
@@ -352,16 +342,5 @@ public class AppointmentService {
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null)))
         );
-    }
-
-    // Generate appointment id
-    private String generateAppointmentId() {
-        String lastCode = appointmentRepository.findLastAppointmentId();
-        if (lastCode == null || lastCode.length() < 3) { // APP
-            throw new IllegalArgumentException("Invalid last appointment code");
-        }
-        String prefix = lastCode.substring(0, 3);
-        int number = Integer.parseInt(lastCode.substring(3));
-        return prefix + String.format("%03d", number + 1);
     }
 }

@@ -21,13 +21,13 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UsersResponse {
-    @Schema(example = "US001")
+    @Schema(example = "UID001")
     private String userId;
     @Schema(example = "username1")
     private String username;
     @Schema(example = "eyJhbGciOiJIUzI1NiJ9" +
-            ".eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTUzNTI2NiwiZXhwIjoxNzM5NjIxNjY2fQ" +
-            ".WWZ2yAdX80F6H1HZuqRGrre4C7YBmarUdQFyXbxKpLc")
+            ".5NjIxNjY2fQ" +
+            ".re4CXbxKpLc")
     private String passwordHash;
     @Schema(example = "John Doe")
     private String fullName;
@@ -47,7 +47,7 @@ public class UsersResponse {
             "}")
     private PsychologistResponse psychologistInfo;
     @Schema(example = "Student{" +
-            "studentId='S001'," +
+            "studentId='STU001'," +
             "grade=10," +
             "className='A'," +
             "schoolName='Example School'," +

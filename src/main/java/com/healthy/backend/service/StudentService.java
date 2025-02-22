@@ -6,9 +6,8 @@ import com.healthy.backend.dto.student.StudentRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.entity.*;
-import com.healthy.backend.entity.Enum.StatusEnum;
+import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
@@ -24,29 +23,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentService {
 
-    private final SurveyResultRepository surveyResultRepository;
-
     private final SurveyRepository surveyRepository;
-
     private final StudentRepository studentRepository;
-
+    private final ProgramRepository programRepository;
+    private final AppointmentRepository appointmentsRepository;
+    private final SurveyResultRepository surveyResultRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
-    private final ProgramRepository programRepository;
-
-    private final AppointmentRepository appointmentsRepository;
-
-    private final AppointmentMapper appointmentMapper;
-
-    private final StudentMapper studentMapper;
-
     private final SurveyMapper surveyMapper;
-
+    private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
-
-    private final PsychologistsMapper psychologistsMapper;
-
-    private final EventMapper eventMapper;
+    private final AppointmentMapper appointmentMapper;
 
     public boolean isStudentExist(String id) {
         if (!studentRepository.existsById(id))
@@ -161,7 +148,7 @@ public class StudentService {
             throw new ResourceNotFoundException("No appointments found");
         }
         return appointments.stream()
-                .filter(appointment -> appointment.getStatus() == StatusEnum.Scheduled)
+                .filter(appointment -> appointment.getStatus() == AppointmentStatus.SCHEDULED)
                 .map(appointmentMapper::buildAppointmentResponse).toList();
     }
 }

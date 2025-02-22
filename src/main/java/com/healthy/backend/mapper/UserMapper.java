@@ -1,13 +1,15 @@
 package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.auth.ParentRegisterRequest;
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.dto.auth.StudentRegisterRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Gender;
+import com.healthy.backend.enums.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -63,17 +65,29 @@ public class UserMapper {
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
                 .phoneNumber(requestRequest.getPhoneNumber())
-                .role(Users.UserRole.valueOf("STUDENT"))
+                .role(Role.STUDENT)
                 .address(requestRequest.getAddress())
-                .gender(Users.Gender.valueOf(requestRequest.getGender()))
+                .gender(Gender.valueOf(requestRequest.getGender()))
                 .verificationToken(token)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
-//                .isVerified(false)
-//                // Set the token expiration to 12 hours from now
-//                .tokenExpiration(LocalDateTime.now().plusHours(12).plusMinutes(30))
                 .build();
     }
+
+    public Users buildUserParentEntity(ParentRegisterRequest requestRequest,
+                                       String token, String userId, String password) {
+        return Users.builder()
+                .userId(userId)
+                .username(requestRequest.getUsername())
+                .passwordHash(password)
+                .fullName(requestRequest.getFullName())
+                .email(requestRequest.getEmail())
+                .phoneNumber(requestRequest.getPhoneNumber())
+                .role(Role.PARENT)
+                .address(requestRequest.getAddress())
+                .gender(Gender.valueOf(requestRequest.getGender()))
+                .verificationToken(token)
+                .build();
+    }
+
 
     // Convert User entity to UserResponse
     public Users buildUserEntity(RegisterRequest requestRequest,
@@ -85,15 +99,10 @@ public class UserMapper {
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
                 .phoneNumber(requestRequest.getPhoneNumber())
-                .role(Users.UserRole.valueOf(requestRequest.getRole()))
+                .role(Role.valueOf(requestRequest.getRole()))
                 .address(requestRequest.getAddress())
-                .gender(Users.Gender.valueOf(requestRequest.getGender()))
+                .gender(Gender.valueOf(requestRequest.getGender()))
                 .verificationToken(token)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
-//                .isVerified(false)
-//                // Set the token expiration to 12 hours from now
-//                .tokenExpiration(LocalDateTime.now().plusHours(12).plusMinutes(30))
                 .build();
     }
 }

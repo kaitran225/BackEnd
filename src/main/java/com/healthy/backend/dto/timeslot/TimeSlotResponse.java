@@ -16,7 +16,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TimeSlotResponse {
-    @Schema(example = "TSPSY00127022500")
+    @Schema(example = "TS00127022500")
     private String timeSlotId;
     @Schema(example = "2023-01-01")
     private LocalDate slotDate;

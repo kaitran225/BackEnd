@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,7 @@ public class Notifications {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", nullable = false, columnDefinition = "ENUM('Appointment', 'Survey', 'Program', 'Done')")
-    private Type type;
+    private NotificationType type;
 
     @Column(name = "IsRead")
     private Boolean isRead;
@@ -64,7 +65,7 @@ public class Notifications {
         isRead = false;
     }
 
-    public Notifications(String notificationID, String userID, String title, String message, Type type) {
+    public Notifications(String notificationID, String userID, String title, String message, NotificationType type) {
         this.notificationID = notificationID;
         this.userID = userID;
         this.title = title;
@@ -75,12 +76,5 @@ public class Notifications {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-    }
-
-    public enum Type {
-        Appointment,
-        Survey,
-        Program,
-        Done
     }
 } 
