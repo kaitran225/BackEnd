@@ -17,10 +17,10 @@ public class LeaveRequestDTO {
     private String psychologistId;
 
     @NotNull(message = "Start date is required")
-   // @FutureOrPresent(message = "Start date must be in present or future")
+    @FutureOrPresent(message = "Start date must be in present or future")
     private LocalDate startDate;
     @NotNull(message = "End date is required")
-  //  @FutureOrPresent(message = "End date must be in present or future")
+    @FutureOrPresent(message = "End date must be in present or future")
     private LocalDate endDate;
 
     @NotBlank(message = "Reason is required")
