@@ -119,15 +119,7 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get psychologist availability status",
-            description = "Returns availability status for psychologists."
-    )
-    @GetMapping("/status")
-    public String getPsychologistsStatus() {
-        return "Psychologists' availability status";
-    }
+
 
     @Operation(
             summary = "Get all departments",
