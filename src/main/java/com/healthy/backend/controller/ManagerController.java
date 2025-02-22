@@ -1,7 +1,7 @@
 // Thêm ManagerController
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.psychologist.LeaveResponseDTO;
+import com.healthy.backend.dto.psychologist.LeaveResponse;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,13 +23,13 @@ public class ManagerController {
 
     @Operation(summary = "Get pending leave requests")
     @GetMapping("/leave-requests")
-    public ResponseEntity<List<LeaveResponseDTO>> getPendingRequests() {
+    public ResponseEntity<List<LeaveResponse>> getPendingRequests() {
         return ResponseEntity.ok(psychologistService.getPendingRequests());
     }
 
     @Operation(summary = "Process leave request")
     @PutMapping("/leave-requests/{requestId}")
-    public ResponseEntity<LeaveResponseDTO> processLeaveRequest(
+    public ResponseEntity<LeaveResponse> processLeaveRequest(
             @PathVariable String requestId,
             @RequestParam boolean approve
     ) {

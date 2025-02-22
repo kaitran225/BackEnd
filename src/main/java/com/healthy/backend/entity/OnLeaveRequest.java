@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "leave_requests")
-public class LeaveRequest {
+public class OnLeaveRequest {
     @Id
     @Column(name = "LeaveRequestID", length = 36)
     private String leaveRequestID;

@@ -1,6 +1,6 @@
 package com.healthy.backend.repository;
 
-import com.healthy.backend.entity.LeaveRequest;
+import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,18 +10,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, String> {
-    List<LeaveRequest> findByStatus(LeaveRequest.Status status);
-    List<LeaveRequest> findByPsychologistPsychologistID(String psychologistId);
+public interface LeaveRequestRepository extends JpaRepository<OnLeaveRequest, String> {
+    List<OnLeaveRequest> findByStatus(OnLeaveRequest.Status status);
+    List<OnLeaveRequest> findByPsychologistPsychologistID(String psychologistId);
 
     @Query("SELECT lr FROM LeaveRequest lr " +
             "WHERE lr.psychologist.psychologistID = :psychologistId " +
             "AND lr.status = :status " +
             "AND lr.startDate <= :date " +
             "AND lr.endDate >= :date")
-    List<LeaveRequest> findByPsychologistPsychologistIDAndStatusAndDateRange(
+    List<OnLeaveRequest> findByPsychologistPsychologistIDAndStatusAndDateRange(
             @Param("psychologistId") String psychologistId,
-            @Param("status") LeaveRequest.Status status,
+            @Param("status") OnLeaveRequest.Status status,
             @Param("date") LocalDate date
     );
 
@@ -29,15 +29,15 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Stri
             "l.psychologist = :psychologist AND " +
             "l.status = 'Approved' AND " +
             "(l.startDate <= :endDate AND l.endDate >= :startDate)")
-    List<LeaveRequest> findByPsychologistAndStatusAndDateRange(
+    List<OnLeaveRequest> findByPsychologistAndStatusAndDateRange(
             @Param("psychologist") Psychologists psychologist,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
 
-    List<LeaveRequest> findByPsychologistPsychologistIDAndStatus(
+    List<OnLeaveRequest> findByPsychologistPsychologistIDAndStatus(
             @Param("psychologistId") String psychologistId,
-            @Param("status") LeaveRequest.Status status
+            @Param("status") OnLeaveRequest.Status status
     );
 
     @Query("SELECT lr.leaveRequestID FROM LeaveRequest lr ORDER BY lr.leaveRequestID DESC LIMIT 1")

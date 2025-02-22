@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/psychologists")
@@ -166,19 +165,19 @@ public class PsychologistController {
 
     @Operation(summary = "Create leave request")
     @PostMapping("/{id}/leave-requests")
-    public ResponseEntity<LeaveResponseDTO> createLeaveRequest(
-            @RequestBody @Valid LeaveRequestDTO dto
+    public ResponseEntity<LeaveResponse> createLeaveRequest(
+            @RequestBody @Valid LeaveRequest dto
     ) {
-        LeaveResponseDTO response = psychologistService.createLeaveRequest(dto);
+        LeaveResponse response = psychologistService.createLeaveRequest(dto);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Get my leave requests")
     @GetMapping("/{id}/leave-requests")
-    public ResponseEntity<List<LeaveResponseDTO>> getMyLeaveRequests(
+    public ResponseEntity<List<LeaveResponse>> getMyLeaveRequests(
             @PathVariable String id
     ) {
-        List<LeaveResponseDTO> requests = psychologistService.getLeaveRequestsByPsychologist(id);
+        List<LeaveResponse> requests = psychologistService.getLeaveRequestsByPsychologist(id);
         return ResponseEntity.ok(requests);
     }
 
