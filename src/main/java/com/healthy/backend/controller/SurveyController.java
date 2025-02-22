@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthy.backend.dto.survey.QuestionOption1;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -73,6 +74,7 @@ public class SurveyController {
     public ResponseEntity<?> updateSurveyQuestion(
             @PathVariable String surveyId,
             @Valid @RequestBody SurveyQuestionResponse surveyQuestionResponse
+            
         ) 
         {
             try {
@@ -86,6 +88,42 @@ public class SurveyController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the survey question" + ex.getMessage());
             }
         }
+//         {
+//   "surveyId": "SUR001",
+//   "title": "How are you feelill?",
+//   "questionList": [
+//     {
+//       "id": "Q001",
+//       "questionText": "How are đâsđy?",
+//       "questionCategory": "Anxiety",
+//       "questionOptions": [
+//         {
+//           "value": 2,
+//           "label": "hello"
+//         },
+//         {
+//           "value": 23,
+//           "label": "hello1"
+//         }
+//       ]
+//     },
+//      {
+//       "id": "Q002",
+//       "questionText": "How does?",
+//       "questionCategory": "Anxiety",
+//       "questionOptions": [
+//         {
+//           "value": 2,
+//           "label": "he"
+//         },
+//         {
+//           "value": 223,
+//           "label": "o"
+//         }
+//       ]
+//     }
+//   ]
+// }
 
     @Operation(
             deprecated = true,
@@ -175,6 +213,42 @@ public class SurveyController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the survey question" + ex.getMessage());
             }
     }
+//     {
+//   "surveyId": "SUR001",
+//   "title": "How are you feeling today?",
+//   "questionList": [
+//     {
+//       "id": "Q001",
+//       "questionText": "How let go to?",
+//       "questionCategory": "Stress",
+//       "questionOptions": [
+//         {
+//           "value": 11,
+//           "label": "s"
+//         },
+//         {
+//           "value": 1,
+//           "label": "iv"
+//         }
+//       ]
+//     },
+//     {
+//       "id": "Q002",
+//       "questionText": "How let go too1?",
+//       "questionCategory": "Stress",
+//       "questionOptions": [
+//         {
+//           "value": 2,
+//           "label": "hellp"
+//         },
+//         {
+//           "value": 1,
+//           "label": "vipp11"
+//         }
+//       ]
+//     }
+//   ]
+// }
 
     @Operation(
             deprecated = true,
@@ -187,13 +261,32 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Add answer to question",
             description = "Adds an answer to a question."
     )
     @PostMapping("/{surveyId}/questions/{questionId}/answers")
-    public String addAnswerToQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody String answer) {
-        return "Answer added to question " + questionId + " in survey " + surveyId;
+    public ResponseEntity<?> addAnswerToQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption1> answer) {
+        try {
+                surveyService.addAnswerToQuestion(surveyId, questionId, answer);;
+                return ResponseEntity.ok("List of answers add sucessfully");     
+            }
+            catch(ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding list of answers  " + ex.getMessage());
+            }
+//             [
+//   {
+//     "value": 4,
+//     "label": "diwdiqwiqwd"
+    
+//   },
+//   {
+//     "value": 2,
+//     "label": "ưqhdwqiodw"
+//   }
+// ]
     }
 
     @Operation(
