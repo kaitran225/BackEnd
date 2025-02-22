@@ -17,7 +17,7 @@ public class AppointmentRequest {
     @Schema(example = "US002")
     private String userId;
 
-    @Schema(example = "TSPSY00127022500")
+    @Schema(example = "TS00127022500")
     private String timeSlotId;
 
     @Schema(hidden = true, example = "Active")

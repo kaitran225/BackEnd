@@ -37,10 +37,10 @@ public class AuthenticationResponse {
     @Schema(example = "true")
     private boolean verified;
 
-    @Schema(example = "US001")
+    @Schema(example = "UID001")
     private String userId;
 
-    @Schema(example = "S001")
+    @Schema(example = "STU001")
     private String studentId;
 
     @Schema(example = "PSY001")

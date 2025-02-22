@@ -2,6 +2,7 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.entity.Notifications;
 import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.enums.NotificationType;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.NotificationRepository;
@@ -15,54 +16,42 @@ import java.util.UUID;
 public class NotificationService {
     
     private final NotificationRepository notificationRepository;
+    private final GeneralService __;
 
     public void createAppointmentNotification(String userId, String title, String message, String appointmentId) {
         Notifications notification = new Notifications();
-        notification.setNotificationID(generateNextNotificationID());
+        notification.setNotificationID(__.generateNextNotificationID());
         notification.setUserID(userId);
         notification.setTitle(title);
         notification.setMessage(message);
-        notification.setType(Notifications.Type.Appointment);
+        notification.setType(NotificationType.APPOINTMENT);
         notification.setAppointmentID(appointmentId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 
     public void createProgramNotification(String userId, String title, String message, String programId) {
         Notifications notification = new Notifications();
-        notification.setNotificationID(generateNextNotificationID());
+        notification.setNotificationID(__.generateNextNotificationID());
         notification.setUserID(userId);
         notification.setTitle(title);
         notification.setMessage(message);
-        notification.setType(Notifications.Type.Program);
-        notification.setAppointmentID(programId);
+        notification.setType(NotificationType.PROGRAM);
+        notification.setProgramID(programId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 
     public void createSurveyNotification(String userId, String title, String message, String surveyId) {
         Notifications notification = new Notifications();
-        notification.setNotificationID(generateNextNotificationID());
+        notification.setNotificationID(__.generateNextNotificationID());
         notification.setUserID(userId);
         notification.setTitle(title);
         notification.setMessage(message);
-        notification.setType(Notifications.Type.Survey);
-        notification.setAppointmentID(surveyId);
+        notification.setType(NotificationType.SURVEY);
+        notification.setSurveyID(surveyId);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
-    }
-
-    private String generateNextNotificationID() {
-        return notificationRepository.findLastNotificationID().stream()
-                .findFirst()
-                .filter(id -> id.startsWith("NOT"))
-                .map(id -> {
-                    try {
-                        return Integer.parseInt(id.substring(3)) + 1;
-                    } catch (NumberFormatException e) {
-                        return 1; // Reset to 1 if parsing fails
-                    }
-                })
-                .orElse(1)
-                .toString()
-                .formatted("NOT%01d"); // Format the new ID
     }
 
     public List<Notifications> getUserReadNotifications(String userId) {
@@ -74,7 +63,6 @@ public class NotificationService {
     }
 
     public List<Notifications> getUserNotifications(String userId) {
-
         return notificationRepository.findByUserIDOrderByCreatedAtDesc(userId);
     }
 

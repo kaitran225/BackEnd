@@ -3,9 +3,9 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.auth.*;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.InvalidTokenException;
-import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AuthenticationMapper;
+import com.healthy.backend.mapper.ParentMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.mapper.UserMapper;
 import com.healthy.backend.repository.*;
@@ -23,25 +23,29 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final AuthenticationRepository authenticationRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ParentRepository parentRepository;
     private final StudentRepository studentRepository;
-    private final PsychologistRepository psychologistsRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final ResetTokenRepository resetTokenRepository;
+    private final AuthenticationManager authenticationManager;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final PsychologistRepository psychologistsRepository;
+    private final AuthenticationRepository authenticationRepository;
 
+    private final GeneralService __;
     private final JwtService jwtService;
     private final EmailService emailService;
+
     private final UserMapper usermapper;
+    private final ParentMapper parentmapper;
     private final StudentMapper studentmapper;
     private final AuthenticationMapper authenticationMapper;
 
@@ -76,7 +80,8 @@ public class AuthenticationService {
         String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
 
         Users savedUser = userRepository.save(
-                usermapper.buildUserEntity(request, token, getUserLastCode(), encodedPassword));
+                usermapper.buildUserEntity(request, token,
+                        __.generateUserID(), encodedPassword));
 
         String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
                 .path("/api/auth/verify")
@@ -103,60 +108,65 @@ public class AuthenticationService {
                 .build();
     }
 
+    // Register new parent
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
 
-//        // Normalize inputs
-//        String normalizedEmail = request.getEmail().trim().toLowerCase();
-//        String normalizedUsername = request.getUsername().trim();
-//        String normalizedPhone = request.getPhoneNumber().trim();
-//
-//        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
-//            throw new RuntimeException("This phone number is already in use for another account");
-//        }
-//
-//        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
-//            throw new RuntimeException("This username is already taken");
-//        }
-//
-//        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
-//            throw new RuntimeException("This email is already in use for another account");
-//        }
-//
-//        // Generate verification token and encode password
-//        String token = jwtService.generateVerificationToken(normalizedEmail);
-//        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
-//
-//        Users savedUser = userRepository.save(
-//                usermapper.buildUserStudentEntity(request, token, getUserLastCode(), encodedPassword));
-//
-//        Students savedStudent = studentRepository.save(studentmapper.buildStudentEntity(request, savedUser, getStudentLastCode()));
-//
-//        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
-//                .path("/api/auth/verify")
-//                .queryParam("token", token)
-//                .toUriString();
-//
-//        if (savedUser.getEmail().contains("example")) {
-//            return AuthenticationResponse.builder()
-//                    .userId(savedUser.getUserId())
-//                    .studentId(savedStudent.getStudentID())
-//                    .role(savedUser.getRole().toString())
-//                    .build();
-//        }
-//
-//        emailService.sendVerificationEmail(
-//                normalizedEmail,
-//                "Click the link to verify your email: " + verificationUrl,
-//                "Verify Your Account"
-//        );
-//
-//        return AuthenticationResponse.builder()
-//                .userId(savedUser.getUserId())
-//                .role(savedUser.getRole().toString())
-//                .build();
-        return AuthenticationResponse.builder().build();
+        // Normalize inputs
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        String normalizedUsername = request.getUsername().trim();
+        String normalizedPhone = request.getPhoneNumber().trim();
+
+        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
+            throw new RuntimeException("This phone number is already in use for another account");
+        }
+
+        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
+            throw new RuntimeException("This username is already taken");
+        }
+
+        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
+            throw new RuntimeException("This email is already in use for another account");
+        }
+
+        // Generate verification token and encode password
+        String token = jwtService.generateVerificationToken(normalizedEmail);
+        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+
+        Users savedUser = userRepository.save(
+                usermapper.buildUserParentEntity(request, token,
+                        __.generateUserID(), encodedPassword));
+
+        List<Students> children = studentRepository.findAllById(request.getStudentIds());
+
+        Parents savedParent = parentRepository.save(
+                parentmapper.buildParentEntity(request, savedUser,
+                        __.generateParentID(),children));
+
+        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
+                .path("/api/auth/verify")
+                .queryParam("token", token)
+                .toUriString();
+
+        if (savedUser.getEmail().contains("example")) {
+            return AuthenticationResponse.builder()
+                    .userId(savedUser.getUserId())
+                    .role(savedUser.getRole().toString())
+                    .build();
+        }
+
+        emailService.sendVerificationEmail(
+                normalizedEmail,
+                "Click the link to verify your email: " + verificationUrl,
+                "Verify Your Account"
+        );
+
+        return AuthenticationResponse.builder()
+                .userId(savedUser.getUserId())
+                .role(savedUser.getRole().toString())
+                .build();
     }
 
+    // Register new student
     public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
 
         // Normalize inputs
@@ -181,9 +191,11 @@ public class AuthenticationService {
         String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
 
         Users savedUser = userRepository.save(
-                usermapper.buildUserStudentEntity(request, token, getUserLastCode(), encodedPassword));
+                usermapper.buildUserStudentEntity(request, token,
+                        __.generateUserID(), encodedPassword));
 
-        Students savedStudent = studentRepository.save(studentmapper.buildStudentEntity(request, savedUser, getStudentLastCode()));
+        Students savedStudent = studentRepository.save(
+                studentmapper.buildStudentEntity(request, savedUser, __.generateStudentID()));
 
         String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
                 .path("/api/auth/verify")
@@ -310,7 +322,6 @@ public class AuthenticationService {
                 .build();
     }
 
-
     // Initiate password reset
     public boolean initiatePasswordReset(String email) {
 
@@ -347,7 +358,6 @@ public class AuthenticationService {
 
         return true;
     }
-
 
     // Reset password
     public boolean resetPassword(String token, String newPassword) {
@@ -396,7 +406,6 @@ public class AuthenticationService {
 
         return true;
     }
-
 
     // Verify email
     public VerificationResponse verifyUser(String token) {
@@ -448,32 +457,5 @@ public class AuthenticationService {
 
     private boolean _check(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
-    }
-
-    // Generate user ID
-    private String getUserLastCode() {
-        if (userRepository.findAll().isEmpty()) {
-            return "US001";
-        }
-        String lastCode = userRepository.findLastUserId();
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last participation code");
-        }
-        String prefix = lastCode.substring(0, 2);
-        int number = Integer.parseInt(lastCode.substring(2));
-        return prefix + String.format("%03d", number + 1);
-    }
-
-    private String getStudentLastCode() {
-        if (userRepository.findAll().isEmpty()) {
-            return "S001";
-        }
-        String lastCode = studentRepository.findLastStudentId();
-        if (lastCode == null || lastCode.length() < 3) {
-            throw new IllegalArgumentException("Invalid last participation code");
-        }
-        String prefix = lastCode.substring(0, 1);
-        int number = Integer.parseInt(lastCode.substring(1));
-        return prefix + String.format("%03d", number + 1);
     }
 }

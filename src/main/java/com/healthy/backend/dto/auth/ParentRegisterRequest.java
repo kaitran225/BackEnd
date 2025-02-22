@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -42,11 +44,14 @@ public class ParentRegisterRequest {
     @Schema(example = "Example Address")
     private String address;
 
-    @Schema(example = "STUDENT")
-    @NotBlank(message = "Role is required")
-    private String role;
-
     @Schema(example = "Male")
     @NotBlank(message = "Gender is required")
     private String gender;
+
+    @Schema(
+            description = "A list of student IDs associated with the parent.",
+            example = "[\"STU001\", \"STU002\", \"STU003\"]"
+    )
+    @NotBlank(message = "Student IDs are required")
+    private List<String> StudentIds;
 }

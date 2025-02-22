@@ -5,34 +5,35 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.enums.SurveyCategory;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.QuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.entity.Answers;
+import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.Categories;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.CategoriesRepository;
-import com.healthy.backend.repository.SurveyAnswerRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SurveyService {
-    private final SurveyResultRepository surveyResultRepository;
+    private final SurveyQuestionOptionsChoicesRepository surveyQuestionOptionsChoicesRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final SurveyMapper surveyMapper;
     private final SurveyRepository surveyRepository;
-    private final SurveyAnswerRepository surveyAnswerRepository;
+    private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
     private final CategoriesRepository categoriesRepository;
 
     public List<SurveysResponse> getAllSurveys() {
@@ -54,7 +55,6 @@ public class SurveyService {
                 .toList();
     }
 
-
     public void updateSurveyQuestion(String surveyID,SurveyQuestionResponse surveyQuestionResponse) {
         List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
         
@@ -72,23 +72,23 @@ public class SurveyService {
                 
                 
                 surveyQuestion1.setQuestionText(sqr.getQuestionText());
-                categories.setCategoryName(Categories.MentalHealthCategory.valueOf(sqr.getQuestionCategory()));
+                categories.setCategoryName(SurveyCategory.valueOf(sqr.getQuestionCategory()));
                 List<QuestionOption> questionOption = sqr.getQuestionOptions();
 
-                List<Answers> answers = surveyAnswerRepository.findByQuestionID(surveyQuestion1.getQuestionID());
+                List<SurveyQuestionOptions> answers = surveyQuestionOptionsRepository.findByQuestionID(surveyQuestion1.getQuestionID());
 
                 if(!answers.isEmpty()) {
                         for(int i = 0; i < answers.size(); i++) {
-                                Answers ans = answers.get(i);
+                                SurveyQuestionOptions ans = answers.get(i);
                                         
                                 if(i < questionOption.size()) {
-                                        ans.setAnswer(questionOption.get(i).getLabel());
+                                        ans.setOptionText(questionOption.get(i).getLabel());
                                         ans.setScore(questionOption.get(i).getValue()); 
 
                                 }                                                                 
                         }
                 }
-                surveyAnswerRepository.saveAll(answers);
+                surveyQuestionOptionsRepository.saveAll(answers);
                 surveyQuestionRepository.save(surveyQuestion1); 
                 categoriesRepository.save(categories);              
         }
@@ -144,11 +144,11 @@ public class SurveyService {
                 .map(questions -> {
                             Integer id = surveyQuestions.indexOf(questions);
                             List<QuestionOption> options =
-                                    surveyAnswerRepository
+                                    surveyQuestionOptionsRepository
                                             .findByQuestionID(questions.getQuestionID())
                                             .stream()
                                             .map(answer -> new QuestionOption(
-                                                    answer.getScore(), answer.getAnswer()))
+                                                    answer.getScore(), answer.getOptionText()))
                                             .toList();
                             return surveyMapper.buildQuestionResponse
                                     (options, questions, id);

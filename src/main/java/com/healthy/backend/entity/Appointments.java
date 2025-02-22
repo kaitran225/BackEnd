@@ -1,6 +1,6 @@
 package com.healthy.backend.entity;
 
-import com.healthy.backend.entity.Enum.StatusEnum;
+import com.healthy.backend.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class Appointments {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20)
-    private StatusEnum status;
+    private AppointmentStatus status;
 
     @Column(name = "StudentNote", columnDefinition = "TEXT")
     private String studentNote;
@@ -70,10 +70,10 @@ public class Appointments {
     private List<Notifications> notifications;
 
     public Appointments() {
-        this.status = StatusEnum.Scheduled;
+        this.status = AppointmentStatus.SCHEDULED;
     }
 
-    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, StatusEnum status) {
+    public Appointments(String appointmentID, String timeSlotsID, String studentID, String psychologistID, AppointmentStatus status) {
         this.appointmentID = appointmentID;
         this.timeSlotsID = timeSlotsID;
         this.studentID = studentID;
@@ -83,6 +83,7 @@ public class Appointments {
 
     @PrePersist
     protected void onCreate() {
+
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -91,11 +92,5 @@ public class Appointments {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    public enum AppointmentType {
-        Online,
-        Offline
-    }
-
 
 }

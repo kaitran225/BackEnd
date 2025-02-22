@@ -7,6 +7,7 @@ import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
@@ -60,8 +61,8 @@ public class UserService {
     }
 
     public List<SurveyResultsResponse> getUserSurveyResults(String id) {
-        List<SurveyResults> surveyResults = surveyResultRepository.findByStudentID(id);
-        return surveyMapper.getUserSurveyResults(surveyResults);
+        List<SurveyResult> surveyResults = surveyResultRepository.findByStudentID(id);
+        return surveyMapper.getUserSurveyResults(List.of()); //TEMP
     }
 
     public UsersResponse updateUser(String userId, Users updatedUser) {
@@ -99,11 +100,11 @@ public class UserService {
         StudentResponse studentResponse;
         List<Appointments> appointmentsList = null;
 
-        if (!user.getRole().equals(Users.UserRole.STUDENT)
-                && !user.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
+        if (!user.getRole().equals(Role.STUDENT)
+                && !user.getRole().equals(Role.PSYCHOLOGIST)) {
             return null;
         }
-        if (user.getRole().equals(Users.UserRole.STUDENT)) {
+        if (user.getRole().equals(Role.STUDENT)) {
             studentResponse = studentMapper.buildStudentResponse(
                     studentRepository.findByUserID(id)
             );
@@ -111,7 +112,7 @@ public class UserService {
                     studentResponse.getStudentId()
             );
         }
-        if (user.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
+        if (user.getRole().equals(Role.PSYCHOLOGIST)) {
             psychologistResponse = psychologistsMapper.buildPsychologistResponse(
                     psychologistRepository.findByUserID(id)
             );
@@ -150,18 +151,18 @@ public class UserService {
         StudentResponse studentResponse = null;
 
 
-        if (user.getRole() == Users.UserRole.STUDENT) {
+        if (user.getRole() == Role.STUDENT) {
             Students students = studentRepository.findByUserID(user.getUserId());
             surveyResultsResponseList = getUserSurveyResults(user.getUserId());
             studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
             appointmentsResponseList = getUserAppointments(user.getUserId());
         }
 
-        if (user.getRole() == Users.UserRole.PSYCHOLOGIST) {
+        if (user.getRole() == Role.PSYCHOLOGIST) {
             Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
             psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
         }
-        if (user.getRole() == Users.UserRole.PARENT) {
+        if (user.getRole() == Role.PARENT) {
             Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
             childrenList = parent.getStudents().stream()
                     .map(studentMapper::buildStudentResponse)
@@ -187,7 +188,8 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<Appointments> appointments = List.of();
         List<Programs> programs = List.of();
-        if (users.getRole().equals(Users.UserRole.STUDENT)) {
+
+        if (users.getRole().equals(Role.STUDENT)) {
             String studentID = studentRepository.findByUserID(userId).getStudentID();
             appointments = appointmentRepository.findByStudentID(studentID);
             programs = programParticipationRepository.findByStudentID(studentID)
@@ -197,12 +199,12 @@ public class UserService {
                             .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
                     .toList();
         }
-        if (users.getRole().equals(Users.UserRole.PSYCHOLOGIST)) {
+        if (users.getRole().equals(Role.PSYCHOLOGIST)) {
             String psychologistID = psychologistRepository.findByUserID(userId).getPsychologistID();
             appointments = appointmentRepository.findByPsychologistID(psychologistID);
             programs = programRepository.findByFacilitatorID(psychologistID);
         }
-        if(users.getRole().equals(Users.UserRole.MANAGER)){
+        if(users.getRole().equals(Role.MANAGER)){
             appointments = appointmentRepository.findAll();
             programs = programRepository.findAll();
         }

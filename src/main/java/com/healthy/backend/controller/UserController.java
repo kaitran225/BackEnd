@@ -55,48 +55,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-//    @Operation(
-//            summary = "Get programs by user ID",
-//            description = "Returns a list of programs associated with the specified user ID."
-//    )
-//    @GetMapping("/{userId}/programs")
-//    public ResponseEntity<?> getProgramsByUserId(
-//            @Valid @PathVariable String userId) {
-//        try {
-//            List<ProgramParticipationResponse> programs = userService.getUserProgramsParticipation(userId);
-//            return ResponseEntity.ok(programs);
-//        } catch (ResourceNotFoundException ex) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-//        } catch (Exception ex) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-//        }
-//    }
-
-//    @Operation(
-//            summary = "Get user appointments",
-//            description = "Retrieves all appointments for a user."
-//    )
-//    @GetMapping("/{userId}/appointments")
-//    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByUserId(@PathVariable String userId) {
-//        List<AppointmentResponse> appointmentResponseList = userService.getUserAppointments(userId);
-//        return appointmentResponseList.isEmpty()
-//                ? ResponseEntity.noContent().build()
-//                : ResponseEntity.ok(appointmentResponseList);
-//    }
-
-
-//    @Operation(
-//            summary = "Get user survey results",
-//            description = "Retrieves all survey results for a user."
-//    )
-//    @GetMapping("/{userId}/surveys")
-//    public ResponseEntity<List<SurveyResultsResponse>> getSurveyResultsByUserId(@PathVariable String userId) {
-//        List<SurveyResultsResponse> surveyResults = userService.getUserSurveyResults(userId);
-//        return surveyResults.isEmpty()
-//                ? ResponseEntity.noContent().build() // 204 No Content if list is empty
-//                : ResponseEntity.ok(surveyResults);
-//    }
-
     @Operation(
             summary = "Update user details",
             description = "Updates a user's details."

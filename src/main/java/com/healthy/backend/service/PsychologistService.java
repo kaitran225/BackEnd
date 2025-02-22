@@ -1,41 +1,46 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.psychologist.LeaveRequestDTO;
-import com.healthy.backend.dto.psychologist.LeaveResponseDTO;
+import com.healthy.backend.dto.psychologist.LeaveRequest;
+import com.healthy.backend.dto.psychologist.LeaveResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.Department;
-import com.healthy.backend.entity.LeaveRequest;
+import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.enums.OnLeaveStatus;
+import com.healthy.backend.enums.PsychologistStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PsychologistService {
-    private final PsychologistRepository psychologistRepository;
-    private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final DepartmentRepository departmentRepository;
-    private final PsychologistsMapper psychologistsMapper;
-    private final TimeSlotMapper timeSlotMapper;
+    private final AppointmentRepository appointmentRepository;
+    private final PsychologistRepository psychologistRepository;
     private final LeaveRequestRepository leaveRequestRepository;
 
+    private final PsychologistsMapper psychologistsMapper;
+    private final TimeSlotMapper timeSlotMapper;
+
+    private final GeneralService __;
 
     // Get all psychologist
     public List<PsychologistResponse> getAllPsychologistDTO() {
@@ -91,7 +96,7 @@ public class PsychologistService {
         if (!request.getStatus().equals(psychologist.getStatus().name())) {
             if (!isValidStatus(request.getStatus()))
                 throw new ResourceNotFoundException("Status is not valid");
-            psychologist.setStatus(Psychologists.Status.valueOf(request.getStatus()));
+            psychologist.setStatus(PsychologistStatus.valueOf(request.getStatus()));
         }
         psychologistRepository.save(psychologist);
         return callMapper(psychologist);
@@ -102,11 +107,10 @@ public class PsychologistService {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
-
-        List<LeaveRequest> leaves = leaveRequestRepository
+        List<OnLeaveRequest> leaves = leaveRequestRepository
                 .findByPsychologistPsychologistIDAndStatusAndDateRange(
                         psychologistId,
-                        LeaveRequest.Status.Approved,
+                        OnLeaveStatus.APPROVED,
                         date
                 );
 
@@ -162,7 +166,7 @@ public class PsychologistService {
         return timeSlots;
     }
 
-    // call psychologistResponse Mapper
+    // Call psychologistResponse Mapper
     private PsychologistResponse callMapper(Psychologists psychologist) {
         return psychologistsMapper.buildPsychologistResponse(psychologist,
                 appointmentRepository.findByPsychologistID(psychologist.getPsychologistID()),
@@ -172,147 +176,155 @@ public class PsychologistService {
     // Check if status is valid
     private boolean isValidStatus(String status) {
         try {
-            Psychologists.Status.valueOf(status);
+            PsychologistStatus.valueOf(status);
             return true;
         } catch (IllegalArgumentException e) {
             return false;
         }
     }
-    public LeaveResponseDTO createLeaveRequest(LeaveRequestDTO dto) {
+
+    // Create leave request
+    public LeaveResponse createLeaveRequest(LeaveRequest request) {
         // Validate date range
-        if (dto.getStartDate().isAfter(dto.getEndDate())) {
+        if (request.getStartDate().isAfter(request.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
         // Check psychologist exists and is active
-        Psychologists psychologist = psychologistRepository.findById(dto.getPsychologistId())
+        Psychologists psychologist = psychologistRepository.findById(request.getPsychologistId())
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
-        if (psychologist.getStatus() != Psychologists.Status.Active) {
+        if (psychologist.getStatus() != PsychologistStatus.ACTIVE) {
             throw new IllegalStateException("Psychologist must be active to request leave");
         }
 
         // Check for overlapping approved leaves
-        List<LeaveRequest> overlappingLeaves = leaveRequestRepository
+        List<OnLeaveRequest> overlappingLeaves = leaveRequestRepository
                 .findByPsychologistAndStatusAndDateRange(
                         psychologist,
-                        dto.getStartDate(),
-                        dto.getEndDate()
+                        request.getStartDate(),
+                        request.getEndDate()
                 );
 
         if (!overlappingLeaves.isEmpty()) {
-            throw new IllegalStateException("Existing approved leave in this period");
+            throw new IllegalStateException("Existing approved/pending leave in this period");
         }
 
         // Create and save request
-        LeaveRequest request = LeaveRequest.builder()
-                .leaveRequestID(generateLeaveRequestID())
-                .psychologist(psychologist)
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .reason(dto.getReason())
-                .status(LeaveRequest.Status.Pending)
-                .build();
+        OnLeaveRequest onRequest =
+                psychologistsMapper.createPendingOnLeaveRequestEntity(request,
+                        __.generateLeaveRequestID(), psychologist);
 
-        LeaveRequest saved = leaveRequestRepository.save(request);
-        return convertToDTO(saved);
+        OnLeaveRequest saved = leaveRequestRepository.save(onRequest);
+        return psychologistsMapper.buildLeaveResponse(saved);
     }
 
-    public String generateLeaveRequestID() {
-        Optional<String> lastLeaveRequestIDOpt = leaveRequestRepository.findLastLeaveRequestID();
-
-        if (lastLeaveRequestIDOpt.isEmpty()) {
-            return "LE001";
-        }
-
-        String lastLeaveRequestID = lastLeaveRequestIDOpt.get();
-
-        int lastNumber = Integer.parseInt(lastLeaveRequestID.substring(2));
-
-        // Tăng số thứ tự lên 1
-        int newNumber = lastNumber + 1;
-
-        String newLeaveRequestID = String.format("LE%03d", newNumber);
-
-        return newLeaveRequestID;
-    }
-
-    public List<LeaveResponseDTO> getPendingRequests() {
-        return leaveRequestRepository.findByStatus(LeaveRequest.Status.Pending)
+    public List<LeaveResponse> getPendingRequests() {
+        return leaveRequestRepository.findByStatus(OnLeaveStatus.PENDING)
                 .stream()
-                .map(this::convertToDTO)
+                .map(psychologistsMapper::buildLeaveResponse)
                 .collect(Collectors.toList());
     }
 
-
-
-    public LeaveResponseDTO processLeaveRequest(String requestId, boolean approve) {
-        LeaveRequest request = leaveRequestRepository.findById(requestId)
+    public LeaveResponse processLeaveRequest(String requestId, boolean approve) {
+        OnLeaveRequest request = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave request not found"));
 
         if (approve) {
-            request.setStatus(LeaveRequest.Status.Approved);
+            request.setStatus(OnLeaveStatus.APPROVED);
             Psychologists psychologist = request.getPsychologist();
-            psychologist.setStatus(Psychologists.Status.OnLeave);
+            psychologist.setStatus(PsychologistStatus.ON_LEAVE);
             psychologistRepository.save(psychologist);
         } else {
-            request.setStatus(LeaveRequest.Status.Rejected);
+            request.setStatus(OnLeaveStatus.REJECTED);
         }
 
-        LeaveRequest updated = leaveRequestRepository.save(request);
-        return convertToDTO(updated);
+        OnLeaveRequest updated = leaveRequestRepository.save(request);
+        return psychologistsMapper.buildLeaveResponse(updated);
     }
 
-
-
-    private LeaveResponseDTO convertToDTO(LeaveRequest request) {
-        return LeaveResponseDTO.builder()
-                .requestId(request.getLeaveRequestID())
-                .psychologistName(request.getPsychologist().getFullNameFromUser())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .reason(request.getReason())
-                .status(request.getStatus().name())
-                .department(request.getPsychologist().getDepartment().getName())
-                .createdAt(request.getCreatedAt())
-                .build();
-    }
-    public List<LeaveResponseDTO> getLeaveRequestsByPsychologist(String psychologistId) {
-        List<LeaveRequest> requests = leaveRequestRepository.findByPsychologistPsychologistID(psychologistId);
+    public List<LeaveResponse> getLeaveRequestsByPsychologist(String psychologistId) {
+        List<OnLeaveRequest> requests = leaveRequestRepository.findByPsychologistPsychologistID(psychologistId);
         return requests.stream()
-                .map(this::convertToDTO)
+                .map(psychologistsMapper::buildLeaveResponse)
                 .collect(Collectors.toList());
     }
-
-
 
     public void updatePsychologistStatusBasedOnLeaveRequests() {
         LocalDate today = LocalDate.now();
 
-        // Lấy tất cả các psychologist có leave request approved
         List<Psychologists> psychologists = psychologistRepository.findAll();
 
         for (Psychologists psychologist : psychologists) {
-            List<LeaveRequest> approvedLeaves = leaveRequestRepository
+            List<OnLeaveRequest> approvedLeaves = leaveRequestRepository
                     .findByPsychologistPsychologistIDAndStatus(
                             psychologist.getPsychologistID(),
-                            LeaveRequest.Status.Approved
+                            OnLeaveStatus.APPROVED
                     );
 
             boolean isOnLeave = approvedLeaves.stream()
-                    .anyMatch(leave -> !today.isBefore(leave.getStartDate()) && !today.isAfter(leave.getEndDate()));
+                    .anyMatch(leave ->
+                            !today.isBefore(leave.getStartDate())
+                                    && !today.isAfter(leave.getEndDate()));
 
             if (isOnLeave) {
-                psychologist.setStatus(Psychologists.Status.OnLeave);
+                psychologist.setStatus(PsychologistStatus.ON_LEAVE);
             } else {
-                psychologist.setStatus(Psychologists.Status.Active);
+                psychologist.setStatus(PsychologistStatus.ACTIVE);
             }
 
             psychologistRepository.save(psychologist);
         }
     }
 
+    @EventListener(ApplicationReadyEvent.class)
+    public void updatePsychologistStatusOnStartup() {
+        this.updatePsychologistStatusBasedOnLeaveRequests();
+    }
 
+    public LeaveResponse cancelLeave(String psychologistId, String leaveId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
+        OnLeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found"));
 
+        if (leaveRequest.getStatus() != OnLeaveStatus.PENDING) {
+            throw new IllegalStateException("Leave request is not pending");
+        }
+
+        leaveRequest.setStatus(OnLeaveStatus.CANCELLED);
+        leaveRequestRepository.save(leaveRequest);
+
+        psychologist.setStatus(PsychologistStatus.ACTIVE);
+        psychologistRepository.save(psychologist);
+        return psychologistsMapper.buildLeaveResponse(leaveRequest);
+    }
+
+    public PsychologistResponse onReturn(String psychologistId, String leaveId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        OnLeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found"));
+
+        if (leaveRequest.getStatus() != OnLeaveStatus.APPROVED) {
+            throw new IllegalStateException("Leave request is not approved");
+        }
+
+        leaveRequest.setStatus(OnLeaveStatus.EXPIRED);
+        leaveRequestRepository.save(leaveRequest);
+
+        psychologist.setStatus(PsychologistStatus.ACTIVE);
+        psychologistRepository.save(psychologist);
+        return psychologistsMapper.buildPsychologistResponse(psychologist);
+    }
+
+    @Transactional
+    public PsychologistResponse deletePsychologist(String psychologistId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+        psychologistRepository.delete(psychologist);
+        return psychologistsMapper.buildPsychologistResponse(psychologist);
+    }
 }

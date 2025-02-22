@@ -1,5 +1,7 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.Gender;
+import com.healthy.backend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,10 +45,10 @@ public class Users implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Role", nullable = false)
-    private UserRole role;
+    private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Gender", columnDefinition = "ENUM('Male', 'Female', 'Other')")
+    @Column(name = "Gender")
     private Gender gender;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
@@ -98,19 +100,5 @@ public class Users implements UserDetails {
 
     public boolean isPresent() {
         return userId != null;
-    }
-
-
-    public enum UserRole {
-        STUDENT,
-        PARENT,
-        PSYCHOLOGIST,
-        MANAGER
-    }
-
-    public enum Gender {
-        Male,
-        Female,
-        Other
     }
 }

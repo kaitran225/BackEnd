@@ -19,9 +19,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StudentResponse {
 
-    @Schema(example = "S001")
+    @Schema(example = "STU001")
     private String studentId;
-    @Schema(example = "US001")
+    @Schema(example = "UID001")
     private String userId;
     @Schema(example = "10")
     private Integer grade;

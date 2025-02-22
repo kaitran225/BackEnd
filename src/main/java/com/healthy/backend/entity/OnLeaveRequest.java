@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.OnLeaveStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,8 +14,8 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "leave_requests")
-public class LeaveRequest {
+@Table(name = "OnLeaveRequest")
+public class OnLeaveRequest {
     @Id
     @Column(name = "LeaveRequestID", length = 36)
     private String leaveRequestID;
@@ -34,15 +35,10 @@ public class LeaveRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.Pending;
+    @Builder.Default
+    private OnLeaveStatus status = OnLeaveStatus.PENDING;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-
-    public enum Status {
-        Pending,
-        Approved,
-        Rejected
-    }
 }

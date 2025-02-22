@@ -39,19 +39,19 @@ public class StudentController {
         return ResponseEntity.ok(studentService.updateStudent(student));
     }
 
-    // Get student survey results
-    @GetMapping("/{studentId}/surveys")
-    public ResponseEntity<List<SurveyResultsResponse>> getStudentSurveys(@PathVariable String studentId) {
-        if (!studentService.isStudentExist(studentId))
-            throw new ResourceNotFoundException("No student found with id: " + studentId);
-        return ResponseEntity.ok(studentService.getSurveyResults(studentId));
-    }
-
-    // Get pending surveys for student
-    @GetMapping("/{studentId}/surveys/pending")
-    public ResponseEntity<List<SurveysResponse>> getPendingSurveys(@PathVariable String studentId) {
-        return ResponseEntity.ok(studentService.getPendingSurveys(studentId));
-    }
+//    // Get student survey results
+//    @GetMapping("/{studentId}/surveys")
+//    public ResponseEntity<List<SurveyResultsResponse>> getStudentSurveys(@PathVariable String studentId) {
+//        if (!studentService.isStudentExist(studentId))
+//            throw new ResourceNotFoundException("No student found with id: " + studentId);
+//        return ResponseEntity.ok(studentService.getSurveyResults(studentId));
+//    }
+//
+//    // Get pending surveys for student
+//    @GetMapping("/{studentId}/surveys/pending")
+//    public ResponseEntity<List<SurveysResponse>> getPendingSurveys(@PathVariable String studentId) {
+//        return ResponseEntity.ok(studentService.getPendingSurveys(studentId));
+//    }
 
     // Get programs assigned to student
     @GetMapping("/{studentId}/programs")

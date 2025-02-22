@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RegisterResponse {
-    @Schema(example = "U00X")
+    @Schema(example = "UID001")
     private String userId;
     @Schema(example = "ROlE")
     private String role;

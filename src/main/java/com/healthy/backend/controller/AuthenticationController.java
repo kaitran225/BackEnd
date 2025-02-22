@@ -53,7 +53,6 @@ public class AuthenticationController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Register new parent",
             description = "Register a new parent with the provided details"
     )

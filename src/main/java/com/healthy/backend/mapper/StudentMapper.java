@@ -10,8 +10,8 @@ import com.healthy.backend.entity.Users;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-@Component
 
+@Component
 public class StudentMapper {
 
     public StudentResponse buildStudentResponse(

@@ -30,7 +30,7 @@ public class ProgramMapper {
                 .facilitatorName(program.getPsychologists().getFullNameFromUser())
                 .departmentName(program.getPsychologists().getDepartment().getName())
                 .tags(program.getTags().stream().map(Tags::getTagName).map(String::toUpperCase).collect(Collectors.toSet()))
-                .type(program.getType())
+                .type(program.getType().toString())
                 .enrolled(enrolled)
                 .build();
     }
@@ -43,12 +43,12 @@ public class ProgramMapper {
                 .currentParticipants(enrolled.size())
                 .maxParticipants(program.getNumberParticipants())
                 .duration(program.getDuration())
-                .status(program.getStatus())
+                .status(program.getStatus().toString())
                 .startDate(LocalDate.from(program.getStartDate()))
                 .facilitatorName(program.getPsychologists().getFullNameFromUser())
                 .departmentName(program.getPsychologists().getDepartment().getName())
                 .tags(program.getTags().stream().map(Tags::getTagName).map(String::toUpperCase).collect(Collectors.toSet()))
-                .type(program.getType())
+                .type(program.getType().toString())
                 .meetingLink(program.getMeetingLink())
                 .enrolled(enrolled)
                 .build();
@@ -60,12 +60,12 @@ public class ProgramMapper {
                 .title(program.getProgramName())
                 .description(program.getDescription())
                 .duration(program.getDuration())
-                .status(program.getStatus())
+                .status(program.getStatus().toString())
                 .startDate(LocalDate.from(program.getStartDate()))
                 .facilitatorName(program.getPsychologists().getFullNameFromUser())
                 .departmentName(program.getPsychologists().getDepartment().getName())
                 .tags(program.getTags().stream().map(Tags::getTagName).map(String::toUpperCase).collect(Collectors.toSet()))
-                .type(program.getType())
+                .type(program.getType().toString())
                 .meetingLink(program.getMeetingLink())
                 .build();
     }
@@ -75,9 +75,9 @@ public class ProgramMapper {
                 .programID(program.getProgramID())
                 .title(program.getProgramName())
                 .duration(program.getDuration())
-                .status(program.getStatus())
+                .status(program.getStatus().toString())
                 .startDate(LocalDate.from(program.getStartDate()))
-                .type(program.getType())
+                .type(program.getType().toString())
                 .meetingLink(program.getMeetingLink())
                 .build();
     }
@@ -89,7 +89,7 @@ public class ProgramMapper {
                 .description(participation.getProgram().getDescription())
                 .numberParticipants(participation.getProgram().getNumberParticipants())
                 .duration(participation.getProgram().getDuration())
-                .status(participation.getStatus())
+                .status(participation.getStatus().toString())
                 .createdAt(participation.getProgram().getCreatedAt())
                 .build();
     }

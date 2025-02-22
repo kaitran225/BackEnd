@@ -31,8 +31,6 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
-
-
     @Operation(
             summary = "Get all appointments",
             description = "Returns a list of all appointments."
@@ -79,8 +77,6 @@ public class AppointmentController {
         }
         throw new OperationFailedException("Failed to cancel appointment");
     }
-
-
 
     @Operation(
             deprecated = true,
@@ -142,8 +138,6 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to update appointment");
     }
 
-
-
     @Operation(
             deprecated = true,
             summary = "Make a report for an appointment",
@@ -153,8 +147,5 @@ public class AppointmentController {
     public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
         return "Report created successfully";
     }
-
-
-
 }
 

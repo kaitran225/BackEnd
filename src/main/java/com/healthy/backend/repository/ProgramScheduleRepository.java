@@ -16,4 +16,7 @@ public interface ProgramScheduleRepository extends JpaRepository<ProgramSchedule
     @Transactional
     @Query("DELETE FROM ProgramSchedule p WHERE p.programID = :programId")
     void deleteByProgramId(@Param("programId") String programId);
-} 
+
+    @Query("SELECT p.scheduleID FROM ProgramSchedule p ORDER BY p.scheduleID DESC LIMIT 1")
+    String findLastProgramScheduleId();
+}
