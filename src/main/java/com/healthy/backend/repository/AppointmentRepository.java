@@ -13,4 +13,7 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     List<Appointments> findByPsychologistID(String psychologistID);
     @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
     String findLastAppointmentId();
+
+
+
 } 
