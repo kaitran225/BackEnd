@@ -1,8 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.psychologist.DepartmentResponse;
-import com.healthy.backend.dto.psychologist.PsychologistRequest;
-import com.healthy.backend.dto.psychologist.PsychologistResponse;
+import com.healthy.backend.dto.psychologist.*;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
@@ -151,7 +149,7 @@ public class PsychologistController {
             description = "Creates time slots for a psychologist on a given date."
     )
     @PostMapping("/{id}/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots(
+    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots( @Valid
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if (date == null) {
@@ -182,6 +180,23 @@ public class PsychologistController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Create leave request")
+    @PostMapping("/{id}/leave-requests")
+    public ResponseEntity<LeaveResponseDTO> createLeaveRequest(
+            @RequestBody @Valid LeaveRequestDTO dto
+    ) {
+        LeaveResponseDTO response = psychologistService.createLeaveRequest(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get my leave requests")
+    @GetMapping("/{id}/leave-requests")
+    public ResponseEntity<List<LeaveResponseDTO>> getMyLeaveRequests(
+            @PathVariable String id
+    ) {
+        List<LeaveResponseDTO> requests = psychologistService.getLeaveRequestsByPsychologist(id);
+        return ResponseEntity.ok(requests);
+    }
 
 
 }

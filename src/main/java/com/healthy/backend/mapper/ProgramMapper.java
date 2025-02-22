@@ -84,15 +84,5 @@ public class ProgramMapper {
                 .build();
     }
 
-    public ProgramParticipationResponse buildProgramParticipationResponse(ProgramParticipation participation) {
-        return ProgramParticipationResponse.builder()
-                .programID(participation.getProgram().getProgramID())
-                .programName(participation.getProgram().getProgramName())
-                .description(participation.getProgram().getDescription())
-                .numberParticipants(participation.getProgram().getNumberParticipants())
-                .duration(participation.getProgram().getDuration())
-                .status(participation.getStatus())
-                .createdAt(participation.getProgram().getCreatedAt())
-                .build();
-    }
+
 }
