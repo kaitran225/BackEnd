@@ -25,6 +25,11 @@ public class GeneralService {
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
+    public String generateProgramScheduleID() {
+        String lastCode = programScheduleRepository.findLastProgramScheduleId();
+        return generateNextId(Identifier.SCH.toString(), lastCode);
+    }
+
     public String generateParticipantID() {
         String lastCode = programParticipationRepository.findLastParticipationCode();
         return generateNextId(Identifier.PRT.toString(), lastCode);

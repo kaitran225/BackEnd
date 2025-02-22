@@ -60,4 +60,15 @@ public class Students {
         this.anxietyScore = anxietyScore;
         this.stressScore = stressScore;
     }
+    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
+        this.studentID = studentID;
+        this.userID = userID;
+        this.parentID = parentID;
+        this.grade = grade;
+        this.className = className;
+        this.schoolName = schoolName;
+        this.depressionScore = depressionScore;
+        this.anxietyScore = anxietyScore;
+        this.stressScore = stressScore;
+    }
 } 

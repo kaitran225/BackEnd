@@ -21,4 +21,5 @@ public enum Identifier {
     TAG,  // Tag
     CAT,  // Category
     ANS,  // Answer
+    SCH,  // Schedule
 }

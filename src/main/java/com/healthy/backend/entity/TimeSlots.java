@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.enums.Identifier;
 import com.healthy.backend.enums.TimeslotStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
 @Entity
 @Getter
 @Setter
@@ -50,18 +52,19 @@ public class TimeSlots {
         this.slotDate = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = TimeslotStatus.Available;
+        this.status = TimeslotStatus.AVAILABLE;
         this.psychologist = psychologist;
         this.slotNumber = slotNumber;
-        this.timeSlotsID = generateTimeSlotsID(psychologist.getPsychologistID(),date, slotNumber);
+        this.timeSlotsID = generateTimeSlotsID(psychologist.getPsychologistID(), date, slotNumber);
     }
 
     private String generateTimeSlotsID(String psychologistId, LocalDate date, int slotNumber) {
         String cleanedPsychologistId = psychologistId.replaceFirst("^PSY", "");
+        String prefix = Identifier.TSL.toString();
         String formattedDate = String.format("%02d%02d%02d",
                 date.getYear() % 100,
                 date.getMonthValue(),
                 date.getDayOfMonth());
-        return String.format("TS%s%s%02d", cleanedPsychologistId, formattedDate, slotNumber);
+        return String.format("%s%s%s%02d", prefix, cleanedPsychologistId, formattedDate, slotNumber);
     }
 }
