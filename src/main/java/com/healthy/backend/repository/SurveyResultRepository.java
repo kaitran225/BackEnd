@@ -12,7 +12,8 @@ import com.healthy.backend.entity.SurveyResults;
 public interface SurveyResultRepository extends JpaRepository<SurveyResults, String> {
     List<SurveyResults> findByStudentID(String userId);
     Answers findByQuestionIDAndAnswerID(String questionId, String answerId);
-    Answers findByAnswerID(String answerId);
+    List<SurveyResults> findByQuestionID(String questionId);
+    SurveyResults findByAnswerID(String answerId);
 
     @Query("SELECT sr FROM SurveyResults sr " +
             "JOIN FETCH sr.question q " +

@@ -1,12 +1,13 @@
 package com.healthy.backend.dto.survey;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -16,5 +17,5 @@ import java.util.List;
 public class SurveyQuestionRequest {
     private String questionText;
     private String categoryID;
-    private List<QuestionOption> questionOptions;
+    private List<QuestionOption1> questionOptions;
 }

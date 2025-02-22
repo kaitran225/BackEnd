@@ -4,37 +4,49 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.healthy.backend.dto.survey.*;
-import com.healthy.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.QuestionOption1;
+import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.entity.Answers;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.SurveyResults;
 import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.exception.ResourceNotFoundException;
 
 @Component
 public class SurveyMapper {
 
-    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyResults surveyResults, SurveyQuestions surveyQuestions) {
+    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyResults surveyResults, SurveyQuestions surveyQuestions,List<QuestionOption1> answers) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(surveyResults.getQuestionID())
                 .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
                 .questionText(surveyQuestions.getQuestionText())
-                .resultId(surveyResults.getResultID())
-                .answerId(surveyResults.getAnswerID())
-                .score(surveyResults.getAnswer().getScore())
-                .build();
-    }
+                .answers(answers)
+                .build();            
+        }
 
-    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions, SurveyResults result) {
+    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
-                .studentId(result.getStudent().getStudentID())
                 .questions(questions)
                 .build();
-    }
+        }
+
+    public QuestionOption1 mapToQuestionOption(Answers answer) {
+        return QuestionOption1.builder()
+                 .answerID(answer.getAnswerID())
+                 .label(answer.getAnswer())
+                 .value(answer.getScore())
+                 .build();  
+        }
 
     public SurveyResultsResponse mapToSurveyUpdate(SurveyQuestions surveyQuestions, List<SurveyQuestionResultResponse> questions) {
         return SurveyResultsResponse.builder()
@@ -48,7 +60,7 @@ public class SurveyMapper {
         return buildSurveyResults(surveyResults);
     }
 
-    public  List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
+    public List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
 
         Map<String, List<SurveyQuestionResultResponse>> groupedResults =
                 surveyResults

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyRequest;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.SurveyService;
@@ -97,13 +98,22 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
+            
             summary = "Get survey results",
             description = "Returns results for a specific survey."
     )
     @GetMapping("/{surveyId}/result")
-    public String getSurveyResults(@PathVariable String surveyId) {
-        return "Survey results for ID " + surveyId;
+    public ResponseEntity<?> getSurveyResults(@PathVariable String surveyId) {
+        try {
+                SurveyResultsResponse surveyResult = surveyService.getSurveyResults(surveyId);
+                return ResponseEntity.ok(surveyResult);     
+            }
+            catch(ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while getting the surveyResult " + ex.getMessage());
+            }
     }
 
     @Operation(
@@ -147,13 +157,23 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
+            
             summary = "Add question to survey",
             description = "Adds a question to a survey."
     )
     @PostMapping("/{surveyId}/questions")
-    public String addSurveyQuestion(@PathVariable String surveyId, @RequestBody String question) {
-        return "Question added to survey " + surveyId;
+    public ResponseEntity<?> addSurveyQuestion(@PathVariable String surveyId, @RequestBody SurveyQuestionResponse question) {
+        
+        try {
+                surveyService.addSurveyQuestion(surveyId, question);
+                return ResponseEntity.ok("Survey question add sucessfully");     
+            }
+            catch(ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the survey question" + ex.getMessage());
+            }
     }
 
     @Operation(

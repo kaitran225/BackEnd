@@ -11,7 +11,8 @@ public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions,
     SurveyQuestions findByQuestionIDAndSurveyID(String QuestionID, String surveyID);
     List<SurveyQuestions> findBySurveyID(String surveyID);
 
-    
+    // @Query("SELECT sq from SurveyQuestions sq ORDER BY sq.questionID DESC")
+    SurveyQuestions findFirstByOrderByQuestionIDDesc();
     
 
 } 
