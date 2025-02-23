@@ -17,5 +17,5 @@ import lombok.NoArgsConstructor;
 public class SurveyQuestionRequest {
     private String questionText;
     private String categoryID;
-    private List<QuestionOption1> questionOptions;
+    private List<QuestionOption> questionOptions;
 }

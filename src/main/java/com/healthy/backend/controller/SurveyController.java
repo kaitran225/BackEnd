@@ -2,7 +2,6 @@ package com.healthy.backend.controller;
 
 import java.util.List;
 
-import com.healthy.backend.dto.survey.SurveyQuestionRequest;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveysResponse;
@@ -19,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.healthy.backend.dto.survey.QuestionOption1;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
+import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.SurveyService;
 
@@ -192,7 +188,7 @@ public class SurveyController {
             description = "Adds an answer to a question."
     )
     @PostMapping("/{surveyId}/questions/{questionId}/answers")
-    public ResponseEntity<?> addAnswerToQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption1> answer) {
+    public ResponseEntity<?> addAnswerToQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption> answer) {
         try {
                 surveyService.addAnswerToQuestion(surveyId, questionId, answer);;
                 return ResponseEntity.ok("List of answers add sucessfully");

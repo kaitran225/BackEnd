@@ -12,6 +12,15 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SurveyQuestionOptionsChoicesRepository extends JpaRepository<SurveyQuestionOptionsChoices, String> {
-    SurveyQuestionOptions findByQuestionIDAndOptionID(String questionId, String optionId);
-    SurveyQuestionOptions findByOptionID(String answerId);
+    SurveyQuestionOptionsChoices findByQuestionIDAndOptionID(String questionId, String optionId);
+    SurveyQuestionOptionsChoices findByOptionID(String optionId);
+    List<SurveyQuestionOptionsChoices> findByQuestionID(String questionId);
+
+//    @Query("SELECT s FROM SurveyQuestionOptionsChoices s " +
+//            "JOIN FETCH s.question q " +
+//            "JOIN FETCH q.category c " +
+//            "JOIN FETCH s.option a " +
+//            "WHERE s.studentID = :studentId")
+//    List<SurveyQuestionOptionsChoices> findByStudentIDWithDetails(@Param("studentId") String studentId);
+
 }

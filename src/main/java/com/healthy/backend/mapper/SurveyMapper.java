@@ -4,25 +4,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.healthy.backend.entity.*;
 import org.springframework.stereotype.Component;
 
 import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.QuestionOption1;
 import com.healthy.backend.dto.survey.QuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
-import com.healthy.backend.entity.SurveyResult;
-import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 
 @Component
 public class SurveyMapper {
 
-    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyResults surveyResults, SurveyQuestions surveyQuestions,List<QuestionOption1> answers) {
+    public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyQuestionOptionsChoices choices, SurveyQuestions surveyQuestions,List<QuestionOption> answers) {
         return SurveyQuestionResultResponse.builder()
                 .questionId(choices.getQuestionID())
                 .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
@@ -40,11 +36,11 @@ public class SurveyMapper {
                 .build();
         }
 
-    public QuestionOption1 mapToQuestionOption(Answers answer) {
-        return QuestionOption1.builder()
-                 .answerID(answer.getAnswerID())
-                 .label(answer.getAnswer())
-                 .value(answer.getScore())
+    public QuestionOption mapToQuestionOption(SurveyQuestionOptions options) {
+        return QuestionOption.builder()
+                 .answerID(options.getOptionID())
+                 .label(options.getOptionText())
+                 .value(options.getScore())
                  .build();
         }
 
@@ -60,7 +56,7 @@ public class SurveyMapper {
         return buildSurveyResults(surveyResults);
     }
 
-    public List<SurveyResultsResponse> buildSurveyResults(List<SurveyResults> surveyResults) {
+    public List<SurveyResultsResponse> buildSurveyResults(List<SurveyQuestionOptionsChoices> surveyResults) {
 
         Map<String, List<SurveyQuestionResultResponse>> groupedResults =
                 surveyResults

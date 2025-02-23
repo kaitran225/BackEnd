@@ -9,5 +9,8 @@ import java.util.List;
 public interface SurveyQuestionOptionsRepository extends JpaRepository<SurveyQuestionOptions, String> {
     SurveyQuestionOptions findByOptionID(String answerId);
 
+    // @Query("SELECT an FROM Answers an ORDER BY an.answerID DESC")
+    SurveyQuestionOptions findFirstByOrderByOptionIDDesc();
+
     List<SurveyQuestionOptions> findByQuestionID(String questionId);
 }
