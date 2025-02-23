@@ -4,15 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.healthy.backend.entity.*;
 import org.springframework.stereotype.Component;
 
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.entity.SurveyQuestionOptions;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
+import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.backend.entity.SurveyResult;
+import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
 
 @Component
@@ -108,9 +113,33 @@ public class SurveyMapper {
                 .status(String.valueOf(survey.getStatus()))
                 .detailedDescription(survey.getDetails())
                 .createdAt(survey.getCreatedAt().toString())
-                .createBy(survey.getCreator().getFullName())
+                .createBy(survey.getCreator().getUsername())
                 .build();
-    }
+        }
+        
+        public StatusStudent buildStatusStudent(SurveyResult surveyResult, String getStatusStudent) {
+                return StatusStudent.builder()
+                        .status(getStatusStudent)
+                        .studentId(surveyResult.getStudentID())
+                        .build();
+        }
+
+     public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, List<StatusStudent> statusStudent) {
+        return SurveysResponse.builder()
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .numberOfQuestions(numberOfQuestions)
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createdAt(survey.getCreatedAt().toString())
+                .createBy(survey.getCreator().getUsername())
+                .statusStudent(statusStudent)
+                .build();
+        }    
 
     public SurveyQuestionResponse buildSurveyQuestionResponse(
             List<QuestionResponse> questionResponseList,
@@ -145,7 +174,7 @@ public class SurveyMapper {
                 .categoryName(survey.getCategory().getCategoryName().name())
                 .status(String.valueOf(survey.getStatus()))
                 .detailedDescription(survey.getDetails())
-                .createBy(survey.getCreator().getFullName())
+                .createBy(survey.getCreator().getUsername())
                 .build();
     }
 }

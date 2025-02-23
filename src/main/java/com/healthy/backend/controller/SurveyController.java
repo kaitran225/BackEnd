@@ -2,9 +2,6 @@ package com.healthy.backend.controller;
 
 import java.util.List;
 
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
-import com.healthy.backend.dto.survey.SurveysResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.SurveyService;
 
@@ -189,7 +189,7 @@ public class SurveyController {
     )
     @PostMapping("/{surveyId}/questions/{questionId}/answers")
     public ResponseEntity<?> addAnswerToQuestion(@PathVariable String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption> answer) {
-        try {
+            try {
                 surveyService.addAnswerToQuestion(surveyId, questionId, answer);;
                 return ResponseEntity.ok("List of answers add sucessfully");
             }
@@ -202,13 +202,22 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
+            
             summary = "Get student survey results",
             description = "Returns results for a specific student's survey."
     )
-    @GetMapping("/{surveyId}/students-results")
-    public String getStudentSurveyResults(@PathVariable String surveyId) {
-        return "Student survey results for survey " + surveyId;
+    @GetMapping("/{surveyId}/students-results/{studentId}")
+    public ResponseEntity<?> getStudentIDSurveyResults(@PathVariable String surveyId, @PathVariable String studentId) {
+            try {
+                SurveysResponse surveyResponse = surveyService.getStudentIDSurveyResults(surveyId, studentId);
+                return ResponseEntity.ok(surveyResponse);
+            }
+            catch(ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while getting student of survey" + ex.getMessage());
+            }
     }
 
     @Operation(

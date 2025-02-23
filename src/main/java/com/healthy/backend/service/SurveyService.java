@@ -6,23 +6,30 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.SurveyCategory;
 import org.springframework.stereotype.Service;
 
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.entity.Categories;
+import com.healthy.backend.entity.SurveyQuestionOptions;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
+import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.backend.entity.SurveyResult;
+import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.CategoriesRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
 import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
 import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +42,65 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
     private final CategoriesRepository categoriesRepository;
+    private final SurveyResultRepository surveyResultRepository;
+
+
+    public String getStatusStudent(List<SurveyResult> surveyResultList) {
+        List<String> resultList = new ArrayList<>();
+        for(SurveyResult surveyStudent : surveyResultList) {
+                SurveyResult surveyResult = surveyResultRepository.findByResultID(surveyStudent.getResultID());
+                String result = (surveyResult != null) ? "Finished" : "Not Finished";
+                resultList.add(result);
+        }
+
+        for (String test : resultList) {
+                if("Not Finished".equals(test)) {
+                        return "Not Finished";
+                }
+        }
+        return "Finished";
+
+
+    }
+
+    public SurveysResponse getStudentIDSurveyResults(String surveyId, String studentId) {
+        Surveys survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found by"+ surveyId));
+
+        List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(surveyId);
+        if(surveyResultList.isEmpty()) {
+                throw new ResourceNotFoundException("Not found survey " + surveyId);
+        }
+        List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(surveyId);
+        if(surveyQuestionList.isEmpty()) {
+                throw new ResourceNotFoundException("Not found question in this survey");
+        }
+        
+        
+        List<StatusStudent> statusList = new ArrayList<>();
+        boolean found = false;
+
+        for(SurveyResult result : surveyResultList) {
+                if(result.getStudentID().equals(studentId)) {
+                        List<SurveyResult> surveyStudentList = surveyResultRepository.findByStudentID(result.getStudentID());
+                        if(!surveyStudentList.isEmpty()) {
+                                StatusStudent status = surveyMapper.buildStatusStudent(result, getStatusStudent(surveyStudentList));
+                                statusList.add(status);
+                                found = true;
+                                break;
+                        }
+                        else {
+                                throw new ResourceNotFoundException("Not found student in this survey");
+                        }
+                        
+                }        
+
+        }
+        if (!found) {
+                throw new ResourceNotFoundException("Student not found in this survey");
+        }
+        return surveyMapper.buildSurveysResponse1(survey, surveyQuestionList.size(), statusList );      
+    }
 
     public List<SurveysResponse> getAllSurveys() {
 
@@ -48,9 +114,18 @@ public class SurveyService {
                 .map(survey
                         -> {
                     List<SurveyQuestions> surveyQuestionsList
-                            = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-                    return surveyMapper.buildSurveysResponse(
-                            survey, surveyQuestionsList.size());
+                        = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
+
+                    List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
+                    List<StatusStudent> statusStudentList = surveyResultList.stream()
+                                .map(surveyResult -> {
+                                        List<SurveyResult> surveyStudentList = surveyResultRepository.findByStudentID(surveyResult.getStudentID());
+                                        StatusStudent statusStudent = surveyMapper.buildStatusStudent(surveyResult, getStatusStudent(surveyStudentList));                                
+                                        return statusStudent;
+                                })
+                                .collect(Collectors.toList());    
+                    return surveyMapper.buildSurveysResponse1(
+                            survey, surveyQuestionsList.size(), statusStudentList);
                 })
                 .toList();
     }
@@ -268,4 +343,6 @@ public class SurveyService {
         }
         surveyQuestionOptionsRepository.saveAll(optionsList);
     }
+
+    
 }
