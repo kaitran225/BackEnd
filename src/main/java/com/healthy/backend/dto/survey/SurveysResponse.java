@@ -1,6 +1,9 @@
 package com.healthy.backend.dto.survey;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,4 +38,5 @@ public class SurveysResponse {
     private String createdAt;
     @Schema (example = "US001")
     private String createBy;
+    private List<StatusStudent> statusStudent;
 }
