@@ -82,14 +82,6 @@ public class PsychologistController {
         return ResponseEntity.ok(updatedPsychologist);
     }
 
-    @Operation(
-            summary = "Get psychologist appointments",
-            description = "Returns a list of appointments for a psychologist."
-    )
-    @GetMapping("/{psychologistId}/appointments")
-    public List<String> getPsychologistAppointments(@PathVariable String psychologistId) {
-        return List.of("List of appointments for psychologist " + psychologistId);
-    }
 
     @Operation(
             deprecated = true,
@@ -169,7 +161,7 @@ public class PsychologistController {
             // Return an empty list with a message when the psychologist is on leave
             TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(
                     Collections.emptyList(),
-                    "The psychologist is on leave."
+                    "The psychologist is on leave. Please choose another psychologist "
             );
             return ResponseEntity.ok(response);
         }
