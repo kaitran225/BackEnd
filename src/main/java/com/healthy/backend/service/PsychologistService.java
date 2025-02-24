@@ -279,6 +279,7 @@ public class PsychologistService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void updatePsychologistStatusOnStartup() {
+
         this.updatePsychologistStatusBasedOnLeaveRequests();
     }
 

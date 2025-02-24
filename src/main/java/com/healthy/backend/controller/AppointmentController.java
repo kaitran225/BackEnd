@@ -78,25 +78,7 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to cancel appointment");
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Add session notes",
-            description = "Adds session notes for an appointment."
-    )
-    @PostMapping("/{id}/notes/{appointmentId}")
-    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
-        return "Session notes added for appointment " + appointmentId;
-    }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get session notes",
-            description = "Returns session notes for an appointment."
-    )
-    @GetMapping("/{id}/notes/{appointmentId}")
-    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
-        return "Session notes for appointment " + appointmentId;
-    }
 
     @Operation(summary = "Check in to an appointment")
     @PostMapping("/{appointmentId}/check-in")
@@ -107,8 +89,11 @@ public class AppointmentController {
 
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
-    public ResponseEntity<AppointmentResponse> checkOut(@PathVariable String appointmentId) {
-        AppointmentResponse response = appointmentService.checkOut(appointmentId);
+    public ResponseEntity<AppointmentResponse> checkOut(
+            @PathVariable String appointmentId,
+            @RequestBody CheckOutRequest request) {
+
+        AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
         return ResponseEntity.ok(response);
     }
 
@@ -138,14 +123,5 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to update appointment");
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Make a report for an appointment",
-            description = "Creates a report for an appointment."
-    )
-    @PostMapping("/{appointmentId}/report")
-    public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
-        return "Report created successfully";
-    }
 }
 

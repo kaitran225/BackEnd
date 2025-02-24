@@ -313,7 +313,7 @@ public class AppointmentService {
     }
 
     // Check out
-    public AppointmentResponse checkOut(String appointmentId) {
+    public AppointmentResponse checkOut(String appointmentId, String psychologistNote) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
 
@@ -331,6 +331,7 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointment.setCheckOutTime(LocalDateTime.now());
+        appointment.setPsychologistNote(psychologistNote);
         appointmentRepository.save(appointment);
 
         return appointmentMapper.buildAppointmentResponse(
