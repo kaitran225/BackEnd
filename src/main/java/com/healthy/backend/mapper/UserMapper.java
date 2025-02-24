@@ -27,7 +27,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender().toString())
-                    .address(user.getAddress())
+                .address(user.getAddress())
                 .role(user.getRole().toString())
                 .build();
     }
@@ -55,12 +55,15 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+
     // Convert User entity to UserResponse (Student)
     public Users buildUserStudentEntity(StudentRegisterRequest requestRequest,
-                                 String token, String userId, String password) {
+                                        String token, String userId,
+                                        String password, String hashedID
+                                        ) {
         return Users.builder()
                 .userId(userId)
-                .username(requestRequest.getUsername())
+                .hashedID(hashedID)
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
@@ -73,10 +76,11 @@ public class UserMapper {
     }
 
     public Users buildUserParentEntity(ParentRegisterRequest requestRequest,
-                                       String token, String userId, String password) {
+                                       String token, String userId,
+                                       String password, String hashedID) {
         return Users.builder()
                 .userId(userId)
-                .username(requestRequest.getUsername())
+                .hashedID(hashedID)
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
@@ -91,10 +95,10 @@ public class UserMapper {
 
     // Convert User entity to UserResponse
     public Users buildUserEntity(RegisterRequest requestRequest,
-                                 String token, String userId, String password) {
+                                 String token, String userID, String password, String hashedID) {
         return Users.builder()
-                .userId(userId)
-                .username(requestRequest.getUsername())
+                .userId(userID)
+                .hashedID((hashedID))
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())

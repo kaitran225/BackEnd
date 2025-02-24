@@ -89,31 +89,31 @@ public class DataInitializer implements CommandLineRunner {
 
     private void registerUsers() {
         List<RegisterRequest> users = List.of(
-                new RegisterRequest("admin", "adminpass", "Admin Admin", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
-                new RegisterRequest("staff_member", "staff_pass", "Staff Member", "staff@example.com", "2222222222", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest("adminpass", "Admin Admin", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "staff_pass", "Staff Member", "staff@example.com", "2222222222", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
 
-                new RegisterRequest("psychologist_user", "psychologist_pass", "Dr. Brown", "psychologist@example.com", "0912345671", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
-                new RegisterRequest("psychologist_user2", "psychologist_pass", "Dr. Blue", "psychologist2@example.com", "0912345672", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "psychologist_pass", "Dr. Brown", "psychologist@example.com", "0912345671", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "psychologist_pass", "Dr. Blue", "psychologist2@example.com", "0912345672", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("parent_user", "parent_pass", "Jane Smith", "parent@example.com", "0812345671", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
-                new RegisterRequest("parent_user2", "parent_pass", "Bob Johnson", "parent2@example.com", "0812345672", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "parent_pass", "Jane Smith", "parent@example.com", "0812345671", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest( "parent_pass", "Bob Johnson", "parent2@example.com", "0812345672", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("student_user", "student_pass", "John Doe", "student@example.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("student_user2", "student_pass", "John Green", "student2@example.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("student_user3", "student_pass", "Alice Jones", "student3@example.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
+                new RegisterRequest( "student_pass", "John Doe", "student@example.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "student_pass", "John Green", "student2@example.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest( "student_pass", "Alice Jones", "student3@example.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
         );
         users.forEach(authenticationService::register);
     }
 
     private void initializeParentsAndStudents() {
         // Initialize Parents
-        parentRepository.save(new Parents("PRT001", userRepository.findByUsername("parent_user").getUserId()));
-        parentRepository.save(new Parents("PRT002", userRepository.findByUsername("parent_user2").getUserId()));
+        parentRepository.save(new Parents("PRT001", userRepository.findByEmail("parent@example.com").getUserId()));
+        parentRepository.save(new Parents("PRT002", userRepository.findByEmail("parent2@example.com").getUserId()));
 
         // Initialize Students
-        studentRepository.save(new Students("STU001", userRepository.findByUsername("student_user").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", 5, 10, 2));
-        studentRepository.save(new Students("STU002", userRepository.findByUsername("student_user2").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", 3, 4, 7));
-        studentRepository.save(new Students("STU003", userRepository.findByUsername("student_user3").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
+        studentRepository.save(new Students("STU001", userRepository.findByEmail("student@example.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", 5, 10, 2));
+        studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@example.com").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", 3, 4, 7));
+        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@example.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
 
     }
 
@@ -242,10 +242,10 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeSurveys() {
-        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("student_user").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("student_user2").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("student_user3").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), SurveyStatus.INACTIVE));
+        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.INACTIVE));
 
     }
 
@@ -333,21 +333,21 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeLogs() {
-        userLogRepository.save(new UserLogs("LoG001", userRepository.findByUsername("student_user").getUserId(), "192.168.0.1"));
-        userLogRepository.save(new UserLogs("LOG002", userRepository.findByUsername("student_user2").getUserId(), "244.178.44.111"));
-        userLogRepository.save(new UserLogs("LOG003", userRepository.findByUsername("student_user").getUserId(), "38.0.101.76"));
-        userLogRepository.save(new UserLogs("LOG004", userRepository.findByUsername("student_user2").getUserId(), "89.0.142.86"));
+        userLogRepository.save(new UserLogs("LoG001", userRepository.findByEmail("psychologist@example.com").getUserId(), "192.168.0.1"));
+        userLogRepository.save(new UserLogs("LOG002", userRepository.findByEmail("student2@example.com").getUserId(), "244.178.44.111"));
+        userLogRepository.save(new UserLogs("LOG003", userRepository.findByEmail("psychologist@example.com").getUserId(), "38.0.101.76"));
+        userLogRepository.save(new UserLogs("LOG004", userRepository.findByEmail("parent2@example.com").getUserId(), "89.0.142.86"));
     }
 
     private void initializeArticles() {
-        articleRepository.save(new Article("ATC001", "Managing Stress", userRepository.findByUsername("psychologist_user").getUserId(), "Tips for managing stress..."));
-        articleRepository.save(new Article("ATC002", "Anxiety Management", userRepository.findByUsername("psychologist_user2").getUserId(), "Tips for managing anxiety..."));
-        articleRepository.save(new Article("ATC003", "Depression Management", userRepository.findByUsername("psychologist_user").getUserId(), "Tips for managing depression..."));
-        articleRepository.save(new Article("ATC004", "Sleep Disorders", userRepository.findByUsername("psychologist_user2").getUserId(), "Tips for managing sleep disorders..."));
-        articleRepository.save(new Article("ATC005", "Eating Disorders", userRepository.findByUsername("psychologist_user2").getUserId(), "Tips for managing eating disorders..."));
-        articleRepository.save(new Article("ATC006", "Addiction Management", userRepository.findByUsername("psychologist_user").getUserId(), "Tips for managing addiction..."));
-        articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByUsername("psychologist_user2").getUserId(), "Tips for managing anxiety..."));
-        articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByUsername("psychologist_user").getUserId(), "Tips for managing stress and anxiety ..."));
+        articleRepository.save(new Article("ATC001", "Managing Stress", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing stress..."));
+        articleRepository.save(new Article("ATC002", "Anxiety Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing anxiety..."));
+        articleRepository.save(new Article("ATC003", "Depression Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing depression..."));
+        articleRepository.save(new Article("ATC004", "Sleep Disorders", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing sleep disorders..."));
+        articleRepository.save(new Article("ATC005", "Eating Disorders", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing eating disorders..."));
+        articleRepository.save(new Article("ATC006", "Addiction Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing addiction..."));
+        articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing anxiety..."));
+        articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing stress and anxiety ..."));
     }
 
     private void initializeAppointments() {
@@ -358,10 +358,10 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeNotifications() {
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByUsername("psychologist_user").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByUsername("student_user").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByUsername("student_user").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByUsername("student_user").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist@example.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
     }
 
     @Override
