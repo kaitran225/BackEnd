@@ -1,5 +1,6 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 import com.healthy.backend.dto.psychologist.*;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.OnLeaveRequest;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -82,15 +84,18 @@ public class PsychologistController {
         return ResponseEntity.ok(updatedPsychologist);
     }
 
-
     @Operation(
-            deprecated = true,
-            summary = "Get psychologist feedback",
-            description = "Returns feedback for a psychologist."
+            summary = "Get psychologist feedbacks",
+            description = "Get all feedbacks for a psychologist from completed appointments"
     )
-    @GetMapping("/{psychologistId}/feedback")
-    public List<String> getFeedback(@PathVariable String psychologistId) {
-        return List.of("Feedback for psychologist " + psychologistId);
+    @GetMapping("/{psychologistId}/feedbacks")
+    public ResponseEntity<Page<AppointmentFeedbackResponse>> getPsychologistFeedbacks(
+            @PathVariable String psychologistId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<AppointmentFeedbackResponse> feedbacks = psychologistService.getPsychologistFeedbacks(psychologistId, page, size);
+        return ResponseEntity.ok(feedbacks);
     }
 
     @Operation(
@@ -223,5 +228,15 @@ public class PsychologistController {
             @PathVariable String onLeaveId
     ) {
         return ResponseEntity.ok(psychologistService.onReturn(psychologistId, onLeaveId));
+    }
+
+    @Operation(
+            summary = "Get psychologist average rating",
+            description = "Calculate average rating for a psychologist"
+    )
+    @GetMapping("/{psychologistId}/average-rating")
+    public ResponseEntity<Double> getAverageRating(@PathVariable String psychologistId) {
+        double averageRating = psychologistService.calculateAverageRating(psychologistId);
+        return ResponseEntity.ok(averageRating);
     }
 }

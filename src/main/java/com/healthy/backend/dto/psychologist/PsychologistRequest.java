@@ -11,10 +11,11 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PsychologistRequest {
-    @Schema(example = "PSY001")
+
     private String departmentID;
-    @Schema(example = "John Smith")
+
     private Integer yearsOfExperience;
-    @Schema(example = "Psychologist")
-    private String status;
+
+
+
 }

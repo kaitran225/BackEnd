@@ -1,5 +1,6 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
@@ -343,5 +344,25 @@ public class AppointmentService {
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null)))
         );
+    }
+
+
+    public AppointmentResponse submitFeedback(String appointmentId, AppointmentFeedbackRequest request) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
+            throw new OperationFailedException("Only completed appointments can receive feedback");
+        }
+
+        if (appointment.getFeedback() != null && !appointment.getFeedback().isEmpty()) {
+            throw new OperationFailedException("Feedback already submitted");
+        }
+
+        appointment.setFeedback(request.getFeedback());
+        appointment.setRating(request.getRating()); // Lưu rating
+        appointmentRepository.save(appointment);
+
+        return appointmentMapper.buildAppointmentResponse(appointment);
     }
 }
