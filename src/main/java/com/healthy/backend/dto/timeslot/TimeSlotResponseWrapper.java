@@ -1,6 +1,5 @@
-package com.healthy.backend.mapper;
+package com.healthy.backend.dto.timeslot;
 
-import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import lombok.*;
 
 import java.util.List;

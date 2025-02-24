@@ -6,7 +6,7 @@ import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
-import com.healthy.backend.mapper.TimeSlotResponseWrapper;
+import com.healthy.backend.dto.timeslot.TimeSlotResponseWrapper;
 import com.healthy.backend.repository.LeaveRequestRepository;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
