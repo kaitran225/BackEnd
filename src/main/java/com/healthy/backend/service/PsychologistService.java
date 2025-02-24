@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -115,12 +116,8 @@ public class PsychologistService {
                 );
 
         if (!leaves.isEmpty()) {
-            throw new ResourceNotFoundException("Psychologist is on leave during this period");
-        }
+            return Collections.emptyList();        }
 
-        if (psychologist == null) {
-            throw new ResourceNotFoundException("Psychologist not found");
-        }
 
         List<TimeSlots> timeSlots = timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
         return timeSlotMapper.buildResponse(timeSlots);

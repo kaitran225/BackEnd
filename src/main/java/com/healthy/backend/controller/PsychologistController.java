@@ -2,8 +2,11 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.psychologist.*;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
+import com.healthy.backend.entity.OnLeaveRequest;
+import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
+import com.healthy.backend.repository.LeaveRequestRepository;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -38,6 +42,7 @@ public class PsychologistController {
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     @Operation(
             summary = "Get all psychologists",
@@ -146,20 +151,24 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Get available time slots",
-            description = "Returns available time slots for a psychologist on a given date."
-    )
     @GetMapping("/{psychologistId}/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
             @PathVariable String psychologistId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         if (date == null) throw new ResourceNotFoundException("Date is required");
-        if (psychologistService.getTimeSlots(date, psychologistId).isEmpty())
-            return createTimeSlots(psychologistId, date);
-        List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, psychologistId);
-        return ResponseEntity.ok(response);
+
+        List<OnLeaveRequest> leaves = leaveRequestRepository.findByPsychologistPsychologistIDAndStatusAndDateRange(
+                psychologistId, OnLeaveStatus.APPROVED, date);
+        if (!leaves.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList()); // Trả về danh sách rỗng nếu đang nghỉ phép
+        }
+
+        List<TimeSlotResponse> timeSlots = psychologistService.getTimeSlots(date, psychologistId);
+        if (timeSlots.isEmpty()) {
+            timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
+        }
+        return ResponseEntity.ok(timeSlots);
     }
 
 
