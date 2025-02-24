@@ -59,8 +59,6 @@ public class SurveyService {
                 }
         }
         return "Finished";
-
-
     }
 
     public SurveysResponse getStudentIDSurveyResults(String surveyId, String studentId) {

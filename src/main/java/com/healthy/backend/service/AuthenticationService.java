@@ -59,10 +59,8 @@ public class AuthenticationService {
     @Value("${app.url}")
     private String siteURL;
 
-    // Register new user
     public AuthenticationResponse register(RegisterRequest request) {
 
-        // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         String normalizedPhone = request.getPhoneNumber().trim();
         String hashedID = __(normalizedEmail);
@@ -75,7 +73,6 @@ public class AuthenticationService {
             throw new RuntimeException("This email is already in use for another account");
         }
 
-        // Generate verification token and encode password
         String token = jwtService.generateVerificationToken(normalizedEmail);
         String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
 
@@ -88,8 +85,10 @@ public class AuthenticationService {
                 .queryParam("token", token)
                 .toUriString();
 
-        // Skip email verification for certain domains (e.g., example.com)
         if (savedUser.getEmail().contains("example")) {
+            savedUser.setVerified(true);
+            userRepository.save(savedUser);
+
             return AuthenticationResponse.builder()
                     .userId(savedUser.getUserId())
                     .role(savedUser.getRole().toString())
@@ -111,11 +110,9 @@ public class AuthenticationService {
     // Register new parent
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
 
-        // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         String normalizedPhone = request.getPhoneNumber().trim();
         String hashedID = __(normalizedEmail);
-
 
         if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
             throw new RuntimeException("This phone number is already in use for another account");
@@ -166,11 +163,9 @@ public class AuthenticationService {
     // Register new student
     public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
 
-        // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         String normalizedPhone = request.getPhoneNumber().trim();
         String hashedID = __(normalizedEmail);
-
 
         if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
             throw new RuntimeException("This phone number is already in use for another account");
@@ -217,18 +212,19 @@ public class AuthenticationService {
                 .build();
     }
 
-    // Authentication
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
-        String loginIdentifier = request.getLoginIdentifier().trim();
+        String email = request.getLoginIdentifier().trim();
 
-        Users user = loginIdentifier.contains("@")
-                ? authenticationRepository.findByEmail(loginIdentifier.toLowerCase())
-                : authenticationRepository.findByHashedID(loginIdentifier);
-
-        // Check if user exists
-        if (user == null) {
+        if (!email.contains("@")) {
             throw new BadCredentialsException("Invalid login credentials");
+        }
+
+        Users user = authenticationRepository.findByEmail(email.toLowerCase());
+        // Check if user exists
+
+        if (user == null) {
+            throw new BadCredentialsException("User not found");
         }
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
