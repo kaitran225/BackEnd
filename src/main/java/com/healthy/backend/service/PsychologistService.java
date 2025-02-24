@@ -116,6 +116,7 @@ public class PsychologistService {
                 );
 
         if (!leaves.isEmpty()) {
+
             return Collections.emptyList();        }
 
 

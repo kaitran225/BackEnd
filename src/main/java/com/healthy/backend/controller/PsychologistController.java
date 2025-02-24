@@ -6,6 +6,7 @@ import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
+import com.healthy.backend.mapper.TimeSlotResponseWrapper;
 import com.healthy.backend.repository.LeaveRequestRepository;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
@@ -152,23 +153,36 @@ public class PsychologistController {
     }
 
     @GetMapping("/{psychologistId}/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
+    public ResponseEntity<TimeSlotResponseWrapper> getAvailableTimeSlots(
             @PathVariable String psychologistId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        if (date == null) throw new ResourceNotFoundException("Date is required");
-
-        List<OnLeaveRequest> leaves = leaveRequestRepository.findByPsychologistPsychologistIDAndStatusAndDateRange(
-                psychologistId, OnLeaveStatus.APPROVED, date);
-        if (!leaves.isEmpty()) {
-            return ResponseEntity.ok(Collections.emptyList()); // Trả về danh sách rỗng nếu đang nghỉ phép
+        if (date == null) {
+            throw new ResourceNotFoundException("Date is required");
         }
 
+        // Check if the psychologist is on leave
+        List<OnLeaveRequest> leaves = leaveRequestRepository.findByPsychologistPsychologistIDAndStatusAndDateRange(
+                psychologistId, OnLeaveStatus.APPROVED, date);
+
+        if (!leaves.isEmpty()) {
+            // Return an empty list with a message when the psychologist is on leave
+            TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(
+                    Collections.emptyList(),
+                    "The psychologist is on leave."
+            );
+            return ResponseEntity.ok(response);
+        }
+
+        // If not on leave, proceed with fetching or creating time slots
         List<TimeSlotResponse> timeSlots = psychologistService.getTimeSlots(date, psychologistId);
         if (timeSlots.isEmpty()) {
             timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
         }
-        return ResponseEntity.ok(timeSlots);
+
+        // Return time slots with no message
+        TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(timeSlots, null);
+        return ResponseEntity.ok(response);
     }
 
 
