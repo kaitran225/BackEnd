@@ -176,11 +176,16 @@ public class PsychologistService {
         }
     }
 
-    // Create leave request
     public LeaveResponse createLeaveRequest(LeaveRequest request) {
         // Validate date range
         if (request.getStartDate().isAfter(request.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
+        }
+
+        // Check if the leave duration exceeds 7 days
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate());
+        if (daysBetween > 7) {
+            throw new IllegalArgumentException("Leave duration cannot exceed 7 days");
         }
 
         // Check psychologist exists and is active
