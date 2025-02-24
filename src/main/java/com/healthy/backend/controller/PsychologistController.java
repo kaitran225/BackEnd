@@ -154,12 +154,15 @@ public class PsychologistController {
     public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
             @PathVariable String psychologistId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
         if (date == null) throw new ResourceNotFoundException("Date is required");
         if (psychologistService.getTimeSlots(date, psychologistId).isEmpty())
             return createTimeSlots(psychologistId, date);
         List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, psychologistId);
         return ResponseEntity.ok(response);
     }
+
+
 
     @Operation(
             summary = "Create leave request",
