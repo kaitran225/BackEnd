@@ -7,6 +7,7 @@ import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -98,13 +99,15 @@ public class AppointmentController {
     }
 
     @Operation(
-            deprecated = true,
-            summary = "Give feedback on an appointment",
-            description = "Gives feedback on an appointment."
+            summary = "Submit feedback for an appointment",
+            description = "Allows a student to submit feedback and rating for a completed appointment."
     )
-    @PostMapping("/{appointmentId}/feedback")
-    public String giveFeedback(@PathVariable String appointmentId, @RequestBody AppointmentFeedbackRequest feedback) {
-        return "Feedback submitted successfully";
+    @PostMapping("/{appointmentId}/Feedback")
+    public ResponseEntity<AppointmentResponse> submitFeedback(
+            @PathVariable String appointmentId,
+            @RequestBody @Valid AppointmentFeedbackRequest feedback) {
+        AppointmentResponse response = appointmentService.submitFeedback(appointmentId, feedback);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(

@@ -1,14 +1,13 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 import com.healthy.backend.dto.psychologist.LeaveRequest;
 import com.healthy.backend.dto.psychologist.LeaveResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
-import com.healthy.backend.entity.Department;
-import com.healthy.backend.entity.OnLeaveRequest;
-import com.healthy.backend.entity.Psychologists;
-import com.healthy.backend.entity.TimeSlots;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.enums.PsychologistStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -18,6 +17,10 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +80,7 @@ public class PsychologistService {
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
         if (request.getDepartmentID() == null
                 && request.getYearsOfExperience() == null
-                && request.getStatus() == null) {
+                ) {
             throw new IllegalArgumentException("No fields to update");
         }
         // Cập nhật các trường
@@ -92,13 +95,7 @@ public class PsychologistService {
                 && !request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {
             psychologist.setYearsOfExperience(request.getYearsOfExperience());
         }
-        if (request.getStatus() != null
-                && !request.getStatus().equals(psychologist.getStatus().name())) {
-            if (!isValidStatus(request.getStatus())) {
-                throw new IllegalArgumentException("Status is not valid");
-            }
-            psychologist.setStatus(PsychologistStatus.valueOf(request.getStatus()));
-        }
+
         psychologistRepository.save(psychologist);
         return callMapper(psychologist);
     }
@@ -323,5 +320,40 @@ public class PsychologistService {
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
         psychologistRepository.delete(psychologist);
         return psychologistsMapper.buildPsychologistResponse(psychologist);
+    }
+
+    public Page<AppointmentFeedbackResponse> getPsychologistFeedbacks(String psychologistId, int page, int size) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Appointments> appointmentsPage = appointmentRepository.findByPsychologistIDAndStatusAndFeedbackNotNull(
+                psychologistId, AppointmentStatus.COMPLETED, pageable);
+
+        return appointmentsPage.map(a -> new AppointmentFeedbackResponse(
+                a.getTimeSlot().getSlotDate().atTime(a.getTimeSlot().getStartTime()),
+                a.getStudent().getUser().getFullName(),
+                a.getFeedback(),
+                a.getRating()
+        ));
+    }
+
+    public double calculateAverageRating(String psychologistId) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        List<Appointments> appointments = appointmentRepository.findByPsychologistIDAndStatusAndFeedbackNotNull(
+                psychologistId, AppointmentStatus.COMPLETED);
+
+        if (appointments.isEmpty()) {
+            return 0.0; // Trả về 0 nếu không có feedback nào
+        }
+
+        double totalRating = appointments.stream()
+                .mapToInt(Appointments::getRating)
+                .sum();
+
+        return totalRating / appointments.size();
     }
 }
