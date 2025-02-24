@@ -2,8 +2,12 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.psychologist.*;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
+import com.healthy.backend.entity.OnLeaveRequest;
+import com.healthy.backend.enums.OnLeaveStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.TimeSlotMapper;
+import com.healthy.backend.mapper.TimeSlotResponseWrapper;
+import com.healthy.backend.repository.LeaveRequestRepository;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -38,6 +43,7 @@ public class PsychologistController {
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TimeSlotMapper timeSlotMapper;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     @Operation(
             summary = "Get all psychologists",
@@ -76,14 +82,6 @@ public class PsychologistController {
         return ResponseEntity.ok(updatedPsychologist);
     }
 
-    @Operation(
-            summary = "Get psychologist appointments",
-            description = "Returns a list of appointments for a psychologist."
-    )
-    @GetMapping("/{psychologistId}/appointments")
-    public List<String> getPsychologistAppointments(@PathVariable String psychologistId) {
-        return List.of("List of appointments for psychologist " + psychologistId);
-    }
 
     @Operation(
             deprecated = true,
@@ -146,20 +144,40 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Get available time slots",
-            description = "Returns available time slots for a psychologist on a given date."
-    )
     @GetMapping("/{psychologistId}/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> getAvailableTimeSlots(
+    public ResponseEntity<TimeSlotResponseWrapper> getAvailableTimeSlots(
             @PathVariable String psychologistId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        if (date == null) throw new ResourceNotFoundException("Date is required");
-        if (psychologistService.getTimeSlots(date, psychologistId).isEmpty())
-            return createTimeSlots(psychologistId, date);
-        List<TimeSlotResponse> response = psychologistService.getTimeSlots(date, psychologistId);
+
+        if (date == null) {
+            throw new ResourceNotFoundException("Date is required");
+        }
+
+        // Check if the psychologist is on leave
+        List<OnLeaveRequest> leaves = leaveRequestRepository.findByPsychologistPsychologistIDAndStatusAndDateRange(
+                psychologistId, OnLeaveStatus.APPROVED, date);
+
+        if (!leaves.isEmpty()) {
+            // Return an empty list with a message when the psychologist is on leave
+            TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(
+                    Collections.emptyList(),
+                    "The psychologist is on leave. Please choose another psychologist "
+            );
+            return ResponseEntity.ok(response);
+        }
+
+        // If not on leave, proceed with fetching or creating time slots
+        List<TimeSlotResponse> timeSlots = psychologistService.getTimeSlots(date, psychologistId);
+        if (timeSlots.isEmpty()) {
+            timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
+        }
+
+        // Return time slots with no message
+        TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(timeSlots, null);
         return ResponseEntity.ok(response);
     }
+
+
 
     @Operation(
             summary = "Create leave request",

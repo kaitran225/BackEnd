@@ -27,6 +27,7 @@ public class NotificationResponse {
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
     private Boolean isRead;
+
     @Schema(example = "APP001")
-    private String ID;
+    private String IDType;
 }

@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -50,15 +51,14 @@ public class PsychologistService {
 
     // Get psychologist by specialization
     public List<PsychologistResponse> getAllPsychologistByDepartment(String departmentID) {
+        if (departmentID == null || departmentID.isEmpty()) {
+            throw new IllegalArgumentException("Department ID is required");
+        }
 
         Department department = departmentRepository.findById(departmentID)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
-        if (departmentID.isEmpty()) {
-            throw new ResourceNotFoundException("Specialization is required");
-        }
         List<Psychologists> psychologists = psychologistRepository.findByDepartmentDepartmentID(departmentID);
-
         return psychologists.stream()
                 .map(psychologistsMapper::buildPsychologistResponse)
                 .collect(Collectors.toList());
@@ -78,30 +78,30 @@ public class PsychologistService {
         if (request.getDepartmentID() == null
                 && request.getYearsOfExperience() == null
                 && request.getStatus() == null) {
-            throw new ResourceNotFoundException("No fields to update");
+            throw new IllegalArgumentException("No fields to update");
         }
-        // Update fields
-        assert request.getDepartmentID() != null;
-        if (!request.getDepartmentID().equals(psychologist.getDepartment().getName())) {
+        // Cập nhật các trường
+        if (request.getDepartmentID() != null
+                && !request.getDepartmentID().equals(psychologist.getDepartment().getName())) {
             if (!departmentRepository.existsById(request.getDepartmentID())) {
                 throw new ResourceNotFoundException("Department not found");
             }
             psychologist.setDepartment(departmentRepository.findById(request.getDepartmentID()).orElseThrow());
         }
-        assert request.getYearsOfExperience() != null;
-        if (!request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {
+        if (request.getYearsOfExperience() != null
+                && !request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {
             psychologist.setYearsOfExperience(request.getYearsOfExperience());
         }
-        assert request.getStatus() != null;
-        if (!request.getStatus().equals(psychologist.getStatus().name())) {
-            if (!isValidStatus(request.getStatus()))
-                throw new ResourceNotFoundException("Status is not valid");
+        if (request.getStatus() != null
+                && !request.getStatus().equals(psychologist.getStatus().name())) {
+            if (!isValidStatus(request.getStatus())) {
+                throw new IllegalArgumentException("Status is not valid");
+            }
             psychologist.setStatus(PsychologistStatus.valueOf(request.getStatus()));
         }
         psychologistRepository.save(psychologist);
         return callMapper(psychologist);
     }
-
     // Get available time slots
     public List<TimeSlotResponse> getTimeSlots(LocalDate date, String psychologistId) {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
@@ -115,12 +115,9 @@ public class PsychologistService {
                 );
 
         if (!leaves.isEmpty()) {
-            throw new ResourceNotFoundException("Psychologist is on leave during this period");
-        }
 
-        if (psychologist == null) {
-            throw new ResourceNotFoundException("Psychologist not found");
-        }
+            return Collections.emptyList();        }
+
 
         List<TimeSlots> timeSlots = timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
         return timeSlotMapper.buildResponse(timeSlots);
@@ -133,10 +130,9 @@ public class PsychologistService {
 
         List<TimeSlots> existingSlots = timeSlotRepository.findBySlotDateAndPsychologist(date, psychologist);
         if (!existingSlots.isEmpty()) {
-            throw new RuntimeException("Time slots already exist");
+            throw new IllegalStateException("Time slots already exist for this date");
         }
         List<TimeSlots> timeSlots = new ArrayList<>(generateTimeSlots(date, psychologist));
-
         timeSlotRepository.saveAll(timeSlots);
         return timeSlotMapper.buildResponse(timeSlots);
     }
@@ -279,6 +275,7 @@ public class PsychologistService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void updatePsychologistStatusOnStartup() {
+
         this.updatePsychologistStatusBasedOnLeaveRequests();
     }
 
