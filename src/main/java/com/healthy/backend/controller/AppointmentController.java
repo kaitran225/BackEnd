@@ -72,8 +72,10 @@ public class AppointmentController {
             summary = "Request cancel of an appointment",
             description = "Requests an cancel update of an appointment."
     )
-    @PutMapping("/{appointmentId}/cancel")
-    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId, @PathVariable String userId) {
+    @PutMapping("/{appointmentId}/cancel/{userId}")
+    public ResponseEntity<AppointmentResponse> cancelAppointment
+            (@PathVariable String appointmentId,
+             @PathVariable String userId) {
         AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, userId);
         if (response != null) {
         
@@ -100,13 +102,7 @@ public class AppointmentController {
 
         AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
         
-        // Add notification for student
-        notificationService.createAppointmentNotification(
-            response.getStudentName(), 
-            "Appointment Check-out", 
-            "Your appointment has been checked out. Note: " + request.getPsychologistNote(), 
-            appointmentId
-        );
+     
 
         return ResponseEntity.ok(response);
     }

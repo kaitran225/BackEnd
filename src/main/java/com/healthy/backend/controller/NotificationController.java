@@ -62,4 +62,14 @@ public class NotificationController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
+
+    @Operation(summary = "Get all notifications from the database")
+    @GetMapping("/all")
+    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
+    List<Notifications> notifications = notificationService.getAllNotifications();
+    List<NotificationResponse> responses = notifications.stream()
+            .map(notificationMapper::toResponse)
+            .collect(Collectors.toList());
+    return ResponseEntity.ok(responses);
+}
 }

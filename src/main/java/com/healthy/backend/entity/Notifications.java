@@ -1,5 +1,6 @@
 package com.healthy.backend.entity;
 
+import com.healthy.backend.dto.psychologist.LeaveRequest;
 import com.healthy.backend.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class Notifications {
     private String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Type", nullable = false)
+    @Column(name = "Type", nullable = false, length = 20)
     private NotificationType type;
 
     @Column(name = "IsRead")
@@ -39,6 +40,14 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
+
+    @Column(name = "LeaveRequestID", length = 36)
+    private String LeaveRequestID;
+
+    @ManyToOne
+    @JoinColumn(name = "LeaveRequestID", insertable = false, updatable = false)
+    private OnLeaveRequest onLeaveRequest;
+
 
     @Column(name = "AppointmentID", length = 36)
     private String appointmentID;

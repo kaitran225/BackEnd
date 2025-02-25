@@ -167,6 +167,11 @@ public class AppointmentService {
                 () -> new ResourceNotFoundException("User not found with id: " + userId)
         );
 
+        if (!userId.equals(appointment.getStudent().getUserID()) 
+        && !userId.equals(appointment.getPsychologist().getUserID())) {
+        throw new ResourceInvalidException("You are not authorized to cancel this appointment");
+    }
+
         if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
             throw new ResourceInvalidException("Cannot cancel an appointment that is In Progress");
         }
@@ -375,6 +380,15 @@ public class AppointmentService {
         appointment.setCheckOutTime(LocalDateTime.now());
         appointment.setPsychologistNote(psychologistNote);
         appointmentRepository.save(appointment);
+
+
+           // Add notification for student
+           notificationService.createAppointmentNotification(
+            appointment.getStudent().getUserID(),
+           "Appointment Check-out", 
+           "Your appointment has been checked out. Note: " + psychologistNote, 
+           appointmentId
+       );
 
         return appointmentMapper.buildAppointmentResponse(
                 appointment,
