@@ -245,8 +245,7 @@ public class DataInitializer implements CommandLineRunner {
         surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByUsername("student_user").getUserId(), SurveyStatus.ACTIVE));
         surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByUsername("student_user2").getUserId(), SurveyStatus.ACTIVE));
         surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByUsername("student_user3").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), SurveyStatus.INACTIVE));
-
+        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByUsername("student_user").getUserId(), SurveyStatus.ACTIVE));
     }
 
     private void initializeSurveyQuestions() {

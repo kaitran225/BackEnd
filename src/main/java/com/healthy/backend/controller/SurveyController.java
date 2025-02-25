@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -202,14 +203,14 @@ public class SurveyController {
     }
 
     @Operation(
-            
+        
             summary = "Get student survey results",
             description = "Returns results for a specific student's survey."
     )
     @GetMapping("/{surveyId}/students-results/{studentId}")
     public ResponseEntity<?> getStudentIDSurveyResults(@PathVariable String surveyId, @PathVariable String studentId) {
             try {
-                SurveysResponse surveyResponse = surveyService.getStudentIDSurveyResults(surveyId, studentId);
+                StatusStudent surveyResponse = surveyService.getStudentIDSurveyResults(surveyId, studentId);
                 return ResponseEntity.ok(surveyResponse);
             }
             catch(ResourceNotFoundException ex) {

@@ -17,5 +17,6 @@ import lombok.NoArgsConstructor;
 
 public class StatusStudent {
     private String studentId;
+    private int score;
     private String status;
 }
