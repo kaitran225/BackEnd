@@ -155,7 +155,7 @@ public class AppointmentService {
     }
 
     // Cancel
-    public AppointmentResponse cancelAppointment(String appointmentId) {
+    public AppointmentResponse cancelAppointment(String appointmentId, String userId) {
 
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
@@ -163,8 +163,12 @@ public class AppointmentService {
                 () -> new ResourceNotFoundException("Timeslot not found with id: " + appointment.getTimeSlotsID())
         );
 
+        Users user = userRepository.findByUserId(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
         if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
-            throw new ResourceInvalidException("Can not cancel an appointment that is In Progress");
+            throw new ResourceInvalidException("Cannot cancel an appointment that is In Progress");
         }
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new ResourceInvalidException("Appointment is already completed");
@@ -175,6 +179,43 @@ public class AppointmentService {
         // Revert time slot back to available
         timeSlot.setStatus(TimeslotStatus.AVAILABLE);
         timeSlotRepository.save(timeSlot);
+
+        String psychologistName = appointment.getPsychologist().getFullNameFromUser();
+        String studentName = appointment.getStudent().getUser().getFullName();
+
+        if ("Psychologist".equalsIgnoreCase(String.valueOf(user.getRole())) ) {
+            // Notify student
+            notificationService.createAppointmentNotification(
+                    appointment.getStudent().getUserID(),
+                    "Appointment Canceled",
+                    "Your appointment has been canceled by " + psychologistName,
+                    appointmentId
+            );
+
+            // Notify psychologist
+            notificationService.createAppointmentNotification(
+                appointment.getPsychologist().getUserID(),
+                    "Appointment Canceled",
+                    "You declined the appointment",
+                    appointmentId
+            );
+        } else if ("Student".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+            // Notify psychologist
+            notificationService.createAppointmentNotification(
+                    appointment.getPsychologist().getUserID(),
+                    "Appointment Canceled",
+                    "Your appointment has been canceled by " + studentName,
+                    appointmentId
+            );
+
+            // Notify student
+            notificationService.createAppointmentNotification(
+                    appointment.getStudent().getUserID(),
+                    "Appointment Canceled",
+                    "You declined the appointment",
+                    appointmentId
+            );
+        }
 
         return appointmentMapper.buildAppointmentResponse(appointment);
     }

@@ -45,6 +45,7 @@ public class PsychologistService {
     private final TimeSlotMapper timeSlotMapper;
 
     private final GeneralService __;
+    private final NotificationService notificationService;
 
     // Get all psychologist
     public List<PsychologistResponse> getAllPsychologistDTO() {
@@ -213,12 +214,33 @@ public class PsychologistService {
                 psychologistsMapper.createPendingOnLeaveRequestEntity(request,
                         __.generateLeaveRequestID(), psychologist);
 
+        // Check if the request is already expired
+        if (LocalDate.now().isAfter(request.getStartDate())) {
+            onRequest.setStatus(OnLeaveStatus.EXPIRED);
+        }
+
         OnLeaveRequest saved = leaveRequestRepository.save(onRequest);
+
+        // Notify psychologist
+        notificationService.createProgramNotification(
+            psychologist.getUserID(), 
+            "Leave Request Created", 
+            "Your leave request has been created.", 
+            saved.getLeaveRequestID()
+        );
+
         return psychologistsMapper.buildLeaveResponse(saved);
     }
 
     public List<LeaveResponse> getPendingRequests() {
         return leaveRequestRepository.findByStatus(OnLeaveStatus.PENDING)
+                .stream()
+                .map(psychologistsMapper::buildLeaveResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<LeaveResponse> getAllLeaveRequests() {
+        return leaveRequestRepository.findAll()
                 .stream()
                 .map(psychologistsMapper::buildLeaveResponse)
                 .collect(Collectors.toList());
@@ -238,6 +260,15 @@ public class PsychologistService {
         }
 
         OnLeaveRequest updated = leaveRequestRepository.save(request);
+
+        // Notify psychologist
+        notificationService.createProgramNotification(
+            request.getPsychologist().getUserID(), 
+            "Leave Request Processed", 
+            "Your leave request has been " + (approve ? "approved" : "rejected") + ".", 
+            requestId
+        );
+
         return psychologistsMapper.buildLeaveResponse(updated);
     }
 
@@ -311,7 +342,7 @@ public class PsychologistService {
             throw new IllegalStateException("Leave request is not approved");
         }
 
-        leaveRequest.setStatus(OnLeaveStatus.EXPIRED);
+        leaveRequest.setStatus(OnLeaveStatus.REJECTED);
         leaveRequestRepository.save(leaveRequest);
 
         psychologist.setStatus(PsychologistStatus.ACTIVE);
@@ -360,5 +391,13 @@ public class PsychologistService {
                 .sum();
 
         return totalRating / appointments.size();
+    }
+
+    public List<LeaveResponse> getApprovedLeaveRequestsByPsychologist(String psychologistId) {
+        List<OnLeaveRequest> requests = leaveRequestRepository.findByPsychologistPsychologistIDAndStatus(
+                psychologistId, OnLeaveStatus.APPROVED);
+        return requests.stream()
+                .map(psychologistsMapper::buildLeaveResponse)
+                .collect(Collectors.toList());
     }
 }
