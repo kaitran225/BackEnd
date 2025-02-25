@@ -12,13 +12,9 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.mapper.*;
 
-import com.itextpdf.kernel.geom.PageSize;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -171,7 +167,7 @@ public class UserService {
                     .collect(Collectors.toList());
         }
 
-        return userMapper.buildUserResponse(
+        return userMapper.buildUserDetailsResponse(
                 user,
                 psychologistResponse,
                 studentResponse,
@@ -211,11 +207,11 @@ public class UserService {
             programs = programRepository.findAll();
         }
         appointments = appointments.stream()
-                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
                 .toList();
 
         programs = programs.stream()
-                .filter(program -> program.getStartDate().isAfter(LocalDate.now())).toList();
+                .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
         if (appointments.isEmpty() && programs.isEmpty()) {
             return null;
         }
@@ -228,19 +224,19 @@ public class UserService {
     }
 
     public void deactivateUser(String userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActive(false);
         userRepository.save(user);
     }
 
     public void reactivateUser(String userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActive(true);
         userRepository.save(user);
     }
 
     public void updateUserRole(String userId, String role) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setRole(Role.valueOf(role));
         userRepository.save(user);
     }
@@ -250,14 +246,14 @@ public class UserService {
     }
 
     public String getUserDashboard(String userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return "Dashboard data for user: " + user.getUserId();
     }
 
-//    public String exportUserData(String userId, String format) {
-//        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-//        return "Exporting user data for " + user.getUserId() + " in format: " + format;
-//    }
+    public String exportUserData(String userId, String format) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return "Exporting user data for " + user.getUserId() + " in format: " + format;
+    }
 
     public void submitFeedback(String userId, String feedback) {
         System.out.println("Feedback from user " + userId + ": " + feedback);

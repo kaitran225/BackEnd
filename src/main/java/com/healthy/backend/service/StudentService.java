@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -112,7 +113,8 @@ public class StudentService {
                 .map(p -> programMapper.buildProgramResponse(
                         programRepository
                                 .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
+                        getStudentsByProgram(p.getProgram().getProgramID())
                 )).toList();
     }
 
@@ -125,7 +127,8 @@ public class StudentService {
                 .map(p -> programMapper.buildProgramResponse(
                         programRepository
                                 .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
+                        getStudentsByProgram(p.getProgram().getProgramID())
                 ))
                 .toList();
     }
@@ -150,5 +153,16 @@ public class StudentService {
         return appointments.stream()
                 .filter(appointment -> appointment.getStatus() == AppointmentStatus.SCHEDULED)
                 .map(appointmentMapper::buildAppointmentResponse).toList();
+    }
+
+    private List<StudentResponse> getStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
+        if (studentIDs.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return studentIDs.stream()
+                .map(studentRepository::findByStudentID)
+                .map(studentMapper::buildStudentResponse)
+                .toList();
     }
 }

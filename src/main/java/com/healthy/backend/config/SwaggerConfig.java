@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.RequestHandledEvent;
 
 @Configuration
 @OpenAPIDefinition(
@@ -21,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
                         email = "support@healthservice.com",
                         url = "https://www.cybriadev.com"
                 ),
-                summary =  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTg0NzMyNywiZXhwIjoxNzM5OTMzNzI3fQ._-IpOX-qHVr73XaMCvkqrvAsgXmkZYUsceourKqAzdk"
+                summary = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTg0NzMyNywiZXhwIjoxNzM5OTMzNzI3fQ._-IpOX-qHVr73XaMCvkqrvAsgXmkZYUsceourKqAzdk"
         ),
         servers = {
                 @Server(
@@ -41,6 +44,19 @@ import org.springframework.context.annotation.Configuration;
         scheme = "bearer",
         in = SecuritySchemeIn.HEADER
 )
+@Component
 public class SwaggerConfig {
-    // Configuration class can be empty as we're using annotations for configuration
+
+    @EventListener
+    public void onWebRequest(RequestHandledEvent event) {
+        String requestUrl = event.getDescription();
+
+        if (requestUrl.contains("/swagger-ui/")) {
+            System.out.println("Swagger UI accessed. Injecting CSS...");
+            System.out.println("Injecting custom script...");
+            System.setProperty("springdoc.swagger-ui.customCssUrl", "/style.css");
+            System.setProperty("springdoc.swagger-ui.customJsUrl", "/style.js");
+
+        }
+    }
 } 

@@ -9,14 +9,11 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.healthy.backend.repository.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 

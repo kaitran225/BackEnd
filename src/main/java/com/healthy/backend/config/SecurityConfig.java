@@ -64,7 +64,9 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/verify",
                                 "/redirect.html",
-                                "/resetPassword.html"
+                                "/resetPassword.html",
+                                "/style.css",
+                                "/static/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

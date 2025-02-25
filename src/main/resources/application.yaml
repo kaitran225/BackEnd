@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: dev
+
+springdoc:
+  swagger-ui:
+    customCssUrl: style.css
+    customJsUrl: /custom-swagger.js

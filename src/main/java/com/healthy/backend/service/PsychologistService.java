@@ -345,9 +345,8 @@ public class PsychologistService {
 
         List<Appointments> appointments = appointmentRepository.findByPsychologistIDAndStatusAndFeedbackNotNull(
                 psychologistId, AppointmentStatus.COMPLETED);
-
         if (appointments.isEmpty()) {
-            return 0.0; // Trả về 0 nếu không có feedback nào
+            return 0.0;
         }
 
         double totalRating = appointments.stream()
