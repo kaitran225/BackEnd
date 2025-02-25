@@ -5,12 +5,13 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.RequestHandledEvent;
 
 @Configuration
@@ -44,19 +45,20 @@ import org.springframework.web.context.support.RequestHandledEvent;
         scheme = "bearer",
         in = SecuritySchemeIn.HEADER
 )
-@Component
 public class SwaggerConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .externalDocs(new ExternalDocumentation().description("Swagger UI Docs"));
+    }
 
     @EventListener
     public void onWebRequest(RequestHandledEvent event) {
         String requestUrl = event.getDescription();
-
-        if (requestUrl.contains("/swagger-ui/")) {
-            System.out.println("Swagger UI accessed. Injecting CSS...");
+        if (requestUrl.contains("/swagger-ui")) {
+            System.out.println("Swagger UI main page accessed. Injecting CSS...");
             System.out.println("Injecting custom script...");
-            System.setProperty("springdoc.swagger-ui.customCssUrl", "/style.css");
-            System.setProperty("springdoc.swagger-ui.customJsUrl", "/style.js");
-
         }
     }
 } 

@@ -147,26 +147,27 @@ public class UserService {
         PsychologistResponse psychologistResponse = null;
         StudentResponse studentResponse = null;
 
-
-        if (user.getRole() == Role.STUDENT) {
-            Students students = studentRepository.findByUserID(user.getUserId());
-            surveyResultsResponseList = getUserSurveyResults(user.getUserId());
-            studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
-            appointmentsResponseList = getUserAppointments(user.getUserId());
+        switch (user.getRole()) {
+            case Role.STUDENT -> {
+                Students students = studentRepository.findByUserID(user.getUserId());
+                surveyResultsResponseList = getUserSurveyResults(user.getUserId());
+                studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
+                appointmentsResponseList = getUserAppointments(user.getUserId());
+            }
+            case Role.PARENT -> {
+                Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
+                childrenList = parent.getStudents().stream()
+                        .map(studentMapper::buildStudentResponse)
+                        .collect(Collectors.toList());
+            }
+            case Role.PSYCHOLOGIST -> {
+                Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
+                psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
+            }
+            case Role.MANAGER -> {
+                break;
+            }
         }
-
-        if (user.getRole() == Role.PSYCHOLOGIST) {
-            Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
-            psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
-        }
-
-        if (user.getRole() == Role.PARENT) {
-            Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
-            childrenList = parent.getStudents().stream()
-                    .map(studentMapper::buildStudentResponse)
-                    .collect(Collectors.toList());
-        }
-
         return userMapper.buildUserDetailsResponse(
                 user,
                 psychologistResponse,
@@ -268,7 +269,7 @@ public class UserService {
     public boolean deleteUser(String id) {
         Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        if(user.isDeleted()){
+        if (user.isDeleted()) {
             return false;
         }
         user.setDeleted(false);
