@@ -4,6 +4,7 @@ import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
+import com.healthy.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,7 @@ import java.util.List;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
     @Operation(
             summary = "Get all appointments",
@@ -70,10 +72,14 @@ public class AppointmentController {
             summary = "Request cancel of an appointment",
             description = "Requests an cancel update of an appointment."
     )
-    @PutMapping("/{appointmentId}/cancel")
-    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId) {
-        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId);
+    @PutMapping("/{appointmentId}/cancel/{userId}")
+    public ResponseEntity<AppointmentResponse> cancelAppointment
+            (@PathVariable String appointmentId,
+             @PathVariable String userId) {
+        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, userId);
         if (response != null) {
+        
+
             return ResponseEntity.ok(response);
         }
         throw new OperationFailedException("Failed to cancel appointment");
@@ -95,6 +101,9 @@ public class AppointmentController {
             @RequestBody CheckOutRequest request) {
 
         AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
+        
+     
+
         return ResponseEntity.ok(response);
     }
 

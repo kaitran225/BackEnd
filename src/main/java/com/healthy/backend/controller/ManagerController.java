@@ -35,4 +35,10 @@ public class ManagerController {
     ) {
         return ResponseEntity.ok(psychologistService.processLeaveRequest(requestId, approve));
     }
+
+    @Operation(summary = "Get all leave requests")
+    @GetMapping("/leave-requests/all")
+    public ResponseEntity<List<LeaveResponse>> getAllLeaveRequests() {
+        return ResponseEntity.ok(psychologistService.getAllLeaveRequests());
+    }
 }

@@ -29,5 +29,7 @@ public class NotificationResponse {
     private Boolean isRead;
 
     @Schema(example = "APP001")
-    private String IDType;
+    private String IDType; 
+    
+    private String UserID;
 }

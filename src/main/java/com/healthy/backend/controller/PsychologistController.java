@@ -219,4 +219,15 @@ public class PsychologistController {
         double averageRating = psychologistService.calculateAverageRating(psychologistId);
         return ResponseEntity.ok(averageRating);
     }
+
+    @Operation(
+            summary = "Get approved leave requests",
+            description = "Returns a list of approved leave requests for a psychologist.")
+    @GetMapping("/{psychologistId}/leave-requests/approved")
+    public ResponseEntity<List<LeaveResponse>> getApprovedLeaveRequests(
+            @PathVariable String psychologistId
+    ) {
+        List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
+        return ResponseEntity.ok(requests);
+    }
 }
