@@ -33,7 +33,27 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public boolean extractIsVerified(String token) {
+        return extractClaim(token, claims -> claims.get("isVerified", Boolean.class));
+    }
+
+    public boolean extractIsActive(String token) {
+        return extractClaim(token, claims -> claims.get("isActive", Boolean.class));
+    }
+
     public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("uid", String.class));
+    }
+
+    public String extractVerificationEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
@@ -60,6 +80,7 @@ public class JwtService {
 
     public String generateToken(Users user) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("uid", user.getUserId());
         claims.put("email", user.getEmail());
         claims.put("role", "ROLE_" + user.getRole().name()); // Ensure correct role format
         claims.put("isVerified", user.isVerified());

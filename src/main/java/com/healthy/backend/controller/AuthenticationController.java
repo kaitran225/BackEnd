@@ -1,6 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.LogoutService;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -125,6 +128,16 @@ public class AuthenticationController {
             Authentication authentication) {
         logoutHandler.logout(request, response, authentication);
         return ResponseEntity.ok("Successfully logged out");
+    }
+
+    @Operation(
+            summary = "Extract tokens",
+            description = "Extract tokens from request"
+    )
+    @GetMapping("/extract-token")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<UsersResponse> extractToken(HttpServletRequest request) {
+        return ResponseEntity.ok(authenticationService.extractTokens(request));
     }
 
     @Operation(

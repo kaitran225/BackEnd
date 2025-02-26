@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.mapper.UserMapper;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.security.JwtService;
+import com.healthy.backend.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +46,7 @@ public class AuthenticationService {
 
     private final GeneralService __;
     private final JwtService jwtService;
+    private final TokenService tokenService;
     private final EmailService emailService;
 
     private final UserMapper usermapper;
@@ -404,7 +405,7 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid or expired token");
         }
 
-        Users user = userRepository.findByEmail(jwtService.extractEmail(token));
+        Users user = userRepository.findByEmail(jwtService.extractVerificationEmail(token));
 
         user.setVerified(true);
         userRepository.save(user);
@@ -422,16 +423,17 @@ public class AuthenticationService {
         return authenticationRepository.findByVerificationToken(token).getTokenExpiration().isAfter(LocalDateTime.now());
     }
 
+    public UsersResponse extractTokens(HttpServletRequest request) {
+        return usermapper.buildBasicUserResponse(tokenService.retrieveUser(request));
+    }
+
     // Save refresh token to database
     private void saveRefreshToken(String userId, String refreshToken) {
 
-        // Check if refresh token already exists
         if (refreshTokenRepository.findByUserId(userId) != null) {
-            // Delete any existing refresh tokens for this user if they exist
             refreshTokenRepository.deleteByUserId(userId);
         }
 
-        // Create new refresh token
         RefreshToken token = new RefreshToken();
         token.setUserId(userId);
         token.setHashedToken(hashToken(refreshToken));
@@ -442,7 +444,7 @@ public class AuthenticationService {
 
     // Use a secure hashing algorithm
     private String hashToken(String token) {
-        return passwordEncoder.encode(token);
+   return passwordEncoder.encode(token);
     }
 
     private boolean _check(String rawPassword, String encodedPassword) {

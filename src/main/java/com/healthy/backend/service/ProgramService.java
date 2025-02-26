@@ -211,8 +211,15 @@ public class ProgramService {
     public ProgramsResponse getProgramParticipants(String programId) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        List<StudentResponse> studentResponses = getStudentsByProgram(programId);
-        if (studentResponses.isEmpty()) throw new ResourceNotFoundException("No participants found");
+        List<StudentResponse> studentResponses = getStudentsByProgram(programId)
+                .stream()
+                .filter(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                    return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
+                })
+                .collect(Collectors.toList());
+        if (studentResponses.isEmpty()) programMapper.buildProgramsParticipantResponse(program, new ArrayList<>());
         return programMapper.buildProgramsParticipantResponse(program, studentResponses);
     }
 
@@ -224,6 +231,13 @@ public class ProgramService {
         return studentIDs.stream()
                 .map(studentRepository::findByStudentID)
                 .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
+                })
                 .toList();
     }
 
