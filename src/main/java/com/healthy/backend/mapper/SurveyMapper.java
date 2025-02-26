@@ -48,7 +48,18 @@ public class SurveyMapper {
                         .studentId(surveyResult.getStudentID())
                         .score(score)
                         .build();
-        }    
+        }
+
+//         public StatusStudent buildStatusStudent1(SurveyResult surveyResult, String getStatusStudent) {
+//                 return StatusStudent.builder()
+//                         .status(getStatusStudent)
+//                         .studentId(surveyResult.getStudentID());
+//                         .build();
+//         }
+
+        
+
+
 
     public SurveyQuestionResultResponse mapToQuestion(SurveyQuestions surveyQuestions,List<QuestionOption> answers) {
         return SurveyQuestionResultResponse.builder()
