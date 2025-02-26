@@ -39,4 +39,5 @@ public class SurveysResponse {
     @Schema (example = "US001")
     private String createBy;
     private List<StatusStudent> statusStudent;
+    private List<SurveyQuestionResultResponse> questions;
 }
