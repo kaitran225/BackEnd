@@ -126,18 +126,14 @@ public class UserService {
 
     private List<AppointmentResponse> getPsychologistAppointments(String userId) {
         Users user = userRepository.findById(userId).orElseThrow();
-        StudentResponse studentResponse;
         List<Appointments> appointmentsList = null;
 
-        if (!user.getRole().equals(Role.STUDENT)) {
+        if (!user.getRole().equals(Role.PSYCHOLOGIST)) {
             return null;
         }
 
-        studentResponse = studentMapper.buildStudentResponse(
-                studentRepository.findByUserID(userId)
-        );
-        appointmentsList = appointmentRepository.findByStudentID(
-                studentResponse.getStudentId()
+        appointmentsList = appointmentRepository.findByPsychologistID(
+                psychologistRepository.findByUserID(userId).getPsychologistID()
         );
 
         return appointmentsList != null ? appointmentsList.stream()
@@ -157,14 +153,12 @@ public class UserService {
         PsychologistResponse psychologistResponse;
         List<Appointments> appointmentsList = null;
 
-        if (!user.getRole().equals(Role.PSYCHOLOGIST)) {
+        if (!user.getRole().equals(Role.STUDENT)) {
             return null;
         }
-        psychologistResponse = psychologistsMapper.buildPsychologistResponse(
-                psychologistRepository.findByUserID(userId)
-            );
+
         appointmentsList = appointmentRepository
-                    .findByPsychologistID(psychologistResponse.getPsychologistId());
+                    .findByStudentID(studentRepository.findByUserID(userId).getStudentID());
 
 
         return appointmentsList.stream()
