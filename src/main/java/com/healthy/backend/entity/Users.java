@@ -25,8 +25,8 @@ public class Users implements UserDetails {
     @Column(name = "UserID", length = 36, nullable = false)
     private String userId;
 
-    @Column(name = "Username", length = 50, nullable = false)
-    private String username;
+    @Column(name = "HashedID", nullable = false)
+    private String hashedID;
 
     @Column(name = "PasswordHash", nullable = false)
     private String passwordHash;
@@ -95,7 +95,7 @@ public class Users implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return hashedID;
     }
 
     public boolean isPresent() {

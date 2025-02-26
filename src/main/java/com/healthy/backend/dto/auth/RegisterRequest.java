@@ -14,10 +14,6 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RegisterRequest {
-    @Schema(example = "username")
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
 
     @Schema(example = "@User_password123")
     @NotBlank(message = "Password is required")

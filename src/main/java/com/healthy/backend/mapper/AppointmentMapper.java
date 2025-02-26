@@ -21,6 +21,7 @@ public class AppointmentMapper {
                 .Status(appointment.getStatus().name())
                 .psychologistResponse(psychologistResponse)
                 .studentResponse(studentResponse)
+                .psychologistNotes(appointment.getPsychologistNote())
                 .studentNotes(appointment.getStudentNote())
                 .timeSlotID(appointment.getTimeSlotsID())
                 .UpdatedAt(appointment.getUpdatedAt())

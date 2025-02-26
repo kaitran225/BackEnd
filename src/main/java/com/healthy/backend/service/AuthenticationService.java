@@ -21,8 +21,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,15 +64,11 @@ public class AuthenticationService {
 
         // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedUsername = request.getUsername().trim();
         String normalizedPhone = request.getPhoneNumber().trim();
+        String hashedID = __(normalizedEmail);
 
         if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
             throw new RuntimeException("This phone number is already in use for another account");
-        }
-
-        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
-            throw new RuntimeException("This username is already taken");
         }
 
         if (authenticationRepository.findByEmail(normalizedEmail) != null) {
@@ -81,7 +81,7 @@ public class AuthenticationService {
 
         Users savedUser = userRepository.save(
                 usermapper.buildUserEntity(request, token,
-                        __.generateUserID(), encodedPassword));
+                        __.generateUserID(), encodedPassword, hashedID));
 
         String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
                 .path("/api/auth/verify")
@@ -113,15 +113,12 @@ public class AuthenticationService {
 
         // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedUsername = request.getUsername().trim();
         String normalizedPhone = request.getPhoneNumber().trim();
+        String hashedID = __(normalizedEmail);
+
 
         if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
             throw new RuntimeException("This phone number is already in use for another account");
-        }
-
-        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
-            throw new RuntimeException("This username is already taken");
         }
 
         if (authenticationRepository.findByEmail(normalizedEmail) != null) {
@@ -134,7 +131,7 @@ public class AuthenticationService {
 
         Users savedUser = userRepository.save(
                 usermapper.buildUserParentEntity(request, token,
-                        __.generateUserID(), encodedPassword));
+                        __.generateUserID(), encodedPassword, hashedID));
 
         List<Students> children = studentRepository.findAllById(request.getStudentIds());
 
@@ -171,15 +168,12 @@ public class AuthenticationService {
 
         // Normalize inputs
         String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedUsername = request.getUsername().trim();
         String normalizedPhone = request.getPhoneNumber().trim();
+        String hashedID = __(normalizedEmail);
+
 
         if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
             throw new RuntimeException("This phone number is already in use for another account");
-        }
-
-        if (authenticationRepository.findByUsername(normalizedUsername) != null) {
-            throw new RuntimeException("This username is already taken");
         }
 
         if (authenticationRepository.findByEmail(normalizedEmail) != null) {
@@ -192,7 +186,7 @@ public class AuthenticationService {
 
         Users savedUser = userRepository.save(
                 usermapper.buildUserStudentEntity(request, token,
-                        __.generateUserID(), encodedPassword));
+                        __.generateUserID(), encodedPassword,hashedID));
 
         Students savedStudent = studentRepository.save(
                 studentmapper.buildStudentEntity(request, savedUser, __.generateStudentID()));
@@ -230,7 +224,7 @@ public class AuthenticationService {
 
         Users user = loginIdentifier.contains("@")
                 ? authenticationRepository.findByEmail(loginIdentifier.toLowerCase())
-                : authenticationRepository.findByUsername(loginIdentifier);
+                : authenticationRepository.findByHashedID(loginIdentifier);
 
         // Check if user exists
         if (user == null) {
@@ -278,13 +272,13 @@ public class AuthenticationService {
         if (!jwtService.isTokenValid(refreshToken)) {
             throw new InvalidTokenException("Invalid or expired refresh token.");
         }
-        final String username = jwtService.extractUsername(refreshToken);
+        final String username = jwtService.extractHashedID(refreshToken);
 
         // Validate username
         if (username == null) {
             throw new InvalidTokenException("Invalid refresh token: unable to extract username.");
         }
-        Users user = authenticationRepository.findByUsername(username);
+        Users user = authenticationRepository.findByHashedID(username);
 
         // Check if user exists
         if (user == null) {
@@ -365,13 +359,13 @@ public class AuthenticationService {
         if (!jwtService.isTokenValid(token)) {
             throw new InvalidTokenException("Invalid or expired password reset token.");
         }
-        final String username = jwtService.extractUsername(token);
+        final String username = jwtService.extractHashedID(token);
 
         // Validate username
         if (username == null) {
             throw new InvalidTokenException("Invalid refresh token: unable to extract username.");
         }
-        Users user = authenticationRepository.findByUsername(username);
+        Users user = authenticationRepository.findByHashedID(username);
 
         // Check if user exists
         if (user == null) {
@@ -457,5 +451,14 @@ public class AuthenticationService {
 
     private boolean _check(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+    private String __(String email) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(email.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash); // Full-length Base64 hash
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating hash", e);
+        }
     }
 }

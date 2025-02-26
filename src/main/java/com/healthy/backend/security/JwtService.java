@@ -29,7 +29,7 @@ public class JwtService {
     @Value("${jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-    public String extractUsername(String token) {
+    public String extractHashedID(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -87,9 +87,9 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails user) {
-        final String username = extractUsername(token);
-        return (username.equals(user.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, Users user) {
+        final String hashedID = extractHashedID(token);
+        return (hashedID.equals(user.getHashedID())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

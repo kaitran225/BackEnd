@@ -1,5 +1,6 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
@@ -154,7 +155,7 @@ public class AppointmentService {
     }
 
     // Cancel
-    public AppointmentResponse cancelAppointment(String appointmentId) {
+    public AppointmentResponse cancelAppointment(String appointmentId, String userId) {
 
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
@@ -162,8 +163,17 @@ public class AppointmentService {
                 () -> new ResourceNotFoundException("Timeslot not found with id: " + appointment.getTimeSlotsID())
         );
 
+        Users user = userRepository.findByUserId(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
+        if (!userId.equals(appointment.getStudent().getUserID()) 
+        && !userId.equals(appointment.getPsychologist().getUserID())) {
+        throw new ResourceInvalidException("You are not authorized to cancel this appointment");
+    }
+
         if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
-            throw new ResourceInvalidException("Can not cancel an appointment that is In Progress");
+            throw new ResourceInvalidException("Cannot cancel an appointment that is In Progress");
         }
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new ResourceInvalidException("Appointment is already completed");
@@ -174,6 +184,43 @@ public class AppointmentService {
         // Revert time slot back to available
         timeSlot.setStatus(TimeslotStatus.AVAILABLE);
         timeSlotRepository.save(timeSlot);
+
+        String psychologistName = appointment.getPsychologist().getFullNameFromUser();
+        String studentName = appointment.getStudent().getUser().getFullName();
+
+        if ("Psychologist".equalsIgnoreCase(String.valueOf(user.getRole())) ) {
+            // Notify student
+            notificationService.createAppointmentNotification(
+                    appointment.getStudent().getUserID(),
+                    "Appointment Canceled",
+                    "Your appointment has been canceled by " + psychologistName,
+                    appointmentId
+            );
+
+            // Notify psychologist
+            notificationService.createAppointmentNotification(
+                appointment.getPsychologist().getUserID(),
+                    "Appointment Canceled",
+                    "You declined the appointment",
+                    appointmentId
+            );
+        } else if ("Student".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+            // Notify psychologist
+            notificationService.createAppointmentNotification(
+                    appointment.getPsychologist().getUserID(),
+                    "Appointment Canceled",
+                    "Your appointment has been canceled by " + studentName,
+                    appointmentId
+            );
+
+            // Notify student
+            notificationService.createAppointmentNotification(
+                    appointment.getStudent().getUserID(),
+                    "Appointment Canceled",
+                    "You declined the appointment",
+                    appointmentId
+            );
+        }
 
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
@@ -313,7 +360,7 @@ public class AppointmentService {
     }
 
     // Check out
-    public AppointmentResponse checkOut(String appointmentId) {
+    public AppointmentResponse checkOut(String appointmentId, String psychologistNote) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
 
@@ -331,7 +378,17 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointment.setCheckOutTime(LocalDateTime.now());
+        appointment.setPsychologistNote(psychologistNote);
         appointmentRepository.save(appointment);
+
+
+           // Add notification for student
+           notificationService.createAppointmentNotification(
+            appointment.getStudent().getUserID(),
+           "Appointment Check-out", 
+           "Your appointment has been checked out. Note: " + psychologistNote, 
+           appointmentId
+       );
 
         return appointmentMapper.buildAppointmentResponse(
                 appointment,
@@ -342,5 +399,25 @@ public class AppointmentService {
                         Objects.requireNonNull(studentRepository.findById(
                                 appointment.getStudentID()).orElse(null)))
         );
+    }
+
+
+    public AppointmentResponse submitFeedback(String appointmentId, AppointmentFeedbackRequest request) {
+        Appointments appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
+            throw new OperationFailedException("Only completed appointments can receive feedback");
+        }
+
+        if (appointment.getFeedback() != null && !appointment.getFeedback().isEmpty()) {
+            throw new OperationFailedException("Feedback already submitted");
+        }
+
+        appointment.setFeedback(request.getFeedback());
+        appointment.setRating(request.getRating()); // Lưu rating
+        appointmentRepository.save(appointment);
+
+        return appointmentMapper.buildAppointmentResponse(appointment);
     }
 }

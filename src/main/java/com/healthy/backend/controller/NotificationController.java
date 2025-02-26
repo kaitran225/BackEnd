@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,4 +62,14 @@ public class NotificationController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
+
+    @Operation(summary = "Get all notifications from the database")
+    @GetMapping("/all")
+    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
+    List<Notifications> notifications = notificationService.getAllNotifications();
+    List<NotificationResponse> responses = notifications.stream()
+            .map(notificationMapper::toResponse)
+            .collect(Collectors.toList());
+    return ResponseEntity.ok(responses);
+}
 }

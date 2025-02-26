@@ -54,10 +54,8 @@ public class EmailService {
                 "Mental Health Care Support Team";
     }
 
-    public String getAppointmentTransferredMailBody(String psychologistName,
-                                                     Students student,
-                                                     String ID,
-                                                     TimeSlots timeSlots) {
+    public String getAppointmentTransferredMailBody(String psychologistName, Students student,
+                                                    String ID, TimeSlots timeSlots) {
         return "Subject: Appointment Transferred\n\n" +
                 "Dear " + psychologistName + ",\n\n" +
                 "Please be informed that an appointment has been transferred.\n\n" +
@@ -73,10 +71,8 @@ public class EmailService {
                 "Mental Health Care Support Team";
     }
 
-    public String getNewAppointmentMailBody(String psychologistName,
-                                             Students student,
-                                             String ID,
-                                             TimeSlots timeSlots) {
+    public String getNewAppointmentMailBody(String psychologistName, Students student,
+                                            String ID, TimeSlots timeSlots) {
         return "Subject: New Appointment Scheduled\n\n" +
                 "Dear " + psychologistName + ",\n\n" +
                 "We are pleased to inform you that a new appointment has been scheduled.\n\n" +

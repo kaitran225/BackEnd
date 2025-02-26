@@ -120,7 +120,6 @@ public class UserService {
                     .findByPsychologistID(psychologistResponse.getPsychologistId());
         }
 
-
         return appointmentsList.stream()
                 .map(appointment ->
                         appointmentMapper.buildAppointmentResponse(
@@ -134,7 +133,6 @@ public class UserService {
                         ))
                 .collect(Collectors.toList());
     }
-
 
     public boolean deleteUser(String id) {
         Users user = userRepository.findById(id)

@@ -84,4 +84,6 @@ public class APIExceptionHandler {
                 .collect(Collectors.toList());
         return ResponseEntity.badRequest().body(errors);
     }
+
+
 }

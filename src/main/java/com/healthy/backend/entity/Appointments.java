@@ -42,6 +42,11 @@ public class Appointments {
     @Column(name = "Feedback", columnDefinition = "TEXT")
     private String feedback;
 
+    @Column(name = "Rating")
+    private Integer rating;
+
+
+
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
 
