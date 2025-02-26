@@ -46,19 +46,4 @@ import org.springframework.web.context.support.RequestHandledEvent;
         in = SecuritySchemeIn.HEADER
 )
 public class SwaggerConfig {
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .externalDocs(new ExternalDocumentation().description("Swagger UI Docs"));
-    }
-
-    @EventListener
-    public void onWebRequest(RequestHandledEvent event) {
-        String requestUrl = event.getDescription();
-        if (requestUrl.contains("/swagger-ui")) {
-            System.out.println("Swagger UI main page accessed. Injecting CSS...");
-            System.out.println("Injecting custom script...");
-        }
-    }
 } 

@@ -60,7 +60,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/api/auth/**",
                                 "/redirect.html",
-                                "/resetPassword.html"
+                                "/resetPassword.html",
+                                "/style.css",
+                                "/static/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
