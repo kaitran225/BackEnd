@@ -63,4 +63,7 @@ public class UsersResponse {
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
     private LocalDateTime updatedAt;
+    private StudentResponse studentResponse;
+    private PsychologistResponse psychologistResponse;
+    private List<StudentResponse> childrenResponse;
 }

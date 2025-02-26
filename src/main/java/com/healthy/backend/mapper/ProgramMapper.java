@@ -35,7 +35,8 @@ public class ProgramMapper {
                 .build();
     }
 
-    public ProgramsResponse buildProgramsDetailsResponse(Programs program, List<StudentResponse> enrolled) {
+    public ProgramsResponse buildProgramsDetailsResponse(Programs program,
+                                                         List<StudentResponse> enrolled) {
         return ProgramsResponse.builder()
                 .programID(program.getProgramID())
                 .title(program.getProgramName())
@@ -50,16 +51,19 @@ public class ProgramMapper {
                 .tags(program.getTags().stream().map(Tags::getTagName).map(String::toUpperCase).collect(Collectors.toSet()))
                 .type(program.getType().toString())
                 .meetingLink(program.getMeetingLink())
-                .enrolled(enrolled)
+                .enrolled(enrolled) // Add enrolled students
                 .build();
     }
 
-    public ProgramsResponse buildProgramResponse(Programs program) {
+    public ProgramsResponse buildProgramResponse(Programs program,
+                                                 List<StudentResponse> enrolled) {
         return ProgramsResponse.builder()
                 .programID(program.getProgramID())
                 .title(program.getProgramName())
                 .description(program.getDescription())
                 .duration(program.getDuration())
+                .currentParticipants(enrolled.size())
+                .maxParticipants(program.getNumberParticipants())
                 .status(program.getStatus().toString())
                 .startDate(LocalDate.from(program.getStartDate()))
                 .facilitatorName(program.getPsychologists().getFullNameFromUser())
@@ -69,6 +73,7 @@ public class ProgramMapper {
                 .meetingLink(program.getMeetingLink())
                 .build();
     }
+
 
     public ProgramsResponse buildBasicProgramResponse(Programs program) {
         return ProgramsResponse.builder()
@@ -93,6 +98,4 @@ public class ProgramMapper {
                 .createdAt(participation.getProgram().getCreatedAt())
                 .build();
     }
-
-
 }

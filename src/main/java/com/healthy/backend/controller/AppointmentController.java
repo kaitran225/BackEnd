@@ -111,7 +111,7 @@ public class AppointmentController {
             summary = "Submit feedback for an appointment",
             description = "Allows a student to submit feedback and rating for a completed appointment."
     )
-    @PostMapping("/{appointmentId}/Feedback")
+    @PostMapping("/{appointmentId}/feedback")
     public ResponseEntity<AppointmentResponse> submitFeedback(
             @PathVariable String appointmentId,
             @RequestBody @Valid AppointmentFeedbackRequest feedback) {

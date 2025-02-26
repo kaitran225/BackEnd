@@ -50,17 +50,17 @@ public class SurveyService {
 
 
     public int totalScore( List<SurveyQuestions> question, String resultId) {
-       
+
         Map<String, Integer> mapScore = new HashMap<>();
-        
+
         question.forEach(question1 -> {
             List<SurveyQuestionOptions> surveyQuestionOptionList = surveyQuestionOptionsRepository.findByQuestionID(question1.getQuestionID());
             surveyQuestionOptionList.forEach(option -> {
                 mapScore.put(option.getOptionID(), option.getScore());
             });
         });
-        
-        int sum = 0;    
+
+        int sum = 0;
 
         SurveyResult surveyResult = surveyResultRepository.findByResultID(resultId);
         List<SurveyQuestionOptionsChoices> choicesList = surveyQuestionOptionsChoicesRepository.findByResultID(surveyResult.getResultID());
@@ -88,7 +88,7 @@ public class SurveyService {
         return sum;
 
     }
-    
+
 
     // public String getStatusStudent(String surveyId, String studentId) {
     //     List<SurveyResult> resultList = surveyResultRepository.findBySurveyID(surveyId);
@@ -102,13 +102,13 @@ public class SurveyService {
 
     public String getStatusStudent(String surveyId, String studentId) {
     List<SurveyResult> resultList = surveyResultRepository.findBySurveyID(surveyId);
-    
+
     for (SurveyResult surveyCheck : resultList) {
         if (surveyCheck.getStudentID() != null && Objects.equals(studentId, surveyCheck.getStudentID())) {
             return "Finished";
         }
     }
-    
+
     return "Not Finished";
 }
 
@@ -130,7 +130,7 @@ public class SurveyService {
             if(result.getStudentID().equals(studentId)) {
                 studentResult = result;
                 break;
-            }    
+            }
         }
 
         if(studentResult != null) {
@@ -140,56 +140,8 @@ public class SurveyService {
         }
 
         return null;
-    
+
     }
-
-
-    // public List<SurveysResponse> getAllSurveys() {
-
-    //     List<Surveys> surveys = surveyRepository.findAll();
-
-    //     if (surveys.isEmpty()) {
-    //         throw new ResourceNotFoundException("No surveys found");
-    //     }
-    //     return surveys
-    //             .stream()
-    //             .map(survey
-    //             -> {
-    //                     List<SurveyQuestionResultResponse> surveyQuestionResultList = new ArrayList<>();        
-    //                     List<SurveyQuestions> surveyQuestionsList
-    //                     = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-    //                     List<SurveyQuestions> questionList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-                        
-    //                     surveyQuestionsList.forEach(question -> {
-    //                             List<SurveyQuestionOptions> questionOptions = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
-    //                             List<QuestionOption> questionOptionList = questionOptions.stream()
-    //                                     .map(option -> {
-    //                                             QuestionOption questionOption = surveyMapper.mapToQuestionOption(option);
-    //                                             return questionOption;
-                                                
-    //                                     })
-    //                                     .collect(Collectors.toList());
-
-    //                             SurveyQuestionResultResponse sqr = surveyMapper.mapToQuestion(question, questionOptionList);
-    //                             surveyQuestionResultList.add(sqr);       
-    //                     });
-
-    //                 List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
-    //                 List<StatusStudent> statusStudentList = surveyResultList.stream()
-    //                             .map(surveyResult -> { 
-    //                                 return surveyMapper.buildStatusStudent(
-    //                                     surveyResult,
-    //                                     getStatusStudent(survey.getSurveyID(), surveyResult.getStudentID()),
-    //                                     totalScore(questionList, surveyResult.getResultID())
-    //                                 );                                      
-    //                             })
-    //                             .collect(Collectors.toList()); 
-
-    //                 return surveyMapper.buildSurveysResponse1(
-    //                         survey, surveyQuestionsList.size(), statusStudentList,surveyQuestionResultList);
-    //             })
-    //             .toList();
-    // }
 
     public List<SurveysResponse> getAllSurveys() {
     List<Surveys> surveys = surveyRepository.findAll();
@@ -213,30 +165,30 @@ public class SurveyService {
             surveyQuestionResultList.add(sqr);
         });
 
-        
+
         List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
         List<StatusStudent> statusStudentList = new ArrayList<>();
 
         for (SurveyResult surveyResult : surveyResultList) {
             String studentId = surveyResult.getStudentID();
-            String status = getStatusStudent(survey.getSurveyID(), studentId); 
-            int score = totalScore(questionList, surveyResult.getResultID()); 
+            String status = getStatusStudent(survey.getSurveyID(), studentId);
+            int score = totalScore(questionList, surveyResult.getResultID());
             statusStudentList.add(surveyMapper.buildStatusStudent(surveyResult, status, score));
         }
 
-        
-        List<String> allStudentIds = studentRepository.findAllStudentIds(); 
+
+        List<String> allStudentIds = studentRepository.findAllStudentIds();
         for (String studentId : allStudentIds) {
             boolean found = statusStudentList.stream()
                 .anyMatch(status -> studentId != null && studentId.equals(status.getStudentId()));
             if (!found) {
-                
+
                 SurveyResult emptySurveyResult = new SurveyResult();
                 emptySurveyResult.setStudentID(studentId);
                 statusStudentList.add(surveyMapper.buildStatusStudent(emptySurveyResult, "Not Finished", 0));
             }
         }
-        
+
 
         return surveyMapper.buildSurveysResponse1(survey, surveyQuestionsList.size(), statusStudentList, surveyQuestionResultList);
     }).toList();

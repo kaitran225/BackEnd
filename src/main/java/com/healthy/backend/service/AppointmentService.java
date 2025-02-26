@@ -305,7 +305,6 @@ public class AppointmentService {
                 }
             }
 
-            // Cập nhật trạng thái time slot
             newTimeSlot.setStatus(TimeslotStatus.BOOKED);
             timeSlotRepository.save(newTimeSlot);
 

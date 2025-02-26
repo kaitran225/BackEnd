@@ -60,6 +60,12 @@ public class Users implements UserDetails {
     @Column(name = "IsVerified", nullable = false)
     private boolean isVerified;
 
+    @Column(name = "isActive")
+    private boolean isActive;
+
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @Column(name = "VerificationToken", nullable = false)
     private String verificationToken;
 
@@ -69,6 +75,8 @@ public class Users implements UserDetails {
     @PrePersist
     protected void onCreate() {
         isVerified = false;
+        isDeleted = false;
+        isActive = true;
         if (createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }

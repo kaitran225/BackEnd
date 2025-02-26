@@ -56,6 +56,7 @@ public class AppointmentMapper {
                 .build();
     }
 
+    // For manager
     public AppointmentResponse buildBasicAppointmentResponse(
             Appointments appointment,
             StudentResponse studentResponse,
@@ -67,8 +68,8 @@ public class AppointmentMapper {
                 .endTime(String.valueOf(appointment.getTimeSlot().getEndTime()))
                 .studentID(studentResponse.getStudentId())
                 .studentName(studentResponse.getFullName())
-                .psychologistID(studentResponse.getStudentId())
-                .psychologistName(studentResponse.getFullName())
+                .psychologistID(psychologistResponse.getPsychologistId())
+                .psychologistName(psychologistResponse.getName())
                 .build();
     }
 

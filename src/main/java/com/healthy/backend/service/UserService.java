@@ -1,45 +1,45 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.Role;
+import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.*;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.dto.event.EventResponse;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.repository.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.mapper.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AppointmentRepository appointmentRepository;
-    private final ParentRepository parentRepository;
-    private final PsychologistRepository psychologistRepository;
-    private final StudentRepository studentRepository;
-    private final SurveyResultRepository surveyResultRepository;
-    private final ProgramParticipationRepository programParticipationRepository;
     private final UserRepository userRepository;
+    private final ParentRepository parentRepository;
     private final ProgramRepository programRepository;
+    private final StudentRepository studentRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final SurveyResultRepository surveyResultRepository;
+    private final PsychologistRepository psychologistRepository;
+    private final ProgramParticipationRepository programParticipationRepository;
 
-    private final AppointmentMapper appointmentMapper;
-    private final PsychologistsMapper psychologistsMapper;
-    private final StudentMapper studentMapper;
-    private final SurveyMapper surveyMapper;
     private final UserMapper userMapper;
     private final EventMapper eventMapper;
-
+    private final SurveyMapper surveyMapper;
+    private final StudentMapper studentMapper;
+    private final AppointmentMapper appointmentMapper;
+    private final PsychologistsMapper psychologistsMapper;
 
     public boolean isEmpty() {
         return userRepository.findAll().isEmpty();
@@ -54,10 +54,16 @@ public class UserService {
                 .toList();
     }
 
-    public UsersResponse getUserById(String id) {
-        Users user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        return convert(user);
+    public UsersResponse getUserById(String userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return userMapper.buildBasicUserResponse(user);
+    }
+
+    public UsersResponse getUserDetailsById(String userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return userMapper.buildBasicUserResponse(user);
     }
 
     public List<SurveyResultsResponse> getUserSurveyResults(String id) {
@@ -134,13 +140,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public boolean deleteUser(String id) {
-        Users user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        userRepository.delete(user);
-        return true;
-    }
-
     private UsersResponse convert(Users user) {
         List<StudentResponse> childrenList = null;
         List<AppointmentResponse> appointmentsResponseList = null;
@@ -148,26 +147,28 @@ public class UserService {
         PsychologistResponse psychologistResponse = null;
         StudentResponse studentResponse = null;
 
-
-        if (user.getRole() == Role.STUDENT) {
-            Students students = studentRepository.findByUserID(user.getUserId());
-            surveyResultsResponseList = getUserSurveyResults(user.getUserId());
-            studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
-            appointmentsResponseList = getUserAppointments(user.getUserId());
+        switch (user.getRole()) {
+            case Role.STUDENT -> {
+                Students students = studentRepository.findByUserID(user.getUserId());
+                surveyResultsResponseList = getUserSurveyResults(user.getUserId());
+                studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
+                appointmentsResponseList = getUserAppointments(user.getUserId());
+            }
+            case Role.PARENT -> {
+                Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
+                childrenList = parent.getStudents().stream()
+                        .map(studentMapper::buildStudentResponse)
+                        .collect(Collectors.toList());
+            }
+            case Role.PSYCHOLOGIST -> {
+                Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
+                psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
+            }
+            case Role.MANAGER -> {
+                break;
+            }
         }
-
-        if (user.getRole() == Role.PSYCHOLOGIST) {
-            Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
-            psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
-        }
-        if (user.getRole() == Role.PARENT) {
-            Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
-            childrenList = parent.getStudents().stream()
-                    .map(studentMapper::buildStudentResponse)
-                    .collect(Collectors.toList());
-        }
-
-        return userMapper.buildUserResponse(
+        return userMapper.buildUserDetailsResponse(
                 user,
                 psychologistResponse,
                 studentResponse,
@@ -202,16 +203,16 @@ public class UserService {
             appointments = appointmentRepository.findByPsychologistID(psychologistID);
             programs = programRepository.findByFacilitatorID(psychologistID);
         }
-        if(users.getRole().equals(Role.MANAGER)){
+        if (users.getRole().equals(Role.MANAGER)) {
             appointments = appointmentRepository.findAll();
             programs = programRepository.findAll();
         }
         appointments = appointments.stream()
-                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now()))
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
                 .toList();
 
         programs = programs.stream()
-                .filter(program -> program.getStartDate().isAfter(LocalDate.now())).toList();
+                .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
         if (appointments.isEmpty() && programs.isEmpty()) {
             return null;
         }
@@ -221,5 +222,58 @@ public class UserService {
             case MANAGER -> eventMapper.buildManagerEventResponse(appointments, programs, userId);
             default -> throw new ResourceNotFoundException("User not found with id: " + userId);
         };
+    }
+
+    public void deactivateUser(String userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    public void reactivateUser(String userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    public void updateUserRole(String userId, String role) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setRole(Role.valueOf(role));
+        userRepository.save(user);
+    }
+
+    public void sendUserNotification(String userId, String message) {
+        System.out.println("Notification sent to user " + userId + ": " + message);
+    }
+
+    public String getUserDashboard(String userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return "Dashboard data for user: " + user.getUserId();
+    }
+
+    public String exportUserData(String userId, String format) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return "Exporting user data for " + user.getUserId() + " in format: " + format;
+    }
+
+    public void submitFeedback(String userId, String feedback) {
+        System.out.println("Feedback from user " + userId + ": " + feedback);
+    }
+
+    public List<UsersResponse> searchUsers(String name) {
+        return userRepository.findByFullNameContaining(name).stream()
+                .map(userMapper::buildBasicUserResponse)
+                .toList();
+    }
+
+    public boolean deleteUser(String id) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        if (user.isDeleted()) {
+            return false;
+        }
+        user.setDeleted(false);
+        userRepository.save(user);
+        return true;
     }
 }

@@ -5,10 +5,14 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
+import org.springframework.web.context.support.RequestHandledEvent;
 
 @Configuration
 @OpenAPIDefinition(
@@ -21,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
                         email = "support@healthservice.com",
                         url = "https://www.cybriadev.com"
                 ),
-                summary =  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTg0NzMyNywiZXhwIjoxNzM5OTMzNzI3fQ._-IpOX-qHVr73XaMCvkqrvAsgXmkZYUsceourKqAzdk"
+                summary = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTg0NzMyNywiZXhwIjoxNzM5OTMzNzI3fQ._-IpOX-qHVr73XaMCvkqrvAsgXmkZYUsceourKqAzdk"
         ),
         servers = {
                 @Server(
@@ -42,5 +46,4 @@ import org.springframework.context.annotation.Configuration;
         in = SecuritySchemeIn.HEADER
 )
 public class SwaggerConfig {
-    // Configuration class can be empty as we're using annotations for configuration
 } 
