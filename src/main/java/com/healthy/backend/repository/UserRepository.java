@@ -1,6 +1,7 @@
 package com.healthy.backend.repository;
 
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<Users, String> {
     Optional<Users> findByUserId(String userId);
 
     List<Users> findByFullNameContaining(String fullName);
+
+    List<Users> findByRole(Role role);
 }
