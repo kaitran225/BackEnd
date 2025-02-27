@@ -85,6 +85,29 @@ public class AppointmentMapper {
                 .UpdatedAt(appointment.getUpdatedAt())
                 .checkInTime(appointment.getCheckInTime())
                 .checkOutTime(appointment.getCheckOutTime())
+                .psychologistNotes(appointment.getPsychologistNote())
+                .build();
+    }
+
+    public AppointmentResponse buildAppointmentResponses(
+            Appointments appointment,
+            PsychologistResponse psychologistResponse,
+            StudentResponse studentResponse
+    ) {
+        return AppointmentResponse.builder()
+                .appointmentID(appointment.getAppointmentID())
+                .CreatedAt(appointment.getCreatedAt())
+                .Status(appointment.getStatus().name())
+                .psychologistResponse(psychologistResponse)
+                .studentResponse(studentResponse)
+                .psychologistNotes(appointment.getPsychologistNote())
+                .studentNotes(appointment.getStudentNote())
+                .timeSlotID(appointment.getTimeSlotsID())
+                .startTime(appointment.getTimeSlot().getStartTime().toString())
+                .endTime(appointment.getTimeSlot().getEndTime().toString())
+                .UpdatedAt(appointment.getUpdatedAt())
+                .checkInTime(appointment.getCheckInTime())
+                .checkOutTime(appointment.getCheckOutTime())
                 .build();
     }
 }

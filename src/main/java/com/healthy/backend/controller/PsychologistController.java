@@ -1,5 +1,6 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -230,4 +231,7 @@ public class PsychologistController {
         List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
         return ResponseEntity.ok(requests);
     }
+
+
+
 }

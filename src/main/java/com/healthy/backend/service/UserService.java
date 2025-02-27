@@ -15,6 +15,8 @@ import com.healthy.backend.mapper.*;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -100,46 +102,46 @@ public class UserService {
         return convert(existingUser); // Convert entity to response DTO
     }
 
-    public List<AppointmentResponse> getUserAppointments(String id) {
-        Users user = userRepository.findById(id).orElseThrow();
-        PsychologistResponse psychologistResponse;
-        StudentResponse studentResponse;
-        List<Appointments> appointmentsList = null;
+    public List<AppointmentResponse> getUserAppointments(String userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        if (!user.getRole().equals(Role.STUDENT)
-                && !user.getRole().equals(Role.PSYCHOLOGIST)) {
-            return null;
-        }
-        if (user.getRole().equals(Role.STUDENT)) {
-            studentResponse = studentMapper.buildStudentResponse(
-                    studentRepository.findByUserID(id)
-            );
-            appointmentsList = appointmentRepository.findByStudentID(
-                    studentResponse.getStudentId()
-            );
-        }
-        if (user.getRole().equals(Role.PSYCHOLOGIST)) {
-            psychologistResponse = psychologistsMapper.buildPsychologistResponse(
-                    psychologistRepository.findByUserID(id)
-            );
-            appointmentsList = appointmentRepository
-                    .findByPsychologistID(psychologistResponse.getPsychologistId());
+        List<Appointments> appointmentsList = new ArrayList<>();
+
+        if (user.getRole() == Role.STUDENT) {
+            Students student = studentRepository.findByUserID(userId);
+            if (student != null) {
+                appointmentsList = appointmentRepository.findByStudentID(student.getStudentID());
+            }
+        } else if (user.getRole() == Role.PSYCHOLOGIST) {
+            Psychologists psychologist = psychologistRepository.findByUserID(userId);
+            if (psychologist != null) {
+                appointmentsList = appointmentRepository.findByPsychologistID(psychologist.getPsychologistID());
+            }
+        } else {
+            return Collections.emptyList();
         }
 
         return appointmentsList.stream()
-                .map(appointment ->
-                        appointmentMapper.buildAppointmentResponse(
-                                appointment,
-                                psychologistsMapper.buildPsychologistResponse(
-                                        Objects.requireNonNull(psychologistRepository.findById(
-                                                appointment.getPsychologistID()).orElse(null))),
-                                studentMapper.buildStudentResponse(
-                                        Objects.requireNonNull(studentRepository.findById(
-                                                appointment.getStudentID()).orElse(null)))
-                        ))
-                .collect(Collectors.toList());
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.buildAppointmentResponse(appointment);
+                    if (user.getRole() == Role.STUDENT) {
+                        Psychologists psychologist = psychologistRepository.findByPsychologistID(appointment.getPsychologistID());
+                        if (psychologist == null) {
+                            throw new ResourceNotFoundException("Psychologist not found");
+                        }
+                        response.setPsychologistResponse(psychologistsMapper.buildPsychologistResponse(psychologist));
+                    } else if (user.getRole() == Role.PSYCHOLOGIST) {
+                        Students student = studentRepository.findByStudentID(appointment.getStudentID());
+                        if (student == null) {
+                            throw new ResourceNotFoundException("Student not found");
+                        }
+                        response.setStudentResponse(studentMapper.buildBasicStudentResponse(student));
+                    }
+                    return response;
+                })
+                .toList();
     }
-
     private UsersResponse convert(Users user) {
         List<StudentResponse> childrenList = null;
         List<AppointmentResponse> appointmentsResponseList = null;
