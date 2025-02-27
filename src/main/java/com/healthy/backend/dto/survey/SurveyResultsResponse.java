@@ -26,4 +26,5 @@ public class SurveyResultsResponse {
     private List<SurveyQuestionResultResponse> questions;
     private String studentId;
     private List<StatusStudent> std;
+    private String status;
 }

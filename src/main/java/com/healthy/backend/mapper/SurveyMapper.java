@@ -115,6 +115,7 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
+                .status(String.valueOf(survey.getStatus().name()))
                 .questions(questions)
                 .std(std)
                 .build();
@@ -168,6 +169,7 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
+                .status(String.valueOf(survey.getStatus().name()))
                 .questions(questions)
                 .build();
     }
