@@ -29,6 +29,11 @@ public class TokenService {
     private final PsychologistRepository psychologistRepository;
     private final ParentRepository parentRepository;
 
+    public boolean isManager(HttpServletRequest request) {
+        HashMap<String, ?> map = extractRequest(request);
+        String role = (String) map.get("role");
+        return role.equals("ROLE_MANAGER");
+    }
 
     public Users retrieveUser(HttpServletRequest request) {
         HashMap<String, ?> map = extractRequest(request);
@@ -111,7 +116,7 @@ public class TokenService {
     public boolean validateUID(HttpServletRequest request, String uid) {
         HashMap<String, ?> map = extractRequest(request);
         String userUID = (String) map.get("uid");
-        return userUID.equals(uid);
+        return !userUID.equals(uid);
     }
 
     private HashMap<String, ?> extractRequest(HttpServletRequest request) {

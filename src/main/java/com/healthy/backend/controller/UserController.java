@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +43,7 @@ public class UserController {
             summary = "Get all users",
             description = "Returns a list of all registered users."
     )
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<List<UsersResponse>> getAllUsers(HttpServletRequest request) {
         List<UsersResponse> users = userService.getAllUsers(request);
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
@@ -53,9 +53,9 @@ public class UserController {
             summary = "Get user by ID",
             description = "Returns the user with the specified ID."
     )
-    @GetMapping("/{userId}")
+    @GetMapping("")
     public ResponseEntity<UsersResponse> getUserById(
-            @PathVariable(required = false) String userId,
+            @RequestParam(required = false) String userId,
             HttpServletRequest request) {
         return ResponseEntity.ok(userService.getUserById(userId, request));
     }
@@ -64,9 +64,9 @@ public class UserController {
             summary = "Get user by ID",
             description = "Returns the user details with the specified ID."
     )
-    @GetMapping("/{userId}/details")
+    @GetMapping("/details")
     public ResponseEntity<UsersResponse> getUserDetailsById(
-            @PathVariable(required = false) String userId,
+            @RequestParam(required = false) String userId,
             HttpServletRequest request) {
         return ResponseEntity.ok(userService.getUserDetailsById(userId, request));
     }
@@ -75,9 +75,9 @@ public class UserController {
             summary = "Update user details",
             description = "Updates a user's details."
     )
-    @PutMapping("/{userId}/update")
+    @PutMapping("/update")
     public ResponseEntity<?> updateUser(
-            @PathVariable(required = false) String userId,
+            @RequestParam(required = false) String userId,
             @RequestBody Users updatedUser,
             HttpServletRequest request) {
         UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser, request);
@@ -91,9 +91,9 @@ public class UserController {
             summary = "Deactivate user account",
             description = "Deactivates a user's account."
     )
-    @PostMapping("/{userId}/deactivate")
+    @PostMapping("/deactivate")
     public ResponseEntity<?> deactivateUser(
-            @PathVariable String userId,
+            @RequestParam String userId,
             HttpServletRequest request) {
         return ResponseEntity.ok(userService.deactivateUser(userId, request));
     }
@@ -102,21 +102,20 @@ public class UserController {
             summary = "Reactivate user account",
             description = "Reactivates a user's account."
     )
-    @PostMapping("/{userId}/reactivate")
+    @PostMapping("/reactivate")
     public ResponseEntity<?> reactivateUser(
-            @PathVariable String userId,HttpServletRequest request) {
+            @RequestParam String userId,HttpServletRequest request) {
         return ResponseEntity.ok(userService.reactivateUser(userId, request));
     }
 
     @Operation(
             deprecated = true,
-            hidden = true,
             summary = "Update user role",
             description = "Updates a user's role."
     )
-    @PutMapping("/{userId}/role")
+    @PutMapping("/role")
     public ResponseEntity<?> updateUserRole(
-            @PathVariable(required = false) String userId,
+            @RequestParam String userId,
             @RequestParam String role,
             HttpServletRequest request) {
         return ResponseEntity.ok(userService.updateUserRole(userId, role, request));
@@ -126,8 +125,10 @@ public class UserController {
             summary = "Export user data",
             description = "Exports user data in a specified format (CSV, JSON, or PDF)."
     )
-    @GetMapping("/{userId}/export")
-    public ResponseEntity<?> exportUserData(@PathVariable String userId, @RequestParam String format) {
+    @GetMapping("/export")
+    public ResponseEntity<?> exportUserData(
+            @RequestParam String userId,
+            @RequestParam String format) {
         byte[] exportedData;
         return switch (format.toLowerCase()) {
             case "csv" -> {
@@ -159,8 +160,8 @@ public class UserController {
             summary = "Submit feedback for user",
             description = "Submits feedback for a specific user."
     )
-    @PostMapping("/{userId}/feedback")
-    public String submitFeedback(@PathVariable String userId, @RequestBody String feedback) {
+    @PostMapping("/feedback")
+    public String submitFeedback(@RequestParam String userId, @RequestBody String feedback) {
         return "Feedback submitted by user " + userId;
     }
 
@@ -173,36 +174,35 @@ public class UserController {
             @RequestParam String name, HttpServletRequest request) {
         List<UsersResponse> list = userService.searchUsers(name, request);
         if (list.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Returns 204 No Content with no body
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(list); // Returns 200 OK with the list
+        return ResponseEntity.ok(list);
     }
 
     @Operation(
             summary = "Delete user account",
             description = "Deletes a user's account."
     )
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(
-            @PathVariable String userId,
+    @DeleteMapping("/delete")
+    public ResponseEntity<UsersResponse> deleteUser(
+            @RequestParam String userId,
             HttpServletRequest request) {
         if (userService.deleteUser(userId, request )){
-            return ResponseEntity.ok("User account " + userId + " deleted");
+            return ResponseEntity.ok(userService.getUserById(userId, request));
         }
         throw new OperationFailedException("Failed to delete user account");
     }
 
-    // Get all user's events
     @Operation(
             summary = "Get all events",
             description = "Returns a list of all events for a specific user."
     )
-    @GetMapping("/{userId}/events")
+    @GetMapping("/events")
     public ResponseEntity<?> getAllEvents(
-            @PathVariable String userId, HttpServletRequest request) {
+            @RequestParam String userId, HttpServletRequest request) {
         EventResponse events = userService.getAllEvents(userId, request);
         if(events.getEvent().isEmpty()){
-            return ResponseEntity.noContent().build();  // Return 204
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(events);
     }
@@ -211,9 +211,9 @@ public class UserController {
             summary = "Get user's appointments",
             description = "Returns all appointments for a specific user (student or psychologist)."
     )
-    @GetMapping("/{userId}/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(@PathVariable String userId) {
-        List<AppointmentResponse> appointments = userService.getUserAppointments(userId);
+    @GetMapping("/appointments")
+    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(@RequestParam(required = false) String userId, HttpServletRequest request) {
+        List<AppointmentResponse> appointments = userService.getUserAppointment(userId, request);
         return appointments.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(appointments);
