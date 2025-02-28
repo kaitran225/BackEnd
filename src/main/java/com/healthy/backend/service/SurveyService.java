@@ -15,6 +15,7 @@ import com.healthy.backend.dto.survey.QuestionResponse;
 import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
+import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Categories;
@@ -24,6 +25,7 @@ import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.SurveyResult;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.enums.SurveyCategory;
+import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.CategoriesRepository;
@@ -412,5 +414,12 @@ public class SurveyService {
 
         }
         surveyQuestionOptionsRepository.saveAll(optionsList);
+    }
+
+    public void updateSurveyStatus( String surveyId, SurveyRequest status) {
+        Surveys survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey Not found"));
+        survey.setStatus(SurveyStatus.valueOf(status.getStatus()));
+        surveyRepository.save(survey);
     }
 }
