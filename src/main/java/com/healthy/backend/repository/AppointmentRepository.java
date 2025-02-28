@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,5 +21,10 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     Page<Appointments> findByPsychologistIDAndStatusAndFeedbackNotNull(String psychologistId, AppointmentStatus status, Pageable pageable);
     List<Appointments> findByPsychologistIDAndStatusAndFeedbackNotNull(String psychologistId, AppointmentStatus status);
 
-
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
+            "FROM Appointments a " +
+            "WHERE a.studentID = :studentId AND a.timeSlotsID = :timeSlotId")
+    boolean existsByStudentIDAndTimeSlotsID(
+            @Param("studentId") String studentId,
+            @Param("timeSlotId") String timeSlotId);
 } 

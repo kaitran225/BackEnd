@@ -57,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Departments initialized");
         initializePsychologists();
         System.out.println("Psychologists initialized");
-        initializeTimeSlots();
+
         System.out.println("TimeSlots initialize");
         initializeTags();
         System.out.println("Tags initialized");
@@ -81,7 +81,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Logs initialized");
         initializeArticles();
         System.out.println("Articles initialized");
-        initializeAppointments();
+//        initializeAppointments();
         System.out.println("Appointments initialized");
         initializeNotifications();
         System.out.println("Notifications initialized");
@@ -145,14 +145,7 @@ public class DataInitializer implements CommandLineRunner {
 
     }
 
-    private void initializeTimeSlots() {
-        LocalDate today = LocalDate.now();
-        for (int i = 0; i < 30; i++) {
-            LocalDate date = today.plusDays(i); // Get the date incrementally
-            psychologistService.createDefaultTimeSlots(date, "PSY001");
-            psychologistService.createDefaultTimeSlots(date, "PSY002");
-        }
-    }
+
 
     private void initializeTags() {
         List<Tags> tags = Arrays.stream(ProgramTags.values())
@@ -562,13 +555,13 @@ public class DataInitializer implements CommandLineRunner {
         articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing anxiety..."));
         articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing stress and anxiety ..."));
     }
-
-    private void initializeAppointments() {
-        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022801", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022802", "STU002", "PSY001", AppointmentStatus.SCHEDULED));
-        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022803", "STU003", "PSY001", AppointmentStatus.SCHEDULED));
-        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022804", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-    }
+//
+//    private void initializeAppointments() {
+//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022801", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
+//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022802", "STU002", "PSY001", AppointmentStatus.SCHEDULED));
+//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022803", "STU003", "PSY001", AppointmentStatus.SCHEDULED));
+//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022804", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
+//    }
 
     private void initializeNotifications() {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist@example.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));

@@ -76,4 +76,6 @@ public class StudentController {
     public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(@PathVariable String studentId) {
         return ResponseEntity.ok(studentService.getUpcomingAppointments(studentId));
     }
+
+
 }
