@@ -242,13 +242,22 @@ public class SurveyController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Update survey status",
             description = "Updates the status of a survey."
     )
     @PutMapping("/{surveyId}/status")
-    public String updateSurveyStatus(@PathVariable String surveyId, @RequestBody String status) {
-        return "Survey status updated for survey " + surveyId;
+    public ResponseEntity<?> updateSurveyStatus(@PathVariable String surveyId, @RequestBody SurveyRequest status) {
+        try {
+                surveyService.updateSurveyStatus(surveyId, status);
+                return ResponseEntity.ok("Survey status updated sucessfully");
+            }
+            catch(ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating status of survey" + ex.getMessage());
+            }
+        
     }
 
     @Operation(
