@@ -54,7 +54,11 @@ public class ProgramService {
     public List<ProgramsResponse> getAllPrograms() {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
-        return programs.stream().map(programMapper::buildProgramResponse).toList();
+
+        return programs.stream().map(program -> {
+            List<StudentResponse> enrolled = getStudentsByProgram(program.getProgramID());
+            return programMapper.buildProgramResponse(program, enrolled);
+        }).toList();
     }
 
     public ProgramTagResponse createProgramTag(ProgramTagRequest programTagRequest) {
@@ -106,7 +110,7 @@ public class ProgramService {
     public ProgramsResponse getProgramById(String programId) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        return programMapper.buildProgramResponse(program);
+        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId));
     }
 
     public List<ProgramTagResponse> getProgramTags() {
@@ -184,7 +188,8 @@ public class ProgramService {
                 .map(p -> programMapper.buildProgramResponse(
                         programRepository
                                 .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found"))
+                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
+                        getStudentsByProgram(p.getProgram().getProgramID())
                 ))
                 .toList();
     }

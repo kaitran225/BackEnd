@@ -4,9 +4,9 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventDetails;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.repository.ProgramParticipationRepository;
+import com.healthy.backend.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +23,8 @@ public class EventMapper {
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
+    private final ProgramParticipationRepository programParticipationRepository;
+    private final StudentRepository studentRepository;
 
     public EventResponse buildStudentEventResponse(
             List<Appointments> appointments,
@@ -82,19 +84,25 @@ public class EventMapper {
             List<Programs> programs,
             String userId
     ) {
-
+        // Return a detail list for each appointment
         List<AppointmentResponse> appointmentResponses = appointments.stream()
                 .map(appointment -> {
-                    return appointmentMapper.buildBasicAppointmentResponse(
+                    return appointmentMapper.buildAppointmentResponse(
                             appointment,
-                            studentMapper.buildStudentResponse(appointment.getStudent()),
-                            psychologistsMapper.buildPsychologistResponse(appointment.getPsychologist())
+                            psychologistsMapper.buildPsychologistResponse(appointment.getPsychologist()),
+                            studentMapper.buildStudentResponse(appointment.getStudent())
                     );
                 })
                 .toList();
 
+        // Return a detail list for each program
         List<ProgramsResponse> programsResponses = programs.stream()
-                .map(programMapper::buildProgramResponse)
+                .map(p -> {
+                    List<String> studentIDList = programParticipationRepository.findStudentIDsByProgramID(p.getProgramID());
+                    List<Students> students = studentRepository.findAllById(studentIDList);
+                    return programMapper.buildProgramsDetailsResponse(p,
+                            students.stream().map(studentMapper::buildBasicStudentResponse).toList());
+                })
                 .toList();
 
         Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);

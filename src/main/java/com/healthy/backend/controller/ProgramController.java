@@ -78,9 +78,9 @@ public class ProgramController {
     )
     @Operation(summary = "Get all programs", description = "Returns a list of all programs.")
     @GetMapping()
-    public ResponseEntity<?> getPrograms() {
+    public ResponseEntity<List<ProgramsResponse>> getPrograms() {
         List<ProgramsResponse> programsResponseList = programService.getAllPrograms();
-        if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
+        if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
 
@@ -141,11 +141,11 @@ public class ProgramController {
     }
 
     // Get enrolled programs of a student
-    @Operation(summary = "Get enrolled programs of a student", description = "Returns a list of enrolled programs.")
+    @Operation(summary = "Get enrolled programs of a student", description = "Returns a list of enrolled program.")
     @GetMapping("/enrolled/{studentId}")
     public ResponseEntity<List<ProgramsResponse>> getEnrolledPrograms(@PathVariable String studentId) {
         List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId);
-        if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No enrolled programs found");
+        if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
 
@@ -161,7 +161,7 @@ public class ProgramController {
     // Get program tags
     @Operation(summary = "Get program tags", description = "Returns a list of tags for programs.")
     @GetMapping("/tags")
-    public ResponseEntity<List<ProgramTagResponse>> getProgramTags(){
+    public ResponseEntity<List<ProgramTagResponse>> getProgramTags() {
         List<ProgramTagResponse> programTagResponseList = programService.getProgramTags();
         if (programTagResponseList.isEmpty()) throw new ResourceNotFoundException("No tags found");
         return ResponseEntity.ok(programTagResponseList);

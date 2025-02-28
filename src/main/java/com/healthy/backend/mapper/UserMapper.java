@@ -7,6 +7,7 @@ import com.healthy.backend.dto.auth.StudentRegisterRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Gender;
 import com.healthy.backend.enums.Role;
@@ -17,7 +18,6 @@ import java.util.List;
 @Component
 public class UserMapper {
 
-    // Convert User entity to UserResponse
     public UsersResponse buildBasicUserResponse(
             Users user
     ) {
@@ -27,12 +27,58 @@ public class UserMapper {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender().toString())
-                    .address(user.getAddress())
+                .address(user.getAddress())
                 .role(user.getRole().toString())
                 .build();
     }
 
-    public UsersResponse buildUserResponse(
+    public UsersResponse buildBasicStudentUserResponse(
+            Users user, StudentResponse student
+    ) {
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                .address(user.getAddress())
+                .role(user.getRole().toString())
+                .studentResponse(student)
+                .build();
+    }
+
+
+    public UsersResponse buildBasicPsychologistUserResponse(
+            Users user, PsychologistResponse psychologist
+    ) {
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                .address(user.getAddress())
+                .role(user.getRole().toString())
+                .psychologistResponse(psychologist)
+                .build();
+    }
+
+    public UsersResponse buildBasicParentUserResponse(
+            Users user, List<StudentResponse> children
+    ) {
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender().toString())
+                .address(user.getAddress())
+                .role(user.getRole().toString())
+                .childrenResponse(children)
+                .build();
+    }
+
+    public UsersResponse buildUserDetailsResponse(
             Users user,
             PsychologistResponse psychologistResponse,
             StudentResponse studentResponse,
@@ -55,12 +101,15 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+
     // Convert User entity to UserResponse (Student)
     public Users buildUserStudentEntity(StudentRegisterRequest requestRequest,
-                                 String token, String userId, String password) {
+                                        String token, String userId,
+                                        String password, String hashedID
+                                        ) {
         return Users.builder()
                 .userId(userId)
-                .username(requestRequest.getUsername())
+                .hashedID(hashedID)
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
@@ -73,10 +122,11 @@ public class UserMapper {
     }
 
     public Users buildUserParentEntity(ParentRegisterRequest requestRequest,
-                                       String token, String userId, String password) {
+                                       String token, String userId,
+                                       String password, String hashedID) {
         return Users.builder()
                 .userId(userId)
-                .username(requestRequest.getUsername())
+                .hashedID(hashedID)
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
@@ -91,10 +141,10 @@ public class UserMapper {
 
     // Convert User entity to UserResponse
     public Users buildUserEntity(RegisterRequest requestRequest,
-                                 String token, String userId, String password) {
+                                 String token, String userID, String password, String hashedID) {
         return Users.builder()
-                .userId(userId)
-                .username(requestRequest.getUsername())
+                .userId(userID)
+                .hashedID((hashedID))
                 .passwordHash(password)
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())

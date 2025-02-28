@@ -29,6 +29,18 @@ public class NotificationService {
         notification.setIsRead(false);
         notificationRepository.save(notification);
     }
+    
+    public void createOnLeaveNotification(String userId, String title, String message, String leaveRequestId) {
+        Notifications notification = new Notifications();
+        notification.setNotificationID(__.generateNextNotificationID());
+        notification.setUserID(userId);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(NotificationType.ONLEAVE);
+        notification.setLeaveRequestID(leaveRequestId); 
+        notification.setIsRead(false);
+        notificationRepository.save(notification);
+    }
 
     public void createProgramNotification(String userId, String title, String message, String programId) {
         Notifications notification = new Notifications();
@@ -72,4 +84,9 @@ public class NotificationService {
         notification.setIsRead(true);
         notificationRepository.save(notification);
     }
+
+    public List<Notifications> getAllNotifications() {
+        return notificationRepository.findAll();
+    }
+    
 }
