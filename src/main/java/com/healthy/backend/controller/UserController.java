@@ -10,6 +10,7 @@ import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,8 +30,8 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/users")
 @RequiredArgsConstructor
+@RequestMapping("/api/users")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "User Controller", description = "Users related management APIs")
 public class UserController {
@@ -43,8 +44,8 @@ public class UserController {
             description = "Returns a list of all registered users."
     )
     @GetMapping("/")
-    public ResponseEntity<List<UsersResponse>> getAllUsers() {
-        List<UsersResponse> users = userService.getAllUsers();
+    public ResponseEntity<List<UsersResponse>> getAllUsers(HttpServletRequest request) {
+        List<UsersResponse> users = userService.getAllUsers(request);
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
@@ -53,8 +54,10 @@ public class UserController {
             description = "Returns the user with the specified ID."
     )
     @GetMapping("/{userId}")
-    public ResponseEntity<UsersResponse> getUserById(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.getUserById(userId));
+    public ResponseEntity<UsersResponse> getUserById(
+            @PathVariable(required = false) String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getUserById(userId, request));
     }
 
     @Operation(
@@ -62,8 +65,10 @@ public class UserController {
             description = "Returns the user details with the specified ID."
     )
     @GetMapping("/{userId}/details")
-    public ResponseEntity<UsersResponse> getUserDetailsById(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.getUserDetailsById(userId));
+    public ResponseEntity<UsersResponse> getUserDetailsById(
+            @PathVariable(required = false) String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getUserDetailsById(userId, request));
     }
 
     @Operation(
@@ -71,8 +76,11 @@ public class UserController {
             description = "Updates a user's details."
     )
     @PutMapping("/{userId}/update")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser);
+    public ResponseEntity<?> updateUser(
+            @PathVariable(required = false) String userId,
+            @RequestBody Users updatedUser,
+            HttpServletRequest request) {
+        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser, request);
         return updatedUserResponse == null
                 ? ResponseEntity.noContent().build() // 204 if no changes detected
                 : ResponseEntity.ok(updatedUserResponse); // 200 if update successful
@@ -84,8 +92,10 @@ public class UserController {
             description = "Deactivates a user's account."
     )
     @PostMapping("/{userId}/deactivate")
-    public String deactivateUser(@PathVariable String userId) {
-        return "User account " + userId + " deactivated";
+    public ResponseEntity<?> deactivateUser(
+            @PathVariable String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.deactivateUser(userId, request));
     }
 
     @Operation(
@@ -93,18 +103,23 @@ public class UserController {
             description = "Reactivates a user's account."
     )
     @PostMapping("/{userId}/reactivate")
-    public String reactivateUser(@PathVariable String userId) {
-        return "User account " + userId + " reactivated";
+    public ResponseEntity<?> reactivateUser(
+            @PathVariable String userId,HttpServletRequest request) {
+        return ResponseEntity.ok(userService.reactivateUser(userId, request));
     }
 
     @Operation(
             deprecated = true,
+            hidden = true,
             summary = "Update user role",
             description = "Updates a user's role."
     )
     @PutMapping("/{userId}/role")
-    public String updateUserRole(@PathVariable String userId, @RequestParam String role) {
-        return userService.getUserById(userId).getRole();
+    public ResponseEntity<?> updateUserRole(
+            @PathVariable(required = false) String userId,
+            @RequestParam String role,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.updateUserRole(userId, role, request));
     }
 
     @Operation(
@@ -154,8 +169,9 @@ public class UserController {
             description = "Searches for users with a specific name."
     )
     @GetMapping("/search")
-    public ResponseEntity<List<UsersResponse>> searchUsers(@RequestParam String name) {
-        List<UsersResponse> list = userService.searchUsers(name);
+    public ResponseEntity<List<UsersResponse>> searchUsers(
+            @RequestParam String name, HttpServletRequest request) {
+        List<UsersResponse> list = userService.searchUsers(name, request);
         if (list.isEmpty()) {
             return ResponseEntity.noContent().build(); // Returns 204 No Content with no body
         }
@@ -167,8 +183,10 @@ public class UserController {
             description = "Deletes a user's account."
     )
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
-        if (userService.deleteUser(userId)){
+    public ResponseEntity<?> deleteUser(
+            @PathVariable String userId,
+            HttpServletRequest request) {
+        if (userService.deleteUser(userId, request )){
             return ResponseEntity.ok("User account " + userId + " deleted");
         }
         throw new OperationFailedException("Failed to delete user account");
@@ -180,12 +198,13 @@ public class UserController {
             description = "Returns a list of all events for a specific user."
     )
     @GetMapping("/{userId}/events")
-    public ResponseEntity<?> getAllEvents(@PathVariable String userId) {
-        EventResponse events = userService.getAllEvents(userId);
+    public ResponseEntity<?> getAllEvents(
+            @PathVariable String userId, HttpServletRequest request) {
+        EventResponse events = userService.getAllEvents(userId, request);
         if(events.getEvent().isEmpty()){
             return ResponseEntity.noContent().build();  // Return 204
         }
-        return ResponseEntity.ok(userService.getAllEvents(userId));
+        return ResponseEntity.ok(events);
     }
 
     @Operation(

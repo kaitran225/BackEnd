@@ -95,7 +95,8 @@ public class ProgramController {
             )
     )
     @ApiResponse(
-            responseCode = "400", description = "Invalid program ID format"
+            responseCode = "400",
+            description = "Invalid program ID format"
     )
     @ApiResponse(
             responseCode = "401",

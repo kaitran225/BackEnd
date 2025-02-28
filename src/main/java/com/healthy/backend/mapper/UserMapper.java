@@ -4,10 +4,13 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.auth.ParentRegisterRequest;
 import com.healthy.backend.dto.auth.RegisterRequest;
 import com.healthy.backend.dto.auth.StudentRegisterRequest;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Gender;
 import com.healthy.backend.enums.Role;
@@ -29,6 +32,9 @@ public class UserMapper {
                 .gender(user.getGender().toString())
                 .address(user.getAddress())
                 .role(user.getRole().toString())
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
                 .build();
     }
 
@@ -44,6 +50,9 @@ public class UserMapper {
                 .address(user.getAddress())
                 .role(user.getRole().toString())
                 .studentResponse(student)
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
                 .build();
     }
 
@@ -60,6 +69,9 @@ public class UserMapper {
                 .address(user.getAddress())
                 .role(user.getRole().toString())
                 .psychologistResponse(psychologist)
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
                 .build();
     }
 
@@ -75,6 +87,9 @@ public class UserMapper {
                 .address(user.getAddress())
                 .role(user.getRole().toString())
                 .childrenResponse(children)
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
                 .build();
     }
 
@@ -83,6 +98,8 @@ public class UserMapper {
             PsychologistResponse psychologistResponse,
             StudentResponse studentResponse,
             List<AppointmentResponse> appointmentResponse,
+            List<ProgramsResponse> programParticipationResponse,
+            List<SurveyResultsResponse> surveyResultsResponse,
             List<StudentResponse> children
     ) {
         return UsersResponse.builder()
@@ -93,10 +110,15 @@ public class UserMapper {
                 .address(user.getAddress())
                 .gender(user.getGender().toString())
                 .role(user.getRole().toString())
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
                 .psychologistInfo(psychologistResponse)
                 .studentInfo(studentResponse)
                 .children(children)
                 .appointmentsRecord(appointmentResponse)
+                .programsRecord(programParticipationResponse)
+                .surveyResults(surveyResultsResponse)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
