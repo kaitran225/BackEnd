@@ -18,7 +18,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusStudent {
     private String studentId;
-    private Integer score;
+    private String score;
     private String status;
     private String resultStd;
     private Integer valueOfQuestion;
