@@ -123,13 +123,11 @@ public class PsychologistController {
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
             @PathVariable String psychologistId,
             @RequestBody @Valid TimeSlotBatchCreateRequest request) {
-
         List<TimeSlotResponse> responses = psychologistService.createTimeSlotsFromDefaults(
                 psychologistId,
                 request.getSlotDate(),
                 request.getDefaultSlotIds()
         );
-
         return ResponseEntity.ok(responses);
     }
 
@@ -212,7 +210,4 @@ public class PsychologistController {
         List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
         return ResponseEntity.ok(requests);
     }
-
-
-
 }

@@ -3,9 +3,13 @@ package com.healthy.backend.service;
 import com.healthy.backend.entity.Notifications;
 import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.enums.NotificationType;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.NotificationRepository;
+import com.healthy.backend.repository.UserRepository;
+import com.healthy.backend.security.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -16,6 +20,8 @@ import java.util.UUID;
 public class NotificationService {
     
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private final TokenService tokenService;
     private final GeneralService __;
 
     public void createAppointmentNotification(String userId, String title, String message, String appointmentId) {
@@ -66,16 +72,28 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public List<Notifications> getUserReadNotifications(String userId) {
-        return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(userId);
+    public List<Notifications> getUserReadNotifications(String userId, HttpServletRequest request) {
+        String finalUserId = validateUserID(request, userId);
+        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+            throw new ResourceInvalidException("You can not get other users notifications");
+        }
+        return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(finalUserId);
     }
 
-    public List<Notifications> getUserUnreadNotifications(String userId) {
-        return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(userId);
+    public List<Notifications> getUserUnreadNotifications(String userId, HttpServletRequest request) {
+        String finalUserId = validateUserID(request, userId);
+        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+            throw new ResourceInvalidException("You can not get other users notifications");
+        }
+        return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(finalUserId);
     }
 
-    public List<Notifications> getUserNotifications(String userId) {
-        return notificationRepository.findByUserIDOrderByCreatedAtDesc(userId);
+    public List<Notifications> getUserNotifications(String userId, HttpServletRequest request) {
+        String finalUserId = validateUserID(request, userId);
+        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+            throw new ResourceInvalidException("You can not get other users notifications");
+        }
+        return notificationRepository.findByUserIDOrderByCreatedAtDesc(finalUserId);
     }
 
     public void markAsRead(String notificationId) {
@@ -85,8 +103,21 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public List<Notifications> getAllNotifications() {
+    public List<Notifications> getAllNotifications(HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)) {
+            throw new ResourceInvalidException("You can not get database notifications");
+        }
         return notificationRepository.findAll();
     }
-    
+
+    private String validateUserID(HttpServletRequest request, String userId) {
+        if(userId == null) {
+            return tokenService.retrieveUser(request).getUserId();
+        }
+        if(!userRepository.existsById(userId)) {
+            return tokenService.retrieveUser(request).getUserId();
+        }
+        return userId;
+    }
+
 }
