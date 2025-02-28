@@ -31,5 +31,6 @@ public class SurveyQuestionResultResponse {
     @Schema(example = "1")
     private Integer score;
     private List<QuestionOption> answers;
+    private List<StatusStudent> ansStudent;
 
 }
