@@ -111,9 +111,10 @@ public class DataInitializer implements CommandLineRunner {
         parentRepository.save(new Parents("PRT002", userRepository.findByUsername("parent_user2").getUserId()));
 
         // Initialize Students
-        studentRepository.save(new Students("STU001", userRepository.findByUsername("student_user").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", 5, 10, 2));
-        studentRepository.save(new Students("STU002", userRepository.findByUsername("student_user2").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", 3, 4, 7));
-        studentRepository.save(new Students("STU003", userRepository.findByUsername("student_user3").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", 2, 2, 1));
+        studentRepository.save(new Students("STU001", userRepository.findByUsername("student_user").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", 0, 0, 0));
+        studentRepository.save(new Students("STU002", userRepository.findByUsername("student_user2").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", 0, 0, 0));
+        studentRepository.save(new Students("STU003", userRepository.findByUsername("student_user3").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", 0, 0, 0));
+        
 
     }
 

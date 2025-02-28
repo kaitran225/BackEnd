@@ -59,7 +59,7 @@ public class SurveyMapper {
                 .build();
         } 
 
-     public StatusStudent buildStatusStudent(SurveyResult surveyResult, String getStatusStudent, int score) {
+     public StatusStudent buildStatusStudent(SurveyResult surveyResult, String getStatusStudent, String score) {
          return StatusStudent.builder()
                 .status(getStatusStudent)
                 .studentId(surveyResult.getStudentID())
@@ -84,7 +84,7 @@ public class SurveyMapper {
                 .build();
         }
 
-      public StatusStudent maptoResultStudent1(String status, int score, SurveyResult surveyResult ){
+      public StatusStudent maptoResultStudent1(String status, String score, SurveyResult surveyResult ){
         return StatusStudent.builder()
                 .score(score)
                 .status(status)
