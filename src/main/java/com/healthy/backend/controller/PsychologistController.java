@@ -1,5 +1,7 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.timeslot.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,9 +18,7 @@ import com.healthy.backend.entity.OnLeaveRequest;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.dto.timeslot.TimeSlotResponseWrapper;
 import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 
@@ -105,27 +105,6 @@ public class PsychologistController {
     }
 
     @Operation(
-            hidden = true,
-            summary = "Create default time slots",
-            description = "Creates time slots for a psychologist on a given date." )
-    @PostMapping("/{psychologistId}/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> createTimeSlots(
-            @Valid @PathVariable String psychologistId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        if (date == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (!psychologistService.getTimeSlots(date, psychologistId).isEmpty()) {
-            throw new RuntimeException("Time slots already exist");
-        }
-        List<TimeSlotResponse> timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
-        if (!timeSlots.isEmpty()) {
-            return ResponseEntity.ok(timeSlots);
-        }
-        throw new RuntimeException("Failed to create time slots");
-    }
-
-    @Operation(
             summary = "Get all departments",
             description = "Returns a list of all departments." )
     @GetMapping("/departments")
@@ -137,37 +116,40 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{psychologistId}/timeslots")
-    public ResponseEntity<TimeSlotResponseWrapper> getAvailableTimeSlots(
+
+
+    @Operation(summary = "Create time slots from default templates")
+    @PostMapping("/{psychologistId}/timeslots/batch")
+    public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
             @PathVariable String psychologistId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestBody @Valid TimeSlotBatchCreateRequest request) {
 
-        if (date == null) {
-            throw new ResourceNotFoundException("Date is required");
-        }
+        List<TimeSlotResponse> responses = psychologistService.createTimeSlotsFromDefaults(
+                psychologistId,
+                request.getSlotDate(),
+                request.getDefaultSlotIds()
+        );
 
-        // Check if the psychologist is on leave
-        List<OnLeaveRequest> leaves = leaveRequestRepository.findByPsychologistPsychologistIDAndStatusAndDateRange(
-                psychologistId, OnLeaveStatus.APPROVED, date);
+        return ResponseEntity.ok(responses);
+    }
 
-        if (!leaves.isEmpty()) {
-            // Return an empty list with a message when the psychologist is on leave
-            TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(
-                    Collections.emptyList(),
-                    "The psychologist is on leave. Please choose another psychologist "
-            );
-            return ResponseEntity.ok(response);
-        }
 
-        // If not on leave, proceed with fetching or creating time slots
-        List<TimeSlotResponse> timeSlots = psychologistService.getTimeSlots(date, psychologistId);
-        if (timeSlots.isEmpty()) {
-            timeSlots = psychologistService.createDefaultTimeSlots(date, psychologistId);
-        }
+    @Operation(summary = "Lấy danh sách time slots")
+    @GetMapping("/{psychologistId}/timeslots")
+    public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
+            @PathVariable String psychologistId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        // Return time slots with no message
-        TimeSlotResponseWrapper response = new TimeSlotResponseWrapper(timeSlots, null);
-        return ResponseEntity.ok(response);
+        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date);
+        return ResponseEntity.ok(slots);
+
+    }
+
+    @Operation(summary = "Get default time slots")
+    @GetMapping("/default-time-slots")
+    public ResponseEntity<List<DefaultTimeSlotResponse>> getDefaultTimeSlots() {
+        List<DefaultTimeSlotResponse> slots = psychologistService.getDefaultTimeSlots();
+        return ResponseEntity.ok(slots);
     }
 
     @Operation(
@@ -230,4 +212,7 @@ public class PsychologistController {
         List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
         return ResponseEntity.ok(requests);
     }
+
+
+
 }

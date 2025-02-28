@@ -1,5 +1,6 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
@@ -204,5 +205,17 @@ public class UserController {
             return ResponseEntity.noContent().build();  // Return 204
         }
         return ResponseEntity.ok(events);
+    }
+
+    @Operation(
+            summary = "Get user's appointments",
+            description = "Returns all appointments for a specific user (student or psychologist)."
+    )
+    @GetMapping("/{userId}/appointments")
+    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(@PathVariable String userId) {
+        List<AppointmentResponse> appointments = userService.getUserAppointments(userId);
+        return appointments.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(appointments);
     }
 }

@@ -48,6 +48,15 @@ public class TimeSlots {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "max_capacity", nullable = false)
+    private int maxCapacity = 3;
+
+    @Column(name = "current_bookings", nullable = false)
+    private int currentBookings = 0;
+
+    @Column(name = "default_slot_id")
+    private String defaultSlotId;
+
     public TimeSlots(LocalDate date, LocalTime startTime, LocalTime endTime, Psychologists psychologist, int slotNumber) {
         this.slotDate = date;
         this.startTime = startTime;

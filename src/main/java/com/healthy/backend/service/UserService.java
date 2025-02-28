@@ -124,6 +124,7 @@ public class UserService {
         return convert(existingUser); // Convert entity to response DTO
     }
 
+
     private List<AppointmentResponse> getPsychologistAppointments(String userId) {
         Users user = userRepository.findById(userId).orElseThrow();
         List<Appointments> appointmentsList = null;
