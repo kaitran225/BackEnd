@@ -25,8 +25,8 @@ public class Users implements UserDetails {
     @Column(name = "UserID", length = 36, nullable = false)
     private String userId;
 
-    @Column(name = "Username", length = 50, nullable = false)
-    private String username;
+    @Column(name = "HashedID", nullable = false)
+    private String hashedID;
 
     @Column(name = "PasswordHash", nullable = false)
     private String passwordHash;
@@ -60,6 +60,12 @@ public class Users implements UserDetails {
     @Column(name = "IsVerified", nullable = false)
     private boolean isVerified;
 
+    @Column(name = "isActive")
+    private boolean isActive;
+
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @Column(name = "VerificationToken", nullable = false)
     private String verificationToken;
 
@@ -69,6 +75,8 @@ public class Users implements UserDetails {
     @PrePersist
     protected void onCreate() {
         isVerified = false;
+        isDeleted = false;
+        isActive = true;
         if (createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
@@ -95,7 +103,7 @@ public class Users implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return hashedID;
     }
 
     public boolean isPresent() {

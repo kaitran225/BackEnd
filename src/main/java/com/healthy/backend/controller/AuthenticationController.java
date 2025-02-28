@@ -1,9 +1,8 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.auth.*;
-import com.healthy.backend.entity.Parents;
+import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.exception.InvalidTokenException;
-import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,17 +24,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 
-@RestController
-@RequestMapping("/api/auth")
 @CrossOrigin
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/auth")
 @Tag(name = "Authentication Controller", description = "Authentication management APIs")
 public class AuthenticationController {
 
@@ -75,23 +72,23 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationResponse);
     }
 
+    @Transactional
     @Operation(
             summary = "Refresh token",
             description = "Get a new access token using refresh token"
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/refresh-token")
-    @Transactional
     public ResponseEntity<AuthenticationResponse> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 
+    @Transactional
     @Operation(
             summary = "Initiate password reset",
             description = "Send password reset email to user"
     )
     @PostMapping("/forgot-password")
-    @Transactional
     public ResponseEntity<?> forgotPassword(
             @RequestParam
             @Email(message = "Invalid email format") String email) {
@@ -134,6 +131,16 @@ public class AuthenticationController {
     }
 
     @Operation(
+            summary = "Extract tokens",
+            description = "Extract tokens from request"
+    )
+    @GetMapping("/extract-token")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<UsersResponse> extractToken(HttpServletRequest request) {
+        return ResponseEntity.ok(authenticationService.extractTokens(request));
+    }
+
+    @Operation(
             summary = "Verify user registration",
             description = "Verify user registration using verification token"
     )
@@ -147,11 +154,9 @@ public class AuthenticationController {
             throw new InvalidTokenException("This token is expired");
         }
 
-
         boolean isVerified = authenticationService.verifyUser(token).isVerified();
 
         if (isVerified) {
-            // Redirecting to login page or success page
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Content-Type", "text/html")
                     .header("Location", "http://localhost:8080/redirect.html")

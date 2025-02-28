@@ -2,9 +2,12 @@ package com.healthy.backend.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Users;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -57,10 +60,18 @@ public class UsersResponse {
     private List<StudentResponse> children;
     @Schema(examples = {"Appointment 1", "Appointment 2", "Appointment 3"})
     private List<AppointmentResponse> appointmentsRecord;
+    private List<ProgramParticipationResponse> programParticipationRecord;
+    private List<ProgramsResponse> programsRecord;
     @Schema(examples = {"Survey 1", "Survey 2", "Survey 3"})
     private List<SurveyResultsResponse> surveyResults;
     @Schema(example = "2023-01-01")
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
     private LocalDateTime updatedAt;
+    private StudentResponse studentResponse;
+    private PsychologistResponse psychologistResponse;
+    private List<StudentResponse> childrenResponse;
+    private boolean verified;
+    private boolean active;
+    private boolean deleted;
 }

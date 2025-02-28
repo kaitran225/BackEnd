@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuthenticationRepository extends JpaRepository<Users, String> {
-    Users findByUsername(
+    Users findByHashedID(
             @NotBlank(message = "Username is required")
             String username);
 

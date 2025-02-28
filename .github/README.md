@@ -8,19 +8,19 @@ The School Mental Health Care System is a platform designed to support student w
 - Appointment Booking – Students can schedule sessions with psychologists.  
 - Mental Health Surveys – Assess and monitor mental well-being.  
 - Secure Authentication – JWT-based authentication for data protection.  
-- API Documentation – Integrated Swagger UI for easy API exploration.  
+- API Documentation – Integrated OpenApiConfig UI for easy API exploration.  
 
 ## 🛠️ Tech Stack  
 - Backend: Spring Boot  
 - Security: JWT Authentication  
-- Documentation: Swagger UI  
+- Documentation: OpenApiConfig UI  
 - Database: MySQL (hosted on Aiven Cloud)  
 - Frontend: React (Vite)  
 - Hosting: Render.com  
 - Mail Service: Google Main SMTP
 
 ## 📖 API Documentation  
-Swagger UI is available at:  
+OpenApiConfig UI is available at:  
 
 https://api.cybriadev.com/swagger-ui/index.html
 
@@ -41,7 +41,7 @@ The project is actively being developed, and new features are continuously being
    ```sh
    mvn spring-boot:run
    ```
-4. Access Swagger UI for API testing:  
+4. Access OpenApiConfig UI for API testing:  
    ```
    http://localhost:8080/swagger-ui.html
    ```

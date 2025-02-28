@@ -1,48 +1,51 @@
 package com.healthy.backend.controller;
 
+import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Programs;
 import com.healthy.backend.entity.Users;
-import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.service.ExportService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/users")
 @RequiredArgsConstructor
+@RequestMapping("/api/users")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "User Controller", description = "Users related management APIs")
 public class UserController {
 
     private final UserService userService;
+    private final ExportService exportService;
 
     @Operation(
             summary = "Get all users",
             description = "Returns a list of all registered users."
     )
-    @GetMapping("/")
-    public ResponseEntity<List<UsersResponse>> getAllUsers() {
-        List<UsersResponse> users = userService.getAllUsers();
+    @GetMapping("/all")
+    public ResponseEntity<List<UsersResponse>> getAllUsers(HttpServletRequest request) {
+        List<UsersResponse> users = userService.getAllUsers(request);
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
@@ -50,18 +53,34 @@ public class UserController {
             summary = "Get user by ID",
             description = "Returns the user with the specified ID."
     )
-    @GetMapping("/{userId}")
-    public ResponseEntity<UsersResponse> getUserById(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.getUserById(userId));
+    @GetMapping("")
+    public ResponseEntity<UsersResponse> getUserById(
+            @RequestParam(required = false) String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getUserById(userId, request));
+    }
+
+    @Operation(
+            summary = "Get user by ID",
+            description = "Returns the user details with the specified ID."
+    )
+    @GetMapping("/details")
+    public ResponseEntity<UsersResponse> getUserDetailsById(
+            @RequestParam(required = false) String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getUserDetailsById(userId, request));
     }
 
     @Operation(
             summary = "Update user details",
             description = "Updates a user's details."
     )
-    @PutMapping("/{userId}/update")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody Users updatedUser) {
-        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser);
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(
+            @RequestParam(required = false) String userId,
+            @RequestBody Users updatedUser,
+            HttpServletRequest request) {
+        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser, request);
         return updatedUserResponse == null
                 ? ResponseEntity.noContent().build() // 204 if no changes detected
                 : ResponseEntity.ok(updatedUserResponse); // 200 if update successful
@@ -72,19 +91,21 @@ public class UserController {
             summary = "Deactivate user account",
             description = "Deactivates a user's account."
     )
-    @PostMapping("/{userId}/deactivate")
-    public String deactivateUser(@PathVariable String userId) {
-        return "User account " + userId + " deactivated";
+    @PostMapping("/deactivate")
+    public ResponseEntity<?> deactivateUser(
+            @RequestParam String userId,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.deactivateUser(userId, request));
     }
 
     @Operation(
-            deprecated = true,
             summary = "Reactivate user account",
             description = "Reactivates a user's account."
     )
-    @PostMapping("/{userId}/reactivate")
-    public String reactivateUser(@PathVariable String userId) {
-        return "User account " + userId + " reactivated";
+    @PostMapping("/reactivate")
+    public ResponseEntity<?> reactivateUser(
+            @RequestParam String userId,HttpServletRequest request) {
+        return ResponseEntity.ok(userService.reactivateUser(userId, request));
     }
 
     @Operation(
@@ -92,78 +113,109 @@ public class UserController {
             summary = "Update user role",
             description = "Updates a user's role."
     )
-    @PutMapping("/{userId}/role")
-    public String updateUserRole(@PathVariable String userId, @RequestBody String role) {
-        return "Role updated for user " + userId;
+    @PutMapping("/role")
+    public ResponseEntity<?> updateUserRole(
+            @RequestParam String userId,
+            @RequestParam String role,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(userService.updateUserRole(userId, role, request));
     }
 
     @Operation(
-            deprecated = true,
-            summary = "Send notification to user",
-            description = "Sends a notification to a specific user."
-    )
-    @PostMapping("/{userId}/notifications")
-    public String sendUserNotification(@PathVariable String userId, @RequestBody String message) {
-        return "Notification sent to user " + userId;
-    }
-
-    @Operation(
-            deprecated = true,
-            summary = "Get user dashboard",
-            description = "Retrieves the dashboard for a specific user."
-    )
-    @GetMapping("/{userId}/dashboard")
-    public String getUserDashboard(@PathVariable String userId) {
-        return "User dashboard for user " + userId;
-    }
-
-    @Operation(
-            deprecated = true,
             summary = "Export user data",
-            description = "Exports user data in a specified format."
+            description = "Exports user data in a specified format (CSV, JSON, or PDF)."
     )
-    @GetMapping("/{userId}/export")
-    public String exportUserData(@PathVariable String userId, @RequestParam String format) {
-        return "User data exported in format: " + format;
+    @GetMapping("/export")
+    public ResponseEntity<?> exportUserData(
+            @RequestParam String userId,
+            @RequestParam String format) {
+        byte[] exportedData;
+        return switch (format.toLowerCase()) {
+            case "csv" -> {
+                exportedData = exportService.exportUserData(userId,"csv");
+                yield ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_" + userId + ".csv")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(exportedData);
+            }
+            case "json" -> {
+                exportedData = exportService.exportUserData(userId, "json");
+                yield ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_" + userId + ".json")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(exportedData);
+            }
+            case "pdf" -> {
+                exportedData = exportService.exportUserData(userId, "pdf");
+                yield ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_" + userId + ".pdf")
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(exportedData);
+            }
+            default -> ResponseEntity.badRequest().body("Invalid format. Supported formats: csv, json, pdf.");
+        };
     }
 
     @Operation(
-            deprecated = true,
             summary = "Submit feedback for user",
             description = "Submits feedback for a specific user."
     )
-    @PostMapping("/{userId}/feedback")
-    public String submitFeedback(@PathVariable String userId, @RequestBody String feedback) {
+    @PostMapping("/feedback")
+    public String submitFeedback(@RequestParam String userId, @RequestBody String feedback) {
         return "Feedback submitted by user " + userId;
     }
 
     @Operation(
-            deprecated = true,
             summary = "Search users by name",
             description = "Searches for users with a specific name."
     )
     @GetMapping("/search")
-    public List<String> searchUsers(@RequestParam String name) {
-        return List.of("Search results for users with name: " + name);
+    public ResponseEntity<List<UsersResponse>> searchUsers(
+            @RequestParam String name, HttpServletRequest request) {
+        List<UsersResponse> list = userService.searchUsers(name, request);
+        if (list.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(list);
     }
 
     @Operation(
-            deprecated = true,
             summary = "Delete user account",
             description = "Deletes a user's account."
     )
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
-        if (userService.deleteUser(userId)){
-            return ResponseEntity.ok("User account " + userId + " deleted");
+    @DeleteMapping("/delete")
+    public ResponseEntity<UsersResponse> deleteUser(
+            @RequestParam String userId,
+            HttpServletRequest request) {
+        if (userService.deleteUser(userId, request )){
+            return ResponseEntity.ok(userService.getUserById(userId, request));
         }
-        throw new RuntimeException("Failed to delete user account");
+        throw new OperationFailedException("Failed to delete user account");
     }
 
-    // Get all students' events
-    @GetMapping("/{userId}/events")
-    public ResponseEntity<?> getAllAppointments(@PathVariable String userId) {
-        return ResponseEntity.ok(userService.getAllEvents(userId));
+    @Operation(
+            summary = "Get all events",
+            description = "Returns a list of all events for a specific user."
+    )
+    @GetMapping("/events")
+    public ResponseEntity<?> getAllEvents(
+            @RequestParam String userId, HttpServletRequest request) {
+        EventResponse events = userService.getAllEvents(userId, request);
+        if(events.getEvent().isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(events);
     }
 
+    @Operation(
+            summary = "Get user's appointments",
+            description = "Returns all appointments for a specific user (student or psychologist)."
+    )
+    @GetMapping("/appointments")
+    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(@RequestParam(required = false) String userId, HttpServletRequest request) {
+        List<AppointmentResponse> appointments = userService.getUserAppointment(userId, request);
+        return appointments.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(appointments);
+    }
 }

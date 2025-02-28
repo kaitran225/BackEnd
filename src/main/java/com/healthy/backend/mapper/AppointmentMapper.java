@@ -21,8 +21,11 @@ public class AppointmentMapper {
                 .Status(appointment.getStatus().name())
                 .psychologistResponse(psychologistResponse)
                 .studentResponse(studentResponse)
+                .psychologistNotes(appointment.getPsychologistNote())
                 .studentNotes(appointment.getStudentNote())
                 .timeSlotID(appointment.getTimeSlotsID())
+                .startTime(appointment.getTimeSlot().getStartTime().toString())
+                .endTime(appointment.getTimeSlot().getEndTime().toString())
                 .UpdatedAt(appointment.getUpdatedAt())
                 .checkInTime(appointment.getCheckInTime())
                 .checkOutTime(appointment.getCheckOutTime())
@@ -55,6 +58,7 @@ public class AppointmentMapper {
                 .build();
     }
 
+    // For manager
     public AppointmentResponse buildBasicAppointmentResponse(
             Appointments appointment,
             StudentResponse studentResponse,
@@ -66,8 +70,8 @@ public class AppointmentMapper {
                 .endTime(String.valueOf(appointment.getTimeSlot().getEndTime()))
                 .studentID(studentResponse.getStudentId())
                 .studentName(studentResponse.getFullName())
-                .psychologistID(studentResponse.getStudentId())
-                .psychologistName(studentResponse.getFullName())
+                .psychologistID(psychologistResponse.getPsychologistId())
+                .psychologistName(psychologistResponse.getName())
                 .build();
     }
 
@@ -83,6 +87,7 @@ public class AppointmentMapper {
                 .UpdatedAt(appointment.getUpdatedAt())
                 .checkInTime(appointment.getCheckInTime())
                 .checkOutTime(appointment.getCheckOutTime())
+                .psychologistNotes(appointment.getPsychologistNote())
                 .build();
     }
 }

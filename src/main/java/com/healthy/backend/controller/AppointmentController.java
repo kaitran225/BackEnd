@@ -4,9 +4,11 @@ import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.service.AppointmentService;
+import com.healthy.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +32,7 @@ import java.util.List;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
     @Operation(
             summary = "Get all appointments",
@@ -69,34 +72,20 @@ public class AppointmentController {
             summary = "Request cancel of an appointment",
             description = "Requests an cancel update of an appointment."
     )
-    @PutMapping("/{appointmentId}/cancel")
-    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId) {
-        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId);
+    @PutMapping("/{appointmentId}/cancel/{userId}")
+    public ResponseEntity<AppointmentResponse> cancelAppointment
+            (@PathVariable String appointmentId,
+             @PathVariable String userId) {
+        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, userId);
         if (response != null) {
+        
+
             return ResponseEntity.ok(response);
         }
         throw new OperationFailedException("Failed to cancel appointment");
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Add session notes",
-            description = "Adds session notes for an appointment."
-    )
-    @PostMapping("/{id}/notes/{appointmentId}")
-    public String addSessionNotes(@PathVariable String id, @PathVariable String appointmentId, @RequestBody String notes) {
-        return "Session notes added for appointment " + appointmentId;
-    }
 
-    @Operation(
-            deprecated = true,
-            summary = "Get session notes",
-            description = "Returns session notes for an appointment."
-    )
-    @GetMapping("/{id}/notes/{appointmentId}")
-    public String getSessionNotes(@PathVariable String id, @PathVariable String appointmentId) {
-        return "Session notes for appointment " + appointmentId;
-    }
 
     @Operation(summary = "Check in to an appointment")
     @PostMapping("/{appointmentId}/check-in")
@@ -107,19 +96,27 @@ public class AppointmentController {
 
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
-    public ResponseEntity<AppointmentResponse> checkOut(@PathVariable String appointmentId) {
-        AppointmentResponse response = appointmentService.checkOut(appointmentId);
+    public ResponseEntity<AppointmentResponse> checkOut(
+            @PathVariable String appointmentId,
+            @RequestBody CheckOutRequest request) {
+
+        AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
+        
+     
+
         return ResponseEntity.ok(response);
     }
 
     @Operation(
-            deprecated = true,
-            summary = "Give feedback on an appointment",
-            description = "Gives feedback on an appointment."
+            summary = "Submit feedback for an appointment",
+            description = "Allows a student to submit feedback and rating for a completed appointment."
     )
     @PostMapping("/{appointmentId}/feedback")
-    public String giveFeedback(@PathVariable String appointmentId, @RequestBody AppointmentFeedbackRequest feedback) {
-        return "Feedback submitted successfully";
+    public ResponseEntity<AppointmentResponse> submitFeedback(
+            @PathVariable String appointmentId,
+            @RequestBody @Valid AppointmentFeedbackRequest feedback) {
+        AppointmentResponse response = appointmentService.submitFeedback(appointmentId, feedback);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -138,14 +135,5 @@ public class AppointmentController {
         throw new OperationFailedException("Failed to update appointment");
     }
 
-    @Operation(
-            deprecated = true,
-            summary = "Make a report for an appointment",
-            description = "Creates a report for an appointment."
-    )
-    @PostMapping("/{appointmentId}/report")
-    public String makeReport(@PathVariable String appointmentId, @RequestBody AppointmentReportRequest report) {
-        return "Report created successfully";
-    }
 }
 

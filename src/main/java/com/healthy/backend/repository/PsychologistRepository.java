@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PsychologistRepository extends JpaRepository<Psychologists, String> {
@@ -14,4 +15,7 @@ public interface PsychologistRepository extends JpaRepository<Psychologists, Str
 
     @Query ("SELECT p.psychologistID FROM Psychologists p ORDER BY p.psychologistID DESC LIMIT 1")
     String findLastPsychologistId();
+
+    Psychologists findByPsychologistID(String psychologistId);
+
 } 

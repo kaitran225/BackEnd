@@ -14,6 +14,7 @@ public class AuthenticationMapper {
             String accessToken, String refreshToken) {
         return AuthenticationResponse.builder()
                 .userId(user.getUserId())
+                .psychologistId(psychologist.getPsychologistID())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getUserId())
