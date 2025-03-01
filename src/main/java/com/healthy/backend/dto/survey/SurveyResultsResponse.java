@@ -24,7 +24,10 @@ public class SurveyResultsResponse {
     private String description;
     @Schema(examples = {"Question 1", "Question 2", "Question 3", "Question 4", "Question 5"})
     private List<SurveyQuestionResultResponse> questions;
+    @Schema(example = "")
     private String studentId;
+    @Schema(example = "")
     private List<StatusStudent> std;
+    @Schema(example = "")
     private String status;
 }

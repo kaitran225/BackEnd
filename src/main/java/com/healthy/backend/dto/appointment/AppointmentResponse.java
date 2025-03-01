@@ -61,10 +61,16 @@ public class AppointmentResponse {
     private LocalDateTime checkInTime;
     @Schema(example = "2023-01-01 00:00:00")
     private LocalDateTime checkOutTime;
+    @Schema(example = "")
     private String psychologistID;
+    @Schema(example = "")
     private String psychologistName;
+    @Schema(example = "")
     private String studentID;
+    @Schema(example = "")
     private String studentName;
+    @Schema(example = "")
     private String startTime;
+    @Schema(example = "")
     private String endTime;
 }

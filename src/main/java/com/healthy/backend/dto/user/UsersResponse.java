@@ -68,10 +68,16 @@ public class UsersResponse {
     private LocalDateTime createdAt;
     @Schema(example = "2023-01-01")
     private LocalDateTime updatedAt;
+    @Schema(example = "")
     private StudentResponse studentResponse;
+    @Schema(example = "")
     private PsychologistResponse psychologistResponse;
+    @Schema(example = "")
     private List<StudentResponse> childrenResponse;
+    @Schema(example = "")
     private boolean verified;
+    @Schema(example = "")
     private boolean active;
+    @Schema(example = "")
     private boolean deleted;
 }

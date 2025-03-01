@@ -20,5 +20,6 @@ public class SurveyQuestionResponse {
     private String surveyId;
     @Schema(example = "How are you feeling today?")
     private String title;
+    @Schema(example = "")
     private List<QuestionResponse> questionList;
 }

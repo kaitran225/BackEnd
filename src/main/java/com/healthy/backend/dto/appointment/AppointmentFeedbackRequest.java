@@ -17,10 +17,12 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppointmentFeedbackRequest {
 
+    @Schema(example = "Feedback")
     @NotBlank(message = "Feedback cannot be empty")
     private String feedback;
 
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must not exceed 5")
+    @Schema(example = "5")
     private int rating;
 }

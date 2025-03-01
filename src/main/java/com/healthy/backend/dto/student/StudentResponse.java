@@ -53,6 +53,7 @@ public class StudentResponse {
     private LocalDateTime updatedAt;
     @Schema(example = "UsersResponse")
     private UsersResponse info;
+    @Schema(example = "")
     private String programStatus;
 
 }

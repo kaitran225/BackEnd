@@ -1,5 +1,6 @@
 package com.healthy.backend.dto.timeslot;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 public class TimeSlotBatchCreateRequest {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Schema(example = "")
     private LocalDate slotDate;
 
     @NotEmpty
+    @Schema(example = "")
     private List<String> defaultSlotIds;
 }

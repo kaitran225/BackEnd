@@ -38,6 +38,8 @@ public class SurveysResponse {
     private String createdAt;
     @Schema (example = "US001")
     private String createBy;
+    @Schema(example = "")
     private List<StatusStudent> statusStudent;
+    @Schema(example = "")
     private List<SurveyQuestionResultResponse> questions;
 }

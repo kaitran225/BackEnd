@@ -35,5 +35,6 @@ public class SurveyRequest {
     private String createdAt;
     @Schema (example = "US001")
     private String createBy;
+    @Schema(example = "")
     private List<SurveyQuestionRequest> question;
 }
