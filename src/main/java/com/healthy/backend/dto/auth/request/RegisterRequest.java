@@ -1,15 +1,17 @@
-package com.healthy.backend.dto.auth;
+package com.healthy.backend.dto.auth.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -38,11 +40,10 @@ public class RegisterRequest {
     @Schema(example = "Example Address")
     private String address;
 
-    @Schema(example = "STUDENT")
-    @NotBlank(message = "Role is required")
+    @Hidden
     private String role;
 
-    @Schema(example = "Male")
+    @Schema(example = "MALE")
     @NotBlank(message = "Gender is required")
     private String gender;
 } 

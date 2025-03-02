@@ -1,14 +1,15 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.dto.auth.request.*;
+import com.healthy.backend.dto.auth.response.AuthenticationResponse;
+import com.healthy.backend.dto.auth.response.VerificationResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.enums.UserType;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AuthenticationMapper;
-import com.healthy.backend.mapper.ParentMapper;
-import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.mapper.UserMapper;
+import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.security.JwtService;
 import com.healthy.backend.security.TokenService;
@@ -52,6 +53,7 @@ public class AuthenticationService {
     private final UserMapper usermapper;
     private final ParentMapper parentmapper;
     private final StudentMapper studentmapper;
+    private final PsychologistsMapper psychologistsmapper;
     private final AuthenticationMapper authenticationMapper;
 
     @Value("${jwt.refresh-token.expiration}")
@@ -61,152 +63,127 @@ public class AuthenticationService {
     private String siteURL;
 
     public AuthenticationResponse register(RegisterRequest request) {
-
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
-
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
-            throw new RuntimeException("This phone number is already in use for another account");
+        if (Role.valueOf(request.getRole()).equals(Role.PSYCHOLOGIST)) {
+            return registerPsychologist((PsychologistRegisterRequest) request);
         }
-
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
-            throw new RuntimeException("This email is already in use for another account");
+        if (Role.valueOf(request.getRole()).equals(Role.PARENT)) {
+            return registerParent((ParentRegisterRequest) request);
         }
+        if (Role.valueOf(request.getRole()).equals(Role.STUDENT)) {
+            return registerStudent((StudentRegisterRequest) request);
+        }
+        return registerUser(request);
+    }
+
+    private AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request) {
+        AuthenticationResponse response = registerUser(request);
+        String psychologistId = __.generatePsychologistID();
+        psychologistsRepository.save(
+                psychologistsmapper.buildPsychologistEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
+                        psychologistId)
+        );
+        response.setPsychologistId(psychologistId);
+        return response;
+    }
+
+    public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {
+        if(!tokenService.validateRole(httpServletRequest, Role.MANAGER)) {
+            throw new RuntimeException("You don't have permission to register psychologist");
+        };
+        AuthenticationResponse response = registerUser(request);
+        String psychologistId = __.generatePsychologistID();
+        psychologistsRepository.save(
+                psychologistsmapper.buildPsychologistEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
+                        psychologistId)
+        );
+        response.setPsychologistId(psychologistId);
+        return response;
+    }
+
+    public AuthenticationResponse registerParent(ParentRegisterRequest request) {
+        AuthenticationResponse response = registerUser(request);
+
+        List<Students> children = studentRepository.findAllById(request.getChildrenDetails().getStudentIds());
+        String parentId = __.generateParentID();
+        parentRepository.save(
+                parentmapper.buildParentEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
+                        parentId, children)
+        );
+        response.setParentId(parentId);
+        return response;
+    }
+
+    public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
+        AuthenticationResponse response = registerUser(request);
+        String studentId = __.generateStudentID();
+        studentRepository.save(
+                studentmapper.buildStudentEntity(request,
+                        userRepository.findById(response.getUserId()).orElseThrow(),
+                        studentId)
+        );
+        response.setStudentId(studentId);
+        return response;
+    }
+
+    // Register user entity
+    private AuthenticationResponse registerUser(RegisterRequest request) {
+        String normalizedEmail = normalizeEmailAndPhone(request.getEmail());
+        String normalizedPhone = normalizeEmailAndPhone(request.getPhoneNumber());
+        validateUniqueUser(normalizedEmail, normalizedPhone);
 
         String token = jwtService.generateVerificationToken(normalizedEmail);
         String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+        String hashedID = __(normalizedEmail);
 
         Users savedUser = userRepository.save(
-                usermapper.buildUserEntity(request, token,
-                        __.generateUserID(), encodedPassword, hashedID));
+                buildUserEntity(request, token, encodedPassword, hashedID)
+        );
 
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
-                .path("/api/auth/verify")
-                .queryParam("token", token)
-                .toUriString();
-
-        if (savedUser.getEmail().contains("example")) {
+        if (isWhitelistedDomain(savedUser.getEmail())) {
             savedUser.setVerified(true);
             userRepository.save(savedUser);
-
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .role(savedUser.getRole().toString())
-                    .build();
+            return buildAuthResponse(savedUser);
         }
 
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
-        return AuthenticationResponse.builder()
-                .userId(savedUser.getUserId())
-                .role(savedUser.getRole().toString())
-                .build();
+        sendVerificationEmailIfNeeded(normalizedEmail, token);
+        return buildAuthResponse(savedUser);
     }
 
-    // Register new parent
-    public AuthenticationResponse registerParent(ParentRegisterRequest request) {
+    // Shared helper methods
+    private String normalizeEmailAndPhone(String input) {
+        return input.trim().toLowerCase();
+    }
 
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
-
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
+    private void validateUniqueUser(String email, String phone) {
+        if (authenticationRepository.existsByPhoneNumber(phone)) {
             throw new RuntimeException("This phone number is already in use for another account");
         }
-
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
+        if (authenticationRepository.existsByEmail(email)) {
             throw new RuntimeException("This email is already in use for another account");
         }
+    }
 
-        // Generate verification token and encode password
-        String token = jwtService.generateVerificationToken(normalizedEmail);
-        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+    private Users buildUserEntity(RegisterRequest request, String token, String encodedPassword, String hashedID) {
+        return usermapper.buildUserEntity(request, token, __.generateUserID(), encodedPassword, hashedID);
+    }
 
-        Users savedUser = userRepository.save(
-                usermapper.buildUserParentEntity(request, token,
-                        __.generateUserID(), encodedPassword, hashedID));
+    private boolean isWhitelistedDomain(String email) {
+        return email.contains("example");
+    }
 
-        List<Students> children = studentRepository.findAllById(request.getStudentIds());
+    private void sendVerificationEmailIfNeeded(String email, String token) {
+        String verificationUrl = buildVerificationUrl(token);
+        emailService.sendVerificationEmail(email, "Click the link to verify your email: " + verificationUrl, "Verify Your Account");
+    }
 
-        Parents savedParent = parentRepository.save(
-                parentmapper.buildParentEntity(request, savedUser,
-                        __.generateParentID(),children));
-
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
+    private String buildVerificationUrl(String token) {
+        return UriComponentsBuilder.fromUriString(siteURL)
                 .path("/api/auth/verify")
                 .queryParam("token", token)
                 .toUriString();
-
-        if (savedUser.getEmail().contains("example")) {
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .role(savedUser.getRole().toString())
-                    .build();
-        }
-
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
-        return AuthenticationResponse.builder()
-                .userId(savedUser.getUserId())
-                .role(savedUser.getRole().toString())
-                .build();
     }
 
-    // Register new student
-    public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
-
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
-
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
-            throw new RuntimeException("This phone number is already in use for another account");
-        }
-
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
-            throw new RuntimeException("This email is already in use for another account");
-        }
-
-        // Generate verification token and encode password
-        String token = jwtService.generateVerificationToken(normalizedEmail);
-        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
-
-        Users savedUser = userRepository.save(
-                usermapper.buildUserStudentEntity(request, token,
-                        __.generateUserID(), encodedPassword,hashedID));
-
-        Students savedStudent = studentRepository.save(
-                studentmapper.buildStudentEntity(request, savedUser, __.generateStudentID()));
-
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
-                .path("/api/auth/verify")
-                .queryParam("token", token)
-                .toUriString();
-
-        // Skip email verification for certain domains (e.g., example.com)
-        if (savedUser.getEmail().contains("example")) {
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .studentId(savedStudent.getStudentID())
-                    .role(savedUser.getRole().toString())
-                    .build();
-        }
-
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
+    private AuthenticationResponse buildAuthResponse(Users savedUser) {
         return AuthenticationResponse.builder()
                 .userId(savedUser.getUserId())
                 .role(savedUser.getRole().toString())
@@ -444,12 +421,13 @@ public class AuthenticationService {
 
     // Use a secure hashing algorithm
     private String hashToken(String token) {
-   return passwordEncoder.encode(token);
+        return passwordEncoder.encode(token);
     }
 
     private boolean _check(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
+
     private String __(String email) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

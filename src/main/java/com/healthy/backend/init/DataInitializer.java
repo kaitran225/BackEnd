@@ -1,6 +1,6 @@
 package com.healthy.backend.init;
 
-import com.healthy.backend.dto.auth.RegisterRequest;
+import com.healthy.backend.dto.auth.request.RegisterRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
 import com.healthy.backend.repository.*;

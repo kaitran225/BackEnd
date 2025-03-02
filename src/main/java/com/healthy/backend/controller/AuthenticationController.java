@@ -1,6 +1,11 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.dto.auth.request.AuthenticationRequest;
+import com.healthy.backend.dto.auth.request.ParentRegisterRequest;
+import com.healthy.backend.dto.auth.request.PsychologistRegisterRequest;
+import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
+import com.healthy.backend.dto.auth.response.AuthenticationResponse;
+import com.healthy.backend.dto.auth.response.VerificationResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.service.AuthenticationService;
@@ -27,8 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 @CrossOrigin
 @RestController
 @RequiredArgsConstructor
@@ -54,9 +57,22 @@ public class AuthenticationController {
             description = "Register a new parent with the provided details"
     )
     @PostMapping("/register-parent")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<AuthenticationResponse> registerParent(
             @Valid @RequestBody ParentRegisterRequest request) {
         return ResponseEntity.ok(authenticationService.registerParent(request));
+    }
+
+
+    @Operation(
+            summary = "Register new psychologist",
+            description = "Register a new psychologist with the provided details"
+    )
+    @PostMapping("/register-psychologist")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<AuthenticationResponse> registerPsychologist(
+            @Valid @RequestBody PsychologistRegisterRequest request,
+            HttpServletRequest httpServletRequest) { //Only admin can add psychologist
+        return ResponseEntity.ok(authenticationService.registerPsychologist(request, httpServletRequest));
     }
 
     @Operation(

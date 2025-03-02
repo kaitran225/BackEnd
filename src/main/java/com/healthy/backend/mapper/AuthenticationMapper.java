@@ -1,6 +1,6 @@
 package com.healthy.backend.mapper;
 
-import com.healthy.backend.dto.auth.AuthenticationResponse;
+import com.healthy.backend.dto.auth.response.AuthenticationResponse;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;

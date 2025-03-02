@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.auth;
+package com.healthy.backend.dto.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;

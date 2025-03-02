@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.auth;
+package com.healthy.backend.dto.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,6 +45,9 @@ public class AuthenticationResponse {
 
     @Schema(example = "PSY001")
     private String psychologistId;
+
+    @Schema(example = "PRT001")
+    private String parentId;
 
     @Schema(example = "Name")
     private String fullName;

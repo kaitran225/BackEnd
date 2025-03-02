@@ -1,6 +1,7 @@
 package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.auth.request.PsychologistRegisterRequest;
 import com.healthy.backend.dto.psychologist.LeaveRequest;
 import com.healthy.backend.dto.psychologist.LeaveResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
@@ -12,7 +13,9 @@ import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.OnLeaveStatus;
+import com.healthy.backend.enums.PsychologistStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -21,6 +24,16 @@ import java.util.stream.Collectors;
 
 @Component
 public class PsychologistsMapper {
+
+    public Psychologists buildPsychologistEntity(PsychologistRegisterRequest request, Users user, String psychologistId) {
+        return Psychologists.builder()
+                .psychologistID(psychologistId)
+                .status(PsychologistStatus.ACTIVE)
+                .yearsOfExperience(request.getPsychologistDetails().getYearsOfExperience())
+                .departmentID(request.getPsychologistDetails().getDepartmentID())
+                .user(user)
+                .build();
+    }
 
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist
             , UsersResponse usersResponse) {

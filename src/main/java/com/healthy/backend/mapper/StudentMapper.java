@@ -1,7 +1,6 @@
 package com.healthy.backend.mapper;
 
-import com.healthy.backend.dto.auth.StudentRegisterRequest;
-import com.healthy.backend.dto.student.StudentRequest;
+import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
@@ -80,9 +79,9 @@ public class StudentMapper {
         return Students.builder()
                 .userID(user.getUserId())
                 .studentID(studentID)
-                .grade(student.getGrade())
-                .className(student.getClassName())
-                .schoolName(student.getSchoolName())
+                .grade(student.getStudentDetails().getGrade())
+                .className(student.getStudentDetails().getClassName())
+                .schoolName(student.getStudentDetails().getSchoolName())
                 .depressionScore(0)
                 .anxietyScore(0)
                 .stressScore(0)

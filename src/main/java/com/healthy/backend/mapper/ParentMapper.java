@@ -1,6 +1,6 @@
 package com.healthy.backend.mapper;
 
-import com.healthy.backend.dto.auth.ParentRegisterRequest;
+import com.healthy.backend.dto.auth.request.ParentRegisterRequest;
 import com.healthy.backend.entity.Parents;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
@@ -13,7 +13,6 @@ public class ParentMapper {
 
     public Parents buildParentEntity(ParentRegisterRequest parents, Users user,
                                      String parentID, List<Students> children) {
-
         return Parents.builder()
                 .parentID(parentID)
                 .userID(user.getUserId())

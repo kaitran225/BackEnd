@@ -1,16 +1,14 @@
 package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.auth.ParentRegisterRequest;
-import com.healthy.backend.dto.auth.RegisterRequest;
-import com.healthy.backend.dto.auth.StudentRegisterRequest;
-import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.auth.request.ParentRegisterRequest;
+import com.healthy.backend.dto.auth.request.RegisterRequest;
+import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Gender;
 import com.healthy.backend.enums.Role;
@@ -125,10 +123,8 @@ public class UserMapper {
     }
 
     // Convert User entity to UserResponse (Student)
-    public Users buildUserStudentEntity(StudentRegisterRequest requestRequest,
-                                        String token, String userId,
-                                        String password, String hashedID
-                                        ) {
+    public Users buildUserEntity(RegisterRequest requestRequest,
+                                 String token, String userId, String password, String hashedID, Role role) {
         return Users.builder()
                 .userId(userId)
                 .hashedID(hashedID)
@@ -136,32 +132,13 @@ public class UserMapper {
                 .fullName(requestRequest.getFullName())
                 .email(requestRequest.getEmail())
                 .phoneNumber(requestRequest.getPhoneNumber())
-                .role(Role.STUDENT)
+                .role(role)
                 .address(requestRequest.getAddress())
                 .gender(Gender.valueOf(requestRequest.getGender()))
                 .verificationToken(token)
                 .build();
     }
 
-    public Users buildUserParentEntity(ParentRegisterRequest requestRequest,
-                                       String token, String userId,
-                                       String password, String hashedID) {
-        return Users.builder()
-                .userId(userId)
-                .hashedID(hashedID)
-                .passwordHash(password)
-                .fullName(requestRequest.getFullName())
-                .email(requestRequest.getEmail())
-                .phoneNumber(requestRequest.getPhoneNumber())
-                .role(Role.PARENT)
-                .address(requestRequest.getAddress())
-                .gender(Gender.valueOf(requestRequest.getGender()))
-                .verificationToken(token)
-                .build();
-    }
-
-
-    // Convert User entity to UserResponse
     public Users buildUserEntity(RegisterRequest requestRequest,
                                  String token, String userID, String password, String hashedID) {
         return Users.builder()

@@ -15,7 +15,4 @@ public class PsychologistRequest {
     private String departmentID;
 
     private Integer yearsOfExperience;
-
-
-
 }
