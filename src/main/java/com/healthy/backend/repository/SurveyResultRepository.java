@@ -19,4 +19,6 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
 
     @Query("SELECT sr.resultID FROM SurveyResult sr ORDER BY sr.resultID DESC LIMIT 1")
     String findLastResultId();
+
+    boolean existsBySurveyIDAndStudentID(String surveyID, String studentID);
 }

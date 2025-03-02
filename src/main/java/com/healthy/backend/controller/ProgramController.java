@@ -11,18 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
@@ -78,14 +71,13 @@ public class ProgramController {
     )
     @Operation(summary = "Get all programs", description = "Returns a list of all programs.")
     @GetMapping()
-    public ResponseEntity<List<ProgramsResponse>> getPrograms() {
-        List<ProgramsResponse> programsResponseList = programService.getAllPrograms();
+    public ResponseEntity<List<ProgramsResponse>> getPrograms(HttpServletRequest request) {
+        List<ProgramsResponse> programsResponseList = programService.getAllPrograms(request);
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
 
     // Get all program details
-    // Get all programs
     @ApiResponse(
             responseCode = "200",
             description = "Programs retrieved successfully",
@@ -108,8 +100,8 @@ public class ProgramController {
     )
     @Operation(summary = "Get all program statuses", description = "Returns a list of all program statuses.")
     @GetMapping("/details")
-    public ResponseEntity<?> getAllProgramStatuses() {
-        List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails();
+    public ResponseEntity<?> getAllProgramStatuses(HttpServletRequest request) {
+        List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails(request);
         if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return ResponseEntity.ok(programsResponseList);
     }
@@ -117,24 +109,20 @@ public class ProgramController {
     // Get program details
     @Operation(summary = "Get program details", description = "Returns details of a specific program.")
     @GetMapping("/{programId}/details")
-    public ResponseEntity<?> getProgramDetails(@PathVariable String programId) {
-        ProgramsResponse programsResponse = programService.getProgramById(programId);
+    public ResponseEntity<?> getProgramDetails(@PathVariable String programId, HttpServletRequest request) {
+        ProgramsResponse programsResponse = programService.getProgramById(programId, request);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
     }
 
-    // Get program location
-    @Operation(deprecated = true, summary = "Get program location", description = "Returns the location of a specific program.")
-    @GetMapping("/{programId}/location")
-    public ResponseEntity<?> getProgramLocation(@PathVariable String programId) {
-        return ResponseEntity.ok("Location for program " + programId);
-    }
-
     // Get program status
-    @Operation(summary = "Get program status", description = "Returns the status of a specific program.")
+    @Operation(summary = "Get program status",
+            description = "Returns the status of a specific program.")
     @GetMapping("/{programId}/status")
-    public ResponseEntity<?> getRegistrationStatus(@PathVariable String programId) {
-        String status = programService.getProgramStatus(programId);
+    public ResponseEntity<?> getRegistrationStatus(
+            @PathVariable String programId,
+            HttpServletRequest request) {
+        String status = programService.getProgramStatus(programId, request);
         if (status.isEmpty()) {
             throw new ResourceNotFoundException("Program not found");
         }
@@ -142,19 +130,25 @@ public class ProgramController {
     }
 
     // Get enrolled programs of a student
-    @Operation(summary = "Get enrolled programs of a student", description = "Returns a list of enrolled program.")
-    @GetMapping("/enrolled/{studentId}")
-    public ResponseEntity<List<ProgramsResponse>> getEnrolledPrograms(@PathVariable String studentId) {
-        List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId);
+    @Operation(summary = "Get enrolled programs of a student",
+            description = "Returns a list of enrolled program.")
+    @GetMapping("/enrolled")
+    public ResponseEntity<List<ProgramsResponse>> getEnrolledPrograms(
+            @RequestParam(required = false) String studentId,
+            HttpServletRequest request) {
+        List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId, request);
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
 
     // Get program participants
-    @Operation(summary = "Get program participants", description = "Returns a list of participants for a specific program.")
+    @Operation(summary = "Get program participants",
+            description = "Returns a list of participants for a specific program.")
     @GetMapping("/{programId}/participants")
-    public ResponseEntity<ProgramsResponse> getProgramParticipants(@PathVariable String programId) {
-        ProgramsResponse programsResponse = programService.getProgramParticipants(programId);
+    public ResponseEntity<ProgramsResponse> getProgramParticipants(
+            @PathVariable String programId,
+            HttpServletRequest request) {
+        ProgramsResponse programsResponse = programService.getProgramParticipants(programId, request);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
     }
@@ -162,8 +156,8 @@ public class ProgramController {
     // Get program tags
     @Operation(summary = "Get program tags", description = "Returns a list of tags for programs.")
     @GetMapping("/tags")
-    public ResponseEntity<List<ProgramTagResponse>> getProgramTags() {
-        List<ProgramTagResponse> programTagResponseList = programService.getProgramTags();
+    public ResponseEntity<List<ProgramTagResponse>> getProgramTags(HttpServletRequest request) {
+        List<ProgramTagResponse> programTagResponseList = programService.getProgramTags(request);
         if (programTagResponseList.isEmpty()) throw new ResourceNotFoundException("No tags found");
         return ResponseEntity.ok(programTagResponseList);
     }
@@ -174,8 +168,10 @@ public class ProgramController {
     // Register for a program
     @Operation(summary = "Register for a program", description = "Registers a student for a program.")
     @PostMapping("/{programId}/register")
-    public ResponseEntity<?> registerForProgram(@RequestBody ProgramParticipationRequest programParticipationRequest) {
-        if (programService.registerForProgram(programParticipationRequest)) {
+    public ResponseEntity<?> registerForProgram(
+            @RequestBody ProgramParticipationRequest programParticipationRequest,
+            HttpServletRequest request) {
+        if (programService.registerForProgram(programParticipationRequest, request)) {
             return ResponseEntity.ok("Registration successful for program " + programParticipationRequest.getProgramID());
         }
         throw new ResourceNotFoundException("Failed to register for program");
@@ -183,8 +179,10 @@ public class ProgramController {
 
     // Submit feedback
     @PostMapping("/tags/create")
-    public ResponseEntity<?> createProgramTag(@RequestBody ProgramTagRequest programTagRequest) {
-        ProgramTagResponse programTagResponse = programService.createProgramTag(programTagRequest);
+    public ResponseEntity<?> createProgramTag(
+            @RequestBody ProgramTagRequest programTagRequest,
+            HttpServletRequest request) {
+        ProgramTagResponse programTagResponse = programService.createProgramTag(programTagRequest, request);
         if (programTagResponse == null) throw new ResourceNotFoundException("Failed to create tag");
         return ResponseEntity.status(HttpStatus.CREATED).body(programTagResponse);
     }
@@ -199,8 +197,8 @@ public class ProgramController {
     // Create a new program
     @Operation(summary = "Create a new program", description = "Creates a new program.")
     @PostMapping("/create")
-    public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest) {
-        ProgramsResponse programsResponse = programService.createProgram(programsRequest);
+    public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest, HttpServletRequest request) {
+        ProgramsResponse programsResponse = programService.createProgram(programsRequest, request);
         if (programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
     }
@@ -218,17 +216,24 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Update a program
-    @Operation(summary = "Update a program", description = "Updates an existing program.")
+    @Operation(summary = "Update a program",
+            description = "Updates an existing program.")
     @PutMapping("/{programId}/edit")
-    public ResponseEntity<?> updateProgram(@PathVariable String programId) {
-        return ResponseEntity.ok("Program updated " + programId);
+    public ResponseEntity<ProgramsResponse> updateProgram(
+            @PathVariable String programId,
+            @RequestBody ProgramUpdateRequest programsRequest,
+            HttpServletRequest request) {
+        ProgramsResponse response = programService.updateProgram(programId, programsRequest, request);
+        return ResponseEntity.ok(response);
     }
 
     // Cancel registration
     @Operation(summary = "Cancel registration for a program", description = "Cancels registration for a program.")
     @PutMapping("/{programId}/cancel-request")
-    public ResponseEntity<String> cancelParticipation(@RequestBody ProgramParticipationRequest programParticipationRequest) {
-        boolean isCancelled = programService.cancelParticipation(programParticipationRequest);
+    public ResponseEntity<String> cancelParticipation(
+            @RequestBody ProgramParticipationRequest programParticipationRequest,
+            HttpServletRequest request) {
+        boolean isCancelled = programService.cancelParticipation(programParticipationRequest, request);
         if (isCancelled) {
             return ResponseEntity.ok("Participation successfully cancelled.");
         }
@@ -250,8 +255,9 @@ public class ProgramController {
     // Delete a program
     @Operation(summary = "Delete a program", description = "Deletes an existing program.")
     @DeleteMapping("/{programId}/delete")
-    public ResponseEntity<?> deleteProgram(@PathVariable String programId) {
-        if (!programService.deleteProgram(programId)) throw new ResourceNotFoundException("Program not found");
+    public ResponseEntity<?> deleteProgram(@PathVariable String programId,
+                                           HttpServletRequest request) {
+        if (!programService.deleteProgram(programId, request)) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.noContent().build();
     }
 }

@@ -87,7 +87,6 @@ public class UserController {
     }
 
     @Operation(
-            deprecated = true,
             summary = "Deactivate user account",
             description = "Deactivates a user's account."
     )
@@ -109,6 +108,7 @@ public class UserController {
     }
 
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Update user role",
             description = "Updates a user's role."

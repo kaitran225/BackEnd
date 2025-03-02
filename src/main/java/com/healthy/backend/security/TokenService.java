@@ -42,7 +42,6 @@ public class TokenService {
                 .orElseThrow(() -> new InvalidTokenException("User not found for given token"));
     }
 
-
     public boolean validate(HttpServletRequest request, Users user) {
         HashMap<String, ?> map = extractRequest(request);
 
@@ -88,6 +87,7 @@ public class TokenService {
         HashMap<String, ?> map = extractRequest(request);
         return hashedID != null && hashedID.equals(map.get("hashedID"));
     }
+
     public boolean validateIsVerified(HttpServletRequest request) {
         HashMap<String, ?> map = extractRequest(request);
         return (boolean) map.get("isVerified");
@@ -101,7 +101,6 @@ public class TokenService {
         }
         return roles.contains(Role.valueOf(userRole));
     }
-
 
     public boolean validateRole(HttpServletRequest request, Role role) {
         return validateRole(request, List.of(role));
@@ -150,7 +149,6 @@ public class TokenService {
             put("isActive", jwtService.extractIsActive(token));
         }};
     }
-
 
     private HashMap<String, ?> _extractRequest(HttpServletRequest request) {
 

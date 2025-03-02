@@ -66,17 +66,6 @@ public class AuthenticationService {
         return registerUser(request);
     }
 
-    private AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request) {
-        AuthenticationResponse response = registerUser(request);
-        String psychologistId = __.generatePsychologistID();
-        psychologistsRepository.save(
-                psychologistsmapper.buildPsychologistEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
-                        psychologistId)
-        );
-        response.setPsychologistId(psychologistId);
-        return response;
-    }
-
     public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {
         if(!tokenService.validateRole(httpServletRequest, Role.MANAGER)) {
             throw new RuntimeException("You don't have permission to register psychologist");
@@ -95,6 +84,13 @@ public class AuthenticationService {
         AuthenticationResponse response = registerUser(request);
 
         List<Students> children = studentRepository.findAllById(request.getChildrenDetails().getStudentIds());
+
+        for (Students student : children) {
+            if (student.getParents() != null) {
+                throw new IllegalArgumentException("Student with ID " + student.getStudentID() + " already has a parent.");
+            }
+        }
+
         String parentId = __.generateParentID();
         parentRepository.save(
                 parentmapper.buildParentEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
@@ -207,7 +203,7 @@ public class AuthenticationService {
         String refreshToken = jwtService.generateRefreshToken(user);
 
         // Save refresh token to database
-        saveRefreshToken(user.getUserId(), refreshToken);
+        _saveRefreshToken(user.getUserId(), refreshToken);
 
         // Return response based on role
         return switch (user.getRole()) {
@@ -223,63 +219,53 @@ public class AuthenticationService {
 
     // Refresh token
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        // Extract Authorization header safely
         String authHeader = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
                 .orElseGet(() -> request.getHeader(HttpHeaders.WWW_AUTHENTICATE));
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Invalid refresh token: missing or malformed.");
+            throw new InvalidTokenException("Invalid access token: missing or malformed.");
         }
 
-        final String refreshToken = authHeader.substring(7);
+        final String accessToken = authHeader.substring(7);
 
-        // Validate token before extracting username
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new InvalidTokenException("Invalid or expired refresh token.");
+        if (!jwtService.isTokenValid(accessToken)) {
+            throw new InvalidTokenException("Invalid or expired access token.");
         }
-        final String username = jwtService.extractHashedID(refreshToken);
+
+        final String username = jwtService.extractHashedID(accessToken);
 
         // Validate username
         if (username == null) {
-            throw new InvalidTokenException("Invalid refresh token: unable to extract username.");
+            throw new InvalidTokenException("Invalid access token: unable to extract username.");
         }
+
+        // Get user from the repository
         Users user = authenticationRepository.findByHashedID(username);
 
-        // Check if user exists
+        // Check if the user exists
         if (user == null) {
             throw new ResourceNotFoundException("User not found.");
         }
 
-        // Verify refresh token existence
-        RefreshToken storedToken = refreshTokenRepository.findByUserId(user.getUserId());
-        if (storedToken == null) {
-            throw new InvalidTokenException("Refresh token not found.");
+        // Method to extract refresh token
+        String refreshToken = refreshTokenRepository.findByUserId(user.getUserId()).getHashedToken();
+
+        // Validate the refresh token
+        if (refreshToken == null || !jwtService.isTokenValid(refreshToken)) {
+            throw new InvalidTokenException("Invalid or expired refresh token.");
         }
 
-        // Check if refresh token is matched
-        if (!_check(refreshToken, storedToken.getHashedToken())) {
-            throw new InvalidTokenException("Refresh token is not matched.");
-        }
-
-        // Check if refresh token is expired
-        LocalDateTime expiresAt = storedToken.getExpiresAt();
-        if (expiresAt == null || expiresAt.isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.deleteByUserId(user.getUserId());
-            throw new InvalidTokenException("Refresh token has expired.");
-        }
-
-        String accessToken = jwtService.generateToken(user);
-
-        // Update stored refresh token
-        saveRefreshToken(user.getUserId(), refreshToken);
+        // Generate a new access token using the user details
+        String newAccessToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(newAccessToken)  // New access token
+                .refreshToken(refreshToken)   // The same refresh token
                 .userId(user.getUserId())
                 .role(user.getRole().toString())
                 .build();
     }
+
 
     // Initiate password reset
     public boolean initiatePasswordReset(String email) {
@@ -362,7 +348,6 @@ public class AuthenticationService {
 
         // Delete the used reset token
         resetTokenRepository.delete(storedToken);
-
         return true;
     }
 
@@ -388,7 +373,8 @@ public class AuthenticationService {
 
     // Check if verification token is expired
     public boolean isVerificationTokenExpired(String token) {
-        return authenticationRepository.findByVerificationToken(token).getTokenExpiration().isAfter(LocalDateTime.now());
+        return authenticationRepository.findByVerificationToken(token)
+                .getTokenExpiration().isAfter(LocalDateTime.now());
     }
 
     public UsersResponse extractTokens(HttpServletRequest request) {
@@ -396,7 +382,7 @@ public class AuthenticationService {
     }
 
     // Save refresh token to database
-    private void saveRefreshToken(String userId, String refreshToken) {
+    private void _saveRefreshToken(String userId, String refreshToken) {
 
         if (refreshTokenRepository.findByUserId(userId) != null) {
             refreshTokenRepository.deleteByUserId(userId);
@@ -404,7 +390,7 @@ public class AuthenticationService {
 
         RefreshToken token = new RefreshToken();
         token.setUserId(userId);
-        token.setHashedToken(hashToken(refreshToken));
+        token.setHashedToken(refreshToken);
         token.setExpiresAt(LocalDateTime.now().plus(Duration.ofMillis(refreshTokenDuration)));
 
         refreshTokenRepository.save(token);

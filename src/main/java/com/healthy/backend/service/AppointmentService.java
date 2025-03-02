@@ -7,6 +7,7 @@ import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
@@ -14,6 +15,8 @@ import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
+import com.healthy.backend.security.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class AppointmentService {
 
     private final GeneralService __;
     private final EmailService emailService;
+    private final TokenService tokenService;
     private final NotificationService notificationService;
 
     private final PsychologistsMapper psychologistMapper;
@@ -109,7 +113,6 @@ public class AppointmentService {
         Psychologists psychologist = psychologistRepository.findById(timeSlot.getPsychologist().getPsychologistID())
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + timeSlot.getPsychologist().getPsychologistID()));
 
-        // Kiểm tra xem student đã có appointment nào trong cùng time slot chưa
         boolean hasExistingAppointment = appointmentRepository.existsByStudentIDAndTimeSlotsID(
                 student.getStudentID(), timeSlot.getTimeSlotsID());
         if (hasExistingAppointment) {

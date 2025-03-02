@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @Component
 @RequiredArgsConstructor
-
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -81,8 +80,6 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Logs initialized");
         initializeArticles();
         System.out.println("Articles initialized");
-//        initializeAppointments();
-        System.out.println("Appointments initialized");
         initializeNotifications();
         System.out.println("Notifications initialized");
     }
@@ -100,10 +97,10 @@ public class DataInitializer implements CommandLineRunner {
 
                 new RegisterRequest("student_pass", "John Doe", "student@example.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
                 new RegisterRequest("student_pass", "John Green", "student2@example.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("student_pass", "Alice Jones", "student3@example.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString()),
-
-                new RegisterRequest("psychologist_pass", "Dr. Anh", "cuongcaoleanh@gmail.com", "0912345673", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
-                new RegisterRequest("psychologist_pass", "Dr. Cuong", "caoleanhcuong78@gmail.com", "0912345674", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString())
+                new RegisterRequest("student_pass", "Alice Jones", "student3@example.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
+//
+//                new RegisterRequest("psychologist_pass", "Dr. Anh", "cuongcaoleanh@gmail.com", "0912345673", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+//                new RegisterRequest("psychologist_pass", "Dr. Cuong", "caoleanhcuong78@gmail.com", "0912345674", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString())
         );
         users.forEach(authenticationService::register);
     }
@@ -140,8 +137,8 @@ public class DataInitializer implements CommandLineRunner {
     private void initializePsychologists() {
         psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID003", 10, PsychologistStatus.ACTIVE, "DPT001"));
         psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID004", 8, PsychologistStatus.ACTIVE, "DPT007"));
-        psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID010", 2, PsychologistStatus.ACTIVE, "DPT002"));
-        psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID011", 2, PsychologistStatus.ACTIVE, "DPT003"));
+//        psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID010", 2, PsychologistStatus.ACTIVE, "DPT002"));
+//        psychologistRepository.save(new Psychologists(__.generatePsychologistID(), "UID011", 2, PsychologistStatus.ACTIVE, "DPT003"));
 
     }
 
@@ -555,13 +552,6 @@ public class DataInitializer implements CommandLineRunner {
         articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing anxiety..."));
         articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing stress and anxiety ..."));
     }
-//
-//    private void initializeAppointments() {
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022801", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022802", "STU002", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022803", "STU003", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022804", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-//    }
 
     private void initializeNotifications() {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist@example.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
