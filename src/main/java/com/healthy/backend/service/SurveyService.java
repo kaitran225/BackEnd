@@ -94,14 +94,13 @@ public class SurveyService {
             sum += mapScore.getOrDefault(surveyQuestion.getOptionID(), 0);
         }    
      
-        if(Objects.equals("CAT001", survey.getCategoryID())) {
-                studentResult.setStressScore(sum);
+        switch (survey.getCategoryID()) {
+            case "CAT001" -> studentResult.setStressScore(sum);
+            case "CAT002" -> studentResult.setAnxietyScore(sum);
+            case "CAT003" -> studentResult.setDepressionScore(sum);
+         default -> {
+            throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
         }
-        if(Objects.equals("CAT002", survey.getCategoryID())) {
-            studentResult.setAnxietyScore(sum);
-        }
-        if(Objects.equals("CAT003", survey.getCategoryID())) {
-            studentResult.setDepressionScore(sum);
         }
 
         studentRepository.save(studentResult);
@@ -208,7 +207,7 @@ public class SurveyService {
     return surveys.stream().map(survey -> {
         List<SurveyQuestionResultResponse> surveyQuestionResultList = new ArrayList<>();
         List<SurveyQuestions> surveyQuestionsList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-        System.out.println("surveyId" + survey.getSurveyID());
+        // System.out.println("surveyId" + survey.getSurveyID());
         
 
         surveyQuestionsList.forEach(question -> {
@@ -223,7 +222,7 @@ public class SurveyService {
 
         
         List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
-        System.out.println("surveyId" + surveyResultList);
+        // System.out.println("surveyId" + surveyResultList);
         List<StatusStudent> statusStudentList = new ArrayList<>();
 
         for (SurveyResult surveyResult : surveyResultList) {
@@ -353,7 +352,7 @@ public class SurveyService {
             System.out.println("newQuestion.." + newQuestion.getQuestionID());
             String latestQuestion = (newQuestion != null) ? getLastIdInDB(newQuestion.getQuestionID()) : "Q0001";
 
-            System.out.println("newQuestion1.." + latestQuestion);
+            // System.out.println("newQuestion1.." + latestQuestion);
 
             SurveyQuestions surveyQuestion1 = new SurveyQuestions();
             surveyQuestion1.setQuestionText(questionRes.getQuestionText());
@@ -459,20 +458,29 @@ public class SurveyService {
             sum += mapScore.getOrDefault(surveyQuestionOption, 0);
         }
         
+        // switch (survey.getCategoryID()) {
+        //     case "CAT001" :
+        //         student.setStressScore(sum);
+        //         break;
+        //     case "CAT002" :
+        //         student.setAnxietyScore(sum);
+        //         break;
+        //     case "CAT003" :
+        //         student.setDepressionScore(sum);
+        //         break;    
+        //     default:
+        //         break;
+        // }
+        switch (survey.getCategoryID()) {
+            case "CAT001" -> student.setStressScore(sum);
+            case "CAT002" -> student.setAnxietyScore(sum);
+            case "CAT003" -> student.setDepressionScore(sum);
+         default -> {
+            throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
+        }
+        }
 
-        if(Objects.equals("CAT001", survey.getCategoryID())) {
-            student.setStressScore(sum);
-        }
-        else if(Objects.equals("CAT002", survey.getCategoryID())) {
-            student.setAnxietyScore(sum);
-        }
-        else if(Objects.equals("CAT003", survey.getCategoryID())) {
-            student.setDepressionScore(sum);
-        }
-            
         return sum + "/" + count;
-
-
           
     }
 
@@ -500,7 +508,7 @@ public class SurveyService {
         if(total != null) {
             SurveyResult surveyResult = new SurveyResult();
             String resultId = surveyResultRepository.findLastResultId();
-            System.out.println(resultId);
+            
             surveyResult.setResultID(resultId);
             surveyResult.setStudentID(studentId);
             surveyResult.setSurveyID(surveyId);
