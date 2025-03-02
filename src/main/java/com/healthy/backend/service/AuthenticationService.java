@@ -63,15 +63,6 @@ public class AuthenticationService {
     private String siteURL;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        if (Role.valueOf(request.getRole()).equals(Role.PSYCHOLOGIST)) {
-            return registerPsychologist((PsychologistRegisterRequest) request);
-        }
-        if (Role.valueOf(request.getRole()).equals(Role.PARENT)) {
-            return registerParent((ParentRegisterRequest) request);
-        }
-        if (Role.valueOf(request.getRole()).equals(Role.STUDENT)) {
-            return registerStudent((StudentRegisterRequest) request);
-        }
         return registerUser(request);
     }
 
