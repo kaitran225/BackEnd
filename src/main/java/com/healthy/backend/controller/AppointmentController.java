@@ -32,7 +32,6 @@ import java.util.List;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
-    private final NotificationService notificationService;
 
     @Operation(
             summary = "Get all appointments",

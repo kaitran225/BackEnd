@@ -6,11 +6,16 @@ import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.ParticipationStatus;
 import com.healthy.backend.enums.ProgramStatus;
 import com.healthy.backend.enums.ProgramType;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
+import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
+import com.healthy.backend.security.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +45,13 @@ public class ProgramService {
 
     private final GeneralService __;
     private final NotificationService notificationService;
+    private final TokenService tokenService;
 
-    public List<ProgramsResponse> getAllProgramsDetails() {
+    public List<ProgramsResponse> getAllProgramsDetails(HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to view data for all programs");
+        }
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(
@@ -51,17 +61,20 @@ public class ProgramService {
                 )).toList();
     }
 
-    public List<ProgramsResponse> getAllPrograms() {
+    public List<ProgramsResponse> getAllPrograms(HttpServletRequest request) {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
-
         return programs.stream().map(program -> {
             List<StudentResponse> enrolled = getStudentsByProgram(program.getProgramID());
             return programMapper.buildProgramResponse(program, enrolled);
         }).toList();
     }
 
-    public ProgramTagResponse createProgramTag(ProgramTagRequest programTagRequest) {
+    public ProgramTagResponse createProgramTag(ProgramTagRequest programTagRequest, HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to create this program tag");
+        }
         if (tagsRepository.existsByTagName(programTagRequest.getTagName())) {
             throw new ResourceAlreadyExistsException("Tag already exists");
         }
@@ -71,9 +84,12 @@ public class ProgramService {
         return programMapper.buildProgramTagResponse(newTag);
     }
 
-    public ProgramsResponse createProgram(ProgramsRequest programsRequest) {
+    public ProgramsResponse createProgram(ProgramsRequest programsRequest,HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to create this program");
+        }
         String programId = __.generateProgramID();
-
         Optional<Users> staffUser = userRepository.findById(programsRequest.getUserId());
         if (staffUser.isEmpty()) {
             throw new ResourceNotFoundException("User with ID " + programsRequest.getUserId() + " not found.");
@@ -104,23 +120,25 @@ public class ProgramService {
                 programsRequest.getMeetingLink(),
                 ProgramType.valueOf(programsRequest.getType().toUpperCase())
         ));
-        return getProgramById(programId);
+        return getProgramById(programId, request);
     }
 
-    public ProgramsResponse getProgramById(String programId) {
+    public ProgramsResponse getProgramById(String programId, HttpServletRequest request) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
         return programMapper.buildProgramResponse(program, getStudentsByProgram(programId));
     }
 
-    public List<ProgramTagResponse> getProgramTags() {
+    public List<ProgramTagResponse> getProgramTags(HttpServletRequest request) {
         List<Tags> tags = tagsRepository.findAll();
         if (tags.isEmpty()) throw new ResourceNotFoundException("No tags found");
         return tags.stream().map(programMapper::buildProgramTagResponse).toList();
     }
 
-    public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest) {
-
+    public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.STUDENT)) {
+            throw new OperationFailedException("You don't have permission to register for a program");
+        }
         Programs program = programRepository.findById(programParticipationRequest.getProgramID())
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
 
@@ -148,7 +166,7 @@ public class ProgramService {
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
 
-    public String getProgramStatus(String programId) {
+    public String getProgramStatus(String programId, HttpServletRequest request) {
         Programs program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
         return program.getStatus().name();
@@ -179,36 +197,52 @@ public class ProgramService {
         return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
-    public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
-        List<ProgramParticipation> participation = programParticipationRepository.findByStudentID(studentId);
-        if (participation.isEmpty()) {
-            throw new ResourceNotFoundException("No enrolled programs found");
+    public List<ProgramsResponse> getEnrolledPrograms(
+            String studentId,
+            HttpServletRequest request) {
+        String finalStudentId = validateStudentID(request, studentId);
+        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
+                && !tokenService.validateRole(request, Role.MANAGER)) {
+            throw new OperationFailedException("You don't have permission to view this student's enrolled programs");
         }
-        return participation.stream()
-                .map(p -> programMapper.buildProgramResponse(
-                        programRepository
-                                .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(p.getProgram().getProgramID())
+        List<String> programIDList = programParticipationRepository.findProgramIDsByStudentID(finalStudentId);
+        if (programIDList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return programIDList.stream()
+                .map(programID -> programMapper.buildProgramResponse(
+                        programRepository.findById(programID).orElseThrow(() -> new ResourceNotFoundException("Program not found")),
+                        getStudentsByProgram(programID)
                 ))
                 .toList();
     }
 
     @Transactional
-    public boolean deleteProgram(String programId) {
+    public boolean deleteProgram(String programId, HttpServletRequest request) {
+        if (programRepository.existsById(programId)) {
+            throw new ResourceNotFoundException("Program not found");
+        }
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to delete this program");
+        }
         if (!programRepository.existsById(programId)) {
             throw new ResourceNotFoundException("Program not found with ID: " + programId);
         }
 
-        programParticipationRepository.deleteByProgramId(programId);
-        programScheduleRepository.deleteByProgramId(programId);
-        programRepository.deleteById(programId);
+        Programs program = programRepository.findById(programId).orElseThrow(() -> new ResourceNotFoundException("Program not found"));
+        program.setStatus(ProgramStatus.DELETED);
+        programRepository.save(program);
 
         if (programRepository.findById(programId).isPresent()) return false;
         return programRepository.findById(programId).isEmpty();
     }
 
-    public ProgramsResponse getProgramParticipants(String programId) {
+    public ProgramsResponse getProgramParticipants(String programId,HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to get participants of this program");
+        }
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<StudentResponse> studentResponses = getStudentsByProgram(programId)
@@ -245,5 +279,15 @@ public class ProgramService {
         return programParticipationRepository.findByProgramIDAndStudentID(
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
         ) != null;
+    }
+
+    private String validateStudentID(HttpServletRequest request, String studentId) {
+        if (studentId == null) {
+            return tokenService.getRoleID(tokenService.retrieveUser(request));
+        }
+        if (!studentRepository.existsById(studentId)) {
+            return tokenService.getRoleID(tokenService.retrieveUser(request));
+        }
+        return studentId;
     }
 }

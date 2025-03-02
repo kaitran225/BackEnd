@@ -2,5 +2,6 @@ package com.healthy.backend.enums;
 
 public enum ProgramStatus {
     ACTIVE,
-    INACTIVE
+    INACTIVE,
+    DELETED
 }
