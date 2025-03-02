@@ -193,9 +193,11 @@ public class UserService {
 
         programs = programs.stream()
                 .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
+
         if (appointments.isEmpty() && programs.isEmpty()) {
-            return null;
+            return eventMapper.buildEmptyEventResponse(appointments, programs, finalUserID);
         }
+
         return switch (users.getRole()) {
             case STUDENT -> eventMapper.buildStudentEventResponse(appointments, programs, finalUserID);
             case PSYCHOLOGIST -> eventMapper.buildPsychologistEventResponse(appointments, programs, finalUserID);

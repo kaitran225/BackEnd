@@ -79,6 +79,22 @@ public class EventMapper {
                 .build();
     }
 
+    public EventResponse buildEmptyEventResponse(
+            List<Appointments> appointments,
+            List<Programs> programs,
+            String userId
+    ) {
+        List<AppointmentResponse> appointmentResponses = List.of();
+
+        List<ProgramsResponse> programsResponses = List.of();
+
+        Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);
+        return EventResponse.builder()
+                .event(dateMap)
+                .userId(userId)
+                .build();
+    }
+
     public EventResponse buildManagerEventResponse(
             List<Appointments> appointments,
             List<Programs> programs,

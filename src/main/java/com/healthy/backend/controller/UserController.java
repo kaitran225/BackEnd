@@ -199,11 +199,12 @@ public class UserController {
     )
     @GetMapping("/events")
     public ResponseEntity<?> getAllEvents(
-            @RequestParam String userId, HttpServletRequest request) {
+            @RequestParam(required = false) String userId,
+            HttpServletRequest request) {
         EventResponse events = userService.getAllEvents(userId, request);
-        if(events.getEvent().isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
+//        if( events == null || events.getEvent().isEmpty()){
+//            return ResponseEntity.noContent().build();
+//        }
         return ResponseEntity.ok(events);
     }
 
@@ -212,7 +213,9 @@ public class UserController {
             description = "Returns all appointments for a specific user (student or psychologist)."
     )
     @GetMapping("/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(@RequestParam(required = false) String userId, HttpServletRequest request) {
+    public ResponseEntity<List<AppointmentResponse>> getUserAppointments(
+            @RequestParam(required = false) String userId,
+            HttpServletRequest request) {
         List<AppointmentResponse> appointments = userService.getUserAppointment(userId, request);
         return appointments.isEmpty()
                 ? ResponseEntity.noContent().build()
