@@ -25,39 +25,8 @@ public class NotificationService {
     private final TokenService tokenService;
     private final GeneralService __;
 
-    public void createNotification(String userId, String title, String message, String entityId, NotificationType notificationType) {
-        Notifications notification = new Notifications();
-        notification.setNotificationID(__.generateNextNotificationID());
-        notification.setUserID(userId);
-        notification.setTitle(title);
-        notification.setMessage(message);
-        notification.setType(notificationType);
 
-        switch (notificationType) {
-            case APPOINTMENT:
-                notification.setAppointmentID(entityId);
-                break;
-            case ON_LEAVE:
-                notification.setLeaveRequestID(entityId);
-                break;
-            case PROGRAM:
-                notification.setProgramID(entityId);
-                break;
-            case SURVEY:
-                notification.setSurveyID(entityId);
-                break;
-            case DONE:
-            // Logic for DONE
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown notification type: " + notificationType);
-        }
 
-        notification.setIsRead(false);
-        notificationRepository.save(notification);
-    }
-
-    // Usage examples
     public void createAppointmentNotification(String userId, String title, String message, String appointmentId) {
         createNotification(userId, title, message, appointmentId, NotificationType.APPOINTMENT);
     }
@@ -73,7 +42,6 @@ public class NotificationService {
     public void createSurveyNotification(String userId, String title, String message, String surveyId) {
         createNotification(userId, title, message, surveyId, NotificationType.SURVEY);
     }
-
 
     public List<NotificationResponse> getUserReadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
@@ -109,6 +77,38 @@ public class NotificationService {
         }
         return notificationMapper.buildNotificationResponseList(
                 notificationRepository.findAll());
+    }
+
+    private void createNotification(String userId, String title, String message, String entityId, NotificationType notificationType) {
+        Notifications notification = new Notifications();
+        notification.setNotificationID(__.generateNextNotificationID());
+        notification.setUserID(userId);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(notificationType);
+
+        switch (notificationType) {
+            case APPOINTMENT:
+                notification.setAppointmentID(entityId);
+                break;
+            case ON_LEAVE:
+                notification.setLeaveRequestID(entityId);
+                break;
+            case PROGRAM:
+                notification.setProgramID(entityId);
+                break;
+            case SURVEY:
+                notification.setSurveyID(entityId);
+                break;
+            case DONE:
+                // Logic for DONE
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown notification type: " + notificationType);
+        }
+
+        notification.setIsRead(false);
+        notificationRepository.save(notification);
     }
 
     private String validateUserID(HttpServletRequest request, String userId) {
