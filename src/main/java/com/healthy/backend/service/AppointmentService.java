@@ -416,7 +416,6 @@ public class AppointmentService {
     private void updateTimeSlotStatus(TimeSlots newTimeSlot, TimeSlots oldTimeSlot) {
         newTimeSlot.setStatus(TimeslotStatus.BOOKED);
         timeSlotRepository.save(newTimeSlot);
-
         // If old time slot was booked, mark it as available
         if (oldTimeSlot.getStatus() == TimeslotStatus.BOOKED) {
             oldTimeSlot.setStatus(TimeslotStatus.AVAILABLE);

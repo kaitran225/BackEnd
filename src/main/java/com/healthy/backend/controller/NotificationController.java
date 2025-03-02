@@ -25,17 +25,13 @@ import java.util.stream.Collectors;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final NotificationMapper notificationMapper;
 
     @Operation(summary = "Get all notifications")
     @GetMapping("")
     public ResponseEntity<List<NotificationResponse>> getNotifications(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
@@ -53,10 +49,7 @@ public class NotificationController {
     public ResponseEntity<List<NotificationResponse>> getReadNotifications(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserReadNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserReadNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
@@ -65,20 +58,14 @@ public class NotificationController {
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
             @PathVariable String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserUnreadNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserUnreadNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get all notifications from the database")
     @GetMapping("/all")
     public ResponseEntity<List<NotificationResponse>> getAllNotifications(HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getAllNotifications(request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getAllNotifications(request);
         return ResponseEntity.ok(responses);
     }
 }

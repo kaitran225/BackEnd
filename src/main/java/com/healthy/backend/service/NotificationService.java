@@ -1,10 +1,12 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.dto.notification.NotificationResponse;
 import com.healthy.backend.entity.Notifications;
 import com.healthy.backend.enums.NotificationType;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.NotificationMapper;
 import com.healthy.backend.repository.NotificationRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.TokenService;
@@ -19,6 +21,7 @@ public class NotificationService {
     
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationMapper notificationMapper;
     private final TokenService tokenService;
     private final GeneralService __;
 
@@ -72,22 +75,25 @@ public class NotificationService {
     }
 
 
-    public List<Notifications> getUserReadNotifications(String userId, HttpServletRequest request) {
+    public List<NotificationResponse> getUserReadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
         checkUserPermission(request, finalUserId);
-        return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(finalUserId);
+        return notificationMapper.buildNotificationResponseList(
+                notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(finalUserId));
     }
 
-    public List<Notifications> getUserUnreadNotifications(String userId, HttpServletRequest request) {
+    public List<NotificationResponse> getUserUnreadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
         checkUserPermission(request, finalUserId);
-        return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(finalUserId);
+        return notificationMapper.buildNotificationResponseList(
+                notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(finalUserId));
     }
 
-    public List<Notifications> getUserNotifications(String userId, HttpServletRequest request) {
+    public List<NotificationResponse> getUserNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
         checkUserPermission(request, finalUserId);
-        return notificationRepository.findByUserIDOrderByCreatedAtDesc(finalUserId);
+        return notificationMapper.buildNotificationResponseList(
+                notificationRepository.findByUserIDOrderByCreatedAtDesc(finalUserId));
     }
 
     public void markAsRead(String notificationId, HttpServletRequest request) {
@@ -97,11 +103,12 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public List<Notifications> getAllNotifications(HttpServletRequest request) {
+    public List<NotificationResponse> getAllNotifications(HttpServletRequest request) {
         if (tokenService.validateRole(request, Role.MANAGER)) {
             throw new ResourceInvalidException("You can not get database notifications");
         }
-        return notificationRepository.findAll();
+        return notificationMapper.buildNotificationResponseList(
+                notificationRepository.findAll());
     }
 
     private String validateUserID(HttpServletRequest request, String userId) {
