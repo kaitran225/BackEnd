@@ -41,6 +41,22 @@ public class SurveyMapper {
                 .questions(questions)
                 .build();
         }
+    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus) {
+        return SurveysResponse.builder()
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .numberOfQuestions(numberOfQuestions)
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createdAt(survey.getCreatedAt().toString())
+                .createBy(survey.getCreator().getUsername())
+                .completeStatus(completeStatus)
+                .build();
+    }
 
       public SurveysResponse buildSurveysResponse2(Surveys survey, int numberOfQuestions, List<StatusStudent> statusStudent) {
         return SurveysResponse.builder()

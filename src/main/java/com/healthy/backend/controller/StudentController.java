@@ -29,6 +29,7 @@ public class StudentController {
     private final StudentService studentService;
 
     // Get student by ID
+    @Operation(summary = "Get student by ID", description = "Returns a student by ID.")
     @GetMapping("")
     public ResponseEntity<StudentResponse> getStudentById(
             @RequestParam(required = false) String studentId,
@@ -37,6 +38,7 @@ public class StudentController {
     }
 
     // Update student details
+    @Operation(summary = "Update student details", description = "Updates a student's details.")
     @PutMapping("/update")
     public ResponseEntity<StudentResponse> updateStudent(
             @RequestParam(required = false) String studentId,
@@ -53,10 +55,11 @@ public class StudentController {
             HttpServletRequest request) {
         if (!studentService.isStudentExist(studentId))
             throw new ResourceNotFoundException("No student found with id: " + studentId);
-        return ResponseEntity.ok(studentService.getSurveyResults(studentId, request));
+        return ResponseEntity.ok(studentService.getSurvey(studentId, request));
     }
 
     // Get pending surveys for student
+    @Operation(summary = "Get pending surveys for student", description = "Returns a list of pending surveys for a student.")
     @GetMapping("/surveys/pending")
     public ResponseEntity<List<SurveysResponse>> getPendingSurveys(
             @RequestParam(required = false) String studentId,
@@ -65,6 +68,7 @@ public class StudentController {
     }
 
     // Get programs assigned to student
+    @Operation(summary = "Get programs assigned to student", description = "Returns a list of programs assigned to a student.")
     @GetMapping("/programs")
     public ResponseEntity<List<ProgramsResponse>> getStudentPrograms(
             @RequestParam(required = false) String studentId,
@@ -73,6 +77,7 @@ public class StudentController {
     }
 
     // Get completed programs
+    @Operation(summary = "Get completed programs", description = "Returns a list of completed programs.")
     @GetMapping("/programs/completed")
     public ResponseEntity<List<ProgramsResponse>> getCompletedPrograms(
             @RequestParam(required = false) String studentId,
@@ -81,6 +86,7 @@ public class StudentController {
     }
 
     // Get student appointments
+    @Operation(summary = "Get student appointments", description = "Returns a list of student appointments.")
     @GetMapping("/appointments")
     public ResponseEntity<List<AppointmentResponse>> getStudentAppointments(
             @RequestParam(required = false) String studentId,
@@ -89,6 +95,7 @@ public class StudentController {
     }
 
     // Get upcoming student appointments
+    @Operation(summary = "Get upcoming student appointments", description = "Returns a list of upcoming student appointments.")
     @GetMapping("/appointments/upcoming")
     public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(
             @RequestParam(required = false) String studentId,
