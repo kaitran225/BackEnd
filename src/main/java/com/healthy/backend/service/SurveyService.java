@@ -70,7 +70,8 @@ public class SurveyService {
         Surveys survey = surveyRepository.findById(surveyResult.getSurveyID())
                 .orElseThrow(() -> new ResourceNotFoundException("Not found survey" + surveyResult.getSurveyID()) );
 
-        Students studentResult = studentRepository.findByStudentID(surveyResult.getStudentID());
+        Students studentResult = studentRepository.findById(surveyResult.getStudentID())
+                .orElseThrow(() -> new ResourceNotFoundException("Not found student"));
         List<SurveyQuestionOptionsChoices> choicesList = surveyQuestionOptionsChoicesRepository.findByResultID(surveyResult.getResultID());
 
         List<String> optionIds = choicesList.stream()
@@ -89,21 +90,20 @@ public class SurveyService {
         }
 
         for(SurveyQuestionOptionsChoices result : choicesList  ) {
-                SurveyQuestionOptions surveyQuestion = optionMap.get(result.getOptionID());
-                sum += mapScore.getOrDefault(surveyQuestion.getOptionID(), 0);
+            SurveyQuestionOptions surveyQuestion = optionMap.get(result.getOptionID());
+            sum += mapScore.getOrDefault(surveyQuestion.getOptionID(), 0);
+        }    
      
-                if(Objects.equals("CAT001", survey.getCategoryID())) {
-                    studentResult.setStressScore(sum);
-                }
-                if(Objects.equals("CAT002", survey.getCategoryID())) {
-                    studentResult.setAnxietyScore(sum);
-                }
-                if(Objects.equals("CAT003", survey.getCategoryID())) {
-                    studentResult.setDepressionScore(sum);
-                }
+        switch (survey.getCategoryID()) {
+            case "CAT001" -> studentResult.setStressScore(sum);
+            case "CAT002" -> studentResult.setAnxietyScore(sum);
+            case "CAT003" -> studentResult.setDepressionScore(sum);
+         default -> {
+            throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
+        }
+        }
 
-            }
-            studentRepository.save(studentResult);
+        studentRepository.save(studentResult);
         return sum + "/" + countQuestion;
 
     }
@@ -207,7 +207,7 @@ public class SurveyService {
     return surveys.stream().map(survey -> {
         List<SurveyQuestionResultResponse> surveyQuestionResultList = new ArrayList<>();
         List<SurveyQuestions> surveyQuestionsList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-        System.out.println("surveyId" + survey.getSurveyID());
+        // System.out.println("surveyId" + survey.getSurveyID());
         
 
         surveyQuestionsList.forEach(question -> {
@@ -222,7 +222,7 @@ public class SurveyService {
 
         
         List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
-        System.out.println("surveyId" + surveyResultList);
+        // System.out.println("surveyId" + surveyResultList);
         List<StatusStudent> statusStudentList = new ArrayList<>();
 
         for (SurveyResult surveyResult : surveyResultList) {
@@ -352,7 +352,7 @@ public class SurveyService {
             System.out.println("newQuestion.." + newQuestion.getQuestionID());
             String latestQuestion = (newQuestion != null) ? getLastIdInDB(newQuestion.getQuestionID()) : "Q0001";
 
-            System.out.println("newQuestion1.." + latestQuestion);
+            // System.out.println("newQuestion1.." + latestQuestion);
 
             SurveyQuestions surveyQuestion1 = new SurveyQuestions();
             surveyQuestion1.setQuestionText(questionRes.getQuestionText());
@@ -400,15 +400,6 @@ public class SurveyService {
 
     }
 
-    // public SurveyResultsResponse getSurveyResults(String surveyId) {
-    //     Surveys survey = surveyRepository.findById(surveyId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("SurveyId not found" + surveyId));
-    //     List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(surveyId);
-
-
-
-       
-    // }
 
     public void addAnswerToQuestion(String surveyId, String questionId, List<QuestionOption> answerOption) {
         List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(surveyId);
@@ -450,6 +441,107 @@ public class SurveyService {
     }
 
 
+    public String calculateTotalRightQuestion(List<SurveyQuestions> questions, List<String> options, Surveys survey, Students student) {
+        Map<String, Integer> mapScore = new HashMap<>();
+        int sum = 0;
+        int count = questions.size() * 3;
+        
+        questions.forEach(question -> {
 
-    
+            List<SurveyQuestionOptions> surveyOption = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
+            surveyOption.forEach(s -> {
+                mapScore.put(s.getOptionID(), s.getScore());        
+            });
+        });
+
+        for(String surveyQuestionOption : options) {
+            sum += mapScore.getOrDefault(surveyQuestionOption, 0);
+        }
+        
+        // switch (survey.getCategoryID()) {
+        //     case "CAT001" :
+        //         student.setStressScore(sum);
+        //         break;
+        //     case "CAT002" :
+        //         student.setAnxietyScore(sum);
+        //         break;
+        //     case "CAT003" :
+        //         student.setDepressionScore(sum);
+        //         break;    
+        //     default:
+        //         break;
+        // }
+        switch (survey.getCategoryID()) {
+            case "CAT001" -> student.setStressScore(sum);
+            case "CAT002" -> student.setAnxietyScore(sum);
+            case "CAT003" -> student.setDepressionScore(sum);
+         default -> {
+            throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
+        }
+        }
+
+        return sum + "/" + count;
+          
+    }
+
+
+    public StatusStudent getScoreFromStudentInSuv(String surveyId, List<String> optionId, String studentId) {
+        StatusStudent status = new StatusStudent();
+
+        Surveys survey = surveyRepository.findById(surveyId)
+            .orElseThrow(() -> new ResourceNotFoundException("Not found survey"));
+
+        List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
+        String check = null;
+        for(String option : optionId) {
+            if(Objects.equals(check, option)) {
+                return null;
+            }
+            check = option;
+        }
+
+        Students student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new ResourceNotFoundException("Not found student"));
+
+        String total = calculateTotalRightQuestion(surveyQuestion, optionId, survey, student);
+
+        if(total != null) {
+            SurveyResult surveyResult = new SurveyResult();
+            String resultId = surveyResultRepository.findLastResultId();
+            
+            surveyResult.setResultID(resultId);
+            surveyResult.setStudentID(studentId);
+            surveyResult.setSurveyID(surveyId);
+            
+            surveyResultRepository.save(surveyResult);
+
+            if(surveyResult.getResultID() != null) {
+                saveSurveyOptionsChoice(surveyResult.getResultID(), optionId);
+
+                status = surveyMapper.maptoResultStudent1(
+                getStatusStudent(surveyId, studentId),
+                total,
+                surveyResult);
+                if(status == null) {
+                    return surveyMapper.maptoResultStudent1("0", "Not Finished", surveyResult);
+                }
+
+            }
+        } 
+        return status;
+    }
+
+    public void saveSurveyOptionsChoice(String resultID, List<String> optionId) {
+        List<SurveyQuestionOptionsChoices> choiceList = new ArrayList<>();
+        for(String surveyQuestionOption : optionId) {
+            SurveyQuestionOptions question = surveyQuestionOptionsRepository.findByOptionID(surveyQuestionOption);
+            String questionId = question.getQuestionID();
+            
+
+            SurveyQuestionOptionsChoices sqc = new SurveyQuestionOptionsChoices(resultID, questionId, surveyQuestionOption);
+            choiceList.add(sqc);
+        }
+        surveyQuestionOptionsChoicesRepository.saveAll(choiceList);
+    }
+
 }

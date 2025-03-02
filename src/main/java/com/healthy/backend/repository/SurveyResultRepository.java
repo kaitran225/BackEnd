@@ -16,4 +16,7 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
 
     @Query("SELECT sr.studentID FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
     List<String> findAllStudentIdsBySurveyID(@Param("surveyID") String surveyID);
+
+    @Query("SELECT sr.resultID FROM SurveyResult sr ORDER BY sr.resultID DESC LIMIT 1")
+    String findLastResultId();
 }

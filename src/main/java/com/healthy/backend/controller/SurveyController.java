@@ -54,6 +54,25 @@ public class SurveyController {
     }
 
     @Operation(
+            summary = "Get score in survey",
+            description = "Return the score that the student achieved in the survey"
+    )
+    @PostMapping("/{surveyId}/{studentId}/options/scoreResult")
+    public ResponseEntity<?> getScoreFromStudentInSuv(@PathVariable String surveyId, @RequestBody List<String> optionId, @PathVariable String studentId) {
+     
+        try {
+            StatusStudent status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
+            return ResponseEntity.ok(status);
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while getting score in the survey " + ex.getMessage());
+        }
+    }
+
+
+
+    @Operation(
             summary = "Get survey details",
             description = "Returns details for a specific survey."
     )
@@ -161,7 +180,9 @@ public class SurveyController {
     )
     @PostMapping("/{surveyId}/questions")
     public ResponseEntity<?> addSurveyQuestion(@PathVariable String surveyId, @RequestBody SurveyQuestionResponse question) {
-
+// api test [
+//   "ANS003", "ANS005", "ANS010", "ANS014", "ANS018", "ANS022", "ANS026", "ANS030", "ANS034", "ANS039"
+// ]
         try {
                 surveyService.addSurveyQuestion(surveyId, question);
                 return ResponseEntity.ok("Survey question add sucessfully");
