@@ -74,7 +74,7 @@ public class NotificationService {
 
     public List<Notifications> getUserReadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
             throw new ResourceInvalidException("You can not get other users notifications");
         }
         return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(finalUserId);
@@ -82,7 +82,7 @@ public class NotificationService {
 
     public List<Notifications> getUserUnreadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
             throw new ResourceInvalidException("You can not get other users notifications");
         }
         return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(finalUserId);
@@ -90,13 +90,13 @@ public class NotificationService {
 
     public List<Notifications> getUserNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (!tokenService.validateRole(request, Role.MANAGER) && !tokenService.validateUID(request, finalUserId)) {
+        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER) ) {
             throw new ResourceInvalidException("You can not get other users notifications");
         }
         return notificationRepository.findByUserIDOrderByCreatedAtDesc(finalUserId);
     }
 
-    public void markAsRead(String notificationId) {
+    public void markAsRead(String notificationId, HttpServletRequest request) {
         Notifications notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
         notification.setIsRead(true);
@@ -104,7 +104,7 @@ public class NotificationService {
     }
 
     public List<Notifications> getAllNotifications(HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
+        if (tokenService.validateRole(request, Role.MANAGER)) {
             throw new ResourceInvalidException("You can not get database notifications");
         }
         return notificationRepository.findAll();
@@ -119,5 +119,4 @@ public class NotificationService {
         }
         return userId;
     }
-
 }

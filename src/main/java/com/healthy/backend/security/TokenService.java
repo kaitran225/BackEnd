@@ -119,6 +119,12 @@ public class TokenService {
         return !userUID.equals(uid);
     }
 
+    public boolean validateUID(HttpServletRequest request) {
+        HashMap<String, ?> map = extractRequest(request);
+        String userUID = (String) map.get("uid");
+        return userUID != null;
+    }
+
     private HashMap<String, ?> extractRequest(HttpServletRequest request) {
 
         String authHeader = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
