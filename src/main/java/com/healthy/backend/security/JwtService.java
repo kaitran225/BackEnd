@@ -1,5 +1,6 @@
 package com.healthy.backend.security;
 
+import com.healthy.backend.dto.auth.request.RegisterRequest;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

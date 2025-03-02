@@ -145,7 +145,7 @@ public class AuthenticationService {
             return buildAuthResponse(savedUser);
         }
 
-        sendVerificationEmailIfNeeded(normalizedEmail, token);
+        sendVerificationEmailIfNeeded(normalizedEmail, token, request.getFullName());
         return buildAuthResponse(savedUser);
     }
 
@@ -171,9 +171,9 @@ public class AuthenticationService {
         return email.contains("example");
     }
 
-    private void sendVerificationEmailIfNeeded(String email, String token) {
+    private void sendVerificationEmailIfNeeded(String email, String token, String name) {
         String verificationUrl = buildVerificationUrl(token);
-        emailService.sendVerificationEmail(email, "Click the link to verify your email: " + verificationUrl, "Verify Your Account");
+        emailService.sendVerificationEmail(email, verificationUrl, name);
     }
 
     private String buildVerificationUrl(String token) {
@@ -322,7 +322,7 @@ public class AuthenticationService {
                 .toUriString();
 
         // Send password reset email
-        emailService.sendForgotPasswordEmail(user.getEmail(), resetLink);
+        emailService.sendForgotPasswordEmail(user.getEmail(), resetLink, user.getFullName());
 
         return true;
     }
