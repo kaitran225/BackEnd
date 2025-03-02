@@ -1,7 +1,6 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.entity.Notifications;
-import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.enums.NotificationType;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceInvalidException;
@@ -13,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,75 +22,71 @@ public class NotificationService {
     private final TokenService tokenService;
     private final GeneralService __;
 
-    public void createAppointmentNotification(String userId, String title, String message, String appointmentId) {
+    public void createNotification(String userId, String title, String message, String entityId, NotificationType notificationType) {
         Notifications notification = new Notifications();
         notification.setNotificationID(__.generateNextNotificationID());
         notification.setUserID(userId);
         notification.setTitle(title);
         notification.setMessage(message);
-        notification.setType(NotificationType.APPOINTMENT);
-        notification.setAppointmentID(appointmentId);
+        notification.setType(notificationType);
+
+        switch (notificationType) {
+            case APPOINTMENT:
+                notification.setAppointmentID(entityId);
+                break;
+            case ON_LEAVE:
+                notification.setLeaveRequestID(entityId);
+                break;
+            case PROGRAM:
+                notification.setProgramID(entityId);
+                break;
+            case SURVEY:
+                notification.setSurveyID(entityId);
+                break;
+            case DONE:
+            // Logic for DONE
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown notification type: " + notificationType);
+        }
+
         notification.setIsRead(false);
         notificationRepository.save(notification);
     }
-    
+
+    // Usage examples
+    public void createAppointmentNotification(String userId, String title, String message, String appointmentId) {
+        createNotification(userId, title, message, appointmentId, NotificationType.APPOINTMENT);
+    }
+
     public void createOnLeaveNotification(String userId, String title, String message, String leaveRequestId) {
-        Notifications notification = new Notifications();
-        notification.setNotificationID(__.generateNextNotificationID());
-        notification.setUserID(userId);
-        notification.setTitle(title);
-        notification.setMessage(message);
-        notification.setType(NotificationType.ONLEAVE);
-        notification.setLeaveRequestID(leaveRequestId); 
-        notification.setIsRead(false);
-        notificationRepository.save(notification);
+        createNotification(userId, title, message, leaveRequestId, NotificationType.ON_LEAVE);
     }
 
     public void createProgramNotification(String userId, String title, String message, String programId) {
-        Notifications notification = new Notifications();
-        notification.setNotificationID(__.generateNextNotificationID());
-        notification.setUserID(userId);
-        notification.setTitle(title);
-        notification.setMessage(message);
-        notification.setType(NotificationType.PROGRAM);
-        notification.setProgramID(programId);
-        notification.setIsRead(false);
-        notificationRepository.save(notification);
+        createNotification(userId, title, message, programId, NotificationType.PROGRAM);
     }
 
     public void createSurveyNotification(String userId, String title, String message, String surveyId) {
-        Notifications notification = new Notifications();
-        notification.setNotificationID(__.generateNextNotificationID());
-        notification.setUserID(userId);
-        notification.setTitle(title);
-        notification.setMessage(message);
-        notification.setType(NotificationType.SURVEY);
-        notification.setSurveyID(surveyId);
-        notification.setIsRead(false);
-        notificationRepository.save(notification);
+        createNotification(userId, title, message, surveyId, NotificationType.SURVEY);
     }
+
 
     public List<Notifications> getUserReadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new ResourceInvalidException("You can not get other users notifications");
-        }
+        checkUserPermission(request, finalUserId);
         return notificationRepository.findByUserIDAndIsReadTrueOrderByCreatedAtDesc(finalUserId);
     }
 
     public List<Notifications> getUserUnreadNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new ResourceInvalidException("You can not get other users notifications");
-        }
+        checkUserPermission(request, finalUserId);
         return notificationRepository.findByUserIDAndIsReadFalseOrderByCreatedAtDesc(finalUserId);
     }
 
     public List<Notifications> getUserNotifications(String userId, HttpServletRequest request) {
         String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER) ) {
-            throw new ResourceInvalidException("You can not get other users notifications");
-        }
+        checkUserPermission(request, finalUserId);
         return notificationRepository.findByUserIDOrderByCreatedAtDesc(finalUserId);
     }
 
@@ -118,5 +112,10 @@ public class NotificationService {
             return tokenService.retrieveUser(request).getUserId();
         }
         return userId;
+    }
+    private void checkUserPermission(HttpServletRequest request, String finalUserId) {
+        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
+            throw new ResourceInvalidException("You cannot get other users' notifications");
+        }
     }
 }
