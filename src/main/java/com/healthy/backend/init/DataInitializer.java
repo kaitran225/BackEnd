@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @Component
 @RequiredArgsConstructor
-
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -81,8 +80,6 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Logs initialized");
         initializeArticles();
         System.out.println("Articles initialized");
-//        initializeAppointments();
-        System.out.println("Appointments initialized");
         initializeNotifications();
         System.out.println("Notifications initialized");
     }
@@ -555,13 +552,6 @@ public class DataInitializer implements CommandLineRunner {
         articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing anxiety..."));
         articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing stress and anxiety ..."));
     }
-//
-//    private void initializeAppointments() {
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022801", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022802", "STU002", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022803", "STU003", "PSY001", AppointmentStatus.SCHEDULED));
-//        appointmentRepository.save(new Appointments(__.generateAppointmentId(), "TSL00125022804", "STU001", "PSY001", AppointmentStatus.SCHEDULED));
-//    }
 
     private void initializeNotifications() {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist@example.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));

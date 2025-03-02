@@ -15,16 +15,18 @@ import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.security.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,7 +86,7 @@ public class ProgramService {
         return programMapper.buildProgramTagResponse(newTag);
     }
 
-    public ProgramsResponse createProgram(ProgramsRequest programsRequest,HttpServletRequest request) {
+    public ProgramsResponse createProgram(ProgramsRequest programsRequest, HttpServletRequest request) {
         if (!tokenService.validateRole(request, Role.MANAGER)
                 && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
             throw new OperationFailedException("You don't have permission to create this program");
@@ -172,7 +174,11 @@ public class ProgramService {
         return program.getStatus().name();
     }
 
-    public boolean cancelParticipation(ProgramParticipationRequest programParticipationRequest) {
+    public boolean cancelParticipation(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
+        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(programParticipationRequest.getStudentID())
+                && !tokenService.validateRole(request, Role.MANAGER)) {
+            throw new OperationFailedException("You don't have permission to cancel this student participation");
+        }
         if (!isJoined(programParticipationRequest)) {
             throw new ResourceNotFoundException("Participation not found");
         }
@@ -238,7 +244,91 @@ public class ProgramService {
         return programRepository.findById(programId).isEmpty();
     }
 
-    public ProgramsResponse getProgramParticipants(String programId,HttpServletRequest request) {
+    public ProgramsResponse updateProgram(String programId, ProgramUpdateRequest updateRequest, HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)
+                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("You don't have permission to update this program");
+        }
+
+        Programs program = programRepository.findById(programId).orElse(null);
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+
+        if (program.getStartDate().isBefore(LocalDate.now()) &&
+                program.getStartDate().plusDays(program.getDuration()).isAfter(LocalDate.now())) {
+            throw new OperationFailedException("Program is currently in progress and cannot be updated");
+        }
+
+        if (!program.getStartDate().isEqual(LocalDate.parse(updateRequest.getStartDate())) &&
+                program.getStartDate().isBefore(LocalDate.now())) {
+            throw new OperationFailedException("Cannot modify start date of a program that has already started");
+        }
+
+        LocalDate newStartDate = LocalDate.parse(updateRequest.getStartDate());
+        LocalDate newEndDate = newStartDate.plusDays(updateRequest.getDuration());
+        if (newEndDate.isBefore(LocalDate.now())) {
+            throw new OperationFailedException("End date cannot be in the past");
+        }
+
+        int enrolledCount = programParticipationRepository.findByProgramID(programId).size();
+        if (updateRequest.getNumberParticipants() < enrolledCount) {
+            throw new OperationFailedException("Number of participants cannot be less than the number of enrolled participants (" + enrolledCount + ")");
+        }
+
+        if (!departmentRepository.existsById(updateRequest.getDepartmentId())) {
+            throw new OperationFailedException("Department not found");
+        }
+
+        if (!psychologistRepository.existsById(updateRequest.getFacilitatorId())) {
+            throw new OperationFailedException("Facilitator not found");
+        }
+
+        Psychologists facilitator = psychologistRepository.findById(updateRequest.getFacilitatorId()).orElse(null);
+        if (facilitator != null && !facilitator.getDepartmentID().equals(updateRequest.getDepartmentId())) {
+            throw new OperationFailedException("Facilitator does not belong to the specified department");
+        }
+
+        ProgramStatus currentStatus = program.getStatus();
+        ProgramStatus newStatus = ProgramStatus.valueOf(updateRequest.getStatus().toUpperCase());
+        if (currentStatus == ProgramStatus.COMPLETED && newStatus != ProgramStatus.COMPLETED) {
+            throw new OperationFailedException("Cannot change status of a completed program");
+        }
+
+        if (currentStatus == ProgramStatus.DELETED) {
+            throw new OperationFailedException("Cannot update a cancelled program");
+        }
+
+        if (updateRequest.getMeetingLink() != null && !updateRequest.getMeetingLink().matches("^(http|https)://.*$")) {
+            throw new OperationFailedException("Invalid meeting link format");
+        }
+
+        // Update program details
+        program.setProgramName(updateRequest.getName());
+        program.setDescription(updateRequest.getDescription());
+        program.setDuration(updateRequest.getDuration());
+        program.setNumberParticipants(updateRequest.getNumberParticipants());
+        program.setStatus(newStatus);
+        program.setMeetingLink(updateRequest.getMeetingLink());
+        program.setType(ProgramType.valueOf(updateRequest.getType().toUpperCase()));
+        program.setFacilitatorID(updateRequest.getFacilitatorId());
+        program.setDepartmentID(updateRequest.getDepartmentId());
+        program.setStartDate(newStartDate);
+
+        // Handle tags
+        Set<Tags> tags = new HashSet<>();
+        for (String tagId : updateRequest.getTags()) {
+            Tags tag = tagsRepository.findById(tagId).orElse(null);
+            if (tag == null) throw new ResourceNotFoundException("Tag not found");
+            tags.add(tag);
+        }
+        program.setTags(tags);
+
+        programRepository.save(program);
+        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId));
+    }
+
+
+
+    public ProgramsResponse getProgramParticipants(String programId, HttpServletRequest request) {
         if (!tokenService.validateRole(request, Role.MANAGER)
                 && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
             throw new OperationFailedException("You don't have permission to get participants of this program");
@@ -279,6 +369,43 @@ public class ProgramService {
         return programParticipationRepository.findByProgramIDAndStudentID(
                 programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
         ) != null;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional
+    public void onApplicationStart() {
+        System.out.println("Checking program statuses at startup...");
+        updateProgramStatuses();
+    }
+
+    // Run every day at midnight
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void scheduledStatusUpdate() {
+        System.out.println("Checking program statuses at midnight...");
+        updateProgramStatuses();
+    }
+
+    private void updateProgramStatuses() {
+        LocalDate today = LocalDate.now();
+        List<Programs> programs = programRepository.findAll();
+
+        for (Programs program : programs) {
+            LocalDate endDate = program.getStartDate().plusDays(program.getDuration());
+
+            // Change PENDING → IN_PROGRESS
+            if (program.getStatus() == ProgramStatus.ACTIVE && program.getStartDate().isBefore(today)) {
+                program.setStatus(ProgramStatus.IN_PROGRESS);
+            }
+
+            // Change IN_PROGRESS → COMPLETED
+            if (program.getStatus() == ProgramStatus.IN_PROGRESS && endDate.isBefore(today)) {
+                program.setStatus(ProgramStatus.COMPLETED);
+            }
+        }
+
+        programRepository.saveAll(programs); // Bulk update
+        System.out.println("Program statuses updated: " + today);
     }
 
     private String validateStudentID(HttpServletRequest request, String studentId) {

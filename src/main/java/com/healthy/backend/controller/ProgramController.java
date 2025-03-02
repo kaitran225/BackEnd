@@ -115,17 +115,6 @@ public class ProgramController {
         return ResponseEntity.ok(programsResponse);
     }
 
-    // Get program location
-    @Operation(deprecated = true,
-            summary = "Get program location",
-            description = "Returns the location of a specific program.")
-    @GetMapping("/{programId}/location")
-    public ResponseEntity<?> getProgramLocation(
-            @PathVariable String programId,
-            HttpServletRequest request) {
-        return ResponseEntity.ok("Location for program " + programId);
-    }
-
     // Get program status
     @Operation(summary = "Get program status",
             description = "Returns the status of a specific program.")
@@ -227,17 +216,24 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Update a program
-    @Operation(summary = "Update a program", description = "Updates an existing program.")
+    @Operation(summary = "Update a program",
+            description = "Updates an existing program.")
     @PutMapping("/{programId}/edit")
-    public ResponseEntity<?> updateProgram(@PathVariable String programId) {
-        return ResponseEntity.ok("Program updated " + programId);
+    public ResponseEntity<ProgramsResponse> updateProgram(
+            @PathVariable String programId,
+            @RequestBody ProgramUpdateRequest programsRequest,
+            HttpServletRequest request) {
+        ProgramsResponse response = programService.updateProgram(programId, programsRequest, request);
+        return ResponseEntity.ok(response);
     }
 
     // Cancel registration
     @Operation(summary = "Cancel registration for a program", description = "Cancels registration for a program.")
     @PutMapping("/{programId}/cancel-request")
-    public ResponseEntity<String> cancelParticipation(@RequestBody ProgramParticipationRequest programParticipationRequest) {
-        boolean isCancelled = programService.cancelParticipation(programParticipationRequest);
+    public ResponseEntity<String> cancelParticipation(
+            @RequestBody ProgramParticipationRequest programParticipationRequest,
+            HttpServletRequest request) {
+        boolean isCancelled = programService.cancelParticipation(programParticipationRequest, request);
         if (isCancelled) {
             return ResponseEntity.ok("Participation successfully cancelled.");
         }
