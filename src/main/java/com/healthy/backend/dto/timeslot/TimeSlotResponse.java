@@ -29,6 +29,6 @@ public class TimeSlotResponse {
     private TimeslotStatus status;
 
     private int maxCapacity;
-
     private int currentBookings;
+    private boolean booked;
 }

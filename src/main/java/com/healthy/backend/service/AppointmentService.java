@@ -253,48 +253,101 @@ public class AppointmentService {
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
 
-    public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request) {
+    @Transactional
+    public AppointmentResponse updateAppointment(String appointmentId, AppointmentUpdateRequest request, String userId) {
+        // Lấy thông tin appointment
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot find appointment with id " + appointmentId));
 
-        // Check appointment status
+        // Kiểm tra quyền của người dùng
+        Users user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (!userId.equals(appointment.getStudent().getUserID()) && !userId.equals(appointment.getPsychologist().getUserID())) {
+            throw new ResourceInvalidException("You are not authorized to update this appointment");
+        }
+
+        // Check trạng thái appointment
         if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
             throw new ResourceInvalidException("You can only update a scheduled appointment");
         }
 
+        // Xử lý update time slot
         if (!request.getTimeSlotId().equals(appointment.getTimeSlotsID())) {
+            // Lấy TimeSlot mới
             TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + request.getTimeSlotId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id " + request.getTimeSlotId()));
 
+            // Check trạng thái TimeSlot mới
             if (newTimeSlot.getStatus() == TimeslotStatus.BOOKED) {
-                throw new ResourceNotFoundException("Time slot is not available");
+                throw new ResourceInvalidException("Time slot is not available");
             }
 
+            // Lấy TimeSlot cũ
             TimeSlots oldTimeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())
-                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id" + appointment.getTimeSlotsID()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id " + appointment.getTimeSlotsID()));
 
+            // Nếu Psychologist thay đổi, gửi thông báo
             if (!oldTimeSlot.getPsychologist().getPsychologistID().equals(newTimeSlot.getPsychologist().getPsychologistID())) {
                 handlePsychologistChange(appointment, oldTimeSlot, newTimeSlot, appointmentId);
             }
 
+            // Cập nhật trạng thái TimeSlot
             updateTimeSlotStatus(newTimeSlot, oldTimeSlot);
 
+            // Gán TimeSlot mới cho appointment
             appointment.setTimeSlotsID(newTimeSlot.getTimeSlotsID());
             appointment.setPsychologistID(newTimeSlot.getPsychologist().getPsychologistID());
         }
 
+        // Xử lý update ghi chú (notes)
         if (request.getNotes() != null) {
             appointment.setStudentNote(request.getNotes());
         }
 
+        // Lưu thay đổi
         appointmentRepository.save(appointment);
+
+        // Gửi thông báo sau khi update
+        sendUpdateNotification(appointment, user);
+
+        // Trả về response
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
 
+    private void sendUpdateNotification(Appointments appointment, Users updater) {
+        String updaterRole = updater.getRole().toString();
+        String updaterName = updater.getFullName();
+
+        // Gửi thông báo cho Psychologist nếu Student update
+        if (updaterRole.equalsIgnoreCase("STUDENT")) {
+            notificationService.createAppointmentNotification(
+                    appointment.getPsychologist().getUserID(),
+                    "Appointment Updated",
+                    "The appointment with " + updaterName + " has been updated by the student.",
+                    appointment.getAppointmentID()
+            );
+        }
+
+        // Gửi thông báo cho Student nếu Psychologist update
+        if (updaterRole.equalsIgnoreCase("PSYCHOLOGIST")) {
+            notificationService.createAppointmentNotification(
+                    appointment.getStudent().getUserID(),
+                    "Appointment Updated",
+                    "The appointment has been updated by psychologist " + updaterName + ".",
+                    appointment.getAppointmentID()
+            );
+        }
+    }
+
     // Check in
-    public AppointmentResponse checkIn(String appointmentId) {
+    public AppointmentResponse checkIn(String appointmentId,String psychologistId) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
+
+        if (!psychologistId.equals(appointment.getPsychologistID())) {
+            throw new ResourceInvalidException("You are not authorized to check in this appointment");
+        }
 
         if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new OperationFailedException("Appointment is cancelled");
