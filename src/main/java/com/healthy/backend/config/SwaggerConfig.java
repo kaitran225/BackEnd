@@ -1,6 +1,7 @@
 package com.healthy.backend.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -45,5 +46,6 @@ import org.springframework.web.context.support.RequestHandledEvent;
         scheme = "bearer",
         in = SecuritySchemeIn.HEADER
 )
+
 public class SwaggerConfig {
-} 
+}

@@ -7,6 +7,7 @@ import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
@@ -170,10 +171,20 @@ public class AppointmentService {
 
     // Cancel
     @Transactional
-    public AppointmentResponse cancelAppointment(String appointmentId, String userId) {
+    public AppointmentResponse cancelAppointment(String appointmentId, String userId , Role role) {
         // Tìm appointment
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
+
+
+        boolean isStudent = role == Role.STUDENT &&
+                appointment.getStudent().getUserID().equals(userId);
+        boolean isPsychologist = role == Role.PSYCHOLOGIST &&
+                appointment.getPsychologist().getUserID().equals(userId);
+
+        if (!isStudent && !isPsychologist) {
+            throw new OperationFailedException("Unauthorized cancellation");
+        }
 
         // Tìm time slot liên quan
         TimeSlots timeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())

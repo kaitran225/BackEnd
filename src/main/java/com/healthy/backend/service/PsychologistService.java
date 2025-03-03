@@ -10,6 +10,7 @@ import com.healthy.backend.dto.timeslot.TimeSlotCreateRequest;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
@@ -49,12 +50,30 @@ public class PsychologistService {
 
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
 
+    public PsychologistResponse getPsychologistByUserId(String userId) {
+        Psychologists psychologist = psychologistRepository.findByUserID(userId);
+        if (psychologist == null) {
+           throw  new ResourceNotFoundException("Psychologist not found for user");
+        }
+
+        return callMapper(psychologist);
+    }
+    public String getPsychologistIdByUserId(String userId) {
+        Psychologists psychologist = psychologistRepository.findByUserID(userId);
+        if (psychologist == null) {
+            throw  new ResourceNotFoundException("Psychologist not found for user");
+        }
+
+        return psychologist.getPsychologistID();
+
+    }
 
     // Get all psychologist
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
         return psychologists.stream().map(this::callMapper).toList();
     }
+
 
     // Get psychologist by specialization
     public List<PsychologistResponse> getAllPsychologistByDepartment(String departmentID) {
@@ -105,16 +124,23 @@ public class PsychologistService {
         psychologistRepository.save(psychologist);
     }
 
-    // Update psychologist
-    public PsychologistResponse updatePsychologist(String id, PsychologistRequest request) {
+    public PsychologistResponse updatePsychologist(String id, PsychologistRequest request, String currentUserId) {
+        // Tìm psychologist cần cập nhật
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
+
+        // Kiểm tra quyền: chỉ psychologist đó hoặc Manager được cập nhật
+        if (!psychologist.getUserID().equals(currentUserId)) {
+            throw new OperationFailedException("Unauthorized update");
+        }
+
+        // Kiểm tra nếu không có trường nào để cập nhật
         if (request.getDepartmentID() == null
-                && request.getYearsOfExperience() == null
-                ) {
+                && request.getYearsOfExperience() == null) {
             throw new IllegalArgumentException("No fields to update");
         }
-        // Cập nhật các trường
+
+        // Cập nhật department nếu có
         if (request.getDepartmentID() != null
                 && !request.getDepartmentID().equals(psychologist.getDepartment().getName())) {
             if (!departmentRepository.existsById(request.getDepartmentID())) {
@@ -122,16 +148,19 @@ public class PsychologistService {
             }
             psychologist.setDepartment(departmentRepository.findById(request.getDepartmentID()).orElseThrow());
         }
+
+        // Cập nhật yearsOfExperience nếu có
         if (request.getYearsOfExperience() != null
                 && !request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {
             psychologist.setYearsOfExperience(request.getYearsOfExperience());
         }
 
+        // Lưu thay đổi
         psychologistRepository.save(psychologist);
+
+        // Trả về response
         return callMapper(psychologist);
     }
-
-
 
 
 

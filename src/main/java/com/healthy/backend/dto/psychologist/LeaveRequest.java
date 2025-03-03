@@ -19,8 +19,7 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LeaveRequest {
 
-    @Schema(example = "PSY001")
-    @NotBlank(message = "Psychologist ID is required")
+    @Schema(hidden = true)
     private String psychologistId;
 
     @Schema(example = "2025-03-01")

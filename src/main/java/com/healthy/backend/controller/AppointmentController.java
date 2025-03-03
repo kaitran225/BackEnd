@@ -2,12 +2,16 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
+import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +37,61 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final NotificationService notificationService;
+    private final TokenService tokenService;
+
+
+    @Operation(summary = "Book an appointment")
+    @PostMapping("/book")
+    public ResponseEntity<AppointmentResponse> bookAppointment(
+            @RequestBody AppointmentRequest request,
+            HttpServletRequest httpRequest) {
+
+        // Lấy student từ token
+        Users user = tokenService.retrieveUser(httpRequest);
+        if (!tokenService.validateRole(httpRequest, Role.STUDENT)) {
+            throw new OperationFailedException("Only students can book appointments");
+        }
+
+        request.setUserId(user.getUserId()); // Set userId từ token
+        AppointmentResponse response = appointmentService.bookAppointment(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // Hủy lịch hẹn
+    @Operation(summary = "Request cancel of an appointment")
+    @PutMapping("/{appointmentId}/cancel")
+    public ResponseEntity<AppointmentResponse> cancelAppointment(
+            @PathVariable String appointmentId,
+            HttpServletRequest request) {
+
+        Users user = tokenService.retrieveUser(request);
+        AppointmentResponse response = appointmentService.cancelAppointment(
+                appointmentId,
+                user.getUserId(),
+                user.getRole()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    // Check-in - chỉ Psychologist
+    @Operation(summary = "Check in to an appointment")
+    @PostMapping("/{appointmentId}/check-in")
+    public ResponseEntity<AppointmentResponse> checkIn(
+            @PathVariable String appointmentId,
+            HttpServletRequest request) {
+
+        if (!tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+            throw new OperationFailedException("Only psychologists can check in");
+        }
+
+        AppointmentResponse response = appointmentService.checkIn(appointmentId);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
 
     @Operation(
             summary = "Get all appointments",
@@ -58,41 +117,7 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentResponse);
     }
 
-    @Operation(
-            summary = "Book an appointment",
-            description = "Creates a new appointment."
-    )
-    @PostMapping("/book")
-    public ResponseEntity<AppointmentResponse> bookAppointment(@RequestBody AppointmentRequest request) {
-        AppointmentResponse response = appointmentService.bookAppointment(request);
-        return ResponseEntity.ok(response);
-    }
 
-    @Operation(
-            summary = "Request cancel of an appointment",
-            description = "Requests an cancel update of an appointment."
-    )
-    @PutMapping("/{appointmentId}/cancel/{userId}")
-    public ResponseEntity<AppointmentResponse> cancelAppointment
-            (@PathVariable String appointmentId,
-             @PathVariable String userId) {
-        AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, userId);
-        if (response != null) {
-        
-
-            return ResponseEntity.ok(response);
-        }
-        throw new OperationFailedException("Failed to cancel appointment");
-    }
-
-
-
-    @Operation(summary = "Check in to an appointment")
-    @PostMapping("/{appointmentId}/check-in")
-    public ResponseEntity<AppointmentResponse> checkIn(@PathVariable String appointmentId) {
-        AppointmentResponse response = appointmentService.checkIn(appointmentId);
-        return ResponseEntity.ok(response);
-    }
 
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")

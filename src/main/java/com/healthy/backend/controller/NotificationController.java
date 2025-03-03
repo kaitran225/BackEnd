@@ -38,7 +38,7 @@ public class NotificationController {
     @Operation(summary = "Mark notification as read")
     @PostMapping("/{notificationId}/read")
     public ResponseEntity<Void> markAsRead(
-            @PathVariable String notificationId,
+            @RequestParam(required = false)String notificationId,
             HttpServletRequest request) {
         notificationService.markAsRead(notificationId, request);
         return ResponseEntity.ok().build();
@@ -56,7 +56,7 @@ public class NotificationController {
     @Operation(summary = "Get all unread notifications")
     @GetMapping("/unread")
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
-            @PathVariable String userId,
+            @RequestParam(required = false) String userId,
             HttpServletRequest request) {
         List<NotificationResponse> responses = notificationService.getUserUnreadNotifications(userId, request);
         return ResponseEntity.ok(responses);
