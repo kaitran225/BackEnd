@@ -21,7 +21,7 @@ public class GeneralService {
     private final AppointmentRepository appointmentRepository;
     private final NotificationRepository notificationRepository;
     private final PsychologistRepository psychologistRepository;
-    private final LeaveRequestRepository leaveRequestRepository;
+//    private final LeaveRequestRepository leaveRequestRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
@@ -85,10 +85,10 @@ public class GeneralService {
         return generateNextId(Identifier.PRG.toString(), lastCode);
     }
 
-    public String generateLeaveRequestID() {
-        String lastCode = leaveRequestRepository.findLastLeaveRequestId();
-        return generateNextId(Identifier.OLR.toString(), lastCode);
-    }
+//    public String generateLeaveRequestID() {
+//        String lastCode = leaveRequestRepository.findLastLeaveRequestId();
+//        return generateNextId(Identifier.OLR.toString(), lastCode);
+//    }
 
     public String generateNextNotificationID() {
         String lastCode = notificationRepository.findLastNotificationId();

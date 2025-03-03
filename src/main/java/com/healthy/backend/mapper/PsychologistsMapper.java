@@ -2,14 +2,14 @@ package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.auth.request.PsychologistRegisterRequest;
-import com.healthy.backend.dto.psychologist.LeaveRequest;
-import com.healthy.backend.dto.psychologist.LeaveResponse;
+//import com.healthy.backend.dto.psychologist.LeaveRequest;
+//import com.healthy.backend.dto.psychologist.LeaveResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.OnLeaveRequest;
+//import com.healthy.backend.entity.OnLeaveRequest;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.OnLeaveStatus;
@@ -56,30 +56,30 @@ public class PsychologistsMapper {
                 .build();
     }
 
-    public LeaveResponse buildLeaveResponse(OnLeaveRequest request) {
-        return LeaveResponse.builder()
-                .requestId(request.getLeaveRequestID())
-                .psychologistName(request.getPsychologist().getFullNameFromUser())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .reason(request.getReason())
-                .status(request.getStatus().name())
-                .department(request.getPsychologist().getDepartment().getName())
-                .createdAt(request.getCreatedAt())
-                .build();
-    }
+//    public LeaveResponse buildLeaveResponse(OnLeaveRequest request) {
+//        return LeaveResponse.builder()
+//                .requestId(request.getLeaveRequestID())
+//                .psychologistName(request.getPsychologist().getFullNameFromUser())
+//                .startDate(request.getStartDate())
+//                .endDate(request.getEndDate())
+//                .reason(request.getReason())
+//                .status(request.getStatus().name())
+//                .department(request.getPsychologist().getDepartment().getName())
+//                .createdAt(request.getCreatedAt())
+//                .build();
+//    }
 
-    public OnLeaveRequest createPendingOnLeaveRequestEntity(LeaveRequest request, String newID,
-                                                            Psychologists psychologist) {
-        return OnLeaveRequest.builder()
-                .leaveRequestID(newID)
-                .psychologist(psychologist)
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .reason(request.getReason())
-                .status(OnLeaveStatus.PENDING)
-                .build();
-    }
+//    public OnLeaveRequest createPendingOnLeaveRequestEntity(LeaveRequest request, String newID,
+//                                                            Psychologists psychologist) {
+//        return OnLeaveRequest.builder()
+//                .leaveRequestID(newID)
+//                .psychologist(psychologist)
+//                .startDate(request.getStartDate())
+//                .endDate(request.getEndDate())
+//                .reason(request.getReason())
+//                .status(OnLeaveStatus.PENDING)
+//                .build();
+//    }
 
     public PsychologistResponse buildPsychologistResponse(Psychologists psychologist,
                                                           List<Appointments> appointments,
