@@ -39,8 +39,7 @@ public class Appointments {
     @Column(name = "PsychologistNote", columnDefinition = "TEXT")
     private String psychologistNote;
 
-    @Column(name = "Feedback", columnDefinition = "TEXT")
-    private String feedback;
+
 
     @Column(name = "Rating")
     private Integer rating;
@@ -70,6 +69,11 @@ public class Appointments {
 
     @Column(name = "CheckOutTime")
     private LocalDateTime checkOutTime;
+
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feedback> feedbacks;
+
+
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;

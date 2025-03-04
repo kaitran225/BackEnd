@@ -10,7 +10,6 @@ import com.healthy.backend.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,8 +20,6 @@ import com.healthy.backend.mapper.TimeSlotMapper;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
-
 
 import java.time.LocalDate;
 import java.util.List;
@@ -54,7 +51,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Get psychologist by ID")
-    @GetMapping({ ""})
+    @GetMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
 
             @RequestParam(required = false) String psychologistId,
@@ -89,7 +86,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Update psychologist details")
-    @PutMapping({ ""})
+    @PutMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid PsychologistRequest request,
@@ -123,20 +120,6 @@ public class PsychologistController {
                 request,
                 currentUser.getUserId()
         ));
-    }
-
-    @Operation(
-            summary = "Get psychologist feedbacks",
-            description = "Get all feedbacks for a psychologist from completed appointments"
-    )
-    @GetMapping("/feedbacks")
-    public ResponseEntity<Page<AppointmentFeedbackResponse>> getPsychologistFeedbacks(
-            @RequestParam String psychologistId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Page<AppointmentFeedbackResponse> feedbacks = psychologistService.getPsychologistFeedbacks(psychologistId, page, size);
-        return ResponseEntity.ok(feedbacks);
     }
 
     @Operation(
@@ -230,15 +213,4 @@ public class PsychologistController {
         return ResponseEntity.ok(slots);
     }
 
-
-
-    @Operation(
-            summary = "Get psychologist average rating",
-            description = "Calculate average rating for a psychologist"
-    )
-    @GetMapping("/average-rating")
-    public ResponseEntity<Double> getAverageRating(@RequestParam String psychologistId) {
-        double averageRating = psychologistService.calculateAverageRating(psychologistId);
-        return ResponseEntity.ok(averageRating);
-    }
 }

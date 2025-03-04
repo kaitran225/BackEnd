@@ -1,6 +1,6 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
+
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
@@ -15,10 +15,6 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +37,13 @@ public class PsychologistService {
     private final TimeSlotMapper timeSlotMapper;
 
     private final GeneralService __;
-    private final NotificationService notificationService;
 
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
 
     public PsychologistResponse getPsychologistByUserId(String userId) {
         Psychologists psychologist = psychologistRepository.findByUserID(userId);
         if (psychologist == null) {
-           throw  new ResourceNotFoundException("Psychologist not found for user");
+            throw new ResourceNotFoundException("Psychologist not found for user");
         }
 
         return callMapper(psychologist);
@@ -56,7 +51,7 @@ public class PsychologistService {
     public String getPsychologistIdByUserId(String userId) {
         Psychologists psychologist = psychologistRepository.findByUserID(userId);
         if (psychologist == null) {
-            throw  new ResourceNotFoundException("Psychologist not found for user");
+            throw new ResourceNotFoundException("Psychologist not found for user");
         }
 
         return psychologist.getPsychologistID();
@@ -231,8 +226,6 @@ public class PsychologistService {
     }
 
 
-
-
     public List<TimeSlotResponse> getPsychologistTimeSlots(
             String psychologistId,
             LocalDate date,
@@ -257,47 +250,5 @@ public class PsychologistService {
                     return response;
                 })
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public PsychologistResponse deletePsychologist(String psychologistId) {
-        Psychologists psychologist = psychologistRepository.findById(psychologistId)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-        psychologistRepository.delete(psychologist);
-        return psychologistsMapper.buildPsychologistResponse(psychologist);
-    }
-
-    public Page<AppointmentFeedbackResponse> getPsychologistFeedbacks(String psychologistId, int page, int size) {
-        Psychologists psychologist = psychologistRepository.findById(psychologistId)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        Page<Appointments> appointmentsPage = appointmentRepository.findByPsychologistIDAndStatusAndFeedbackNotNull(
-                psychologistId, AppointmentStatus.COMPLETED, pageable);
-
-        return appointmentsPage.map(a -> new AppointmentFeedbackResponse(
-                a.getTimeSlot().getSlotDate().atTime(a.getTimeSlot().getStartTime()),
-                a.getStudent().getUser().getFullName(),
-                a.getFeedback(),
-                a.getRating()
-        ));
-    }
-
-    public double calculateAverageRating(String psychologistId) {
-        Psychologists psychologist = psychologistRepository.findById(psychologistId)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-
-        List<Appointments> appointments = appointmentRepository.findByPsychologistIDAndStatusAndFeedbackNotNull(
-                psychologistId, AppointmentStatus.COMPLETED);
-        if (appointments.isEmpty()) {
-            return 0.0;
-        }
-
-        double totalRating = appointments.stream()
-                .mapToInt(Appointments::getRating)
-                .sum();
-
-        return totalRating / appointments.size();
     }
 }

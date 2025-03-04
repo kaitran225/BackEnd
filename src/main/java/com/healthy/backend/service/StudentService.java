@@ -61,6 +61,15 @@ public class StudentService {
                 .map(studentMapper::buildStudentResponse)
                 .toList();
     }
+    public String getStudentIdByUserId(String userId) {
+        Students students = studentRepository.findByUserID(userId);
+        if (students == null) {
+            throw new ResourceNotFoundException("Psychologist not found for user");
+        }
+
+        return students.getStudentID();
+
+    }
 
     // Get student by ID
     public StudentResponse getStudentById(String studentId, HttpServletRequest request) {
