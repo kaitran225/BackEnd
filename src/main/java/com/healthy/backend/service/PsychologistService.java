@@ -213,9 +213,8 @@ public class PsychologistService {
     }
 
     private String generateSlotId(String psychologistId, LocalDate date, String defaultSlotId) {
-        return "TS-" + psychologistId + "-" + date.toString() + "-" + defaultSlotId;
+        return Identifier.TSL + "-" + psychologistId.substring(3) + "-" + date.toString() + "-" + defaultSlotId;
     }
-
 
     public List<TimeSlotResponse> getPsychologistTimeSlots(
             String psychologistId,
