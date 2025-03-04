@@ -4,9 +4,13 @@ import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.AppointmentMapper;
+import com.healthy.backend.mapper.PsychologistsMapper;
+import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.UserRepository;
@@ -19,10 +23,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -39,6 +46,9 @@ public class AppointmentController {
     private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentMapper appointmentMapper;
+    private final PsychologistsMapper psychologistMapper;
+    private final StudentMapper studentMapper;
 
     @Operation(summary = "Book an appointment")
     @PostMapping("/book")
@@ -251,6 +261,33 @@ public class AppointmentController {
         }
 
         throw new OperationFailedException("Failed to update appointment");
+    }
+
+
+
+
+    @GetMapping("/me/appointments")
+    public ResponseEntity<List<AppointmentResponse>> getPsychologistAppointments(
+            HttpServletRequest request,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) AppointmentStatus status
+    ) {
+        // 1. Xác thực và lấy thông tin psychologist
+        Users currentUser = tokenService.retrieveUser(request);
+        Psychologists psychologist = psychologistRepository.findByUserID(currentUser.getUserId());
+
+        if (psychologist == null) {
+            throw new ResourceNotFoundException("Psychologist not found");
+        }
+
+        // 2. Gọi service để xử lý logic
+        List<AppointmentResponse> response = appointmentService.getPsychologistAppointments(
+                psychologist.getPsychologistID(),
+                date,
+                status
+        );
+
+        return ResponseEntity.ok(response);
     }
 
 

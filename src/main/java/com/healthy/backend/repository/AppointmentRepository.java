@@ -18,8 +18,8 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
     String findLastAppointmentId();
 
-    Page<Appointments> findByPsychologistIDAndStatusAndFeedbackNotNull(String psychologistId, AppointmentStatus status, Pageable pageable);
-    List<Appointments> findByPsychologistIDAndStatusAndFeedbackNotNull(String psychologistId, AppointmentStatus status);
+    Page<Appointments> findByPsychologistIDAndStatusAndFeedbacksNotNull(String psychologistId, AppointmentStatus status, Pageable pageable);
+    List<Appointments> findByPsychologistIDAndStatusAndFeedbacksNotNull(String psychologistId, AppointmentStatus status);
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
             "FROM Appointments a " +
@@ -27,4 +27,13 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     boolean existsByStudentIDAndTimeSlotsID(
             @Param("studentId") String studentId,
             @Param("timeSlotId") String timeSlotId);
+
+    @Query("SELECT a FROM Appointments a " +
+            "JOIN FETCH a.timeSlot " +
+            "JOIN FETCH a.student " +
+            "JOIN FETCH a.psychologist " +
+            "WHERE a.psychologistID = :psychologistId")
+    List<Appointments> findByPsychologistIDWithDetails(String psychologistId);
+
+    long countByPsychologistID(String psychologistID);
 } 

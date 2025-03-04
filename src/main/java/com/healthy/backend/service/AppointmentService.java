@@ -19,9 +19,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -428,13 +431,20 @@ public class AppointmentService {
             throw new OperationFailedException("Only completed appointments can receive feedback");
         }
 
-        if (appointment.getFeedback() != null && !appointment.getFeedback().isEmpty()) {
-            throw new OperationFailedException("Feedback already submitted");
-        }
+        // Create a new Feedback object
+        Feedback feedback = new Feedback();
+        feedback.setComment(request.getFeedback());
+        feedback.setRating(request.getRating());
+        feedback.setAppointment(appointment); // Set the appointment reference
 
-        appointment.setFeedback(request.getFeedback());
-        appointment.setRating(request.getRating()); // Lưu rating
-        appointmentRepository.save(appointment);
+        // Add the feedback to the appointment's feedback list
+        if (appointment.getFeedbacks() == null) {
+            appointment.setFeedbacks(new ArrayList<>()); // Initialize the list if it's null
+        }
+        appointment.getFeedbacks().add(feedback); // Add the new feedback
+
+        // Save the feedback and the appointment
+        appointmentRepository.save(appointment); // This will also save the feedback due to cascade
 
         return appointmentMapper.buildAppointmentResponse(appointment);
     }
@@ -478,5 +488,41 @@ public class AppointmentService {
             oldTimeSlot.setStatus(TimeslotStatus.AVAILABLE);
             timeSlotRepository.save(oldTimeSlot);
         }
+    }
+
+    public List<AppointmentResponse> getPsychologistAppointments(
+            String psychologistId,
+            LocalDate date,
+            AppointmentStatus status
+    ) {
+        // 1. Fetch appointments với đầy đủ associations
+        List<Appointments> appointments = appointmentRepository.findByPsychologistIDWithDetails(psychologistId);
+
+        // 2. Lọc theo ngày và trạng thái
+        Predicate<Appointments> dateFilter = a ->
+                date == null || (a.getTimeSlot() != null && date.equals(a.getTimeSlot().getSlotDate()));
+
+        Predicate<Appointments> statusFilter = a ->
+                status == null || a.getStatus() == status;
+
+        List<Appointments> filteredAppointments = appointments.stream()
+                .filter(dateFilter.and(statusFilter))
+                .collect(Collectors.toList());
+
+        // 3. Chuyển đổi sang DTO
+        return filteredAppointments.stream()
+                .map(this::mapToAppointmentResponse)
+                .collect(Collectors.toList());
+    }
+
+    private AppointmentResponse mapToAppointmentResponse(Appointments appointment) {
+        Students student = appointment.getStudent();
+        Psychologists psychologist = appointment.getPsychologist();
+
+        return appointmentMapper.buildAppointmentResponse(
+                appointment,
+                psychologistMapper.buildPsychologistResponse(psychologist),
+                studentMapper.buildBasicStudentResponse(student)
+        );
     }
 }

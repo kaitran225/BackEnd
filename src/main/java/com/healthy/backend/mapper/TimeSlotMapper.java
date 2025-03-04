@@ -17,7 +17,7 @@ public class TimeSlotMapper {
                 timeSlot.getStatus(),
                 timeSlot.getMaxCapacity(),
                 timeSlot.getCurrentBookings(),
-                timeSlot.isBooked()
+                timeSlot.getBooked()
         );
     }
 

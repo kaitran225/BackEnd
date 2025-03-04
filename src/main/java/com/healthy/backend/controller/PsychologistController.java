@@ -1,6 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
+
 import com.healthy.backend.dto.timeslot.*;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
@@ -135,19 +135,6 @@ public class PsychologistController {
 
 
 
-    @Operation(
-            summary = "Get psychologist feedbacks",
-            description = "Get all feedbacks for a psychologist from completed appointments"
-    )
-    @GetMapping("/{psychologistId}/feedbacks")
-    public ResponseEntity<Page<AppointmentFeedbackResponse>> getPsychologistFeedbacks(
-            @PathVariable String psychologistId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Page<AppointmentFeedbackResponse> feedbacks = psychologistService.getPsychologistFeedbacks(psychologistId, page, size);
-        return ResponseEntity.ok(feedbacks);
-    }
 
 
     @Operation(
@@ -242,121 +229,20 @@ public class PsychologistController {
         return ResponseEntity.ok(slots);
     }
 
+    @Operation(
+            summary = "Get psychologist feedbacks",
+            description = "Get all feedbacks for a psychologist from completed appointments"
+    )
+    @GetMapping("/{psychologistId}/feedbacks")
+    public ResponseEntity<Page<AppointmentFeedbackResponse>> getPsychologistFeedbacks(
+            @PathVariable String psychologistId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
+        Page<AppointmentFeedbackResponse> feedbacks = psychologistService.getPsychologistFeedbacks(psychologistId, page, size);
+        return ResponseEntity.ok(feedbacks);
+    }
 
-//    @Operation(
-//            summary = "Create leave request",
-//            description = "Creates a new leave request for a psychologist." )
-//    @PostMapping("/{psychologistId}/leave-requests")
-//    public ResponseEntity<LeaveResponse> createLeaveRequest(
-//            @RequestParam(required = false) String psychologistId,
-//            @RequestBody @Valid LeaveRequest dto,
-//            HttpServletRequest request) {
-//        Users currentUser = tokenService.retrieveUser(request);
-//
-//
-//        if (tokenService.validateRole(request, Role.STUDENT) ) {
-//            throw new IllegalArgumentException("Student not can create leave request");
-//        }
-//
-//        if (psychologistId == null) {
-//            psychologistId = psychologistService.getPsychologistIdByUserId(
-//                    tokenService.retrieveUser(request).getUserId()
-//            );
-//        }
-//
-//        if (tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
-//            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
-//            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-//            if (!psychologistId.equals(actualId)) {
-//                throw new OperationFailedException("Unauthorized to create leave for other psychologists");
-//            }
-//        }
-//
-//        // Gán ID vào DTO
-//        dto.setPsychologistId(psychologistId);
-//
-//        LeaveResponse response = psychologistService.createLeaveRequest(dto);
-//        return ResponseEntity.ok(response);
-//    }
-
-//    @Operation(
-//            summary = "Get leave-requests",
-//            description = "Returns a list of leave requests for a psychologist." )
-//    @GetMapping("/{psychologistId}/leave-requests")
-//    public ResponseEntity<List<LeaveResponse>> getMyLeaveRequests(
-//            @RequestParam(required = false) String psychologistId,
-//    HttpServletRequest request ) {
-//        Users currentUser = tokenService.retrieveUser(request);
-//
-//
-//        if (tokenService.validateRole(request, Role.STUDENT) ) {
-//            throw new IllegalArgumentException("Student not can create leave request");
-//        }
-//
-//        if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
-//            throw new IllegalArgumentException("Psychologist ID is required for managers");
-//        }
-//        if (psychologistId == null) {
-//            psychologistId = psychologistService.getPsychologistIdByUserId(
-//                    tokenService.retrieveUser(request).getUserId()
-//            );
-//        }
-//        if (tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
-//            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
-//            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-//            if (!psychologistId.equals(actualId)) {
-//                throw new OperationFailedException("Unauthorized to view leave for other psychologists");
-//            }
-//        }
-//
-//        List<LeaveResponse> requests = psychologistService.getLeaveRequestsByPsychologist(psychologistId);
-//        return ResponseEntity.ok(requests);
-//    }
-
-
-//    @Operation(
-//            summary = "Cancel leave request",
-//            description = "Requests a cancel update for a psychologist." )
-//    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/cancel")
-//    public ResponseEntity<LeaveResponse> cancelLeave(
-//            @RequestParam(required = false) String psychologistId,
-//            @RequestParam() String onLeaveId,
-//            HttpServletRequest request) {
-//        Users currentUser = tokenService.retrieveUser(request);
-//        if (tokenService.validateRole(request, Role.STUDENT) ) {
-//            throw new IllegalArgumentException("Student not can  Cancelleave request");
-//        }
-//        if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
-//            throw new IllegalArgumentException("Psychologist ID is required for managers");
-//        }
-//        if (psychologistId == null) {
-//            psychologistId = psychologistService.getPsychologistIdByUserId(
-//                    tokenService.retrieveUser(request).getUserId()
-//            );
-//        }
-//        if (tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
-//            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
-//            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-//            if (!psychologistId.equals(actualId)) {
-//                throw new OperationFailedException("Unauthorized to cancelLeave for other psychologists");
-//            }
-//        }
-//
-//
-//        return ResponseEntity.ok(psychologistService.cancelLeave(psychologistId, onLeaveId));
-//    }
-
-//    @Operation(
-//
-//            summary = "Request return",
-//            description = "Requests a return for a psychologist." )
-//    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/return")
-//    public ResponseEntity<PsychologistResponse> onReturn(
-//            @RequestParam(required = false) String psychologistId,
-//            @RequestParam(required = false) String onLeaveId) {
-//        return ResponseEntity.ok(psychologistService.onReturn(psychologistId, onLeaveId));
-//    }
 
     @Operation(
             summary = "Get psychologist average rating",
@@ -368,33 +254,7 @@ public class PsychologistController {
         return ResponseEntity.ok(averageRating);
     }
 
-//    @Operation(
-//            summary = "Get approved leave requests",
-//            description = "Returns a list of approved leave requests for a psychologist.")
-//    @GetMapping("/{psychologistId}/leave-requests/approved")
-//    public ResponseEntity<List<LeaveResponse>> getApprovedLeaveRequests(
-//            @RequestParam(required = false) String psychologistId,
-//            HttpServletRequest request
-//    ) {
-//        Users currentUser = tokenService.retrieveUser(request);
-//        if (tokenService.validateRole(request, Role.STUDENT) ) {
-//            throw new IllegalArgumentException("Student not can view status Leave ");
-//        }
-//        if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
-//            throw new IllegalArgumentException("Psychologist ID is required for managers");
-//        }
-//        if (psychologistId == null) {
-//            psychologistId = psychologistService.getPsychologistIdByUserId(
-//                    tokenService.retrieveUser(request).getUserId()
-//            );
-//        }
-//        if (tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
-//            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-//            if (!psychologistId.equals(actualId)) {
-//                throw new OperationFailedException("Unauthorized to GetApprovedLeaveRequest for other psychologists");
-//            }
-//        }
-//        List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
-//        return ResponseEntity.ok(requests);
-//    }
+
+
+
 }

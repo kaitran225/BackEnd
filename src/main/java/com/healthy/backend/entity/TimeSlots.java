@@ -55,7 +55,7 @@ public class TimeSlots {
     private int currentBookings = 0;
 
     @Column(name = "booked")
-    private boolean booked;
+    private Boolean booked;
 
 
     @Column(name = "default_slot_id")

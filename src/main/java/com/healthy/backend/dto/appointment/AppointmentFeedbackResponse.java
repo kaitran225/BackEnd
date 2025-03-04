@@ -1,25 +1,36 @@
 package com.healthy.backend.dto.appointment;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.healthy.backend.dto.student.StudentReplyResponse;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppointmentFeedbackResponse {
-
-    @Schema(example = "2025-01-01")
-    private LocalDateTime appointmentDate;
-    @Schema(example = "Student Name")
+    private LocalDateTime appointmentDateTime;
     private String studentName;
-    @Schema(example = "Student Feedback")
-    private String feedback;
-    @Schema(example = "5")
-    private int rating;
+    private List<String> feedbackComments;
+    private List<Long> feedbackIds;
+    private Integer rating;
+    private List<PsychologistCommentResponse> psychologistComments;
+
+    @Data
+    public static class PsychologistCommentResponse {
+        private Long commentId;
+        private String comment;
+        private LocalDateTime createdAt;
+        private List<StudentReplyResponse> studentReplies;
+
+        public PsychologistCommentResponse(Long commentId, String comment, LocalDateTime createdAt, List<StudentReplyResponse> studentReplies) {
+            this.commentId = commentId;
+            this.comment = comment;
+            this.createdAt = createdAt;
+            this.studentReplies = studentReplies;
+        }
+    }
 }
