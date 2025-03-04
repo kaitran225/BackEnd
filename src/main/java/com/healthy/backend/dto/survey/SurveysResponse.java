@@ -42,4 +42,8 @@ public class SurveysResponse {
     private List<StatusStudent> statusStudent;
     @Schema(example = "")
     private List<SurveyQuestionResultResponse> questions;
+    @Schema(example = "")
+    private String completeStatus;
+    @Schema(example = "")
+    private String studentComplete;
 }

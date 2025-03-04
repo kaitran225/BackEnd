@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
 import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
@@ -27,6 +28,7 @@ import com.healthy.backend.service.SurveyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -45,12 +47,12 @@ public class SurveyController {
             description = "Returns a list of available surveys."
     )
     @GetMapping()
-    public ResponseEntity<List<SurveysResponse>> getAllSurveys() {
-        List<SurveysResponse> surveys = surveyService.getAllSurveys();
+    public ResponseEntity<List<SurveysResponse>> getAllSurveys(HttpServletRequest request) {
+        List<SurveysResponse> surveys = surveyService.getAllSurveys(request);
         if (surveys.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(surveys);
+        return ResponseEntity.ok(surveys);      
     }
 
     @Operation(
@@ -59,7 +61,9 @@ public class SurveyController {
     )
     @PostMapping("/{surveyId}/{studentId}/options/scoreResult")
     public ResponseEntity<?> getScoreFromStudentInSuv(@PathVariable String surveyId, @RequestBody List<String> optionId, @PathVariable String studentId) {
-     
+// api test [
+//   "ANS003", "ANS005", "ANS010", "ANS014", "ANS018", "ANS022", "ANS026", "ANS030", "ANS034", "ANS039"
+// ]
         try {
             StatusStudent status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
             return ResponseEntity.ok(status);
@@ -121,9 +125,9 @@ public class SurveyController {
             description = "Returns results for a specific survey."
     )
     @GetMapping("/{surveyId}/result")
-    public ResponseEntity<?> getSurveyResults(@PathVariable String surveyId) {
+    public ResponseEntity<?> getSurveyResults(HttpServletRequest request, @PathVariable String surveyId) {
         try {
-                SurveyResultsResponse surveyResult = surveyService.getSurveyResults(surveyId);
+                SurveyResultsResponse surveyResult = surveyService.getSurveyResults(request, surveyId);
                 return ResponseEntity.ok(surveyResult);
             }
             catch(ResourceNotFoundException ex) {
@@ -179,12 +183,9 @@ public class SurveyController {
             description = "Adds a question to a survey."
     )
     @PostMapping("/{surveyId}/questions")
-    public ResponseEntity<?> addSurveyQuestion(@PathVariable String surveyId, @RequestBody SurveyQuestionResponse question) {
-// api test [
-//   "ANS003", "ANS005", "ANS010", "ANS014", "ANS018", "ANS022", "ANS026", "ANS030", "ANS034", "ANS039"
-// ]
+    public ResponseEntity<?> addSurveyQuestion(HttpServletRequest request, @PathVariable String surveyId, @RequestBody SurveyQuestionResponse question) {
         try {
-                surveyService.addSurveyQuestion(surveyId, question);
+                surveyService.addSurveyQuestion(request, surveyId, question);
                 return ResponseEntity.ok("Survey question add sucessfully");
             }
             catch(ResourceNotFoundException ex) {
@@ -229,9 +230,9 @@ public class SurveyController {
             description = "Returns results for a specific student's survey."
     )
     @GetMapping("/{surveyId}/students-results/{studentId}")
-    public ResponseEntity<?> getStudentIDSurveyResults(@PathVariable String surveyId, @PathVariable String studentId) {
+    public ResponseEntity<?> getStudentIDSurveyResults(HttpServletRequest request, @PathVariable String surveyId, @PathVariable String studentId) {
             try {
-                StatusStudent surveyResponse = surveyService.getStudentIDSurveyResults(surveyId, studentId);
+                SurveyResultsResponse surveyResponse = surveyService.getStudentIDSurveyResults(request, surveyId, studentId);
                 return ResponseEntity.ok(surveyResponse);
             }
             catch(ResourceNotFoundException ex) {
