@@ -46,6 +46,9 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> replies = new ArrayList<>();
 
+    @Column(name = "rating")
+    private Integer rating;
+
     // Thời gian tạo
     @CreationTimestamp
     @Column(updatable = false)

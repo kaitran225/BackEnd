@@ -229,30 +229,6 @@ public class PsychologistController {
         return ResponseEntity.ok(slots);
     }
 
-    @Operation(
-            summary = "Get psychologist feedbacks",
-            description = "Get all feedbacks for a psychologist from completed appointments"
-    )
-    @GetMapping("/{psychologistId}/feedbacks")
-    public ResponseEntity<Page<AppointmentFeedbackResponse>> getPsychologistFeedbacks(
-            @PathVariable String psychologistId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Page<AppointmentFeedbackResponse> feedbacks = psychologistService.getPsychologistFeedbacks(psychologistId, page, size);
-        return ResponseEntity.ok(feedbacks);
-    }
-
-
-    @Operation(
-            summary = "Get psychologist average rating",
-            description = "Calculate average rating for a psychologist"
-    )
-    @GetMapping("/{psychologistId}/average-rating")
-    public ResponseEntity<Double> getAverageRating(@PathVariable String psychologistId) {
-        double averageRating = psychologistService.calculateAverageRating(psychologistId);
-        return ResponseEntity.ok(averageRating);
-    }
 
 
 

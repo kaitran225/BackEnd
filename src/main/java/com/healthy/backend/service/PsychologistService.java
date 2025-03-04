@@ -1,11 +1,8 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentReplyRequest;
-import com.healthy.backend.dto.student.StudentReplyResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
@@ -18,16 +15,11 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -44,14 +36,10 @@ public class PsychologistService {
     private final TimeSlotMapper timeSlotMapper;
 
     private final GeneralService __;
-    private final NotificationService notificationService;
 
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
 
-    private final FeedbackRepository feedbackRepository;
-    private final PsychologistCommentRepository psychologistCommentRepository;
-    private final StudentReplyRepository studentReplyRepository;
-    private final StudentRepository studentRepository;
+
 
     public PsychologistResponse getPsychologistByUserId(String userId) {
         Psychologists psychologist = psychologistRepository.findByUserID(userId);
@@ -283,96 +271,6 @@ public class PsychologistService {
                 })
                 .collect(Collectors.toList());
     }
-
-
-    public Page<AppointmentFeedbackResponse> getPsychologistFeedbacks(String psychologistId, int page, int size) {
-        Psychologists psychologist = psychologistRepository.findById(psychologistId)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        Page<Appointments> appointmentsPage = appointmentRepository.findByPsychologistIDAndStatusAndFeedbacksNotNull(
-                psychologistId, AppointmentStatus.COMPLETED, pageable);
-
-        return appointmentsPage.map(appointment -> {
-            // Xử lý feedbacks
-            List<Feedback> feedbacks = appointment.getFeedbacks() != null
-                    ? appointment.getFeedbacks()
-                    : Collections.emptyList();
-
-            List<String> feedbackComments = feedbacks.stream()
-                    .map(Feedback::getComment)
-                    .collect(Collectors.toList());
-
-            List<Long> feedbackIds = feedbacks.stream()
-                    .map(Feedback::getId)
-                    .collect(Collectors.toList());
-
-            // Xử lý psychologist comments và student replies
-            List<PsychologistComment> psychologistComments = appointment.getPsychologistComments() != null
-                    ? appointment.getPsychologistComments()
-                    : Collections.emptyList();
-
-            List<AppointmentFeedbackResponse.PsychologistCommentResponse> psychologistCommentResponses = psychologistComments.stream()
-                    .map(comment -> {
-                        List<StudentReply> studentReplies = comment.getStudentReplies() != null
-                                ? comment.getStudentReplies()
-                                : Collections.emptyList();
-
-                        List<StudentReplyResponse> replyResponses = studentReplies.stream()
-                                .map(reply -> {
-                                    String studentName = reply.getStudent() != null
-                                            ? reply.getStudent().getUser().getFullName()
-                                            : "Unknown Student";
-                                    return new StudentReplyResponse(
-                                            reply.getId(),
-                                            reply.getComment(),
-                                            reply.getCreatedAt(),
-                                            studentName
-                                    );
-                                })
-                                .collect(Collectors.toList());
-
-                        return new AppointmentFeedbackResponse.PsychologistCommentResponse(
-                                comment.getId(),
-                                comment.getComment(),
-                                comment.getCreatedAt(),
-                                replyResponses
-                        );
-                    })
-                    .collect(Collectors.toList());
-
-            // Tạo response
-            return new AppointmentFeedbackResponse(
-                    appointment.getTimeSlot().getSlotDate().atTime(appointment.getTimeSlot().getStartTime()),
-                    appointment.getStudent().getUser().getFullName(),
-                    feedbackComments,
-                    feedbackIds,
-                    appointment.getRating(),
-                    psychologistCommentResponses
-            );
-        });
-    }
-
-    public double calculateAverageRating(String psychologistId) {
-        Psychologists psychologist = psychologistRepository.findById(psychologistId)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
-
-        List<Appointments> appointments = appointmentRepository.findByPsychologistIDAndStatusAndFeedbacksNotNull(
-                psychologistId, AppointmentStatus.COMPLETED);
-        if (appointments.isEmpty()) {
-            return 0.0;
-        }
-
-        double totalRating = appointments.stream()
-                .mapToInt(Appointments::getRating)
-                .sum();
-
-        return totalRating / appointments.size();
-    }
-
-
-
 
 
 }

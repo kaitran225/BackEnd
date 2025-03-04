@@ -423,31 +423,7 @@ public class AppointmentService {
         );
     }
 
-    public AppointmentResponse submitFeedback(String appointmentId, AppointmentFeedbackRequest request) {
-        Appointments appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-        if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
-            throw new OperationFailedException("Only completed appointments can receive feedback");
-        }
-
-        // Create a new Feedback object
-        Feedback feedback = new Feedback();
-        feedback.setComment(request.getFeedback());
-        feedback.setRating(request.getRating());
-        feedback.setAppointment(appointment); // Set the appointment reference
-
-        // Add the feedback to the appointment's feedback list
-        if (appointment.getFeedbacks() == null) {
-            appointment.setFeedbacks(new ArrayList<>()); // Initialize the list if it's null
-        }
-        appointment.getFeedbacks().add(feedback); // Add the new feedback
-
-        // Save the feedback and the appointment
-        appointmentRepository.save(appointment); // This will also save the feedback due to cascade
-
-        return appointmentMapper.buildAppointmentResponse(appointment);
-    }
 
     private void handlePsychologistChange(Appointments appointment, TimeSlots oldTimeSlot, TimeSlots newTimeSlot, String appointmentId) {
         Psychologists oldPsychologist = oldTimeSlot.getPsychologist();

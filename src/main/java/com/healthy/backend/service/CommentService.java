@@ -5,6 +5,8 @@ import com.healthy.backend.dto.comment.CommentResponse;
 import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Comment;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.CommentRepository;
@@ -24,45 +26,54 @@ public class CommentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Thêm một bình luận hoặc reply cho appointment.
-     * @param appointmentId ID của appointment
-     * @param request Nội dung comment và thông tin reply (nếu có)
-     * @param userId ID của người tạo comment
-     * @return CommentResponse đã tạo
-     */
     @Transactional
     public CommentResponse addComment(String appointmentId, CommentRequest request, String userId) {
-        // Tìm appointment
         Appointments appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-        // Tìm người dùng
-        Users author = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User không tồn tại"));
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Tạo comment mới
+        // Kiểm tra xem student đã đánh giá (rating) cho appointment này chưa
+        if (request.getRating() != null) {
+            boolean hasExistingRating = commentRepository.existsByAppointmentAndAuthorAndRatingIsNotNull(appointment, user);
+            if (hasExistingRating) {
+                throw new OperationFailedException("You've already submitted a rating for this appointment");
+            }
+        }
+
+        // Tạo và lưu comment
         Comment comment = new Comment();
         comment.setContent(request.getContent());
+        comment.setRating(request.getRating());
         comment.setAppointment(appointment);
-        comment.setAuthor(author);
+        comment.setAuthor(user);
 
-        // Nếu có parentCommentId => đây là reply cho bình luận đã có
         if (request.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Bình luận cha không tồn tại"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
             comment.setParentComment(parent);
         }
 
-        // Lưu vào database
         Comment savedComment = commentRepository.save(comment);
         return mapToResponse(savedComment);
     }
 
-    /**
-     * Lấy danh sách bình luận dạng cây (nested) cho một appointment
-     * chỉ lấy các comment gốc (không có parent) sau đó build đệ quy cho reply.
-     */
+    private CommentResponse mapToResponse(Comment comment) {
+        return new CommentResponse(
+                comment.getId(),
+                comment.getContent(),
+                comment.getRating(),
+                comment.getAuthor().getFullName(),
+                comment.getCreatedAt(),
+                comment.getReplies().stream()
+                        .map(this::mapToResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+
+
     @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsForAppointment(String appointmentId) {
         List<Comment> comments = commentRepository.findByAppointment_AppointmentIDAndParentCommentIsNullOrderByCreatedAtAsc(appointmentId);
@@ -71,19 +82,5 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    // Hàm chuyển đổi entity Comment sang DTO CommentResponse, đệ quy build reply
-    private CommentResponse mapToResponse(Comment comment) {
-        List<CommentResponse> replyResponses = comment.getReplies().stream()
-                .sorted((c1, c2) -> c1.getCreatedAt().compareTo(c2.getCreatedAt()))
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
 
-        return new CommentResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getAuthor().getFullName(),
-                comment.getCreatedAt(),
-                replyResponses
-        );
-    }
 }

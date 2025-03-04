@@ -13,6 +13,7 @@ import java.util.List;
 public class CommentResponse {
     private Long id;
     private String content;
+    private Integer rating;
     private String authorName;
     private LocalDateTime createdAt;
     private List<CommentResponse> replies; // Reply dạng đệ quy (nested)

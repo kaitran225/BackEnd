@@ -1,6 +1,5 @@
 package com.healthy.backend.dto.appointment;
 
-import com.healthy.backend.dto.student.StudentReplyResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
