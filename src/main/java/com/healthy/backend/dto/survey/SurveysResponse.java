@@ -43,6 +43,8 @@ public class SurveysResponse {
     @Schema(example = "")
     private List<StatusStudent> statusStudent;
     @Schema(example = "")
+    private String score;
+    @Schema(example = "")
     private List<SurveyQuestionResultResponse> questions;
     @Schema(example = "")
     private String studentComplete;

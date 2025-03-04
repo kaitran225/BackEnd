@@ -127,10 +127,12 @@ public class StudentService {
         }
         return surveys.stream()
                 .map(sr -> {
+                            SurveyResult surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(sr.getSurveyID(), studentId);
                             return surveyMapper.buildSurveysResponse(
                                     sr,
                                     surveyQuestionRepository.findBySurveyID(sr.getSurveyID()).size(),
-                                    surveyMap.get(sr.getSurveyID()));
+                                    surveyMap.get(sr.getSurveyID()),
+                                    surveyResult.getResult() + "/" + surveyResult.getMaxScore());
                         }
                 ).toList();
     }

@@ -11,7 +11,9 @@ import com.healthy.backend.entity.SurveyResult;
 public interface SurveyResultRepository extends JpaRepository<SurveyResult, String> {
 
     List<SurveyResult> findByStudentID(String id);
+
     List<SurveyResult> findBySurveyID(String surveyId);
+
     SurveyResult findByResultID(String resultId);
 
     @Query("SELECT sr.studentID FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
@@ -26,11 +28,15 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT COUNT(sr) > 0 FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     boolean existsBySurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
-    @Query("SELECT COUNT(sr) FROM SurveyResult sr WHERE sr.surveyID = :surveyId")
-    int countResultInSuv(@Param("surveyId") String surveyId);
-
     @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
-    List<SurveyResult> findSurveyIDAndStudentID1(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+    List<SurveyResult> findSurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
-    // boolean existsBySurveyIDAndStudentID(String surveyID, String studentID);
+    long countBySurveyID(String surveyID);
+
+    @Query("SELECT sr FROM SurveyResult sr JOIN FETCH sr.choices WHERE sr.resultID = :resultID")
+    SurveyResult findByIdWithChoices(@Param("resultID") String resultID);
+
+    SurveyResult findBySurveyIDAndStudentID(String surveyID, String studentID);
+
+    SurveyResult findByStudentIDAndSurveyID(String studentID, String surveyID);
 }

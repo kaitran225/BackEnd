@@ -23,6 +23,9 @@ public class GeneralService {
     private final PsychologistRepository psychologistRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
+    private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
+    private final SurveyQuestionRepository surveyQuestionRepository;
+    private final SurveyResultRepository surveyResultRepository;
 
     public String generateProgramScheduleID() {
         String lastCode = programScheduleRepository.findLastProgramScheduleId();
@@ -41,7 +44,7 @@ public class GeneralService {
 
     public String generateUserLogID() {
         String lastCode = userLogRepository.findLastUserLogId();
-        return generateNextId(Identifier.LOG.toString(),lastCode);
+        return generateNextId(Identifier.LOG.toString(), lastCode);
     }
 
     public String generateArticleID() {
@@ -94,10 +97,26 @@ public class GeneralService {
         return generateNextId(Identifier.APP.toString(), lastCode);
     }
 
+    public String generateQuestionOptionId() {
+        String lastCode = surveyQuestionOptionsRepository.findLastQuestionOptionId();
+        return generateNextId(Identifier.SQO.toString(), lastCode);
+    }
+
+    public String generateSurveyQuestionId() {
+        String lastCode = surveyQuestionRepository.findLastQuestionId();
+        return generateNextId(Identifier.SQR.toString(), lastCode);
+    }
+
+    public String generateSurveyResultId() {
+        String lastCode = surveyResultRepository.findLastResultId();
+        return generateNextId(Identifier.SRS.toString(), lastCode);
+    }
+
     private String generateNextId(String prefix, String lastId) {
         int nextNumber = lastId == null ? 1 : parseId(lastId) + 1;
         return prefix + String.format("%03d", nextNumber);
     }
+
 
     private int parseId(String lastId) {
         try {
