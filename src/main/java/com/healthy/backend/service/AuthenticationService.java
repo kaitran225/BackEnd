@@ -67,7 +67,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {
-        if(!tokenService.validateRole(httpServletRequest, Role.MANAGER)) {
+        if(!tokenService.isManager(httpServletRequest)) {
             throw new RuntimeException("You don't have permission to register psychologist");
         };
         AuthenticationResponse response = registerUser(request);

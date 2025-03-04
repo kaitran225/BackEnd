@@ -4,7 +4,10 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.repository.UserRepository;
+import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ExportService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -38,6 +41,7 @@ public class UserController {
 
     private final UserService userService;
     private final ExportService exportService;
+    private final TokenService tokenService;
 
     @Operation(
             summary = "Get all users",
@@ -45,8 +49,13 @@ public class UserController {
     )
     @GetMapping("/all")
     public ResponseEntity<List<UsersResponse>> getAllUsers(HttpServletRequest request) {
-        List<UsersResponse> users = userService.getAllUsers(request);
-        return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
+        if (!tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get all users");
+        }
+        List<UsersResponse> users = userService.getAllUsers();
+        return users.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(users);
     }
 
     @Operation(
@@ -57,7 +66,14 @@ public class UserController {
     public ResponseEntity<UsersResponse> getUserById(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        return ResponseEntity.ok(userService.getUserById(userId, request));
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId) && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users details");
+        }
+        UsersResponse user = userService.getUserById(userId);
+        return user == null
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(user);
     }
 
     @Operation(
@@ -68,7 +84,15 @@ public class UserController {
     public ResponseEntity<UsersResponse> getUserDetailsById(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        return ResponseEntity.ok(userService.getUserDetailsById(userId, request));
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users details");
+        }
+        UsersResponse user = userService.getUserDetailsById(userId);
+        return user == null
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(user);
     }
 
     @Operation(
@@ -76,11 +100,15 @@ public class UserController {
             description = "Updates a user's details."
     )
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<UsersResponse> updateUser(
             @RequestParam(required = false) String userId,
             @RequestBody Users updatedUser,
             HttpServletRequest request) {
-        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser, request);
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId) && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not update other user details");
+        }
+        UsersResponse updatedUserResponse = userService.updateUser(userId, updatedUser);
         return updatedUserResponse == null
                 ? ResponseEntity.noContent().build() // 204 if no changes detected
                 : ResponseEntity.ok(updatedUserResponse); // 200 if update successful
@@ -94,7 +122,13 @@ public class UserController {
     public ResponseEntity<?> deactivateUser(
             @RequestParam String userId,
             HttpServletRequest request) {
-        return ResponseEntity.ok(userService.deactivateUser(userId, request));
+        // Get the user ID from the request
+        userId = tokenService.validateRequestUserID(request, userId);
+        // Check if the user is a manager
+        if (!tokenService.isManager(request)) {
+            throw new OperationFailedException("You don't have permission to deactivate this user");
+        }
+        return ResponseEntity.ok(userService.deactivateUser(userId));
     }
 
     @Operation(
@@ -103,8 +137,14 @@ public class UserController {
     )
     @PostMapping("/reactivate")
     public ResponseEntity<?> reactivateUser(
-            @RequestParam String userId,HttpServletRequest request) {
-        return ResponseEntity.ok(userService.reactivateUser(userId, request));
+            @RequestParam String userId, HttpServletRequest request) {
+        // Get the user ID from the request
+        userId = tokenService.validateRequestUserID(request, userId);
+        // Check if the user is a manager
+        if (!tokenService.isManager(request) && tokenService.validateUID(request, userId)) {
+            throw new OperationFailedException("You don't have permission to reactivate this user");
+        }
+        return ResponseEntity.ok(userService.reactivateUser(userId));
     }
 
     @Operation(
@@ -118,7 +158,10 @@ public class UserController {
             @RequestParam String userId,
             @RequestParam String role,
             HttpServletRequest request) {
-        return ResponseEntity.ok(userService.updateUserRole(userId, role, request));
+        if (!tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not update other user role");
+        }
+        return ResponseEntity.ok(userService.updateUserRole(userId, role));
     }
 
     @Operation(
@@ -132,7 +175,7 @@ public class UserController {
         byte[] exportedData;
         return switch (format.toLowerCase()) {
             case "csv" -> {
-                exportedData = exportService.exportUserData(userId,"csv");
+                exportedData = exportService.exportUserData(userId, "csv");
                 yield ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_" + userId + ".csv")
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -172,11 +215,13 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<List<UsersResponse>> searchUsers(
             @RequestParam String name, HttpServletRequest request) {
-        List<UsersResponse> list = userService.searchUsers(name, request);
-        if (list.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        List<UsersResponse> list = userService.searchUsers(name);
+        if (!tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not search for users");
         }
-        return ResponseEntity.ok(list);
+        return list.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(list);
     }
 
     @Operation(
@@ -187,8 +232,11 @@ public class UserController {
     public ResponseEntity<UsersResponse> deleteUser(
             @RequestParam String userId,
             HttpServletRequest request) {
-        if (userService.deleteUser(userId, request )){
-            return ResponseEntity.ok(userService.getUserById(userId, request));
+        if (!tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not delete users");
+        }
+        if (userService.deleteUser(userId)) {
+            return ResponseEntity.ok(userService.getUserById(userId));
         }
         throw new OperationFailedException("Failed to delete user account");
     }
@@ -201,11 +249,15 @@ public class UserController {
     public ResponseEntity<?> getAllEvents(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        EventResponse events = userService.getAllEvents(userId, request);
-//        if( events == null || events.getEvent().isEmpty()){
-//            return ResponseEntity.noContent().build();
-//        }
-        return ResponseEntity.ok(events);
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users events");
+        }
+        EventResponse events = userService.getAllEvents(userId);
+        return events == null
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(events);
     }
 
     @Operation(
@@ -216,7 +268,12 @@ public class UserController {
     public ResponseEntity<List<AppointmentResponse>> getUserAppointments(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<AppointmentResponse> appointments = userService.getUserAppointment(userId, request);
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users appointments");
+        }
+        List<AppointmentResponse> appointments = userService.getUserAppointment(userId);
         return appointments.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(appointments);

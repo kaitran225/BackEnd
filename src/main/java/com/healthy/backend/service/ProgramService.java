@@ -50,8 +50,7 @@ public class ProgramService {
     private final TokenService tokenService;
 
     public List<ProgramsResponse> getAllProgramsDetails(HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to view data for all programs");
         }
         List<Programs> programs = programRepository.findAll();
@@ -68,13 +67,12 @@ public class ProgramService {
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(program -> {
             List<StudentResponse> enrolled = getStudentsByProgram(program.getProgramID());
-            return programMapper.buildProgramResponse(program, enrolled);
+            return programMapper.buildProgramResponse(program, enrolled.size());
         }).toList();
     }
 
     public ProgramTagResponse createProgramTag(ProgramTagRequest programTagRequest, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to create this program tag");
         }
         if (tagsRepository.existsByTagName(programTagRequest.getTagName())) {
@@ -87,8 +85,7 @@ public class ProgramService {
     }
 
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to create this program");
         }
         String programId = __.generateProgramID();
@@ -128,7 +125,7 @@ public class ProgramService {
     public ProgramsResponse getProgramById(String programId, HttpServletRequest request) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId));
+        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId).size());
     }
 
     public List<ProgramTagResponse> getProgramTags(HttpServletRequest request) {
@@ -138,7 +135,7 @@ public class ProgramService {
     }
 
     public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.STUDENT)) {
+        if (!tokenService.isStudent(request)) {
             throw new OperationFailedException("You don't have permission to register for a program");
         }
         Programs program = programRepository.findById(programParticipationRequest.getProgramID())
@@ -176,7 +173,7 @@ public class ProgramService {
 
     public boolean cancelParticipation(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(programParticipationRequest.getStudentID())
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to cancel this student participation");
         }
         if (!isJoined(programParticipationRequest)) {
@@ -208,7 +205,7 @@ public class ProgramService {
             HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student's enrolled programs");
         }
         List<String> programIDList = programParticipationRepository.findProgramIDsByStudentID(finalStudentId);
@@ -218,7 +215,7 @@ public class ProgramService {
         return programIDList.stream()
                 .map(programID -> programMapper.buildProgramResponse(
                         programRepository.findById(programID).orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(programID)
+                        getStudentsByProgram(programID).size()
                 ))
                 .toList();
     }
@@ -228,8 +225,7 @@ public class ProgramService {
         if (programRepository.existsById(programId)) {
             throw new ResourceNotFoundException("Program not found");
         }
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to delete this program");
         }
         if (!programRepository.existsById(programId)) {
@@ -245,8 +241,7 @@ public class ProgramService {
     }
 
     public ProgramsResponse updateProgram(String programId, ProgramUpdateRequest updateRequest, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to update this program");
         }
 
@@ -323,14 +318,12 @@ public class ProgramService {
         program.setTags(tags);
 
         programRepository.save(program);
-        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId));
+        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId).size());
     }
 
 
-
     public ProgramsResponse getProgramParticipants(String programId, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)
-                && !tokenService.validateRole(request, Role.PSYCHOLOGIST)) {
+        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to get participants of this program");
         }
         Programs program = programRepository.findById(programId).orElse(null);

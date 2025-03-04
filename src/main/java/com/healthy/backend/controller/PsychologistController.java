@@ -44,7 +44,7 @@ public class PsychologistController {
     @Operation(summary = "Get all psychologists")
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
+        if (!tokenService.isManager(request)) {
             throw new OperationFailedException("Unauthorized access, only Managers can view psychologists");
         }
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
@@ -64,10 +64,10 @@ public class PsychologistController {
         String actualId = psychologistId;
 
 
-        if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
+        if (tokenService.isManager(request) && psychologistId == null) {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
-        if (tokenService.validateRole(request, Role.STUDENT) ) {
+        if (tokenService.isManager(request) ) {
             throw new IllegalArgumentException("Unauthorized access, Student can not view psychologists ");
         }
          if (psychologistId != null && !psychologistId.isEmpty()) {
@@ -98,11 +98,11 @@ public class PsychologistController {
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
         // Phân quyền
-        if (tokenService.validateRole(httpRequest, Role.MANAGER) && psychologistId == null) {
+        if (tokenService.isManager(httpRequest) && psychologistId == null) {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
+        if (tokenService.isManager(httpRequest)) {
             throw new IllegalArgumentException("Student not can update psychologist");
         }
 
@@ -177,7 +177,7 @@ public class PsychologistController {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT) ) {
+        if (tokenService.isStudent(httpRequest) ) {
             throw new IllegalArgumentException("Unauthorized access, Student can not create timeSlot ");
         }
 
@@ -186,7 +186,7 @@ public class PsychologistController {
         }
 
 
-        if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
+        if (tokenService.isPsychologist(httpRequest)) {
             // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
             String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
             if (!psychologistId.equals(actualId)) {

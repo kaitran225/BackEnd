@@ -73,7 +73,7 @@ public class StudentService {
     public StudentResponse updateStudent(String studentId, StudentRequest student, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student programs");
         }
         Students existingStudent = studentRepository.findById(student.getStudentID())
@@ -98,7 +98,7 @@ public class StudentService {
     public List<SurveysResponse> getSurvey(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student survey results");
         }
         List<Surveys> surveys = surveyRepository.findAll();
@@ -113,7 +113,7 @@ public class StudentService {
     public List<SurveysResponse> getPendingSurveys(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student survey results");
         }
         List<SurveyResult> results = surveyResultRepository.findByStudentID(studentId);
@@ -138,7 +138,7 @@ public class StudentService {
     public List<ProgramsResponse> getEnrolledPrograms(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student programs");
         }
         return programParticipationRepository.findByStudentID(studentId).stream()
@@ -146,14 +146,14 @@ public class StudentService {
                         programRepository
                                 .findById(p.getProgram().getProgramID())
                                 .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(p.getProgram().getProgramID())
+                        getStudentsByProgram(p.getProgram().getProgramID()).size()
                 )).toList();
     }
 
     public List<ProgramsResponse> getCompletedPrograms(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student programs");
         }
         List<ProgramParticipation> participation = programParticipationRepository.findByStudentID(studentId);
@@ -165,7 +165,7 @@ public class StudentService {
                         programRepository
                                 .findById(p.getProgram().getProgramID())
                                 .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(p.getProgram().getProgramID())
+                        getStudentsByProgram(p.getProgram().getProgramID()).size()
                 ))
                 .toList();
     }
@@ -173,7 +173,7 @@ public class StudentService {
     public List<AppointmentResponse> getAppointments(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student appointments");
         }
         List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId);
@@ -187,7 +187,7 @@ public class StudentService {
     public List<AppointmentResponse> getUpcomingAppointments(String studentId, HttpServletRequest request) {
         String finalStudentId = validateStudentID(request, studentId);
         if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
+                && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student appointments");
         }
         List<Appointments> appointments = appointmentsRepository.findByStudentID(studentId)

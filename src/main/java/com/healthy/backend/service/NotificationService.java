@@ -72,7 +72,7 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getAllNotifications(HttpServletRequest request) {
-        if (tokenService.validateRole(request, Role.MANAGER)) {
+        if (tokenService.isManager(request)) {
             throw new ResourceInvalidException("You can not get database notifications");
         }
         return notificationMapper.buildNotificationResponseList(
@@ -121,7 +121,7 @@ public class NotificationService {
         return userId;
     }
     private void checkUserPermission(HttpServletRequest request, String finalUserId) {
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
+        if (tokenService.validateUID(request, finalUserId) && !tokenService.isManager(request)) {
             throw new ResourceInvalidException("You cannot get other users' notifications");
         }
     }

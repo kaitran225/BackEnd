@@ -49,17 +49,17 @@ public class AppointmentController {
             HttpServletRequest httpRequest) {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
-        if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
+        if (tokenService.isPsychologist(httpRequest)) {
             throw new OperationFailedException("Only students can book appointments");
         }
 
         if (UserId == null) {
-            UserId = userRepository.findById(
+            UserId = userRepository.findByUserId(
                     tokenService.retrieveUser(httpRequest).getUserId()
             ).get().getUserId();
         }
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
+        if (tokenService.isStudent(httpRequest)) {
             String actualId = userRepository.findById(currentUser.getUserId()).get().getUserId();
             if (!UserId.equals(actualId)) {
                 throw new OperationFailedException("Unauthorized to book appointment for orther student");
@@ -102,7 +102,7 @@ public class AppointmentController {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
+        if (tokenService.isStudent(httpRequest)) {
             throw new OperationFailedException("Only psychologists can check in");
         }
 
@@ -127,7 +127,7 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>>  getAllPsychologist(
             HttpServletRequest httpRequest
     ) {
-        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
+        if (!tokenService.isManager(httpRequest)) {
             throw new OperationFailedException("Only MANAGER can view All appointments");
         }
 
@@ -189,7 +189,7 @@ public class AppointmentController {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
+        if (tokenService.isStudent(httpRequest)) {
             throw new OperationFailedException("Only psychologists can check out");
         }
         if (currentUser.getRole() == Role.PSYCHOLOGIST && !appointment.getPsychologist().getUserID().equals(currentUser.getUserId())) {
@@ -218,7 +218,7 @@ public class AppointmentController {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment with ID " + appointmentId + " not found"));
 
-        if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
+        if (tokenService.isPsychologist(httpRequest)) {
             throw new OperationFailedException("Only Students can submit feedback");
         }
 
