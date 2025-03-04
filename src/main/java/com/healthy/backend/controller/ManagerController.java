@@ -1,7 +1,4 @@
-// Thêm ManagerController
 package com.healthy.backend.controller;
-
-
 
 import com.healthy.backend.dto.manager.AppointmentStatsResponse;
 import com.healthy.backend.dto.manager.PsychologistStatsResponse;

@@ -55,7 +55,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Get psychologist by ID")
-    @GetMapping({ "/{psychologistId}"})
+    @GetMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
 
             @RequestParam(required = false) String psychologistId,
@@ -90,7 +90,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Update psychologist details")
-    @PutMapping({ "/{psychologistId}"})
+    @PutMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid PsychologistRequest request,
@@ -160,7 +160,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Create time slots from default templates")
-    @PostMapping("/{psychologistId}/timeslots/batch")
+    @PostMapping("/timeslots/batch")
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid TimeSlotBatchCreateRequest request,
@@ -197,7 +197,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Lấy danh sách time slots")
-    @GetMapping("/{psychologistId}/timeslots")
+    @GetMapping("/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
             @RequestParam(required = false) String psychologistId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
