@@ -4,6 +4,9 @@ import com.healthy.backend.dto.notification.NotificationResponse;
 import com.healthy.backend.entity.Notifications;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class NotificationMapper {
     public NotificationResponse toResponse(Notifications notification) {
@@ -21,6 +24,9 @@ public class NotificationMapper {
                 .UserID(notification.getUserID())
                 .build();
     }
-
-
+    public List<NotificationResponse> buildNotificationResponseList(List<Notifications> notifications) {
+        return notifications.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
 }

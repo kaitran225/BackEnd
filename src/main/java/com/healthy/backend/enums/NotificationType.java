@@ -2,7 +2,7 @@ package com.healthy.backend.enums;
 
 public enum NotificationType {
     APPOINTMENT,
-    ONLEAVE,
+    ON_LEAVE,
     SURVEY,
     PROGRAM,
     DONE

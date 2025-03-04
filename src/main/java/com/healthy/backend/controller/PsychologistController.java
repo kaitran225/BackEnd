@@ -1,29 +1,30 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.timeslot.*;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.security.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.format.annotation.DateTimeFormat;
-import com.healthy.backend.repository.LeaveRequestRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.healthy.backend.dto.psychologist.*;
-import com.healthy.backend.enums.OnLeaveStatus;
 import org.springframework.http.ResponseEntity;
 import com.healthy.backend.mapper.TimeSlotMapper;
-import com.healthy.backend.entity.OnLeaveRequest;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -37,43 +38,91 @@ public class PsychologistController {
     private final TimeSlotMapper timeSlotMapper;
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
-    private final LeaveRequestRepository leaveRequestRepository;
+    private final TokenService tokenService;
+    private  final StudentRepository studentRepository;
 
-    @Operation(
-            summary = "Get all psychologists",
-            description = "Returns a list of all registered psychologists." )
+    @Operation(summary = "Get all psychologists")
     @GetMapping()
-    public ResponseEntity<List<PsychologistResponse>> getAllPsychologist() {
+    public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
+        if (!tokenService.validateRole(request, Role.MANAGER)) {
+            throw new OperationFailedException("Unauthorized access, only Managers can view psychologists");
+        }
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
-        if (!psychologistResponse.isEmpty()) {
-            return ResponseEntity.ok(psychologistResponse);
-        }
-        return ResponseEntity.noContent().build();
+        return !psychologistResponse.isEmpty() ? ResponseEntity.ok(psychologistResponse) : ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Get psychologist by ID",
-            description = "Returns the psychologist with the specified ID." )
-    @GetMapping("/{psychologistId}")
+
+
+    @Operation(summary = "Get psychologist by ID")
+    @GetMapping({ "/{psychologistId}"})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
-            @Valid @PathVariable String psychologistId ) {
-        PsychologistResponse psychologistResponse = psychologistService.getPsychologistById(psychologistId);
-        if (psychologistResponse != null) {
-            return ResponseEntity.ok(psychologistResponse);
+
+            @RequestParam(required = false) String psychologistId,
+            HttpServletRequest request) {
+
+        Users user = tokenService.retrieveUser(request);
+        String actualId = psychologistId;
+
+
+        if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
+            throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
-        return ResponseEntity.noContent().build();
+        if (tokenService.validateRole(request, Role.STUDENT) ) {
+            throw new IllegalArgumentException("Unauthorized access, Student can not view psychologists ");
+        }
+         if (psychologistId != null && !psychologistId.isEmpty()) {
+                // Kiểm tra nếu Psychologist cố tình truyền ID khác
+                PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
+                if (!current.getPsychologistId().equals(psychologistId)) {
+                    throw new OperationFailedException("You can only view your own profile");
+                }
+            }
+            // Tự động lấy ID từ token nếu không truyền
+            actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
+
+
+        // Xử lý cho Manager
+
+
+        return ResponseEntity.ok(psychologistService.getPsychologistById(actualId));
     }
 
-    @Operation(
-            summary = "Update psychologist details",
-            description = "Updates a psychologist's details." )
-    @PutMapping("/{psychologistId}")
+
+    @Operation(summary = "Update psychologist details")
+    @PutMapping({ "/{psychologistId}"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
-            @PathVariable String psychologistId,
-            @RequestBody @Valid PsychologistRequest request) {
-        PsychologistResponse updatedPsychologist = psychologistService.
-                updatePsychologist(psychologistId, request);
-        return ResponseEntity.ok(updatedPsychologist);
+            @RequestParam(required = false) String psychologistId,
+            @RequestBody @Valid PsychologistRequest request,
+            HttpServletRequest httpRequest) {
+
+        Users currentUser = tokenService.retrieveUser(httpRequest);
+
+        // Phân quyền
+        if (tokenService.validateRole(httpRequest, Role.MANAGER) && psychologistId == null) {
+            throw new IllegalArgumentException("Psychologist ID is required for managers");
+        }
+
+        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
+            throw new IllegalArgumentException("Student not can update psychologist");
+        }
+
+        if (psychologistId == null) {
+            psychologistId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+        }
+
+        else {
+            // Kiểm tra Psychologist chỉ update chính mình
+            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+            if (!psychologistId.equals(actualId)) {
+                throw new OperationFailedException("Unauthorized access,You can only update your own profile");
+            }
+        }
+
+        return ResponseEntity.ok(psychologistService.updatePsychologist(
+                psychologistId,
+                request,
+                currentUser.getUserId()
+        ));
     }
 
     @Operation(
@@ -121,8 +170,30 @@ public class PsychologistController {
     @Operation(summary = "Create time slots from default templates")
     @PostMapping("/{psychologistId}/timeslots/batch")
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
-            @PathVariable String psychologistId,
-            @RequestBody @Valid TimeSlotBatchCreateRequest request) {
+            @RequestParam(required = false) String psychologistId,
+            @RequestBody @Valid TimeSlotBatchCreateRequest request,
+            HttpServletRequest httpRequest)
+            {
+
+        Users currentUser = tokenService.retrieveUser(httpRequest);
+
+        if (tokenService.validateRole(httpRequest, Role.STUDENT) ) {
+            throw new IllegalArgumentException("Unauthorized access, Student can not create timeSlot ");
+        }
+
+        if (psychologistId == null) {
+            psychologistId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+        }
+
+
+        if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
+            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
+            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+            if (!psychologistId.equals(actualId)) {
+                throw new OperationFailedException("Unauthorized to create slots for other psychologists");
+            }
+        }
+
         List<TimeSlotResponse> responses = psychologistService.createTimeSlotsFromDefaults(
                 psychologistId,
                 request.getSlotDate(),
@@ -135,12 +206,21 @@ public class PsychologistController {
     @Operation(summary = "Lấy danh sách time slots")
     @GetMapping("/{psychologistId}/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
-            @PathVariable String psychologistId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam(required = false) String psychologistId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            HttpServletRequest request) {
 
-        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date);
+        Users currentUser = tokenService.retrieveUser(request);
+        String studentId = null;
+
+        // Nếu là student, lấy studentID
+        if (currentUser.getRole() == Role.STUDENT) {
+            Students student = studentRepository.findByUserID(currentUser.getUserId());
+            studentId = student.getStudentID();
+        }
+
+        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId);
         return ResponseEntity.ok(slots);
-
     }
 
     @Operation(summary = "Get default time slots")
@@ -150,45 +230,7 @@ public class PsychologistController {
         return ResponseEntity.ok(slots);
     }
 
-    @Operation(
-            summary = "Create leave request",
-            description = "Creates a new leave request for a psychologist." )
-    @PostMapping("/{psychologistId}/leave-requests")
-    public ResponseEntity<LeaveResponse> createLeaveRequest(
-            @RequestBody @Valid LeaveRequest dto) {
-        LeaveResponse response = psychologistService.createLeaveRequest(dto);
-        return ResponseEntity.ok(response);
-    }
 
-    @Operation(
-            summary = "Get leave-requests",
-            description = "Returns a list of leave requests for a psychologist." )
-    @GetMapping("/{psychologistId}/leave-requests")
-    public ResponseEntity<List<LeaveResponse>> getMyLeaveRequests(
-            @PathVariable String psychologistId) {
-        List<LeaveResponse> requests = psychologistService.getLeaveRequestsByPsychologist(psychologistId);
-        return ResponseEntity.ok(requests);
-    }
-
-    @Operation(
-            summary = "Cancel leave request",
-            description = "Requests a cancel update for a psychologist." )
-    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/cancel")
-    public ResponseEntity<LeaveResponse> cancelLeave(
-            @PathVariable String psychologistId,
-            @PathVariable String onLeaveId) {
-        return ResponseEntity.ok(psychologistService.cancelLeave(psychologistId, onLeaveId));
-    }
-
-    @Operation(
-            summary = "Request return",
-            description = "Requests a return for a psychologist." )
-    @PutMapping("/{psychologistId}/leave-requests/{onLeaveId}/return")
-    public ResponseEntity<PsychologistResponse> onReturn(
-            @PathVariable String psychologistId,
-            @PathVariable String onLeaveId) {
-        return ResponseEntity.ok(psychologistService.onReturn(psychologistId, onLeaveId));
-    }
 
     @Operation(
             summary = "Get psychologist average rating",
@@ -198,16 +240,5 @@ public class PsychologistController {
     public ResponseEntity<Double> getAverageRating(@PathVariable String psychologistId) {
         double averageRating = psychologistService.calculateAverageRating(psychologistId);
         return ResponseEntity.ok(averageRating);
-    }
-
-    @Operation(
-            summary = "Get approved leave requests",
-            description = "Returns a list of approved leave requests for a psychologist.")
-    @GetMapping("/{psychologistId}/leave-requests/approved")
-    public ResponseEntity<List<LeaveResponse>> getApprovedLeaveRequests(
-            @PathVariable String psychologistId
-    ) {
-        List<LeaveResponse> requests = psychologistService.getApprovedLeaveRequestsByPsychologist(psychologistId);
-        return ResponseEntity.ok(requests);
     }
 }

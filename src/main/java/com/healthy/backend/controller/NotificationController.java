@@ -1,9 +1,6 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.notification.NotificationResponse;
-import com.healthy.backend.entity.Notifications;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.mapper.NotificationMapper;
 import com.healthy.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -25,24 +21,20 @@ import java.util.stream.Collectors;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final NotificationMapper notificationMapper;
 
     @Operation(summary = "Get all notifications")
     @GetMapping("")
     public ResponseEntity<List<NotificationResponse>> getNotifications(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Mark notification as read")
     @PostMapping("/{notificationId}/read")
     public ResponseEntity<Void> markAsRead(
-            @PathVariable String notificationId,
+            @RequestParam(required = false)String notificationId,
             HttpServletRequest request) {
         notificationService.markAsRead(notificationId, request);
         return ResponseEntity.ok().build();
@@ -53,32 +45,23 @@ public class NotificationController {
     public ResponseEntity<List<NotificationResponse>> getReadNotifications(
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserReadNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserReadNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get all unread notifications")
     @GetMapping("/unread")
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
-            @PathVariable String userId,
+            @RequestParam(required = false) String userId,
             HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getUserUnreadNotifications(userId, request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getUserUnreadNotifications(userId, request);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get all notifications from the database")
     @GetMapping("/all")
     public ResponseEntity<List<NotificationResponse>> getAllNotifications(HttpServletRequest request) {
-        List<Notifications> notifications = notificationService.getAllNotifications(request);
-        List<NotificationResponse> responses = notifications.stream()
-                .map(notificationMapper::toResponse)
-                .collect(Collectors.toList());
+        List<NotificationResponse> responses = notificationService.getAllNotifications(request);
         return ResponseEntity.ok(responses);
     }
 }

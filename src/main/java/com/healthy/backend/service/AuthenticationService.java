@@ -1,14 +1,15 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.auth.*;
+import com.healthy.backend.dto.auth.request.*;
+import com.healthy.backend.dto.auth.response.AuthenticationResponse;
+import com.healthy.backend.dto.auth.response.VerificationResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.enums.UserType;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AuthenticationMapper;
-import com.healthy.backend.mapper.ParentMapper;
-import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.mapper.UserMapper;
+import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.security.JwtService;
 import com.healthy.backend.security.TokenService;
@@ -52,6 +53,7 @@ public class AuthenticationService {
     private final UserMapper usermapper;
     private final ParentMapper parentmapper;
     private final StudentMapper studentmapper;
+    private final PsychologistsMapper psychologistsmapper;
     private final AuthenticationMapper authenticationMapper;
 
     @Value("${jwt.refresh-token.expiration}")
@@ -61,152 +63,114 @@ public class AuthenticationService {
     private String siteURL;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        return registerUser(request);
+    }
 
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
+    public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {
+        if(!tokenService.validateRole(httpServletRequest, Role.MANAGER)) {
+            throw new RuntimeException("You don't have permission to register psychologist");
+        };
+        AuthenticationResponse response = registerUser(request);
+        String psychologistId = __.generatePsychologistID();
+        psychologistsRepository.save(
+                psychologistsmapper.buildPsychologistEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
+                        psychologistId)
+        );
+        response.setPsychologistId(psychologistId);
+        return response;
+    }
 
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
-            throw new RuntimeException("This phone number is already in use for another account");
+    public AuthenticationResponse registerParent(ParentRegisterRequest request) {
+        AuthenticationResponse response = registerUser(request);
+
+        List<Students> children = studentRepository.findAllById(request.getChildrenDetails().getStudentIds());
+
+        for (Students student : children) {
+            if (student.getParents() != null) {
+                throw new IllegalArgumentException("Student with ID " + student.getStudentID() + " already has a parent.");
+            }
         }
 
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
-            throw new RuntimeException("This email is already in use for another account");
-        }
+        String parentId = __.generateParentID();
+        parentRepository.save(
+                parentmapper.buildParentEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
+                        parentId, children)
+        );
+        response.setParentId(parentId);
+        return response;
+    }
+
+    public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
+        AuthenticationResponse response = registerUser(request);
+        String studentId = __.generateStudentID();
+        studentRepository.save(
+                studentmapper.buildStudentEntity(request,
+                        userRepository.findById(response.getUserId()).orElseThrow(),
+                        studentId)
+        );
+        response.setStudentId(studentId);
+        return response;
+    }
+
+    // Register user entity
+    private AuthenticationResponse registerUser(RegisterRequest request) {
+        String normalizedEmail = normalizeEmailAndPhone(request.getEmail());
+        String normalizedPhone = normalizeEmailAndPhone(request.getPhoneNumber());
+        validateUniqueUser(normalizedEmail, normalizedPhone);
 
         String token = jwtService.generateVerificationToken(normalizedEmail);
         String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+        String hashedID = __(normalizedEmail);
 
         Users savedUser = userRepository.save(
-                usermapper.buildUserEntity(request, token,
-                        __.generateUserID(), encodedPassword, hashedID));
+                buildUserEntity(request, token, encodedPassword, hashedID)
+        );
 
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
-                .path("/api/auth/verify")
-                .queryParam("token", token)
-                .toUriString();
-
-        if (savedUser.getEmail().contains("example")) {
+        if (isWhitelistedDomain(savedUser.getEmail())) {
             savedUser.setVerified(true);
             userRepository.save(savedUser);
-
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .role(savedUser.getRole().toString())
-                    .build();
+            return buildAuthResponse(savedUser);
         }
 
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
-        return AuthenticationResponse.builder()
-                .userId(savedUser.getUserId())
-                .role(savedUser.getRole().toString())
-                .build();
+        sendVerificationEmailIfNeeded(normalizedEmail, token, request.getFullName());
+        return buildAuthResponse(savedUser);
     }
 
-    // Register new parent
-    public AuthenticationResponse registerParent(ParentRegisterRequest request) {
+    // Shared helper methods
+    private String normalizeEmailAndPhone(String input) {
+        return input.trim().toLowerCase();
+    }
 
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
-
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
+    private void validateUniqueUser(String email, String phone) {
+        if (authenticationRepository.existsByPhoneNumber(phone)) {
             throw new RuntimeException("This phone number is already in use for another account");
         }
-
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
+        if (authenticationRepository.existsByEmail(email)) {
             throw new RuntimeException("This email is already in use for another account");
         }
+    }
 
-        // Generate verification token and encode password
-        String token = jwtService.generateVerificationToken(normalizedEmail);
-        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
+    private Users buildUserEntity(RegisterRequest request, String token, String encodedPassword, String hashedID) {
+        return usermapper.buildUserEntity(request, token, __.generateUserID(), encodedPassword, hashedID);
+    }
 
-        Users savedUser = userRepository.save(
-                usermapper.buildUserParentEntity(request, token,
-                        __.generateUserID(), encodedPassword, hashedID));
+    private boolean isWhitelistedDomain(String email) {
+        return email.contains("example");
+    }
 
-        List<Students> children = studentRepository.findAllById(request.getStudentIds());
+    private void sendVerificationEmailIfNeeded(String email, String token, String name) {
+        String verificationUrl = buildVerificationUrl(token);
+        emailService.sendVerificationEmail(email, verificationUrl, name);
+    }
 
-        Parents savedParent = parentRepository.save(
-                parentmapper.buildParentEntity(request, savedUser,
-                        __.generateParentID(),children));
-
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
+    private String buildVerificationUrl(String token) {
+        return UriComponentsBuilder.fromUriString(siteURL)
                 .path("/api/auth/verify")
                 .queryParam("token", token)
                 .toUriString();
-
-        if (savedUser.getEmail().contains("example")) {
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .role(savedUser.getRole().toString())
-                    .build();
-        }
-
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
-        return AuthenticationResponse.builder()
-                .userId(savedUser.getUserId())
-                .role(savedUser.getRole().toString())
-                .build();
     }
 
-    // Register new student
-    public AuthenticationResponse registerStudent(StudentRegisterRequest request) {
-
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
-        String normalizedPhone = request.getPhoneNumber().trim();
-        String hashedID = __(normalizedEmail);
-
-        if (authenticationRepository.findByPhoneNumber(normalizedPhone) != null) {
-            throw new RuntimeException("This phone number is already in use for another account");
-        }
-
-        if (authenticationRepository.findByEmail(normalizedEmail) != null) {
-            throw new RuntimeException("This email is already in use for another account");
-        }
-
-        // Generate verification token and encode password
-        String token = jwtService.generateVerificationToken(normalizedEmail);
-        String encodedPassword = passwordEncoder.encode(request.getPassword().trim());
-
-        Users savedUser = userRepository.save(
-                usermapper.buildUserStudentEntity(request, token,
-                        __.generateUserID(), encodedPassword,hashedID));
-
-        Students savedStudent = studentRepository.save(
-                studentmapper.buildStudentEntity(request, savedUser, __.generateStudentID()));
-
-        String verificationUrl = UriComponentsBuilder.fromUriString(siteURL)
-                .path("/api/auth/verify")
-                .queryParam("token", token)
-                .toUriString();
-
-        // Skip email verification for certain domains (e.g., example.com)
-        if (savedUser.getEmail().contains("example")) {
-            return AuthenticationResponse.builder()
-                    .userId(savedUser.getUserId())
-                    .studentId(savedStudent.getStudentID())
-                    .role(savedUser.getRole().toString())
-                    .build();
-        }
-
-        emailService.sendVerificationEmail(
-                normalizedEmail,
-                "Click the link to verify your email: " + verificationUrl,
-                "Verify Your Account"
-        );
-
+    private AuthenticationResponse buildAuthResponse(Users savedUser) {
         return AuthenticationResponse.builder()
                 .userId(savedUser.getUserId())
                 .role(savedUser.getRole().toString())
@@ -239,7 +203,7 @@ public class AuthenticationService {
         String refreshToken = jwtService.generateRefreshToken(user);
 
         // Save refresh token to database
-        saveRefreshToken(user.getUserId(), refreshToken);
+        _saveRefreshToken(user.getUserId(), refreshToken);
 
         // Return response based on role
         return switch (user.getRole()) {
@@ -255,63 +219,53 @@ public class AuthenticationService {
 
     // Refresh token
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        // Extract Authorization header safely
         String authHeader = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
                 .orElseGet(() -> request.getHeader(HttpHeaders.WWW_AUTHENTICATE));
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Invalid refresh token: missing or malformed.");
+            throw new InvalidTokenException("Invalid access token: missing or malformed.");
         }
 
-        final String refreshToken = authHeader.substring(7);
+        final String accessToken = authHeader.substring(7);
 
-        // Validate token before extracting username
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new InvalidTokenException("Invalid or expired refresh token.");
+        if (!jwtService.isTokenValid(accessToken)) {
+            throw new InvalidTokenException("Invalid or expired access token.");
         }
-        final String username = jwtService.extractHashedID(refreshToken);
+
+        final String username = jwtService.extractHashedID(accessToken);
 
         // Validate username
         if (username == null) {
-            throw new InvalidTokenException("Invalid refresh token: unable to extract username.");
+            throw new InvalidTokenException("Invalid access token: unable to extract username.");
         }
+
+        // Get user from the repository
         Users user = authenticationRepository.findByHashedID(username);
 
-        // Check if user exists
+        // Check if the user exists
         if (user == null) {
             throw new ResourceNotFoundException("User not found.");
         }
 
-        // Verify refresh token existence
-        RefreshToken storedToken = refreshTokenRepository.findByUserId(user.getUserId());
-        if (storedToken == null) {
-            throw new InvalidTokenException("Refresh token not found.");
+        // Method to extract refresh token
+        String refreshToken = refreshTokenRepository.findByUserId(user.getUserId()).getHashedToken();
+
+        // Validate the refresh token
+        if (refreshToken == null || !jwtService.isTokenValid(refreshToken)) {
+            throw new InvalidTokenException("Invalid or expired refresh token.");
         }
 
-        // Check if refresh token is matched
-        if (!_check(refreshToken, storedToken.getHashedToken())) {
-            throw new InvalidTokenException("Refresh token is not matched.");
-        }
-
-        // Check if refresh token is expired
-        LocalDateTime expiresAt = storedToken.getExpiresAt();
-        if (expiresAt == null || expiresAt.isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.deleteByUserId(user.getUserId());
-            throw new InvalidTokenException("Refresh token has expired.");
-        }
-
-        String accessToken = jwtService.generateToken(user);
-
-        // Update stored refresh token
-        saveRefreshToken(user.getUserId(), refreshToken);
+        // Generate a new access token using the user details
+        String newAccessToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(newAccessToken)  // New access token
+                .refreshToken(refreshToken)   // The same refresh token
                 .userId(user.getUserId())
                 .role(user.getRole().toString())
                 .build();
     }
+
 
     // Initiate password reset
     public boolean initiatePasswordReset(String email) {
@@ -345,7 +299,7 @@ public class AuthenticationService {
                 .toUriString();
 
         // Send password reset email
-        emailService.sendForgotPasswordEmail(user.getEmail(), resetLink);
+        emailService.sendForgotPasswordEmail(user.getEmail(), resetLink, user.getFullName());
 
         return true;
     }
@@ -394,7 +348,6 @@ public class AuthenticationService {
 
         // Delete the used reset token
         resetTokenRepository.delete(storedToken);
-
         return true;
     }
 
@@ -420,7 +373,8 @@ public class AuthenticationService {
 
     // Check if verification token is expired
     public boolean isVerificationTokenExpired(String token) {
-        return authenticationRepository.findByVerificationToken(token).getTokenExpiration().isAfter(LocalDateTime.now());
+        return authenticationRepository.findByVerificationToken(token)
+                .getTokenExpiration().isAfter(LocalDateTime.now());
     }
 
     public UsersResponse extractTokens(HttpServletRequest request) {
@@ -428,7 +382,7 @@ public class AuthenticationService {
     }
 
     // Save refresh token to database
-    private void saveRefreshToken(String userId, String refreshToken) {
+    private void _saveRefreshToken(String userId, String refreshToken) {
 
         if (refreshTokenRepository.findByUserId(userId) != null) {
             refreshTokenRepository.deleteByUserId(userId);
@@ -436,7 +390,7 @@ public class AuthenticationService {
 
         RefreshToken token = new RefreshToken();
         token.setUserId(userId);
-        token.setHashedToken(hashToken(refreshToken));
+        token.setHashedToken(refreshToken);
         token.setExpiresAt(LocalDateTime.now().plus(Duration.ofMillis(refreshTokenDuration)));
 
         refreshTokenRepository.save(token);
@@ -444,12 +398,13 @@ public class AuthenticationService {
 
     // Use a secure hashing algorithm
     private String hashToken(String token) {
-   return passwordEncoder.encode(token);
+        return passwordEncoder.encode(token);
     }
 
     private boolean _check(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
+
     private String __(String email) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

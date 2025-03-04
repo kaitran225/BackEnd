@@ -31,4 +31,6 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
 
     @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     List<SurveyResult> findSurveyIDAndStudentID1(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+
+    // boolean existsBySurveyIDAndStudentID(String surveyID, String studentID);
 }

@@ -54,6 +54,10 @@ public class TimeSlots {
     @Column(name = "current_bookings", nullable = false)
     private int currentBookings = 0;
 
+    @Column(name = "booked")
+    private boolean booked;
+
+
     @Column(name = "default_slot_id")
     private String defaultSlotId;
 

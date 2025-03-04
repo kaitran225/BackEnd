@@ -243,10 +243,6 @@ public class UserService {
         return "Exporting user data for " + user.getUserId() + " in format: " + format;
     }
 
-    public void submitFeedback(String userId, String feedback, HttpServletRequest request) {
-        System.out.println("Feedback from user " + userId + ": " + feedback);
-    }
-
     public List<UsersResponse> searchUsers(String name, HttpServletRequest request) {
         if (!tokenService.validateRole(request, Role.MANAGER)) {
             throw new OperationFailedException("You can not search for users");
