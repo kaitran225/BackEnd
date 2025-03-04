@@ -34,7 +34,7 @@ public class CommentService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Kiểm tra xem student đã đánh giá (rating) cho appointment này chưa
+        // Kiểm tra xem user đã đánh giá cho appointment này chưa (nếu có rating)
         if (request.getRating() != null) {
             boolean hasExistingRating = commentRepository.existsByAppointmentAndAuthorAndRatingIsNotNull(appointment, user);
             if (hasExistingRating) {
@@ -42,7 +42,7 @@ public class CommentService {
             }
         }
 
-        // Tạo và lưu comment
+        // Tạo comment mới
         Comment comment = new Comment();
         comment.setContent(request.getContent());
         comment.setRating(request.getRating());
@@ -56,8 +56,22 @@ public class CommentService {
         }
 
         Comment savedComment = commentRepository.save(comment);
+
+        // Cập nhật thông tin feedback và rating cho appointment
+        if (request.getRating() != null) {
+            appointment.setRating(request.getRating());
+        }
+        // Giả sử nếu user là STUDENT, feedback là studentNote; nếu PSYCHOLOGIST thì là psychologistNote
+        if (user.getRole() == Role.STUDENT) {
+            appointment.setStudentNote(request.getContent());
+        } else if (user.getRole() == Role.PSYCHOLOGIST) {
+            appointment.setPsychologistNote(request.getContent());
+        }
+        appointmentRepository.save(appointment);
+
         return mapToResponse(savedComment);
     }
+
 
     private CommentResponse mapToResponse(Comment comment) {
         return new CommentResponse(

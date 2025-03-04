@@ -10,6 +10,7 @@ import com.healthy.backend.repository.PsychologistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,35 +33,34 @@ public class ManagerService {
         return response;
     }
 
-    // Method to get psychologist statistics
     public List<PsychologistStatsResponse> getPsychologistStats() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
+        List<Appointments> allAppointments = appointmentRepository.findAll();
 
-        return psychologists.stream().map(psychologist -> {
-            long appointmentCount = appointmentRepository.countByPsychologistID(psychologist.getPsychologistID());
-            double averageRating = calculateAverageRating(psychologist.getPsychologistID());
+        List<PsychologistStatsResponse> responses = new ArrayList<>();
+        for (Psychologists psychologist : psychologists) {
+            // Filter appointments belonging to the current psychologist
+            List<Appointments> filteredAppointments = allAppointments.stream()
+                    .filter(a -> psychologist.getPsychologistID().equals(a.getPsychologistID()))
+                    .collect(Collectors.toList());
 
-            PsychologistStatsResponse statsResponse = new PsychologistStatsResponse();
-            statsResponse.setPsychologistId(psychologist.getPsychologistID());
-            statsResponse.setFullName(psychologist.getFullNameFromUser ());
-            statsResponse.setAverageRating(averageRating);
-            statsResponse.setAppointmentCount(appointmentCount);
-            return statsResponse;
-        }).collect(Collectors.toList());
-    }
+            long appointmentCount = filteredAppointments.size();
+            double averageRating = filteredAppointments.stream()
+                    .filter(a -> a.getRating() != null)
+                    .mapToInt(Appointments::getRating)
+                    .average()
+                    .orElse(0.0);
 
-    // Helper method to calculate average rating
-    private double calculateAverageRating(String psychologistId) {
-        List<Appointments> appointments = appointmentRepository.findByPsychologistIDAndStatusAndFeedbacksNotNull(
-                psychologistId, AppointmentStatus.COMPLETED);
-        if (appointments.isEmpty()) {
-            return 0.0;
+            PsychologistStatsResponse statResponse = new PsychologistStatsResponse();
+            statResponse.setPsychologistId(psychologist.getPsychologistID());
+            statResponse.setFullName(psychologist.getFullNameFromUser());
+            statResponse.setAppointmentCount(appointmentCount);
+            statResponse.setAverageRating(averageRating);
+            responses.add(statResponse);
         }
-
-        double totalRating = appointments.stream()
-                .mapToInt(Appointments::getRating)
-                .sum();
-
-        return totalRating / appointments.size();
+        return responses;
     }
+
+
+
 }

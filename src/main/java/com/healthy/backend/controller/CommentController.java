@@ -31,7 +31,6 @@ public class CommentController {
             @PathVariable String appointmentId,
             @RequestBody @Valid CommentRequest request,
             HttpServletRequest httpRequest) {
-        // Lấy thông tin người dùng từ token (đảm bảo đã đăng nhập)
         String userId = tokenService.retrieveUser(httpRequest).getUserId();
         CommentResponse response = commentService.addComment(appointmentId, request, userId);
         return ResponseEntity.ok(response);

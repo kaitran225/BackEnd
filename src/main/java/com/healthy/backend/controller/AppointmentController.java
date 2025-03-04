@@ -3,6 +3,7 @@ package com.healthy.backend.controller;
 import com.healthy.backend.dto.appointment.*;
 import com.healthy.backend.entity.Appointments;
 import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.Role;
@@ -13,10 +14,13 @@ import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
+import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.NotificationService;
+import com.healthy.backend.service.PsychologistService;
+import com.healthy.backend.service.StudentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,9 +50,79 @@ public class AppointmentController {
     private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final AppointmentMapper appointmentMapper;
-    private final PsychologistsMapper psychologistMapper;
-    private final StudentMapper studentMapper;
+    private final PsychologistService   psychologistService;
+    private  final StudentRepository studentRepository;
+    private final StudentService studentService;
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<AppointmentResponse>> filterAppointments(
+            @RequestParam(required = false) String studentId,
+            @RequestParam(required = false) String psychologistId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) List<AppointmentStatus> status,
+            HttpServletRequest httpRequest) {
+
+        Users currentUser = tokenService.retrieveUser(httpRequest);
+
+        String finalStudentId = null;
+        String finalPsychologistId = null;
+
+        // Xác định ID dựa trên role
+        switch (currentUser.getRole()) {
+            case MANAGER:
+                finalStudentId = studentId;
+                finalPsychologistId = psychologistId;
+                break;
+
+            case STUDENT:
+                Students student = studentRepository.findByUserID(currentUser.getUserId());
+                if (student == null) throw new ResourceNotFoundException("Student not found");
+                finalStudentId = student.getStudentID();
+
+                // Nếu có truyền studentId khác -> lỗi
+                if (studentId != null && !studentId.equals(finalStudentId)) {
+                    throw new OperationFailedException("Cannot view other students' appointments");
+                }
+                finalPsychologistId = psychologistId;
+                break;
+
+            case PSYCHOLOGIST:
+                Psychologists psychologist = psychologistRepository.findByUserID(currentUser.getUserId());
+                if (psychologist == null) throw new ResourceNotFoundException("Psychologist not found");
+                finalPsychologistId = psychologist.getPsychologistID();
+
+                // Nếu có truyền psychologistId khác -> lỗi
+                if (psychologistId != null && !psychologistId.equals(finalPsychologistId)) {
+                    throw new OperationFailedException("Cannot view other psychologists' appointments");
+                }
+                finalStudentId = studentId;
+                break;
+
+            default:
+                throw new OperationFailedException("Unauthorized access");
+        }
+
+        // Validate IDs
+        if (finalStudentId != null && !studentRepository.existsById(finalStudentId)) {
+            throw new ResourceNotFoundException("Student not found");
+        }
+
+        if (finalPsychologistId != null && !psychologistRepository.existsById(finalPsychologistId)) {
+            throw new ResourceNotFoundException("Psychologist not found");
+        }
+
+        List<AppointmentResponse> responses = appointmentService.filterAppointments(
+                finalStudentId,
+                finalPsychologistId,
+                startDate,
+                endDate,
+                status
+        );
+
+        return ResponseEntity.ok(responses);
+    }
+
 
     @Operation(summary = "Book an appointment")
     @PostMapping("/book")
@@ -214,31 +288,7 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Submit feedback for an appointment",
-            description = "Allows a student to submit feedback and rating for a completed appointment."
-    )
-    @PostMapping("/{appointmentId}/feedback")
-    public ResponseEntity<AppointmentResponse> submitFeedback(
-            @PathVariable String appointmentId,
-            @RequestBody @Valid AppointmentFeedbackRequest feedback,
-            HttpServletRequest httpRequest) {
 
-        Users currentUser = tokenService.retrieveUser(httpRequest);
-
-        Appointments appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment with ID " + appointmentId + " not found"));
-
-        if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
-            throw new OperationFailedException("Only Students can submit feedback");
-        }
-
-        if (currentUser.getRole() == Role.STUDENT && !appointment.getStudent().getUserID().equals(currentUser.getUserId())) {
-            throw new OperationFailedException("Unauthorized to access this appointment");
-        }
-        AppointmentResponse response = appointmentService.submitFeedback(appointmentId, feedback);
-        return ResponseEntity.ok(response);
-    }
 
     @Operation(
             summary = "Update an appointment",
@@ -264,31 +314,6 @@ public class AppointmentController {
     }
 
 
-
-
-    @GetMapping("/me/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getPsychologistAppointments(
-            HttpServletRequest request,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) AppointmentStatus status
-    ) {
-        // 1. Xác thực và lấy thông tin psychologist
-        Users currentUser = tokenService.retrieveUser(request);
-        Psychologists psychologist = psychologistRepository.findByUserID(currentUser.getUserId());
-
-        if (psychologist == null) {
-            throw new ResourceNotFoundException("Psychologist not found");
-        }
-
-        // 2. Gọi service để xử lý logic
-        List<AppointmentResponse> response = appointmentService.getPsychologistAppointments(
-                psychologist.getPsychologistID(),
-                date,
-                status
-        );
-
-        return ResponseEntity.ok(response);
-    }
 
 
 

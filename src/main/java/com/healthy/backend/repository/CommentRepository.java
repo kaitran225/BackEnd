@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    // Sửa đổi truy vấn để sử dụng property "appointmentID" của entity Appointments
     List<Comment> findByAppointment_AppointmentIDAndParentCommentIsNullOrderByCreatedAtAsc(String appointmentID);
 
     boolean existsByAppointmentAndAuthorAndRatingIsNotNull(

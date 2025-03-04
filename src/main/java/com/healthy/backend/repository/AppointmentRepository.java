@@ -5,20 +5,20 @@ import com.healthy.backend.enums.AppointmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface AppointmentRepository extends JpaRepository<Appointments, String> {
+public interface AppointmentRepository extends JpaRepository<Appointments, String> , JpaSpecificationExecutor<Appointments> {
 
     List<Appointments> findByStudentID(String studentID);
     List<Appointments> findByPsychologistID(String psychologistID);
     @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
     String findLastAppointmentId();
 
-    Page<Appointments> findByPsychologistIDAndStatusAndFeedbacksNotNull(String psychologistId, AppointmentStatus status, Pageable pageable);
     List<Appointments> findByPsychologistIDAndStatusAndFeedbacksNotNull(String psychologistId, AppointmentStatus status);
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
@@ -27,6 +27,8 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     boolean existsByStudentIDAndTimeSlotsID(
             @Param("studentId") String studentId,
             @Param("timeSlotId") String timeSlotId);
+
+
 
     @Query("SELECT a FROM Appointments a " +
             "JOIN FETCH a.timeSlot " +

@@ -1,13 +1,11 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.appointment.AppointmentFeedbackRequest;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
-import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
@@ -15,16 +13,18 @@ import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +47,66 @@ public class AppointmentService {
     private final DepartmentMapper departmentMapper;
     private final StudentMapper studentMapper;
     private final UserMapper userMapper;
+
+    public List<AppointmentResponse> filterAppointments(
+            String studentId,
+            String psychologistId,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<AppointmentStatus> status) { // Thay đổi thành List
+
+        Specification<Appointments> spec = Specification.where(null);
+
+        if (studentId != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("student").get("studentID"), studentId));
+        }
+
+        if (psychologistId != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("psychologist").get("psychologistID"), psychologistId));
+        }
+
+        if (startDate != null || endDate != null) {
+            spec = spec.and((root, query, cb) -> {
+                Join<Appointments, TimeSlots> timeSlotJoin = root.join("timeSlot");
+                if (startDate != null && endDate != null) {
+                    return cb.between(timeSlotJoin.get("slotDate"), startDate, endDate);
+                } else if (startDate != null) {
+                    return cb.greaterThanOrEqualTo(timeSlotJoin.get("slotDate"), startDate);
+                } else {
+                    return cb.lessThanOrEqualTo(timeSlotJoin.get("slotDate"), endDate);
+                }
+            });
+        }
+
+        if (status != null && !status.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.get("status").in(status));
+        }
+
+        return appointmentRepository.findAll(spec)
+                .stream()
+                .map(this::mapToAppointmentResponse)
+                .collect(Collectors.toList());
+    }
+
+    private AppointmentResponse mapToAppointmentResponse(Appointments appointment) {
+        AppointmentResponse response = new AppointmentResponse();
+        response.setAppointmentID(appointment.getAppointmentID());
+        response.setStudentID(appointment.getStudentID());
+        response.setPsychologistID(appointment.getPsychologistID());
+        response.setStatus(String.valueOf(appointment.getStatus()));
+        response.setCreatedAt(appointment.getCreatedAt());
+        response.setUpdatedAt(appointment.getUpdatedAt());
+
+        if (appointment.getTimeSlot() != null) {
+            response.setSlotDate(String.valueOf(appointment.getTimeSlot().getSlotDate()));
+            response.setStartTime(String.valueOf(appointment.getTimeSlot().getStartTime()));
+            response.setEndTime(String.valueOf(appointment.getTimeSlot().getEndTime()));
+        }
+        return response;
+    }
 
 
 
@@ -466,39 +526,8 @@ public class AppointmentService {
         }
     }
 
-    public List<AppointmentResponse> getPsychologistAppointments(
-            String psychologistId,
-            LocalDate date,
-            AppointmentStatus status
-    ) {
-        // 1. Fetch appointments với đầy đủ associations
-        List<Appointments> appointments = appointmentRepository.findByPsychologistIDWithDetails(psychologistId);
 
-        // 2. Lọc theo ngày và trạng thái
-        Predicate<Appointments> dateFilter = a ->
-                date == null || (a.getTimeSlot() != null && date.equals(a.getTimeSlot().getSlotDate()));
 
-        Predicate<Appointments> statusFilter = a ->
-                status == null || a.getStatus() == status;
 
-        List<Appointments> filteredAppointments = appointments.stream()
-                .filter(dateFilter.and(statusFilter))
-                .collect(Collectors.toList());
 
-        // 3. Chuyển đổi sang DTO
-        return filteredAppointments.stream()
-                .map(this::mapToAppointmentResponse)
-                .collect(Collectors.toList());
-    }
-
-    private AppointmentResponse mapToAppointmentResponse(Appointments appointment) {
-        Students student = appointment.getStudent();
-        Psychologists psychologist = appointment.getPsychologist();
-
-        return appointmentMapper.buildAppointmentResponse(
-                appointment,
-                psychologistMapper.buildPsychologistResponse(psychologist),
-                studentMapper.buildBasicStudentResponse(student)
-        );
-    }
 }

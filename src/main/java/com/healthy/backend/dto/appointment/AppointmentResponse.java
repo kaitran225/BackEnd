@@ -73,4 +73,6 @@ public class AppointmentResponse {
     private String startTime;
     @Schema(example = "")
     private String endTime;
+    @Schema(example = "")
+    private String slotDate;
 }

@@ -8,30 +8,24 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.format.annotation.DateTimeFormat;
 //import com.healthy.backend.repository.LeaveRequestRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.healthy.backend.dto.psychologist.*;
-import com.healthy.backend.enums.OnLeaveStatus;
 import org.springframework.http.ResponseEntity;
 import com.healthy.backend.mapper.TimeSlotMapper;
 //import com.healthy.backend.entity.OnLeaveRequest;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -228,9 +222,5 @@ public class PsychologistController {
         List<DefaultTimeSlotResponse> slots = psychologistService.getDefaultTimeSlots();
         return ResponseEntity.ok(slots);
     }
-
-
-
-
 
 }

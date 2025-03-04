@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentRequest {
-    @NotBlank(message = "Content không được để trống")
+    @NotBlank(message = "Content can not blank")
     private String content;
 
     // ID của bình luận cha nếu muốn reply vào bình luận đã có (nếu null thì là bình luận gốc)
