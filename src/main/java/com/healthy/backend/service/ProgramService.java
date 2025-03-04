@@ -39,7 +39,6 @@ public class ProgramService {
     private final StudentRepository studentRepository;
     private final DepartmentRepository departmentRepository;
     private final PsychologistRepository psychologistRepository;
-    private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
     private final ProgramMapper programMapper;
@@ -50,7 +49,7 @@ public class ProgramService {
     private final TokenService tokenService;
 
     public List<ProgramsResponse> getAllProgramsDetails(HttpServletRequest request) {
-        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to view data for all programs");
         }
         List<Programs> programs = programRepository.findAll();
@@ -85,7 +84,7 @@ public class ProgramService {
     }
 
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, HttpServletRequest request) {
-        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to create this program");
         }
         String programId = __.generateProgramID();
@@ -134,22 +133,23 @@ public class ProgramService {
         return tags.stream().map(programMapper::buildProgramTagResponse).toList();
     }
 
-    public boolean registerForProgram(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
+    public boolean registerForProgram(String programId, HttpServletRequest request) {
         if (!tokenService.isStudent(request)) {
             throw new OperationFailedException("You don't have permission to register for a program");
         }
-        Programs program = programRepository.findById(programParticipationRequest.getProgramID())
+        Programs program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
 
-        if (isJoined(programParticipationRequest)) {
+        String studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
+        if (isJoined(programId, studentId)) {
             throw new ResourceAlreadyExistsException("Student is already registered for this program");
         }
         String programParticipationId = __.generateParticipantID();
         programParticipationRepository.save(
                 new ProgramParticipation(
                         programParticipationId,
-                        programParticipationRequest.getStudentID(),
-                        programParticipationRequest.getProgramID(),
+                        studentId,
+                        programId,
                         ParticipationStatus.JOINED,
                         LocalDate.now()
                 )
@@ -157,7 +157,7 @@ public class ProgramService {
 
         // Send notification
         notificationService.createProgramNotification(
-                studentRepository.findById(programParticipationRequest.getStudentID()).get().getUserID(),
+                studentRepository.findByStudentID(studentId).getUserID(),
                 "New Program Registration",
                 "You have a new program registration for " + program.getProgramName(),
                 program.getProgramID());
@@ -171,16 +171,21 @@ public class ProgramService {
         return program.getStatus().name();
     }
 
-    public boolean cancelParticipation(ProgramParticipationRequest programParticipationRequest, HttpServletRequest request) {
-        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(programParticipationRequest.getStudentID())
+    public boolean cancelParticipation(String programId, HttpServletRequest request) {
+        String studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
+        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(studentId)
                 && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to cancel this student participation");
         }
-        if (!isJoined(programParticipationRequest)) {
+        if (!programRepository.existsById(programId)) {
+            throw new ResourceNotFoundException("Program not found");
+        }
+        if (!isJoined(programId, studentId)) {
             throw new ResourceNotFoundException("Participation not found");
         }
         ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
-                programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID());
+                programId,
+                studentId);
         if (participation.getStatus().equals(ParticipationStatus.CANCELLED))
             throw new ResourceAlreadyExistsException("Participation is already cancelled");
 
@@ -225,7 +230,7 @@ public class ProgramService {
         if (programRepository.existsById(programId)) {
             throw new ResourceNotFoundException("Program not found");
         }
-        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to delete this program");
         }
         if (!programRepository.existsById(programId)) {
@@ -323,7 +328,7 @@ public class ProgramService {
 
 
     public ProgramsResponse getProgramParticipants(String programId, HttpServletRequest request) {
-        if (!tokenService.validateRoles(request,List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to get participants of this program");
         }
         Programs program = programRepository.findById(programId).orElse(null);
@@ -358,9 +363,9 @@ public class ProgramService {
                 .toList();
     }
 
-    private boolean isJoined(ProgramParticipationRequest programParticipationRequest) {
+    private boolean isJoined(String programId, String studentId) {
         return programParticipationRepository.findByProgramIDAndStudentID(
-                programParticipationRequest.getProgramID(), programParticipationRequest.getStudentID()
+                programId, studentId
         ) != null;
     }
 

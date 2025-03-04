@@ -99,7 +99,7 @@ public class ProgramController {
             description = "Internal server error"
     )
     @Operation(summary = "Get all program statuses", description = "Returns a list of all program statuses.")
-    @GetMapping("/details")
+    @GetMapping("/details/all")
     public ResponseEntity<?> getAllProgramStatuses(HttpServletRequest request) {
         List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails(request);
         if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
@@ -108,8 +108,8 @@ public class ProgramController {
 
     // Get program details
     @Operation(summary = "Get program details", description = "Returns details of a specific program.")
-    @GetMapping("/{programId}/details")
-    public ResponseEntity<?> getProgramDetails(@PathVariable String programId, HttpServletRequest request) {
+    @GetMapping("/details")
+    public ResponseEntity<?> getProgramDetails(@RequestParam String programId, HttpServletRequest request) {
         ProgramsResponse programsResponse = programService.getProgramById(programId, request);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
@@ -118,9 +118,9 @@ public class ProgramController {
     // Get program status
     @Operation(summary = "Get program status",
             description = "Returns the status of a specific program.")
-    @GetMapping("/{programId}/status")
+    @GetMapping("/status")
     public ResponseEntity<?> getRegistrationStatus(
-            @PathVariable String programId,
+            @RequestParam String programId,
             HttpServletRequest request) {
         String status = programService.getProgramStatus(programId, request);
         if (status.isEmpty()) {
@@ -144,9 +144,9 @@ public class ProgramController {
     // Get program participants
     @Operation(summary = "Get program participants",
             description = "Returns a list of participants for a specific program.")
-    @GetMapping("/{programId}/participants")
+    @GetMapping("/participants")
     public ResponseEntity<ProgramsResponse> getProgramParticipants(
-            @PathVariable String programId,
+            @RequestParam String programId,
             HttpServletRequest request) {
         ProgramsResponse programsResponse = programService.getProgramParticipants(programId, request);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
@@ -167,12 +167,12 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Register for a program
     @Operation(summary = "Register for a program", description = "Registers a student for a program.")
-    @PostMapping("/{programId}/register")
+    @PostMapping("/register")
     public ResponseEntity<?> registerForProgram(
-            @RequestBody ProgramParticipationRequest programParticipationRequest,
+            @RequestParam String programId,
             HttpServletRequest request) {
-        if (programService.registerForProgram(programParticipationRequest, request)) {
-            return ResponseEntity.ok("Registration successful for program " + programParticipationRequest.getProgramID());
+        if (programService.registerForProgram(programId, request)) {
+            return ResponseEntity.ok("Registration successful for program " + programId);
         }
         throw new ResourceNotFoundException("Failed to register for program");
     }
@@ -190,7 +190,7 @@ public class ProgramController {
     // Submit feedback
     @Operation(deprecated = true, summary = "Submit feedback", description = "Submits feedback for a specific program.")
     @PostMapping("/{programId}/feedback")
-    public ResponseEntity<?> submitFeedback(@PathVariable String programId) {
+    public ResponseEntity<?> submitFeedback(@RequestParam String programId) {
         return ResponseEntity.ok("Feedback submitted for program " + programId);
     }
 
@@ -203,14 +203,6 @@ public class ProgramController {
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
     }
 
-//    // Very low priority
-//    // Send program announcement
-//    @Operation(deprecated = true, summary = "Send program announcement", description = "Sends an announcement for a specific program.")
-//    @PostMapping("/{programId}/announcement")
-//    public ResponseEntity<?> sendProgramAnnouncement(@PathVariable String programId) {
-//        return ResponseEntity.ok("Announcement sent for program " + programId);
-//    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////PUT REQUESTS//////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,9 +210,9 @@ public class ProgramController {
     // Update a program
     @Operation(summary = "Update a program",
             description = "Updates an existing program.")
-    @PutMapping("/{programId}/edit")
+    @PutMapping("/edit")
     public ResponseEntity<ProgramsResponse> updateProgram(
-            @PathVariable String programId,
+            @RequestParam String programId,
             @RequestBody ProgramUpdateRequest programsRequest,
             HttpServletRequest request) {
         ProgramsResponse response = programService.updateProgram(programId, programsRequest, request);
@@ -229,24 +221,16 @@ public class ProgramController {
 
     // Cancel registration
     @Operation(summary = "Cancel registration for a program", description = "Cancels registration for a program.")
-    @PutMapping("/{programId}/cancel-request")
+    @PutMapping("/cancel-request")
     public ResponseEntity<String> cancelParticipation(
-            @RequestBody ProgramParticipationRequest programParticipationRequest,
+            @RequestParam String programId,
             HttpServletRequest request) {
-        boolean isCancelled = programService.cancelParticipation(programParticipationRequest, request);
+        boolean isCancelled = programService.cancelParticipation(programId, request);
         if (isCancelled) {
             return ResponseEntity.ok("Participation successfully cancelled.");
         }
         throw new OperationFailedException("Failed to cancel participation.");
     }
-
-//    // Very low priority
-//    // Approve cancellation
-//    @Operation(deprecated = true, summary = "Approve cancellation request", description = "Approves a cancellation request for a specific program.")
-//    @PutMapping("/{programId}/approve-cancel/{studentId}")
-//    public ResponseEntity<?> approveCancelRequest(@PathVariable String programId, @PathVariable String studentId) {
-//        return ResponseEntity.ok("Cancellation request processed for student " + studentId);
-//    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////DELETE REQUESTS////////////////////////////////////////////////
@@ -254,8 +238,8 @@ public class ProgramController {
 
     // Delete a program
     @Operation(summary = "Delete a program", description = "Deletes an existing program.")
-    @DeleteMapping("/{programId}/delete")
-    public ResponseEntity<?> deleteProgram(@PathVariable String programId,
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteProgram(@RequestParam String programId,
                                            HttpServletRequest request) {
         if (!programService.deleteProgram(programId, request)) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.noContent().build();

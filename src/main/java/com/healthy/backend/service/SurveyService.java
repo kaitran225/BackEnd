@@ -82,8 +82,7 @@ public class SurveyService {
                                 statusList);
                             })
                 .collect(Collectors.toList());
-                    
-                
+
         case MANAGER:
         case PSYCHOLOGIST:
             return surveys.stream()
