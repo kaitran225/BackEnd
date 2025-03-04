@@ -14,10 +14,8 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +38,6 @@ public class AppointmentService {
 
     private final GeneralService __;
     private final EmailService emailService;
-    private final TokenService tokenService;
     private final NotificationService notificationService;
 
     private final PsychologistsMapper psychologistMapper;
@@ -377,27 +374,25 @@ public class AppointmentService {
     }
 
     private void sendUpdateNotification(Appointments appointment, Users updater) {
-        String updaterRole = updater.getRole().toString();
-        String updaterName = updater.getFullName();
-
-        // Gửi thông báo cho Psychologist nếu Student update
-        if (updaterRole.equalsIgnoreCase("STUDENT")) {
-            notificationService.createAppointmentNotification(
-                    appointment.getPsychologist().getUserID(),
-                    "Appointment Updated",
-                    "The appointment with " + updaterName + " has been updated by the student.",
-                    appointment.getAppointmentID()
-            );
-        }
-
-        // Gửi thông báo cho Student nếu Psychologist update
-        if (updaterRole.equalsIgnoreCase("PSYCHOLOGIST")) {
-            notificationService.createAppointmentNotification(
-                    appointment.getStudent().getUserID(),
-                    "Appointment Updated",
-                    "The appointment has been updated by psychologist " + updaterName + ".",
-                    appointment.getAppointmentID()
-            );
+        switch (updater.getRole()) {
+            case STUDENT -> {
+                notificationService.createAppointmentNotification(
+                        appointment.getPsychologist().getUserID(),
+                        "Appointment Updated",
+                        "The appointment with " + updater.getFullName() + " has been updated by the student.",
+                        appointment.getAppointmentID()
+                );
+                break;
+            }
+            case PSYCHOLOGIST -> {
+                notificationService.createAppointmentNotification(
+                        appointment.getStudent().getUserID(),
+                        "Appointment Updated",
+                        "The appointment has been updated by psychologist " + updater.getFullName() + ".",
+                        appointment.getAppointmentID()
+                );
+                break;
+            }
         }
     }
 
@@ -421,7 +416,6 @@ public class AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
             throw new OperationFailedException("Appointment is already in progress");
         }
-
 
         appointment.setStatus(AppointmentStatus.IN_PROGRESS);
         appointment.setCheckInTime(LocalDateTime.now());
@@ -459,7 +453,6 @@ public class AppointmentService {
         appointment.setCheckOutTime(LocalDateTime.now());
         appointment.setPsychologistNote(psychologistNote);
         appointmentRepository.save(appointment);
-
 
         // Add notification for student
         notificationService.createAppointmentNotification(

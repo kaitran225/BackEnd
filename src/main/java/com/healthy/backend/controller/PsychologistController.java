@@ -36,7 +36,7 @@ public class PsychologistController {
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TokenService tokenService;
-    private  final StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
     @Operation(summary = "Get all psychologists")
     @GetMapping("/all")
@@ -49,9 +49,8 @@ public class PsychologistController {
     }
 
 
-
     @Operation(summary = "Get psychologist by ID")
-    @GetMapping({ "/detail"})
+    @GetMapping({""})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
 
             @RequestParam(required = false) String psychologistId,
@@ -64,18 +63,18 @@ public class PsychologistController {
         if (tokenService.isManager(request) && psychologistId == null) {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
-        if (tokenService.isManager(request) ) {
+        if (tokenService.isManager(request)) {
             throw new IllegalArgumentException("Unauthorized access, Student can not view psychologists ");
         }
-         if (psychologistId != null && !psychologistId.isEmpty()) {
-                // Kiểm tra nếu Psychologist cố tình truyền ID khác
-                PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
-                if (!current.getPsychologistId().equals(psychologistId)) {
-                    throw new OperationFailedException("You can only view your own profile");
-                }
+        if (psychologistId != null && !psychologistId.isEmpty()) {
+            // Kiểm tra nếu Psychologist cố tình truyền ID khác
+            PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
+            if (!current.getPsychologistId().equals(psychologistId)) {
+                throw new OperationFailedException("You can only view your own profile");
             }
-            // Tự động lấy ID từ token nếu không truyền
-            actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
+        }
+        // Tự động lấy ID từ token nếu không truyền
+        actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
 
 
         // Xử lý cho Manager
@@ -86,7 +85,7 @@ public class PsychologistController {
 
 
     @Operation(summary = "Update psychologist details")
-    @PutMapping({ "/detail"})
+    @PutMapping({"/detail"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid PsychologistRequest request,
@@ -94,7 +93,6 @@ public class PsychologistController {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        // Phân quyền
         if (tokenService.isManager(httpRequest) && psychologistId == null) {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
@@ -104,12 +102,9 @@ public class PsychologistController {
         }
 
         if (psychologistId == null) {
-            psychologistId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-        }
-
-        else {
-            // Kiểm tra Psychologist chỉ update chính mình
-            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+            psychologistId = tokenService.getRoleID(currentUser);
+        } else {
+            String actualId = tokenService.getRoleID(currentUser);
             if (!psychologistId.equals(actualId)) {
                 throw new OperationFailedException("Unauthorized access,You can only update your own profile");
             }
@@ -138,7 +133,7 @@ public class PsychologistController {
 
     @Operation(
             summary = "Get all departments",
-            description = "Returns a list of all departments." )
+            description = "Returns a list of all departments.")
     @GetMapping("/departments")
     public ResponseEntity<List<DepartmentResponse>> getDepartments() {
         List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
@@ -149,29 +144,25 @@ public class PsychologistController {
     }
 
 
-
     @Operation(summary = "Create time slots from default templates")
     @PostMapping("/timeslots/batch")
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid TimeSlotBatchCreateRequest request,
-            HttpServletRequest httpRequest)
-            {
+            HttpServletRequest httpRequest) {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        if (tokenService.isStudent(httpRequest) ) {
+        if (tokenService.isStudent(httpRequest)) {
             throw new IllegalArgumentException("Unauthorized access, Student can not create timeSlot ");
         }
 
         if (psychologistId == null) {
-            psychologistId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+            psychologistId = tokenService.getRoleID(currentUser);
         }
 
-
         if (tokenService.isPsychologist(httpRequest)) {
-            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
-            String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
+            String actualId =  tokenService.getRoleID(currentUser);
             if (!psychologistId.equals(actualId)) {
                 throw new OperationFailedException("Unauthorized to create slots for other psychologists");
             }
@@ -192,14 +183,10 @@ public class PsychologistController {
             @RequestParam(required = false) String psychologistId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             HttpServletRequest request) {
-
-        Users currentUser = tokenService.retrieveUser(request);
         String studentId = null;
 
-        // Nếu là student, lấy studentID
-        if (currentUser.getRole() == Role.STUDENT) {
-            Students student = studentRepository.findByUserID(currentUser.getUserId());
-            studentId = student.getStudentID();
+        if (tokenService.isStudent(request)) {
+            studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
         }
 
         List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId);

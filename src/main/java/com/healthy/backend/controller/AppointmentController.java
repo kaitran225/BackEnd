@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -47,8 +45,8 @@ public class AppointmentController {
     private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final PsychologistService   psychologistService;
-    private  final StudentRepository studentRepository;
+    private final PsychologistService psychologistService;
+    private final StudentRepository studentRepository;
     private final StudentService studentService;
 
     @GetMapping("/filter")
@@ -65,7 +63,6 @@ public class AppointmentController {
         String finalStudentId = null;
         String finalPsychologistId = null;
 
-        // Xác định ID dựa trên role
         switch (currentUser.getRole()) {
             case MANAGER:
                 finalStudentId = studentId;
@@ -125,7 +122,7 @@ public class AppointmentController {
     @PostMapping("/book")
     public ResponseEntity<AppointmentResponse> bookAppointment(
 
-            @RequestParam(required = false)  String UserId,
+            @RequestParam(required = false) String UserId,
             @RequestBody AppointmentRequest request,
             HttpServletRequest httpRequest) {
 
@@ -152,23 +149,19 @@ public class AppointmentController {
     }
 
 
-
     // Hủy lịch hẹn
     @Operation(summary = "Request cancel of an appointment")
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
             @PathVariable String appointmentId,
             HttpServletRequest request) {
-
         Users currentUser = tokenService.retrieveUser(request);
-
         AppointmentResponse response = appointmentService.cancelAppointment(
                 appointmentId,
                 currentUser.getUserId()
         );
         return ResponseEntity.ok(response);
     }
-
 
 
     // Check-in - chỉ Psychologist
@@ -187,17 +180,14 @@ public class AppointmentController {
             throw new OperationFailedException("Only psychologists can check in");
         }
 
-        if (currentUser.getRole() == Role.PSYCHOLOGIST && !appointment.getPsychologist().getUserID().equals(currentUser.getUserId())) {
+        if (tokenService.isPsychologist(httpRequest) && tokenService.validateUID(httpRequest, appointment.getPsychologist().getUserID())) {
             throw new OperationFailedException("Unauthorized to access this appointment");
         }
 
         Psychologists psychologist = psychologistRepository.findByUserID(currentUser.getUserId());
-
-
-        AppointmentResponse response = appointmentService.checkIn(appointmentId,psychologist.getPsychologistID());
+        AppointmentResponse response = appointmentService.checkIn(appointmentId, psychologist.getPsychologistID());
         return ResponseEntity.ok(response);
     }
-
 
 
     @Operation(
@@ -205,7 +195,7 @@ public class AppointmentController {
             description = "Returns a list of all appointments."
     )
     @GetMapping("/")
-    public ResponseEntity<List<AppointmentResponse>>  getAllPsychologist(
+    public ResponseEntity<List<AppointmentResponse>> getAllPsychologist(
             HttpServletRequest httpRequest
     ) {
         if (!tokenService.isManager(httpRequest)) {
@@ -229,61 +219,47 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             HttpServletRequest httpRequest
     ) {
-        Users currentUser = tokenService.retrieveUser(httpRequest);
-
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment with ID " + appointmentId + " not found"));
 
-
-        if (currentUser.getRole() == Role.STUDENT && !appointment.getStudent().getUserID().equals(currentUser.getUserId())) {
-            throw new OperationFailedException("Unauthorized to access this appointment");
-        }
-
-        if (currentUser.getRole() == Role.PSYCHOLOGIST && !appointment.getPsychologist().getUserID().equals(currentUser.getUserId())) {
-            throw new OperationFailedException("Unauthorized to access this appointment");
-        }
-
-        // Nếu user là Manager hoặc Admin, không cần kiểm tra (có thể tùy chỉnh theo yêu cầu)
-        if (currentUser.getRole() == Role.MANAGER ) {
+        if (tokenService.isManager(httpRequest)) {
             AppointmentResponse response = appointmentService.getAppointmentById(appointmentId);
             return ResponseEntity.ok(response);
         }
 
-        // Nếu tất cả điều kiện đều thỏa mãn, trả về thông tin chi tiết của Appointment
+        if (tokenService.isStudent(httpRequest) && tokenService.validateUID(httpRequest, appointment.getStudent().getUserID())) {
+            throw new OperationFailedException("Unauthorized to access this appointment");
+        }
+
+        if (tokenService.isPsychologist(httpRequest) && tokenService.validateUID(httpRequest, appointment.getPsychologist().getUserID())) {
+            throw new OperationFailedException("Unauthorized to access this appointment");
+        }
+
         AppointmentResponse appointmentResponse = appointmentService.getAppointmentById(appointmentId);
         return ResponseEntity.ok(appointmentResponse);
     }
-
 
 
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
     public ResponseEntity<AppointmentResponse> checkOut(
             @PathVariable String appointmentId,
-            @RequestBody CheckOutRequest request ,
+            @RequestBody CheckOutRequest request,
             HttpServletRequest httpRequest) {
-
 
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment with ID " + appointmentId + " not found"));
 
-
-        Users currentUser = tokenService.retrieveUser(httpRequest);
-
         if (tokenService.isStudent(httpRequest)) {
             throw new OperationFailedException("Only psychologists can check out");
         }
-        if (currentUser.getRole() == Role.PSYCHOLOGIST && !appointment.getPsychologist().getUserID().equals(currentUser.getUserId())) {
+        if (tokenService.isPsychologist(httpRequest) && tokenService.validateUID(httpRequest, appointment.getPsychologist().getUserID())) {
             throw new OperationFailedException("Unauthorized to access this appointment");
         }
 
         AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
-        
-     
-
         return ResponseEntity.ok(response);
     }
-
 
 
     @Operation(
@@ -295,19 +271,13 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @RequestBody AppointmentUpdateRequest request,
             HttpServletRequest httpRequest) {
-
         Users currentUser = tokenService.retrieveUser(httpRequest);
-
         AppointmentResponse response = appointmentService.updateAppointment(
                 appointmentId, request, currentUser.getUserId()
         );
-
         if (response != null) {
             return ResponseEntity.ok(response);
         }
-
         throw new OperationFailedException("Failed to update appointment");
     }
-
 }
-
