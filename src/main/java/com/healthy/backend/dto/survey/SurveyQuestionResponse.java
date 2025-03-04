@@ -21,5 +21,13 @@ public class SurveyQuestionResponse {
     @Schema(example = "How are you feeling today?")
     private String title;
     @Schema(example = "")
+    private String description;
+    @Schema(example = "")
+    private Integer numberOfQuestions;
+    @Schema(example = "")
     private List<QuestionResponse> questionList;
+    @Schema(example = "")
+    private String completeStatus;
+    @Schema(example = "")
+    private String totalScore;
 }

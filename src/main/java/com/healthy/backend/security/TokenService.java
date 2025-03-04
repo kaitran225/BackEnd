@@ -34,6 +34,12 @@ public class TokenService {
         return (userId == null || !userRepository.existsById(userId)) ? user.getUserId() : userId;
     }
 
+    public String validateRequestStudentID(HttpServletRequest request, String studentId) {
+        Users user = retrieveUser(request);
+        Students student = studentRepository.findByUserID(user.getUserId());
+        return (studentId == null || !studentRepository.existsById(studentId)) ? student.getStudentID() : studentId;
+    }
+
     public boolean isManager(HttpServletRequest request) {
         return validateRole(request, Role.MANAGER);
     }
