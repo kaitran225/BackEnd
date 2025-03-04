@@ -20,5 +20,17 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT sr.resultID FROM SurveyResult sr ORDER BY sr.resultID DESC LIMIT 1")
     String findLastResultId();
 
-    boolean existsBySurveyIDAndStudentID(String surveyID, String studentID);
+    @Query("SELECT sr.resultID FROM SurveyResult sr WHERE sr.studentID = :studentId AND sr.surveyID = :surveyId")
+    List<String> findStudentIdANDSurveyId(@Param("surveyId") String surveyId, @Param("studentId") String studentId);
+
+    @Query("SELECT COUNT(sr) > 0 FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
+    boolean existsBySurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+
+    @Query("SELECT COUNT(sr) FROM SurveyResult sr WHERE sr.surveyID = :surveyId")
+    int countResultInSuv(@Param("surveyId") String surveyId);
+
+    @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
+    List<SurveyResult> findSurveyIDAndStudentID1(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+
+    // boolean existsBySurveyIDAndStudentID(String surveyID, String studentID);
 }
