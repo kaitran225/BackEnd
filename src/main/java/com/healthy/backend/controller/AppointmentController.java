@@ -128,7 +128,7 @@ public class AppointmentController {
     @PostMapping("/book")
     public ResponseEntity<AppointmentResponse> bookAppointment(
 
-            @RequestParam(required = false)  String UserId,
+            @RequestParam(required = false) String UserId,
             @RequestBody AppointmentRequest request,
             HttpServletRequest httpRequest) {
 
@@ -155,23 +155,19 @@ public class AppointmentController {
     }
 
 
-
     // Hủy lịch hẹn
     @Operation(summary = "Request cancel of an appointment")
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
             @PathVariable String appointmentId,
             HttpServletRequest request) {
-
         Users currentUser = tokenService.retrieveUser(request);
-
         AppointmentResponse response = appointmentService.cancelAppointment(
                 appointmentId,
                 currentUser.getUserId()
         );
         return ResponseEntity.ok(response);
     }
-
 
 
     // Check-in - chỉ Psychologist
@@ -195,12 +191,9 @@ public class AppointmentController {
         }
 
         Psychologists psychologist = psychologistRepository.findByUserID(currentUser.getUserId());
-
-
-        AppointmentResponse response = appointmentService.checkIn(appointmentId,psychologist.getPsychologistID());
+        AppointmentResponse response = appointmentService.checkIn(appointmentId, psychologist.getPsychologistID());
         return ResponseEntity.ok(response);
     }
-
 
 
     @Operation(
@@ -208,7 +201,7 @@ public class AppointmentController {
             description = "Returns a list of all appointments."
     )
     @GetMapping("/")
-    public ResponseEntity<List<AppointmentResponse>>  getAllPsychologist(
+    public ResponseEntity<List<AppointmentResponse>> getAllPsychologist(
             HttpServletRequest httpRequest
     ) {
         if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
@@ -258,14 +251,12 @@ public class AppointmentController {
     }
 
 
-
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
     public ResponseEntity<AppointmentResponse> checkOut(
             @PathVariable String appointmentId,
-            @RequestBody CheckOutRequest request ,
+            @RequestBody CheckOutRequest request,
             HttpServletRequest httpRequest) {
-
 
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment with ID " + appointmentId + " not found"));
@@ -289,6 +280,7 @@ public class AppointmentController {
 
 
 
+
     @Operation(
             summary = "Update an appointment",
             description = "Updates time slot, notes of an appointment."
@@ -298,23 +290,13 @@ public class AppointmentController {
             @PathVariable String appointmentId,
             @RequestBody AppointmentUpdateRequest request,
             HttpServletRequest httpRequest) {
-
         Users currentUser = tokenService.retrieveUser(httpRequest);
-
         AppointmentResponse response = appointmentService.updateAppointment(
                 appointmentId, request, currentUser.getUserId()
         );
-
         if (response != null) {
             return ResponseEntity.ok(response);
         }
-
         throw new OperationFailedException("Failed to update appointment");
     }
-
-
-
-
-
 }
-

@@ -1,22 +1,48 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.dto.survey.*;
-import com.healthy.backend.entity.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.StatusStudent;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyRequest;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.entity.Categories;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.SurveyQuestionOptions;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
+import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.backend.entity.SurveyResult;
+import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.*;
+import com.healthy.backend.repository.CategoriesRepository;
+import com.healthy.backend.repository.ParentRepository;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
+import com.healthy.backend.repository.SurveyQuestionRepository;
+import com.healthy.backend.repository.SurveyRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
 import com.healthy.backend.security.TokenService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,30 +62,36 @@ public class SurveyService {
     private final SurveyMapper surveyMapper;
 
 
-    public List<List<SurveysResponse>> getAllSurveys(Users user) {
-        return switch (user.getRole()) {
-            case PARENT -> {
-                List<Students> children = parentRepository.findByUserID(user.getUserId()).getStudents();
-                yield children.stream().map(student -> getSurveyResult(student.getStudentID())).toList();
-            }
-            case STUDENT -> {
-                String studentId = tokenService.getRoleID(user);
-                yield List.of(getSurveyResult(studentId));
-            }
-            case MANAGER, PSYCHOLOGIST -> {
-                List<Surveys> surveys = surveyRepository.findAll();
-                yield List.of(surveys.stream()
-                        .map(survey -> {
-                            return surveyMapper.buildManagerSurveysResponse(survey,
-                                    getTotalQuestion(survey),
-                                    getSurveyStatus(survey),
-                                    getTotalStudentDone(survey) + "/" + getTotalStudent());
-                        })
-                        .toList());
-            }
-            default -> throw new RuntimeException("You don't have permission to access");
-        };
-    }
+    public List<SurveysResponse> getAllSurveys(Users user) {
+    return switch (user.getRole()) {
+        case STUDENT -> {
+            String studentId = tokenService.getRoleID(user);
+            yield getSurveyResult(studentId); 
+        }
+        case MANAGER, PSYCHOLOGIST -> {
+            List<Surveys> surveys = surveyRepository.findAll();
+            yield surveys.stream()
+                .map(survey -> surveyMapper.buildManagerSurveysResponse(
+                    survey,
+                    getTotalQuestion(survey),
+                    getSurveyStatus(survey),
+                    getTotalStudentDone(survey) + "/" + getTotalStudent()
+                ))
+                .toList();
+        }
+        // case PARENT -> {
+        //     List<Students> children = parentRepository.findByUserID(user.getUserId()).getStudents();
+        //     yield children.stream()
+        //         .map(student -> getSurveyResult(student.getStudentID())) 
+        //         .flatMap(List::stream) 
+        //         .toList(); 
+        // }
+        default -> throw new RuntimeException("You don't have permission to access this resource.");
+    };
+}
+
+
+
 
     public SurveyResultsResponse getSurveyResultsBySurveyID(HttpServletRequest request, String surveyId) {
         Role role = tokenService.retrieveUser(request).getRole();

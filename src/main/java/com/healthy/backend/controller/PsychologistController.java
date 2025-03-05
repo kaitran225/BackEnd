@@ -39,7 +39,7 @@ public class PsychologistController {
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TokenService tokenService;
-    private  final StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
     @Operation(summary = "Get all psychologists")
     @GetMapping()
@@ -50,7 +50,6 @@ public class PsychologistController {
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
         return !psychologistResponse.isEmpty() ? ResponseEntity.ok(psychologistResponse) : ResponseEntity.noContent().build();
     }
-
 
 
     @Operation(summary = "Get psychologist by ID")
@@ -125,10 +124,6 @@ public class PsychologistController {
         ));
     }
 
-
-
-
-
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists filtered by specialization."
@@ -145,7 +140,7 @@ public class PsychologistController {
 
     @Operation(
             summary = "Get all departments",
-            description = "Returns a list of all departments." )
+            description = "Returns a list of all departments.")
     @GetMapping("/departments")
     public ResponseEntity<List<DepartmentResponse>> getDepartments() {
         List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
@@ -156,14 +151,12 @@ public class PsychologistController {
     }
 
 
-
     @Operation(summary = "Create time slots from default templates")
     @PostMapping("/timeslots/batch")
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid TimeSlotBatchCreateRequest request,
-            HttpServletRequest httpRequest)
-            {
+            HttpServletRequest httpRequest) {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 

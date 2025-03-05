@@ -33,9 +33,9 @@ public class SurveyController {
             description = "Returns a list of available surveys."
     )
     @GetMapping()
-    public ResponseEntity<List<List<SurveysResponse>>> getAllSurveys(HttpServletRequest request) {
+    public ResponseEntity<List<SurveysResponse>> getAllSurveys(HttpServletRequest request) {
         Users user = tokenService.retrieveUser(request);
-        List<List<SurveysResponse>> surveys = surveyService.getAllSurveys(user);
+        List<SurveysResponse> surveys = surveyService.getAllSurveys(user);
         if (surveys.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

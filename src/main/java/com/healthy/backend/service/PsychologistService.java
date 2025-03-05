@@ -251,18 +251,12 @@ public class PsychologistService {
         return slots.stream()
                 .map(slot -> {
                     TimeSlotResponse response = timeSlotMapper.toResponse(slot);
-
                     // Kiểm tra xem student đã đặt slot này chưa
                     boolean isBooked = studentId != null &&
                             appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID());
                     response.setBooked(isBooked);
-
                     return response;
                 })
                 .collect(Collectors.toList());
     }
-
-
-
-
 }

@@ -14,7 +14,7 @@ public class SwaggerCustomConfig implements WebMvcConfigurer {
                 .resourceChain(false);
 
         // Serve custom JavaScript
-        registry.addResourceHandler("/custom-swagger.js")
-                .addResourceLocations("classpath:/custom-swagger.js");
+        registry.addResourceHandler("/static/custom-swagger.js")
+                .addResourceLocations("classpath:/static/custom-swagger.js");
     }
 }

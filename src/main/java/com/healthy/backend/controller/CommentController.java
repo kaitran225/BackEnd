@@ -5,6 +5,7 @@ import com.healthy.backend.dto.comment.CommentResponse;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.CommentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,22 +14,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
+@Tag(name = "Comment Controller", description = "Endpoints for managing comments")
 @SecurityRequirement(name = "Bearer Authentication")
 public class CommentController {
 
     private final CommentService commentService;
     private final TokenService tokenService;
 
-    /**
-     * Endpoint để thêm comment hoặc reply cho 1 appointment.
-     * Yêu cầu client truyền appointmentId trong URL.
-     */
-    @PostMapping("/appointments/{appointmentId}")
+    @PostMapping("/appointments/comments/add")
     public ResponseEntity<CommentResponse> addComment(
-            @PathVariable String appointmentId,
+            @RequestParam String appointmentId,
             @RequestBody @Valid CommentRequest request,
             HttpServletRequest httpRequest) {
         String userId = tokenService.retrieveUser(httpRequest).getUserId();
@@ -36,11 +35,8 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Lấy danh sách bình luận dạng cây (bao gồm reply) của 1 appointment.
-     */
-    @GetMapping("/appointments/{appointmentId}")
-    public ResponseEntity<List<CommentResponse>> getCommentsForAppointment(@PathVariable String appointmentId) {
+    @GetMapping("/appointments/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForAppointment(@RequestParam String appointmentId) {
         List<CommentResponse> responses = commentService.getCommentsForAppointment(appointmentId);
         return ResponseEntity.ok(responses);
     }

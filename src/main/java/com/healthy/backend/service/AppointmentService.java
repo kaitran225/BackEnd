@@ -40,7 +40,6 @@ public class AppointmentService {
 
     private final GeneralService __;
     private final EmailService emailService;
-    private final TokenService tokenService;
     private final NotificationService notificationService;
 
     private final PsychologistsMapper psychologistMapper;
@@ -422,7 +421,6 @@ public class AppointmentService {
             throw new OperationFailedException("Appointment is already in progress");
         }
 
-
         appointment.setStatus(AppointmentStatus.IN_PROGRESS);
         appointment.setCheckInTime(LocalDateTime.now());
         appointmentRepository.save(appointment);
@@ -460,7 +458,6 @@ public class AppointmentService {
         appointment.setPsychologistNote(psychologistNote);
         appointmentRepository.save(appointment);
 
-
         // Add notification for student
         notificationService.createAppointmentNotification(
                 appointment.getStudent().getUserID(),
@@ -479,8 +476,6 @@ public class AppointmentService {
                                 appointment.getStudentID()).orElse(null)))
         );
     }
-
-
 
     private void handlePsychologistChange(Appointments appointment, TimeSlots oldTimeSlot, TimeSlots newTimeSlot, String appointmentId) {
         Psychologists oldPsychologist = oldTimeSlot.getPsychologist();

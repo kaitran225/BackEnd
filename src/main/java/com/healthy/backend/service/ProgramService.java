@@ -213,16 +213,19 @@ public class ProgramService {
                 && !tokenService.isManager(request)) {
             throw new OperationFailedException("You don't have permission to view this student's enrolled programs");
         }
-        List<String> programIDList = programParticipationRepository.findProgramIDsByStudentID(finalStudentId);
-        if (programIDList.isEmpty()) {
+        List<ProgramParticipation> participationList = programParticipationRepository.findByStudentID(finalStudentId).stream()
+                .filter(participation -> !participation.getStatus().equals(ParticipationStatus.CANCELLED))
+                .toList();
+
+        if (participationList.isEmpty()) {
             return new ArrayList<>();
         }
-        return programIDList.stream()
-                .map(programID -> programMapper.buildProgramResponse(
-                        programRepository.findById(programID).orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(programID).size()
-                ))
-                .toList();
+
+        return participationList.stream()
+                .map(participation -> {
+                    Programs program = participation.getProgram();
+                    return programMapper.buildProgramResponse(program, getStudentsByProgram(program.getProgramID()).size());
+                }).toList();
     }
 
     @Transactional
