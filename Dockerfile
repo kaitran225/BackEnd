@@ -1,15 +1,23 @@
 # Use Maven to build the application
 FROM maven:3.9.8-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
 
+# Copy pom.xml first to leverage Docker layer caching
+COPY pom.xml .
+RUN mvn dependency:resolve
+
+# Copy source code
 COPY src ./src
+
+# Build the application
 RUN mvn clean package -DskipTests
 
 # Use a smaller JDK runtime for running the application
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+# Set timezone to prevent time issues
+ENV TZ=Asia/Ho_Chi_Minh
 
 # Copy only the built JAR
 COPY --from=build /app/target/swagger-api-server.jar app.jar
@@ -21,4 +29,4 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Run the application with optimized JVM flags
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=90", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=90", "-XX:+AlwaysActAsServerClassMachine", "-jar", "app.jar"]
