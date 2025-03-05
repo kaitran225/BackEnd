@@ -1,9 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.timeslot.*;
-import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
-import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
@@ -52,10 +50,8 @@ public class PsychologistController {
     @Operation(summary = "Get psychologist by ID")
     @GetMapping({""})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
-
             @RequestParam(required = false) String psychologistId,
             HttpServletRequest request) {
-
         Users user = tokenService.retrieveUser(request);
         String actualId = psychologistId;
 
@@ -63,7 +59,7 @@ public class PsychologistController {
         if (tokenService.isManager(request) && psychologistId == null) {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
-        if (tokenService.isManager(request)) {
+        if (tokenService.isStudent(request)) { // Fix
             throw new IllegalArgumentException("Unauthorized access, Student can not view psychologists ");
         }
         if (psychologistId != null && !psychologistId.isEmpty()) {
@@ -75,11 +71,6 @@ public class PsychologistController {
         }
         // Tự động lấy ID từ token nếu không truyền
         actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
-
-
-        // Xử lý cho Manager
-
-
         return ResponseEntity.ok(psychologistService.getPsychologistById(actualId));
     }
 
@@ -199,5 +190,4 @@ public class PsychologistController {
         List<DefaultTimeSlotResponse> slots = psychologistService.getDefaultTimeSlots();
         return ResponseEntity.ok(slots);
     }
-
 }
