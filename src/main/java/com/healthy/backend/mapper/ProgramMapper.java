@@ -6,6 +6,7 @@ import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.ProgramParticipation;
 import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Tags;
 import org.springframework.stereotype.Component;
 
@@ -55,14 +56,13 @@ public class ProgramMapper {
                 .build();
     }
 
-    public ProgramsResponse buildProgramResponse(Programs program,
-                                                 List<StudentResponse> enrolled) {
+    public ProgramsResponse buildProgramResponse(Programs program, Integer enrolledCount) {
         return ProgramsResponse.builder()
                 .programID(program.getProgramID())
                 .title(program.getProgramName())
                 .description(program.getDescription())
                 .duration(program.getDuration())
-                .currentParticipants(enrolled.size())
+                .currentParticipants(enrolledCount)
                 .maxParticipants(program.getNumberParticipants())
                 .status(program.getStatus().toString())
                 .startDate(LocalDate.from(program.getStartDate()))

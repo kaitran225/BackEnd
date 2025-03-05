@@ -40,6 +40,7 @@ public class AppointmentService {
 
     private final GeneralService __;
     private final EmailService emailService;
+    private final TokenService tokenService;
     private final NotificationService notificationService;
 
     private final PsychologistsMapper psychologistMapper;
@@ -109,8 +110,6 @@ public class AppointmentService {
     }
 
 
-
-
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
                 .stream()
@@ -175,7 +174,6 @@ public class AppointmentService {
         Psychologists psychologist = psychologistRepository.findById(timeSlot.getPsychologist().getPsychologistID())
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + timeSlot.getPsychologist().getPsychologistID()));
 
-        // Kiểm tra xem student đã có appointment nào trong cùng time slot chưa
         boolean hasExistingAppointment = appointmentRepository.existsByStudentIDAndTimeSlotsID(
                 student.getStudentID(), timeSlot.getTimeSlotsID());
         if (hasExistingAppointment) {
@@ -236,11 +234,10 @@ public class AppointmentService {
 
     // Cancel
     @Transactional
-    public AppointmentResponse cancelAppointment(String appointmentId, String userId ) {
+    public AppointmentResponse cancelAppointment(String appointmentId, String userId) {
         // Tìm appointment
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
-
 
         // Tìm time slot liên quan
         TimeSlots timeSlot = timeSlotRepository.findById(appointment.getTimeSlotsID())

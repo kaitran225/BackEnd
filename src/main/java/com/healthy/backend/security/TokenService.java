@@ -29,7 +29,38 @@ public class TokenService {
     private final PsychologistRepository psychologistRepository;
     private final ParentRepository parentRepository;
 
+    public String validateRequestUserID(HttpServletRequest request, String userId) {
+        Users user = retrieveUser(request);
+        return (userId == null || !userRepository.existsById(userId)) ? user.getUserId() : userId;
+    }
+
+    public String validateRequestStudentID(HttpServletRequest request, String studentId) {
+        Users user = retrieveUser(request);
+        Students student = studentRepository.findByUserID(user.getUserId());
+        return (studentId == null || !studentRepository.existsById(studentId)) ? student.getStudentID() : studentId;
+    }
+
     public boolean isManager(HttpServletRequest request) {
+        return validateRole(request, Role.MANAGER);
+    }
+
+    public boolean isStudent(HttpServletRequest request) {
+        return validateRole(request, Role.STUDENT);
+    }
+
+    public boolean isPsychologist(HttpServletRequest request) {
+        return validateRole(request, Role.PSYCHOLOGIST);
+    }
+
+    public boolean isParent(HttpServletRequest request) {
+        return validateRole(request, Role.PARENT);
+    }
+
+    public boolean validateRoles(HttpServletRequest request, List<Role> role) {
+        return role.stream().anyMatch(r -> validateRole(request, r));
+    }
+
+    private boolean _isManager(HttpServletRequest request) {
         HashMap<String, ?> map = extractRequest(request);
         String role = (String) map.get("role");
         return role.equals("ROLE_MANAGER");
@@ -41,7 +72,6 @@ public class TokenService {
         return userRepository.findById(uid)
                 .orElseThrow(() -> new InvalidTokenException("User not found for given token"));
     }
-
 
     public boolean validate(HttpServletRequest request, Users user) {
         HashMap<String, ?> map = extractRequest(request);
@@ -88,12 +118,13 @@ public class TokenService {
         HashMap<String, ?> map = extractRequest(request);
         return hashedID != null && hashedID.equals(map.get("hashedID"));
     }
+
     public boolean validateIsVerified(HttpServletRequest request) {
         HashMap<String, ?> map = extractRequest(request);
         return (boolean) map.get("isVerified");
     }
 
-    public boolean validateRole(HttpServletRequest request, List<Role> roles) {
+    private boolean validateRole(HttpServletRequest request, List<Role> roles) {
         HashMap<String, ?> map = extractRequest(request);
         String userRole = (String) map.get("role");
         if (userRole != null && userRole.startsWith("ROLE_")) {
@@ -102,8 +133,7 @@ public class TokenService {
         return roles.contains(Role.valueOf(userRole));
     }
 
-
-    public boolean validateRole(HttpServletRequest request, Role role) {
+    private boolean validateRole(HttpServletRequest request, Role role) {
         return validateRole(request, List.of(role));
     }
 
@@ -150,7 +180,6 @@ public class TokenService {
             put("isActive", jwtService.extractIsActive(token));
         }};
     }
-
 
     private HashMap<String, ?> _extractRequest(HttpServletRequest request) {
 

@@ -39,7 +39,13 @@ public class SurveysResponse {
     @Schema (example = "US001")
     private String createBy;
     @Schema(example = "")
+    private String completeStatus;
+    @Schema(example = "")
     private List<StatusStudent> statusStudent;
     @Schema(example = "")
+    private String score;
+    @Schema(example = "")
     private List<SurveyQuestionResultResponse> questions;
+    @Schema(example = "")
+    private String studentComplete;
 }

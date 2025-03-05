@@ -32,6 +32,7 @@ public class PsychologistService {
     private final DepartmentRepository departmentRepository;
     private final AppointmentRepository appointmentRepository;
     private final PsychologistRepository psychologistRepository;
+
     private final PsychologistsMapper psychologistsMapper;
     private final TimeSlotMapper timeSlotMapper;
 
@@ -66,7 +67,6 @@ public class PsychologistService {
         return psychologists.stream().map(this::callMapper).toList();
     }
 
-
     // Get psychologist by specialization
     public List<PsychologistResponse> getAllPsychologistByDepartment(String departmentID) {
         if (departmentID == null || departmentID.isEmpty()) {
@@ -94,22 +94,17 @@ public class PsychologistService {
 
 
     public PsychologistResponse updatePsychologist(String id, PsychologistRequest request, String currentUserId) {
-        // Tìm psychologist cần cập nhật
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
 
-        // Kiểm tra quyền: chỉ psychologist đó hoặc Manager được cập nhật
         if (!psychologist.getUserID().equals(currentUserId)) {
             throw new OperationFailedException("Unauthorized update");
         }
 
-        // Kiểm tra nếu không có trường nào để cập nhật
         if (request.getDepartmentID() == null
                 && request.getYearsOfExperience() == null) {
             throw new IllegalArgumentException("No fields to update");
         }
-
-        // Cập nhật department nếu có
         if (request.getDepartmentID() != null
                 && !request.getDepartmentID().equals(psychologist.getDepartment().getName())) {
             if (!departmentRepository.existsById(request.getDepartmentID())) {
@@ -117,17 +112,12 @@ public class PsychologistService {
             }
             psychologist.setDepartment(departmentRepository.findById(request.getDepartmentID()).orElseThrow());
         }
-
-        // Cập nhật yearsOfExperience nếu có
         if (request.getYearsOfExperience() != null
                 && !request.getYearsOfExperience().equals(psychologist.getYearsOfExperience())) {
             psychologist.setYearsOfExperience(request.getYearsOfExperience());
         }
 
-        // Lưu thay đổi
         psychologistRepository.save(psychologist);
-
-        // Trả về response
         return callMapper(psychologist);
     }
 

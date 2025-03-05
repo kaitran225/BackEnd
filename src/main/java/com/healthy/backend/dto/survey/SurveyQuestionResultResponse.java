@@ -34,5 +34,6 @@ public class SurveyQuestionResultResponse {
     private List<QuestionOption> answers;
     @Schema(example = "")
     private List<StatusStudent> ansStudent;
+    
 
 }

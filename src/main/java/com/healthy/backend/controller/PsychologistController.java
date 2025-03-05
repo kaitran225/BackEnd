@@ -14,15 +14,14 @@ import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.format.annotation.DateTimeFormat;
-//import com.healthy.backend.repository.LeaveRequestRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.healthy.backend.dto.psychologist.*;
 import org.springframework.http.ResponseEntity;
 import com.healthy.backend.mapper.TimeSlotMapper;
-//import com.healthy.backend.entity.OnLeaveRequest;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
+import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 
 import java.time.LocalDate;
@@ -130,7 +129,6 @@ public class PsychologistController {
 
 
 
-
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists filtered by specialization."
@@ -191,7 +189,6 @@ public class PsychologistController {
                 request.getSlotDate(),
                 request.getDefaultSlotIds()
         );
-
         return ResponseEntity.ok(responses);
     }
 

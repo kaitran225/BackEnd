@@ -17,6 +17,9 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
 
     List<ProgramParticipation> findByProgramID(String programID);
 
+    @Query("SELECT p.programID FROM ProgramParticipation p WHERE p.studentID = :studentID")
+    List<String> findProgramIDsByStudentID(@Param("studentID") String studentID);
+
     @Query("SELECT p.participationID FROM ProgramParticipation p ORDER BY p.participationID DESC LIMIT 1")
     String findLastParticipationCode();
 

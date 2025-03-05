@@ -55,5 +55,7 @@ public class StudentResponse {
     private UsersResponse info;
     @Schema(example = "")
     private String programStatus;
+    @Schema(example = "")
+    private UsersResponse usersResponse;
 
 }

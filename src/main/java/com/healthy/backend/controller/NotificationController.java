@@ -1,9 +1,6 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.notification.NotificationResponse;
-import com.healthy.backend.entity.Notifications;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.mapper.NotificationMapper;
 import com.healthy.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController

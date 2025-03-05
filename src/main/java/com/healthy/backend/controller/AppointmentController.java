@@ -216,7 +216,6 @@ public class AppointmentController {
         }
 
         List<AppointmentResponse> appointmentResponse = appointmentService.getAllAppointments();
-
         if (!appointmentResponse.isEmpty()) {
             return ResponseEntity.ok(appointmentResponse);
         }

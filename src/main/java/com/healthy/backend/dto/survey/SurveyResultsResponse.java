@@ -30,4 +30,7 @@ public class SurveyResultsResponse {
     private List<StatusStudent> std;
     @Schema(example = "")
     private String status;
+    @Schema(example = "")
+    private List<StatusStudent> totalScore;
+
 }

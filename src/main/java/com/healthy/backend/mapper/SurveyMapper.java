@@ -24,7 +24,7 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 public class SurveyMapper {
 
 
-    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, List<StatusStudent> statusStudent, List<SurveyQuestionResultResponse> questions) {
+    public SurveysResponse buildManagerSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus, String count) {
         return SurveysResponse.builder()
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
@@ -36,13 +36,13 @@ public class SurveyMapper {
                 .status(String.valueOf(survey.getStatus()))
                 .detailedDescription(survey.getDetails())
                 .createdAt(survey.getCreatedAt().toString())
-                .createBy(survey.getCreator().getUsername())
-                .statusStudent(statusStudent)
-                .questions(questions)
+                .createBy(survey.getCreator().getFullName())
+                .completeStatus(completeStatus)
+                .studentComplete(count)
                 .build();
-        }
+    }
 
-      public SurveysResponse buildSurveysResponse2(Surveys survey, int numberOfQuestions, List<StatusStudent> statusStudent) {
+    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus,String score) {
         return SurveysResponse.builder()
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
@@ -54,77 +54,28 @@ public class SurveyMapper {
                 .status(String.valueOf(survey.getStatus()))
                 .detailedDescription(survey.getDetails())
                 .createdAt(survey.getCreatedAt().toString())
-                .createBy(survey.getCreator().getUsername())
-                .statusStudent(statusStudent)
-                .build();
-        } 
-
-     public StatusStudent buildStatusStudent(SurveyResult surveyResult, String getStatusStudent, String score) {
-         return StatusStudent.builder()
-                .status(getStatusStudent)
-                .studentId(surveyResult.getStudentID())
+                .createBy(survey.getCreator().getFullName())
+                .completeStatus(completeStatus)
                 .score(score)
                 .build();
-        }
+    }
 
 
-    public SurveyQuestionResultResponse mapToQuestion(SurveyQuestions surveyQuestions,List<QuestionOption> answers) {
-        return SurveyQuestionResultResponse.builder()
-                .questionId(surveyQuestions.getQuestionID())
-                .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
-                .questionText(surveyQuestions.getQuestionText())
-                .answers(answers)
-                .build();
-        }    
-
-     public QuestionOption mapToQuestionOption(SurveyQuestionOptions options) {
-        return QuestionOption.builder()
-                .label(options.getOptionText())
-                .value(options.getScore())
-                .build();
-        }
-
-      public StatusStudent maptoResultStudent1(String status, String score, SurveyResult surveyResult ){
+    public StatusStudent maptoResultStudent1(String status, String score, SurveyResult surveyResult) {
         return StatusStudent.builder()
-                .score(score)
                 .status(status)
+                .score(score)
                 .studentId(surveyResult.getStudentID())
                 .build();
-        }     
+    }
 
-      public StatusStudent maptoResultStudent(SurveyQuestionOptions options, SurveyResult surveyResult){
-        return StatusStudent.builder()
-                .resultStd(options.getOptionText())
-                .studentId(surveyResult.getStudentID())
-                .valueOfQuestion(options.getScore())
-                .build();
-        }  
-
-      public SurveyQuestionResultResponse mapToSurveyQuestionResponse(SurveyQuestions surveyQuestions,List<StatusStudent> answers) {
-        return SurveyQuestionResultResponse.builder()
-                .questionId(surveyQuestions.getQuestionID())
-                .categoryName(String.valueOf(surveyQuestions.getCategory().getCategoryName()))
-                .questionText(surveyQuestions.getQuestionText())
-                .ansStudent(answers)
-                .build();
-        }
-
-
-    public SurveyResultsResponse mapToSurveyResultsResponse1(Surveys survey, List<SurveyQuestionResultResponse> questions,List<StatusStudent> std) {
+    public SurveyResultsResponse mapToListResultsResponse(Surveys survey, List<StatusStudent> std) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
-                .status(String.valueOf(survey.getStatus().name()))
-                .questions(questions)
+                .status((survey.getStatus().name()))
                 .std(std)
-                .build();
-        }
-
-    public SurveyResultsResponse mapToSurveyUpdate(SurveyQuestions surveyQuestions, List<SurveyQuestionResultResponse> questions) {
-        return SurveyResultsResponse.builder()
-                .questions(questions)
-                .surveyId(surveyQuestions.getSurveyID())
                 .build();
     }
 
@@ -169,7 +120,7 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
-                .status(String.valueOf(survey.getStatus().name()))
+                .status((survey.getStatus().name()))
                 .questions(questions)
                 .build();
     }
@@ -188,9 +139,8 @@ public class SurveyMapper {
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getUsername())
                 .build();
-        }
-        
-      
+    }
+
 
     public SurveyQuestionResponse buildSurveyQuestionResponse(
             List<QuestionResponse> questionResponseList,
@@ -199,7 +149,23 @@ public class SurveyMapper {
         return SurveyQuestionResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .title(survey.getSurveyName())
+                .description(survey.getDescription())
                 .questionList(questionResponseList)
+                .build();
+    }
+
+    public SurveyQuestionResponse buildSurveyResultResponse(
+            List<QuestionResponse> questionResponseList,
+            Surveys survey, String completeStatus,String score
+    ) {
+        return SurveyQuestionResponse.builder()
+                .surveyId(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .numberOfQuestions(questionResponseList.size())
+                .questionList(questionResponseList)
+                .completeStatus(completeStatus)
+                .totalScore(score)
                 .build();
     }
 
@@ -212,6 +178,15 @@ public class SurveyMapper {
                 .questionText(surveyQuestions.getQuestionText())
                 .questionCategory(surveyQuestions.getCategory().getCategoryName().name())
                 .questionOptions(questionOption)
+                .build();
+    }
+
+    public QuestionOption buildNewQuestionOption(SurveyQuestionOptions options) {
+        return QuestionOption.builder()
+                .answerID(options.getOptionID())
+                .label(options.getOptionText())
+                .value(options.getScore())
+                .checked(false)
                 .build();
     }
 

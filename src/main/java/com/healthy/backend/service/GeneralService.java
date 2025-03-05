@@ -21,9 +21,11 @@ public class GeneralService {
     private final AppointmentRepository appointmentRepository;
     private final NotificationRepository notificationRepository;
     private final PsychologistRepository psychologistRepository;
-//    private final LeaveRequestRepository leaveRequestRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
+    private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
+    private final SurveyQuestionRepository surveyQuestionRepository;
+    private final SurveyResultRepository surveyResultRepository;
 
     public String generateProgramScheduleID() {
         String lastCode = programScheduleRepository.findLastProgramScheduleId();
@@ -42,7 +44,7 @@ public class GeneralService {
 
     public String generateUserLogID() {
         String lastCode = userLogRepository.findLastUserLogId();
-        return generateNextId(Identifier.LOG.toString(),lastCode);
+        return generateNextId(Identifier.LOG.toString(), lastCode);
     }
 
     public String generateArticleID() {
@@ -85,11 +87,6 @@ public class GeneralService {
         return generateNextId(Identifier.PRG.toString(), lastCode);
     }
 
-//    public String generateLeaveRequestID() {
-//        String lastCode = leaveRequestRepository.findLastLeaveRequestId();
-//        return generateNextId(Identifier.OLR.toString(), lastCode);
-//    }
-
     public String generateNextNotificationID() {
         String lastCode = notificationRepository.findLastNotificationId();
         return generateNextId(Identifier.NOT.toString(), lastCode);
@@ -100,10 +97,26 @@ public class GeneralService {
         return generateNextId(Identifier.APP.toString(), lastCode);
     }
 
+    public String generateQuestionOptionId() {
+        String lastCode = surveyQuestionOptionsRepository.findLastQuestionOptionId();
+        return generateNextId(Identifier.SQO.toString(), lastCode);
+    }
+
+    public String generateSurveyQuestionId() {
+        String lastCode = surveyQuestionRepository.findLastQuestionId();
+        return generateNextId(Identifier.SQR.toString(), lastCode);
+    }
+
+    public String generateSurveyResultId() {
+        String lastCode = surveyResultRepository.findLastResultId();
+        return generateNextId(Identifier.SRS.toString(), lastCode);
+    }
+
     private String generateNextId(String prefix, String lastId) {
         int nextNumber = lastId == null ? 1 : parseId(lastId) + 1;
         return prefix + String.format("%03d", nextNumber);
     }
+
 
     private int parseId(String lastId) {
         try {

@@ -28,5 +28,11 @@ public class StatusStudent {
     private String resultStd;
     @Schema(example = "")
     private Integer valueOfQuestion;
+    @Schema(example = "")
+    private String completeStatus;
+    @Schema(example = "")
+    private String studentComplete;
+
+
     
 }

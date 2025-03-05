@@ -3,26 +3,19 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
-import com.healthy.backend.dto.psychologist.PsychologistResponse;
-import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.Role;
-import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
-import com.healthy.backend.security.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +30,6 @@ public class UserService {
     private final PsychologistRepository psychologistRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
-    private final TokenService tokenService;
-
     private final UserMapper userMapper;
     private final EventMapper eventMapper;
     private final SurveyMapper surveyMapper;
@@ -47,15 +38,9 @@ public class UserService {
     private final AppointmentMapper appointmentMapper;
     private final PsychologistsMapper psychologistsMapper;
 
-    public boolean isEmpty() {
-        return userRepository.findAll().isEmpty();
-    }
 
-    public List<UsersResponse> getAllUsers(HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-            return List.of(userMapper.buildBasicUserResponse(tokenService.retrieveUser(request)));
-        }
-        if (isEmpty()) {
+    public List<UsersResponse> getAllUsers() {
+        if (isDatabaseEmpty()) {
             throw new ResourceNotFoundException("No users found");
         }
         return userRepository.findAllUsers().stream()
@@ -63,32 +48,36 @@ public class UserService {
                 .toList();
     }
 
-    public UsersResponse getUserById(String userId, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not get other users details");
-        }
-        return userMapper.buildBasicUserResponse(userRepository.findById(finalUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + finalUserId)));
+    public UsersResponse getUserById(String userId) {
+        return userMapper.buildBasicUserResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId)));
     }
 
-    public UsersResponse getUserDetailsById(String userId, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId)
-                && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not get other users details");
+    public UsersResponse getUserDetailsById(String userId) {
+        Users user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        switch (user.getRole()) {
+            case STUDENT -> {
+                return getStudentDetails(user);
+            }
+            case PARENT -> {
+                return getParentDetails(user);
+            }
+            case PSYCHOLOGIST -> {
+                return getPsychologistDetails(user);
+            }
+            case MANAGER -> {
+                break;
+            }
+            default -> throw new ResourceNotFoundException("User not found with id: " + userId);
         }
-        return convert(userRepository.findById(finalUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + finalUserId)));
+        return new UsersResponse();
     }
 
-    public UsersResponse updateUser(String userId, Users updatedUser, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not update other user details");
-        }
-        Users existingUser = userRepository.findById(finalUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + finalUserId));
+    public UsersResponse updateUser(String userId, Users updatedUser) {
+
+        Users existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         boolean hasChanges = false;
 
@@ -112,64 +101,56 @@ public class UserService {
         existingUser.setUpdatedAt(LocalDateTime.now());
         userRepository.save(existingUser);
 
-        return convert(existingUser);
+        return userMapper.buildBasicUserResponse(existingUser);
     }
 
-    private UsersResponse convert(Users user) {
-        List<StudentResponse> childrenList = null;
-        List<AppointmentResponse> appointmentsResponseList = null;
-        List<ProgramsResponse> programsResponses = null;
-        List<SurveyResultsResponse> surveyResultsResponseList = null;
-        PsychologistResponse psychologistResponse = null;
-        StudentResponse studentResponse = null;
-
-        switch (user.getRole()) {
-            case Role.STUDENT -> {
-                Students students = studentRepository.findByUserID(user.getUserId());
-                surveyResultsResponseList = getUserSurveyResults(user.getUserId());
-                studentResponse = studentMapper.buildStudentResponse(students, surveyResultsResponseList);
-                programsResponses = getUserProgramParticipation(user.getUserId());
-                appointmentsResponseList = getStudentAppointments(user.getUserId());
-            }
-            case Role.PARENT -> {
-                Parents parent = parentRepository.findByUserIDWithStudents(user.getUserId());
-                childrenList = parent.getStudents().stream()
-                        .map(studentMapper::buildStudentResponse)
-                        .collect(Collectors.toList());
-            }
-            case Role.PSYCHOLOGIST -> {
-                Psychologists psychologists = psychologistRepository.findByUserID(user.getUserId());
-                psychologistResponse = psychologistsMapper.buildPsychologistResponse(psychologists);
-                appointmentsResponseList = getPsychologistAppointments(user.getUserId());
-                programsResponses = getUserProgramFacility(user.getUserId());
-            }
-            case Role.MANAGER -> {
-                break;
-            }
-        }
+    private UsersResponse getStudentDetails(Users user) {
+        List<SurveyResultsResponse> surveyResultsResponseList = getUserSurveyResults(user.getUserId());
         return userMapper.buildUserDetailsResponse(
                 user,
-                psychologistResponse,
-                studentResponse,
-                appointmentsResponseList,
-                programsResponses,
+                null,
+                studentMapper.buildStudentResponse(studentRepository
+                        .findByUserID(user.getUserId()), surveyResultsResponseList),
+                getStudentAppointments(user.getUserId()),
+                getUserProgramParticipation(user.getUserId()),
                 surveyResultsResponseList,
-                childrenList
-        );
+                null);
     }
 
-    public EventResponse getAllEvents(String userId, HttpServletRequest request) {
-        String finalUserID = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserID) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not get other users events");
-        }
-        Users users = userRepository.findById(finalUserID)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + finalUserID));
+    private UsersResponse getPsychologistDetails(Users user) {
+        return userMapper.buildUserDetailsResponse(
+                user,
+                psychologistsMapper.buildPsychologistResponse(psychologistRepository.findByUserID(user.getUserId())),
+                null,
+                getPsychologistAppointments(user.getUserId()),
+                getUserProgramFacility(user.getUserId()),
+                null,
+                null);
+    }
+
+    private UsersResponse getParentDetails(Users user) {
+        Parents parent = parentRepository.findByUserID(user.getUserId());
+        return userMapper.buildUserDetailsResponse(
+                user,
+                null,
+                null,
+                null,
+                null,
+                null,
+                parent.getStudents().stream()
+                        .map(studentMapper::buildStudentResponse)
+                        .peek(student -> student.setUsersResponse(getStudentDetails(studentRepository.findByUserID(student.getUserId()).getUser())))
+                        .toList());
+    }
+
+    public EventResponse getAllEvents(String userId) {
+        Users users = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         List<Appointments> appointments = List.of();
         List<Programs> programs = List.of();
 
         if (users.getRole().equals(Role.STUDENT)) {
-            String studentID = studentRepository.findByUserID(finalUserID).getStudentID();
+            String studentID = studentRepository.findByUserID(userId).getStudentID();
             appointments = appointmentRepository.findByStudentID(studentID);
             programs = programParticipationRepository.findByStudentID(studentID)
                     .stream()
@@ -179,7 +160,7 @@ public class UserService {
                     .toList();
         }
         if (users.getRole().equals(Role.PSYCHOLOGIST)) {
-            String psychologistID = psychologistRepository.findByUserID(finalUserID).getPsychologistID();
+            String psychologistID = psychologistRepository.findByUserID(userId).getPsychologistID();
             appointments = appointmentRepository.findByPsychologistID(psychologistID);
             programs = programRepository.findByFacilitatorID(psychologistID);
         }
@@ -195,71 +176,50 @@ public class UserService {
                 .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
 
         if (appointments.isEmpty() && programs.isEmpty()) {
-            return eventMapper.buildEmptyEventResponse(appointments, programs, finalUserID);
+            return eventMapper.buildEmptyEventResponse(appointments, programs, userId);
         }
 
         return switch (users.getRole()) {
-            case STUDENT -> eventMapper.buildStudentEventResponse(appointments, programs, finalUserID);
-            case PSYCHOLOGIST -> eventMapper.buildPsychologistEventResponse(appointments, programs, finalUserID);
-            case MANAGER -> eventMapper.buildManagerEventResponse(appointments, programs, finalUserID);
-            default -> throw new ResourceNotFoundException("User not found with id: " + finalUserID);
+            case STUDENT -> eventMapper.buildStudentEventResponse(appointments, programs, userId);
+            case PSYCHOLOGIST -> eventMapper.buildPsychologistEventResponse(appointments, programs, userId);
+            case MANAGER -> eventMapper.buildManagerEventResponse(appointments, programs, userId);
+            default -> throw new ResourceNotFoundException("User not found with id: " + userId);
         };
     }
 
-    public UsersResponse deactivateUser(String userId, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not deactivate other user account");
-        }
-        Users user = userRepository.findById(finalUserId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public UsersResponse deactivateUser(String userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActive(false);
         userRepository.save(user);
         return userMapper.buildBasicUserResponse(user);
     }
 
-    public UsersResponse reactivateUser(String userId, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (!tokenService.validateRole(request, Role.MANAGER) && tokenService.validateUID(request, finalUserId)) {
-            throw new OperationFailedException("You can not reactivate other user account");
-        }
-        Users user = userRepository.findById(finalUserId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public UsersResponse reactivateUser(String userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActive(true);
         userRepository.save(user);
         return userMapper.buildBasicUserResponse(user);
     }
 
-    public UsersResponse updateUserRole(String userId, String role, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not update other user role");
-        }
+    public UsersResponse updateUserRole(String userId, String role) {
         Users user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setRole(Role.valueOf(role));
         userRepository.save(user);
         return userMapper.buildBasicUserResponse(user);
     }
 
-    public String exportUserData(String userId, String format, HttpServletRequest request) {
+    public String exportUserData(String userId, String format) {
         Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return "Exporting user data for " + user.getUserId() + " in format: " + format;
     }
 
-    public void submitFeedback(String userId, String feedback, HttpServletRequest request) {
-        System.out.println("Feedback from user " + userId + ": " + feedback);
-    }
-
-    public List<UsersResponse> searchUsers(String name, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not search for users");
-        }
+    public List<UsersResponse> searchUsers(String name) {
         return userRepository.findByFullNameContaining(name).stream()
                 .map(userMapper::buildBasicUserResponse)
                 .toList();
     }
 
-    public boolean deleteUser(String userId, HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-           throw new OperationFailedException("You can not delete users");
-        }
+    public boolean deleteUser(String userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         if (user.isDeleted()) {
@@ -270,19 +230,15 @@ public class UserService {
         return true;
     }
 
-    public List<AppointmentResponse> getUserAppointment(String userId, HttpServletRequest request) {
-        String finalUserId = validateUserID(request, userId);
-        if (tokenService.validateUID(request, finalUserId) && !tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("You can not get other users details");
-        }
-        Users users = userRepository.findById(finalUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + finalUserId));
+    public List<AppointmentResponse> getUserAppointment(String userId) {
+        Users users = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (users.getRole().equals(Role.STUDENT)) {
-            return this.getStudentAppointments(finalUserId);
+            return this.getStudentAppointments(userId);
         }
         if (users.getRole().equals(Role.PSYCHOLOGIST)) {
-            return this.getPsychologistAppointments(finalUserId);
+            return this.getPsychologistAppointments(userId);
         }
         if (users.getRole().equals(Role.MANAGER)) {
             return appointmentRepository.findAll().stream()
@@ -290,16 +246,6 @@ public class UserService {
                     .toList();
         }
         return null;
-    }
-
-    private String validateUserID(HttpServletRequest request, String userId) {
-        if(userId == null) {
-            return tokenService.retrieveUser(request).getUserId();
-        }
-        if(!userRepository.existsById(userId)) {
-            return tokenService.retrieveUser(request).getUserId();
-        }
-        return userId;
     }
 
     private List<AppointmentResponse> getPsychologistAppointments(String userId) {
@@ -320,35 +266,29 @@ public class UserService {
                                 appointment,
                                 null,
                                 studentMapper.buildStudentResponse(
-                                        Objects.requireNonNull(studentRepository.findById(
-                                                appointment.getStudentID()).orElse(null)))
+                                        studentRepository.findByUserID(
+                                                appointment.getStudentID()))
                         ))
-                .collect(Collectors.toList()) : null;
+                .toList() : null;
     }
 
     private List<AppointmentResponse> getStudentAppointments(String userId) {
         Users user = userRepository.findById(userId).orElseThrow();
-        PsychologistResponse psychologistResponse;
-        List<Appointments> appointmentsList = null;
-
         if (!user.getRole().equals(Role.STUDENT)) {
             return null;
         }
-
-        appointmentsList = appointmentRepository
-                .findByStudentID(studentRepository.findByUserID(userId).getStudentID());
-
-
-        return appointmentsList.stream()
+        return appointmentRepository
+                .findByStudentID(studentRepository.findByUserID(userId).getStudentID())
+                .stream()
                 .map(appointment ->
                         appointmentMapper.buildAppointmentResponse(
                                 appointment,
                                 psychologistsMapper.buildPsychologistResponse(
-                                        Objects.requireNonNull(psychologistRepository.findById(
-                                                appointment.getPsychologistID()).orElse(null))),
+                                        psychologistRepository.findByUserID(
+                                                appointment.getPsychologistID())),
                                 null
                         ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<ProgramsResponse> getUserProgramFacility(String id) {
@@ -370,31 +310,26 @@ public class UserService {
                 )).toList();
     }
 
-    private List<ProgramsResponse> getUserProgramParticipation(String id) {
-
-        StudentResponse studentResponse = studentMapper.buildStudentResponse(
-                studentRepository.findByUserID(id)
-        );
-        return programParticipationRepository.findByStudentID(studentResponse.getStudentId())
-                .stream()
-                .map(programParticipationResponse -> programMapper.buildProgramResponse(
-                        programRepository.findById(programParticipationResponse.getProgramID()).orElseThrow(),
+    // Get user program participation
+    private List<ProgramsResponse> getUserProgramParticipation(String userId) {
+        String student = studentRepository.findByUserID(userId).getStudentID();
+        List<ProgramParticipation> participation = programParticipationRepository.findByStudentID(student);
+        // Construct responses
+        return participation.stream()
+                .map(programParticipation -> programMapper.buildProgramResponse(
+                        programParticipation.getProgram(),
                         programParticipationRepository.findStudentIDsByProgramID(
-                                        programParticipationResponse.getProgramID()).stream()
-                                .map(studentRepository::findByStudentID)
-                                .map(studentMapper::buildStudentResponse)
-                                .peek(sr -> {
-                                    ProgramParticipation programParticipation = programParticipationRepository
-                                            .findByProgramIDAndStudentID(programParticipationResponse.getProgramID(), sr.getStudentId());
-                                    if (programParticipation != null) {
-                                        sr.setProgramStatus(programParticipation.getStatus().name());
-                                    }
-                                })
-                                .toList()
+                                programParticipation.getProgramID()).size()
                 ))
                 .toList();
     }
 
+    // Check if database is empty
+    private boolean isDatabaseEmpty() {
+        return userRepository.count() == 0;
+    }
+
+    // Get user survey results
     private List<SurveyResultsResponse> getUserSurveyResults(String id) {
         List<SurveyResult> surveyResults = surveyResultRepository.findByStudentID(id);
         return surveyMapper.getUserSurveyResults(List.of()); //TEMP
