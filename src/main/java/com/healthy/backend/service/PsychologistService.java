@@ -252,17 +252,26 @@ public class PsychologistService {
             String studentId) {
 
         List<TimeSlots> slots;
-        if (date != null) {
+
+        // Scenario 1: Both psychologistId and date are provided
+        if (psychologistId != null && date != null) {
             slots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, date);
-        } else {
+        }
+        // Scenario 2: Only psychologistId is provided
+        else if (psychologistId != null) {
             slots = timeSlotRepository.findByPsychologistId(psychologistId);
         }
+        // Scenario 3: Neither psychologistId nor date is provided - get all time slots
+        else {
+            slots = timeSlotRepository.findAll();
+        }
 
+        // Map time slots and check booking status
         return slots.stream()
                 .map(slot -> {
                     TimeSlotResponse response = timeSlotMapper.toResponse(slot);
 
-                    // Kiểm tra xem student đã đặt slot này chưa
+                    // Check if student has booked this slot
                     boolean isBooked = studentId != null &&
                             appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID());
                     response.setBooked(isBooked);

@@ -42,6 +42,27 @@ public class PsychologistController {
     private final TokenService tokenService;
     private  final StudentRepository studentRepository;
 
+
+    @Operation(summary = "Lấy danh sách time slots")
+    @GetMapping("/timeslots")
+    public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
+            @RequestParam(required = false) String psychologistId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            HttpServletRequest request) {
+
+        Users currentUser = tokenService.retrieveUser(request);
+        String studentId = null;
+
+        // Nếu là student, lấy studentID
+        if (currentUser.getRole() == Role.STUDENT) {
+            Students student = studentRepository.findByUserID(currentUser.getUserId());
+            studentId = student.getStudentID();
+        }
+
+        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId);
+        return ResponseEntity.ok(slots);
+    }
+
     @Operation(summary = "Get all psychologists")
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
@@ -127,10 +148,6 @@ public class PsychologistController {
     }
 
 
-
-
-
-
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists filtered by specialization."
@@ -196,25 +213,7 @@ public class PsychologistController {
     }
 
 
-    @Operation(summary = "Lấy danh sách time slots")
-    @GetMapping("/timeslots")
-    public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
-            @RequestParam(required = false) String psychologistId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            HttpServletRequest request) {
 
-        Users currentUser = tokenService.retrieveUser(request);
-        String studentId = null;
-
-        // Nếu là student, lấy studentID
-        if (currentUser.getRole() == Role.STUDENT) {
-            Students student = studentRepository.findByUserID(currentUser.getUserId());
-            studentId = student.getStudentID();
-        }
-
-        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId);
-        return ResponseEntity.ok(slots);
-    }
 
     @Operation(summary = "Get default time slots")
     @GetMapping("/default-time-slots")
