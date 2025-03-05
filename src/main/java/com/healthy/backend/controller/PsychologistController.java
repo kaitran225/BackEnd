@@ -88,7 +88,7 @@ public class PsychologistController {
             throw new IllegalArgumentException("Psychologist ID is required for managers");
         }
 
-        if (tokenService.isManager(httpRequest)) {
+        if (tokenService.isStudent(httpRequest)) {
             throw new IllegalArgumentException("Student not can update psychologist");
         }
 
