@@ -34,6 +34,7 @@ public class Article {
     @Column(name = "Content", columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
     private int likes = 0;
 
     @JoinColumn(name = "Author", insertable = false, updatable = false)
@@ -43,6 +44,7 @@ public class Article {
     private String category;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne
