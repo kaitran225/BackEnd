@@ -40,9 +40,6 @@ public class Notifications {
     @JoinColumn(name = "UserID", insertable = false, updatable = false)
     private Users user;
 
-    @Column(name = "LeaveRequestID", length = 36)
-    private String LeaveRequestID;
-
     @Column(name = "AppointmentID", length = 36)
     private String appointmentID;
 

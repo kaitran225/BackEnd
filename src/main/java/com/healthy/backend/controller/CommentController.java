@@ -31,13 +31,29 @@ public class CommentController {
             @RequestBody @Valid CommentRequest request,
             HttpServletRequest httpRequest) {
         String userId = tokenService.retrieveUser(httpRequest).getUserId();
-        CommentResponse response = commentService.addComment(appointmentId, request, userId);
+        CommentResponse response = commentService.addAppointmentComment(appointmentId, request, userId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/appointments/comments")
     public ResponseEntity<List<CommentResponse>> getCommentsForAppointment(@RequestParam String appointmentId) {
         List<CommentResponse> responses = commentService.getCommentsForAppointment(appointmentId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/programs/comments/add")
+    public ResponseEntity<CommentResponse> addProgramComment(
+            @RequestParam String programId,
+            @RequestBody @Valid CommentRequest request,
+            HttpServletRequest httpRequest) {
+        String userId = tokenService.retrieveUser(httpRequest).getUserId();
+        CommentResponse response = commentService.addProgramComment(programId, request, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/programs/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForProgram(@RequestParam String program) {
+        List<CommentResponse> responses = commentService.getCommentsForProgram(program);
         return ResponseEntity.ok(responses);
     }
 }
