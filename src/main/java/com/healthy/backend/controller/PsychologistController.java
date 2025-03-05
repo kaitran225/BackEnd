@@ -5,6 +5,7 @@ import com.healthy.backend.dto.timeslot.*;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
+import com.healthy.backend.exception.AuthorizeException;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
@@ -44,7 +45,7 @@ public class PsychologistController {
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
         if (!tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("Unauthorized access, only Managers can view psychologists");
+            throw new AuthorizeException("Unauthorized access, only Managers can view psychologists");
         }
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
         return !psychologistResponse.isEmpty() ? ResponseEntity.ok(psychologistResponse) : ResponseEntity.noContent().build();
@@ -63,16 +64,16 @@ public class PsychologistController {
 
 
         if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
-            throw new IllegalArgumentException("Psychologist ID is required for managers");
+            throw new AuthorizeException("Psychologist ID is required for managers");
         }
         if (tokenService.validateRole(request, Role.STUDENT) ) {
-            throw new IllegalArgumentException("Unauthorized access, Student can not view psychologists ");
+            throw new AuthorizeException("Unauthorized access, Student can not view psychologists ");
         }
          if (psychologistId != null && !psychologistId.isEmpty()) {
                 // Kiểm tra nếu Psychologist cố tình truyền ID khác
                 PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
                 if (!current.getPsychologistId().equals(psychologistId)) {
-                    throw new OperationFailedException("You can only view your own profile");
+                    throw new AuthorizeException("You can only view your own profile");
                 }
             }
             // Tự động lấy ID từ token nếu không truyền
@@ -97,11 +98,11 @@ public class PsychologistController {
 
         // Phân quyền
         if (tokenService.validateRole(httpRequest, Role.MANAGER) && psychologistId == null) {
-            throw new IllegalArgumentException("Psychologist ID is required for managers");
+            throw new AuthorizeException("Psychologist ID is required for managers");
         }
 
         if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
-            throw new IllegalArgumentException("Student not can update psychologist");
+            throw new AuthorizeException("Student not can update psychologist");
         }
 
         if (psychologistId == null) {
@@ -112,7 +113,7 @@ public class PsychologistController {
             // Kiểm tra Psychologist chỉ update chính mình
             String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
             if (!psychologistId.equals(actualId)) {
-                throw new OperationFailedException("Unauthorized access,You can only update your own profile");
+                throw new AuthorizeException("Unauthorized access,You can only update your own profile");
             }
         }
 
@@ -160,7 +161,7 @@ public class PsychologistController {
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
         if (tokenService.validateRole(httpRequest, Role.STUDENT) ) {
-            throw new IllegalArgumentException("Unauthorized access, Student can not create timeSlot ");
+            throw new AuthorizeException("Unauthorized access, Student can not create timeSlot ");
         }
 
         if (psychologistId == null) {
@@ -172,7 +173,7 @@ public class PsychologistController {
             // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
             String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
             if (!psychologistId.equals(actualId)) {
-                throw new OperationFailedException("Unauthorized to create slots for other psychologists");
+                throw new AuthorizeException("Unauthorized to create slots for other psychologists");
             }
         }
 

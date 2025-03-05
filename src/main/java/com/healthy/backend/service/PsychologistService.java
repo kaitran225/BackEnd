@@ -7,6 +7,7 @@ import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
+import com.healthy.backend.exception.AuthorizeException;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
@@ -98,7 +99,7 @@ public class PsychologistService {
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
 
         if (!psychologist.getUserID().equals(currentUserId)) {
-            throw new OperationFailedException("Unauthorized update");
+            throw new AuthorizeException("Unauthorized update");
         }
 
         if (request.getDepartmentID() == null
