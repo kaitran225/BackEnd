@@ -182,7 +182,7 @@ public class ProgramService {
         }
         ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
                 programId,
-                studentId);
+                studentId).getLast();
         if (participation.getStatus().equals(ParticipationStatus.CANCELLED))
             throw new ResourceAlreadyExistsException("Participation is already cancelled");
 
@@ -337,7 +337,7 @@ public class ProgramService {
                 .stream()
                 .filter(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
                     return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
                 })
                 .collect(Collectors.toList());
@@ -353,14 +353,13 @@ public class ProgramService {
                 .map(studentMapper::buildStudentResponse)
                 .peek(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
                     if (programParticipation != null) {
                         studentResponse.setProgramStatus(programParticipation.getStatus().name());
                     }
                 })
                 .toList();
     }
-
 
     private List<StudentResponse> getStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
@@ -372,7 +371,7 @@ public class ProgramService {
                 .map(studentMapper::buildStudentResponse)
                 .peek(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
                     if (programParticipation != null) {
                         studentResponse.setProgramStatus(programParticipation.getStatus().name());
                     }
@@ -382,7 +381,7 @@ public class ProgramService {
 
     private boolean isJoined(String programId, String studentId) {
         ProgramParticipation participation =  programParticipationRepository.findByProgramIDAndStudentID(
-                programId, studentId);
+                programId, studentId).getLast();
         return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 

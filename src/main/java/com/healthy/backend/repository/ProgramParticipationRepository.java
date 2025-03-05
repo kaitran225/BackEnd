@@ -26,7 +26,7 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
 
     boolean existsByStudentID(String studentID);
 
-    ProgramParticipation findByProgramIDAndStudentID(String programID, String studentId);
+    List<ProgramParticipation> findByProgramIDAndStudentID(String programID, String studentId);
 
     @Query("SELECT p.studentID FROM ProgramParticipation p WHERE p.programID = :programID")
     List<String> findStudentIDsByProgramID(@Param("programID") String programID);

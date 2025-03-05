@@ -301,7 +301,7 @@ public class UserService {
                                 .map(studentMapper::buildStudentResponse)
                                 .peek(sr -> {
                                     ProgramParticipation programParticipation = programParticipationRepository
-                                            .findByProgramIDAndStudentID(programs.getProgramID(), sr.getStudentId());
+                                            .findByProgramIDAndStudentID(programs.getProgramID(), sr.getStudentId()).getLast();
                                     if (programParticipation != null) {
                                         sr.setProgramStatus(programParticipation.getStatus().name());
                                     }
