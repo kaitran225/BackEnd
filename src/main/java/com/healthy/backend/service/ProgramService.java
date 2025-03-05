@@ -380,7 +380,10 @@ public class ProgramService {
     }
 
     private boolean isJoined(String programId, String studentId) {
-        ProgramParticipation participation =  programParticipationRepository.findByProgramIDAndStudentID(
+        if (!programParticipationRepository.existsByProgramIDAndStudentID(programId, studentId)) {
+            return false;
+        }
+        ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
                 programId, studentId).getLast();
         return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
     }
