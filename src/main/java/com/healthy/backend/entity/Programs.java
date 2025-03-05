@@ -61,6 +61,9 @@ public class Programs {
     @Column(name = "DepartmentID", length = 36, nullable = false,insertable = false, updatable = false)
     private String departmentID;
 
+    @Column(name = "Rating")
+    private Integer rating;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DepartmentID", referencedColumnName = "DepartmentID", nullable = false)
     private Department department;

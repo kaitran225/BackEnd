@@ -1,22 +1,18 @@
 package com.healthy.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.PrePersist;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Article")
@@ -29,8 +25,8 @@ public class Article {
     @Column(name = "Title", length = 100)
     private String title;
 
-    @Column(name = "CreatedBy", length = 36)
-    private String createdBy;
+    @Column(name = "Author", length = 36)
+    private String authorId;
 
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
@@ -38,14 +34,25 @@ public class Article {
     @Column(name = "Content", columnDefinition = "TEXT")
     private String content;
 
+    private int likes = 0;
+
+    @JoinColumn(name = "Author", insertable = false, updatable = false)
+    private Users author;
+
+    @Column(name = "Category", length = 100)
+    private String category;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
     private Users createdByUser;
 
-    public Article(String articleID, String title, String createdBy, String content) {
+    public Article(String articleID, String title, String authorId, String content) {
         this.articleID = articleID;
         this.title = title;
-        this.createdBy = createdBy;
+        this.authorId = authorId;
         this.content = content;
     }
 

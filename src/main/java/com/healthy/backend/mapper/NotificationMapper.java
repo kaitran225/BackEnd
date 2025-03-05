@@ -12,8 +12,7 @@ public class NotificationMapper {
     public NotificationResponse toResponse(Notifications notification) {
         return NotificationResponse.builder()
                 .id(notification.getNotificationID())
-                .IDType(notification.getAppointmentID() != null ? notification.getAppointmentID() : 
-                        notification.getLeaveRequestID() != null ? notification.getLeaveRequestID() : 
+                .IDType(notification.getAppointmentID() != null ? notification.getAppointmentID() :
                         notification.getProgramID() != null ? notification.getProgramID() : 
                         notification.getSurveyID())
                 .title(notification.getTitle())

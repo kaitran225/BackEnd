@@ -22,26 +22,34 @@ public class CommentController {
     private final CommentService commentService;
     private final TokenService tokenService;
 
-    /**
-     * Endpoint để thêm comment hoặc reply cho 1 appointment.
-     * Yêu cầu client truyền appointmentId trong URL.
-     */
     @PostMapping("/appointments/{appointmentId}")
     public ResponseEntity<CommentResponse> addComment(
             @PathVariable String appointmentId,
             @RequestBody @Valid CommentRequest request,
             HttpServletRequest httpRequest) {
         String userId = tokenService.retrieveUser(httpRequest).getUserId();
-        CommentResponse response = commentService.addComment(appointmentId, request, userId);
+        CommentResponse response = commentService.addAppointmentComment(appointmentId, request, userId);
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Lấy danh sách bình luận dạng cây (bao gồm reply) của 1 appointment.
-     */
     @GetMapping("/appointments/{appointmentId}")
     public ResponseEntity<List<CommentResponse>> getCommentsForAppointment(@PathVariable String appointmentId) {
         List<CommentResponse> responses = commentService.getCommentsForAppointment(appointmentId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/programs/comments/add")
+    public ResponseEntity<CommentResponse> addProgramComment(
+            @RequestParam String programId,
+            @RequestBody @Valid CommentRequest request,
+            HttpServletRequest httpRequest) {
+        String userId = tokenService.retrieveUser(httpRequest).getUserId();
+        CommentResponse response = commentService.addProgramComment(programId, request, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/programs/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForProgram(@RequestParam String program) {
+        List<CommentResponse> responses = commentService.getCommentsForProgram(program);
         return ResponseEntity.ok(responses);
     }
 }

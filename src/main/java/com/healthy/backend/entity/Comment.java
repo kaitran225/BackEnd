@@ -23,33 +23,51 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Nội dung bình luận hoặc reply
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    // Liên kết với appointment mà bình luận này thuộc về
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", nullable = false)
+    @Column(name = "ProgramID", length = 36)
+    private String programID;
+
+    @ManyToOne
+    @JoinColumn(name = "ProgramID", insertable = false, updatable = false)
+    private Programs programs;
+
+    @Column(name = "ArticleID", length = 36)
+    private String articleID;
+
+    @ManyToOne
+    @JoinColumn(name = "Article", insertable = false, updatable = false)
+    private Article article;
+
+    @Column(name = "SurveyID", length = 36)
+    private String surveyID;
+
+    @ManyToOne
+    @JoinColumn(name = "SurveyID", insertable = false, updatable = false)
+    private Surveys surveys;
+
+    @Column(name = "AppointmentID", length = 36)
+    private String appointmentID;
+
+    @ManyToOne
+    @JoinColumn(name = "AppointmentID", insertable = false, updatable = false)
     private Appointments appointment;
 
-    // Người viết bình luận (có thể là student hoặc psychologist)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "UserID", nullable = false)
     private Users author;
 
-    // Bình luận cha (nếu null thì là bình luận gốc)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
+    @JoinColumn(name = "ParentCommentID")
     private Comment parentComment;
 
-    // Danh sách reply của bình luận này
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> replies = new ArrayList<>();
 
-    @Column(name = "rating")
+    @Column(name = "Rating")
     private Integer rating;
 
-    // Thời gian tạo
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

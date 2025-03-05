@@ -91,9 +91,6 @@ public class NotificationService {
             case APPOINTMENT:
                 notification.setAppointmentID(entityId);
                 break;
-            case ON_LEAVE:
-                notification.setLeaveRequestID(entityId);
-                break;
             case PROGRAM:
                 notification.setProgramID(entityId);
                 break;
