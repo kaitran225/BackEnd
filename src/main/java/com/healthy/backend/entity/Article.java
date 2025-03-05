@@ -25,7 +25,7 @@ public class Article {
     @Column(name = "Title", length = 100)
     private String title;
 
-    @Column(name = "Author", length = 36)
+    @Column(name = "AuthorID", length = 36)
     private String authorId;
 
     @Column(name = "CreatedAt", updatable = false)

@@ -21,7 +21,6 @@ import com.healthy.backend.mapper.TimeSlotMapper;
 import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.dto.appointment.AppointmentFeedbackResponse;
 
 
 import java.time.LocalDate;
@@ -212,5 +211,4 @@ public class PsychologistController {
         List<DefaultTimeSlotResponse> slots = psychologistService.getDefaultTimeSlots();
         return ResponseEntity.ok(slots);
     }
-
 }
