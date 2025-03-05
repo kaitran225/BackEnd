@@ -1,6 +1,7 @@
 package com.healthy.backend.repository;
 
 import com.healthy.backend.entity.ProgramParticipation;
+import com.healthy.backend.enums.ParticipationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +35,7 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
     @Transactional
     @Query("DELETE FROM ProgramParticipation p WHERE p.programID = :programId")
     void deleteByProgramId(@Param("programId") String programId);
+
+    @Query("SELECT p.studentID FROM ProgramParticipation p WHERE p.programID = :programId AND p.status <> :excludedStatus")
+    List<String> findActiveStudentIDsByProgramID(@Param("programId") String programId, @Param("excludedStatus") ParticipationStatus excludedStatus);
 }

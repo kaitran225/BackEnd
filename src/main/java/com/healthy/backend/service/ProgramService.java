@@ -9,13 +9,11 @@ import com.healthy.backend.enums.ProgramType;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
-import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.security.TokenService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +54,7 @@ public class ProgramService {
         return programs.stream().map(
                 program -> programMapper.buildProgramsDetailsResponse(
                         program,
-                        getStudentsByProgram(program.getProgramID())
+                        getActiveStudentsByProgram(program.getProgramID())
                 )).toList();
     }
 
@@ -65,7 +62,7 @@ public class ProgramService {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(program -> {
-            List<StudentResponse> enrolled = getStudentsByProgram(program.getProgramID());
+            List<StudentResponse> enrolled = getActiveStudentsByProgram(program.getProgramID());
             return programMapper.buildProgramResponse(program, enrolled.size());
         }).toList();
     }
@@ -124,7 +121,7 @@ public class ProgramService {
     public ProgramsResponse getProgramById(String programId, HttpServletRequest request) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId).size());
+        return programMapper.buildProgramResponse(program, getActiveStudentsByProgram(programId).size());
     }
 
     public List<ProgramTagResponse> getProgramTags(HttpServletRequest request) {
@@ -224,7 +221,7 @@ public class ProgramService {
         return participationList.stream()
                 .map(participation -> {
                     Programs program = participation.getProgram();
-                    return programMapper.buildProgramResponse(program, getStudentsByProgram(program.getProgramID()).size());
+                    return programMapper.buildProgramResponse(program, getActiveStudentsByProgram(program.getProgramID()).size());
                 }).toList();
     }
 
@@ -326,7 +323,7 @@ public class ProgramService {
         program.setTags(tags);
 
         programRepository.save(program);
-        return programMapper.buildProgramResponse(program, getStudentsByProgram(programId).size());
+        return programMapper.buildProgramResponse(program, getActiveStudentsByProgram(programId).size());
     }
 
 
@@ -336,7 +333,7 @@ public class ProgramService {
         }
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        List<StudentResponse> studentResponses = getStudentsByProgram(programId)
+        List<StudentResponse> studentResponses = getActiveStudentsByProgram(programId)
                 .stream()
                 .filter(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
@@ -347,6 +344,23 @@ public class ProgramService {
         if (studentResponses.isEmpty()) programMapper.buildProgramsParticipantResponse(program, new ArrayList<>());
         return programMapper.buildProgramsParticipantResponse(program, studentResponses);
     }
+
+    private List<StudentResponse> getActiveStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
+
+        return studentIDs.stream()
+                .map(studentRepository::findByStudentID)
+                .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId());
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
+                })
+                .toList();
+    }
+
 
     private List<StudentResponse> getStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
@@ -367,9 +381,9 @@ public class ProgramService {
     }
 
     private boolean isJoined(String programId, String studentId) {
-        return programParticipationRepository.findByProgramIDAndStudentID(
-                programId, studentId
-        ) != null;
+        ProgramParticipation participation =  programParticipationRepository.findByProgramIDAndStudentID(
+                programId, studentId);
+        return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 
     @EventListener(ApplicationReadyEvent.class)
