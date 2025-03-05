@@ -124,7 +124,7 @@ public class TokenService {
         return (boolean) map.get("isVerified");
     }
 
-    private boolean validateRole(HttpServletRequest request, List<Role> roles) {
+    public boolean validateRole(HttpServletRequest request, List<Role> roles) {
         HashMap<String, ?> map = extractRequest(request);
         String userRole = (String) map.get("role");
         if (userRole != null && userRole.startsWith("ROLE_")) {
@@ -133,7 +133,7 @@ public class TokenService {
         return roles.contains(Role.valueOf(userRole));
     }
 
-    private boolean validateRole(HttpServletRequest request, Role role) {
+    public boolean validateRole(HttpServletRequest request, Role role) {
         return validateRole(request, List.of(role));
     }
 
