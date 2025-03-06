@@ -19,6 +19,7 @@ import com.healthy.backend.dto.survey.SurveyRequest;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Categories;
+import com.healthy.backend.entity.Parents;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
@@ -66,7 +67,8 @@ public class SurveyService {
     return switch (user.getRole()) {
         case STUDENT -> {
             String studentId = tokenService.getRoleID(user);
-            yield getSurveyResult(studentId); 
+            Students student = studentRepository.findByStudentID(studentId);
+            yield getSurveyResult(List.of(student), ""); 
         }
         case MANAGER, PSYCHOLOGIST -> {
             List<Surveys> surveys = surveyRepository.findAll();
@@ -79,13 +81,16 @@ public class SurveyService {
                 ))
                 .toList();
         }
-        // case PARENT -> {
-        //     List<Students> children = parentRepository.findByUserID(user.getUserId()).getStudents();
-        //     yield children.stream()
-        //         .map(student -> getSurveyResult(student.getStudentID())) 
-        //         .flatMap(List::stream) 
-        //         .toList(); 
-        // }
+        case PARENT -> {
+            Parents parent = parentRepository.findByUserID(user.getUserId());
+            List<Students> children = parent.getStudents();
+            yield getSurveyResult(children, parent.getParentID());
+
+            // yield children.stream()
+            //     .map(student -> getSurveyResult(student.getStudentID())) 
+            //     .flatMap(List::stream) 
+            //     .toList(); 
+        }
         default -> throw new RuntimeException("You don't have permission to access this resource.");
     };
 }
@@ -123,7 +128,7 @@ public class SurveyService {
         return surveyMapper.maptoResultStudent1(
                 getStatusStudent(survey.getSurveyID(), surveyResult.getStudentID()),
                 surveyResult.getResult() + "/" + surveyResult.getMaxScore(),
-                surveyResult);
+                surveyResult.getStudentID());
     }
 
     private List<SurveyResult> getSurveyResultByStudentIDAndSurveyID(String surveyID, String studentId) {
@@ -381,6 +386,7 @@ public class SurveyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Not found survey"));
 
         List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
+        int sizeQues = surveyQuestionRepository.countQuestionInSuv(surveyId);
         String check = null;
         for (String option : optionId) {
             if (Objects.equals(check, option)) {
@@ -393,6 +399,9 @@ public class SurveyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Not found student"));
 
         String total = calculateTotalRightQuestion(surveyQuestion, optionId, survey, student);
+        String[] parts = total.split("/");
+        String firstParts = parts[0];
+        int num = Integer.parseInt(firstParts);
 
         if (total != null) {
             SurveyResult surveyResult = new SurveyResult();
@@ -401,6 +410,8 @@ public class SurveyService {
             surveyResult.setResultID(newResultId);
             surveyResult.setStudentID(studentId);
             surveyResult.setSurveyID(surveyId);
+            surveyResult.setMaxScore(sizeQues * 3);
+            surveyResult.setResult(num);
 
             surveyResultRepository.save(surveyResult);
 
@@ -410,9 +421,9 @@ public class SurveyService {
                 status = surveyMapper.maptoResultStudent1(
                         getStatusStudent(surveyId, studentId),
                         total,
-                        surveyResult);
+                        studentId);
                 if (status == null) {
-                    return surveyMapper.maptoResultStudent1("0", "Not Finished", surveyResult);
+                    return surveyMapper.maptoResultStudent1("0", "Not Finished", studentId);
                 }
 
             }
@@ -432,36 +443,61 @@ public class SurveyService {
         surveyQuestionOptionsChoicesRepository.saveAll(choiceList);
     }
 
-    private List<SurveysResponse> getSurveyResult(String studentId) {
-        List<SurveyResult> surveyResultList = surveyResultRepository.findByStudentID(studentId);
-        if (surveyResultList.isEmpty()) {
-            return List.of();
-        }
+
+    private List<SurveysResponse> getSurveyResult(List<Students> students,String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
         HashMap<String, String> map = new HashMap<>();
+
         for (Surveys survey : surveyList) {
-            map.put(survey.getSurveyID(), getStatusStudent(survey.getSurveyID(), studentId));
+            students.forEach(
+                student -> {
+                    map.put(student.getStudentID(), getStatusStudent(survey.getSurveyID(),student.getStudentID()));
+                }
+            );
         }
+        
         return surveyList.stream()
                 .map(survey -> {
-                    if (map.get(survey.getSurveyID()).equals("NOT COMPLETED")) {
-                        return surveyMapper.buildSurveysResponse(
-                                survey,
-                                getTotalQuestion(survey),
-                                map.get(survey.getSurveyID()),
-                                "0/0"
-                        );
-                    }
-                    SurveyResult surveyResult = surveyResultRepository.findByStudentIDAndSurveyID(studentId, survey.getSurveyID());
-                    return surveyMapper.buildSurveysResponse(
-                            survey,
-                            getTotalQuestion(survey),
-                            map.get(survey.getSurveyID()),
-                            surveyResult.getResult() + "/" + surveyResult.getMaxScore()
-                    );
+                    List<StatusStudent> statusStuList = students.stream()
+                        .map(student -> {
+                            
+                            List<SurveyResult> surveyResultSTD = surveyResultRepository.findSurveyIDAndStudentID(
+                                survey.getSurveyID(),
+                                student.getStudentID());
+
+                            String studentStatus1 = getStatusStudent(survey.getSurveyID(), student.getStudentID());    
+
+                            if (surveyResultSTD.isEmpty()) {
+                                return List.of(surveyMapper.maptoResultStudent1(
+                                    studentStatus1,
+                                    "0/0", 
+                                    student.getStudentID()
+                                )
+                                );
+                            }
+
+                            return surveyResultSTD.stream()
+                                .map(result -> {
+                                    return surveyMapper.maptoResultStudent1(
+                                        map.get(student.getStudentID()),
+                                        result.getResult() + "/" + result.getMaxScore(),
+                                        student.getStudentID()
+                                        );
+                                })
+                            .collect(Collectors.toList());    
+                        })
+                        .flatMap(List :: stream)
+                        .collect(Collectors.toList());
+                             
+                    return surveyMapper.buildSurveysResponse1(survey,
+                    getTotalQuestion(survey),
+                    ID.contains("PRT") ? null : getSurveyStatus(survey),
+                    statusStuList);
+
+
                 })
-                .toList();
-    }
+                .collect(Collectors.toList());                      
+       } 
 
     @Transactional
     public int calculateTotalScore(List<SurveyQuestionOptionsChoices> questionOptionsChoices) {
@@ -500,7 +536,7 @@ public class SurveyService {
     }
 
     private int getTotalStudentDone(Surveys surveys) {
-        return (int) surveyResultRepository.countBySurveyID(surveys.getSurveyID());
+        return (int) surveyResultRepository.countDistinctStudentsBySurveyID(surveys.getSurveyID());
     }
 
     private int getTotalStudent() {
@@ -511,9 +547,64 @@ public class SurveyService {
         return getTotalStudent() == getTotalStudentDone(surveys) ? "COMPLETED" : "NOT COMPLETED";
     }
 
+
     private String getStatusStudent(String surveyId, String studentId) {
         return !surveyResultRepository.existsBySurveyIDAndStudentID(surveyId, studentId)
                 ? "NOT COMPLETED"
                 : "COMPLETED";
     }
+
+//     public Feedback submitSurveyFeedback(HttpServletRequest request, String surveyId, String feedbackComment, Integer rating) {
+    
+//     Role role = tokenService.retrieveUser(request).getRole();
+    
+   
+//     switch (role) {
+//         case MANAGER:
+//         case PSYCHOLOGIST:
+            
+//             Surveys survey = surveyRepository.findById(surveyId)
+//                     .orElseThrow(() -> new ResourceNotFoundException("Survey not found"));
+   
+            
+//             List<SurveyResult> surveyResults = surveyResultRepository.findBySurveyID(surveyId);
+            
+            
+//             for (SurveyResult surveyResult : surveyResults) {
+                
+//                 if (surveyResult.getResult() >= 15) {
+                    
+//                     Appointments appointment = new Appointments();
+//                     appointment.setAppointmentID(UUID.randomUUID().toString());  
+//                     appointment.setStudentID(surveyResult.getStudentID());  
+//                     appointment.setPsychologistID(assignedPsychologistId);  
+//                     appointment.setStatus(AppointmentStatus.SCHEDULED);  
+
+                    
+//                     appointmentRepository.save(appointment);
+
+//                     Notifications notification = new Notifications();
+//                     notification.setAppointment(appointment);
+//                     notification.setMessage("You have a new appointment scheduled.");
+//                     notificationsRepository.save(notification);
+//                 }
+//             }
+
+           
+//             Feedback feedback = new Feedback();
+//             feedback.setComment(feedbackComment); 
+//             feedback.setRating(rating);  
+//             feedback.setAppointment(appointment);  
+            
+//             feedbackRepository.save(feedback);
+
+//             return feedback;
+
+//         default:
+           
+//             throw new AssertionError("Unauthorized role. Only Managers and Psychologists can submit feedback.");
+//     }
+// }
+
+
 }
