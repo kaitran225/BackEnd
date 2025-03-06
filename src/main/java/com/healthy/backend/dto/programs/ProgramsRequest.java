@@ -6,17 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProgramsRequest {
-    @Schema(example = "UID005")
-    private String userId;
     @Schema(example = "Program Name")
     private String name;
     @Schema(example = "Program Description")
@@ -27,6 +26,8 @@ public class ProgramsRequest {
     private Integer duration;
     @Schema(example = "2023-01-01")
     private String startDate;
+    @Schema(example = "")
+    private ProgramWeeklyScheduleRequest weeklyScheduleRequest;
     @Schema(example = "Active")
     private String status;
     @Schema(
@@ -36,7 +37,7 @@ public class ProgramsRequest {
     private HashSet<String> tags;
     @Schema(example = "PSY001")
     private String facilitatorId;
-    @Schema(example = "DPT01")
+    @Schema(example = "DPT001")
     private String departmentId;
     @Schema(example = "Online")
     private String type;

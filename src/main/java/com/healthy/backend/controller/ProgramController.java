@@ -1,8 +1,11 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.programs.*;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ProgramService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +31,9 @@ import java.util.List;
 @Tag(name = "Programs Controller", description = "Program related APIs")
 public class ProgramController {
 
+    private final StudentRepository studentRepository;
     private final ProgramService programService;
+    private final TokenService tokenService;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////GET REQUESTS//////////////////////////////////////////////////
@@ -72,7 +77,10 @@ public class ProgramController {
     @Operation(summary = "Get all programs", description = "Returns a list of all programs.")
     @GetMapping()
     public ResponseEntity<List<ProgramsResponse>> getPrograms(HttpServletRequest request) {
-        List<ProgramsResponse> programsResponseList = programService.getAllPrograms(request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
+            throw new OperationFailedException("You don't have permission to get program tags");
+        }
+        List<ProgramsResponse> programsResponseList = programService.getAllPrograms();
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
@@ -101,7 +109,10 @@ public class ProgramController {
     @Operation(summary = "Get all program statuses", description = "Returns a list of all program statuses.")
     @GetMapping("/details/all")
     public ResponseEntity<?> getAllProgramStatuses(HttpServletRequest request) {
-        List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails(request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to view data for all programs");
+        }
+        List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails();
         if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return ResponseEntity.ok(programsResponseList);
     }
@@ -110,7 +121,10 @@ public class ProgramController {
     @Operation(summary = "Get program details", description = "Returns details of a specific program.")
     @GetMapping("/details")
     public ResponseEntity<?> getProgramDetails(@RequestParam String programId, HttpServletRequest request) {
-        ProgramsResponse programsResponse = programService.getProgramById(programId, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
+            throw new OperationFailedException("You don't have permission to get program tags");
+        }
+        ProgramsResponse programsResponse = programService.getProgramById(programId);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
     }
@@ -122,7 +136,10 @@ public class ProgramController {
     public ResponseEntity<?> getRegistrationStatus(
             @RequestParam String programId,
             HttpServletRequest request) {
-        String status = programService.getProgramStatus(programId, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
+            throw new OperationFailedException("You don't have permission to get program tags");
+        }
+        String status = programService.getProgramStatus(programId);
         if (status.isEmpty()) {
             throw new ResourceNotFoundException("Program not found");
         }
@@ -136,7 +153,12 @@ public class ProgramController {
     public ResponseEntity<List<ProgramsResponse>> getEnrolledPrograms(
             @RequestParam(required = false) String studentId,
             HttpServletRequest request) {
-        List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(studentId, request);
+        String finalStudentId = validateStudentID(request, studentId);
+        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(finalStudentId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You don't have permission to view this student's enrolled programs");
+        }
+        List<ProgramsResponse> programsResponseList = programService.getEnrolledPrograms(finalStudentId);
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
@@ -148,7 +170,10 @@ public class ProgramController {
     public ResponseEntity<ProgramsResponse> getProgramParticipants(
             @RequestParam String programId,
             HttpServletRequest request) {
-        ProgramsResponse programsResponse = programService.getProgramParticipants(programId, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to get participants of this program");
+        }
+        ProgramsResponse programsResponse = programService.getProgramParticipants(programId);
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
     }
@@ -157,7 +182,10 @@ public class ProgramController {
     @Operation(summary = "Get program tags", description = "Returns a list of tags for programs.")
     @GetMapping("/tags")
     public ResponseEntity<List<ProgramTagResponse>> getProgramTags(HttpServletRequest request) {
-        List<ProgramTagResponse> programTagResponseList = programService.getProgramTags(request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
+            throw new OperationFailedException("You don't have permission to get program tags");
+        }
+        List<ProgramTagResponse> programTagResponseList = programService.getProgramTags();
         if (programTagResponseList.isEmpty()) throw new ResourceNotFoundException("No tags found");
         return ResponseEntity.ok(programTagResponseList);
     }
@@ -171,7 +199,11 @@ public class ProgramController {
     public ResponseEntity<?> registerForProgram(
             @RequestParam String programId,
             HttpServletRequest request) {
-        if (programService.registerForProgram(programId, request)) {
+        if (!tokenService.isStudent(request)) {
+            throw new OperationFailedException("You don't have permission to register for a program");
+        }
+        String studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
+        if (programService.registerForProgram(programId, studentId)) {
             return ResponseEntity.ok("Registration successful for program " + programId);
         }
         throw new ResourceNotFoundException("Failed to register for program");
@@ -182,7 +214,10 @@ public class ProgramController {
     public ResponseEntity<?> createProgramTag(
             @RequestBody ProgramTagRequest programTagRequest,
             HttpServletRequest request) {
-        ProgramTagResponse programTagResponse = programService.createProgramTag(programTagRequest, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to create this program tag");
+        }
+        ProgramTagResponse programTagResponse = programService.createProgramTag(programTagRequest);
         if (programTagResponse == null) throw new ResourceNotFoundException("Failed to create tag");
         return ResponseEntity.status(HttpStatus.CREATED).body(programTagResponse);
     }
@@ -198,7 +233,11 @@ public class ProgramController {
     @Operation(summary = "Create a new program", description = "Creates a new program.")
     @PostMapping("/create")
     public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest, HttpServletRequest request) {
-        ProgramsResponse programsResponse = programService.createProgram(programsRequest, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to create this program");
+        }
+        String managerId = tokenService.retrieveUser(request).getUserId();
+        ProgramsResponse programsResponse = programService.createProgram(programsRequest, managerId);
         if (programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
     }
@@ -215,7 +254,11 @@ public class ProgramController {
             @RequestParam String programId,
             @RequestBody ProgramUpdateRequest programsRequest,
             HttpServletRequest request) {
-        ProgramsResponse response = programService.updateProgram(programId, programsRequest, request);
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to update this program");
+        }
+
+        ProgramsResponse response = programService.updateProgram(programId, programsRequest);
         return ResponseEntity.ok(response);
     }
 
@@ -225,7 +268,12 @@ public class ProgramController {
     public ResponseEntity<String> cancelParticipation(
             @RequestParam String programId,
             HttpServletRequest request) {
-        boolean isCancelled = programService.cancelParticipation(programId, request);
+        String studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
+        if (!tokenService.getRoleID(tokenService.retrieveUser(request)).equals(studentId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You don't have permission to cancel this student participation");
+        }
+        boolean isCancelled = programService.cancelParticipation(programId, studentId);
         if (isCancelled) {
             return ResponseEntity.ok("Participation successfully cancelled.");
         }
@@ -241,7 +289,21 @@ public class ProgramController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteProgram(@RequestParam String programId,
                                            HttpServletRequest request) {
-        if (!programService.deleteProgram(programId, request)) throw new ResourceNotFoundException("Program not found");
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("You don't have permission to delete this program");
+        }
+        if (!programService.deleteProgram(programId))
+            throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.noContent().build();
+    }
+
+    private String validateStudentID(HttpServletRequest request, String studentId) {
+        if (studentId == null) {
+            return tokenService.getRoleID(tokenService.retrieveUser(request));
+        }
+        if (!studentRepository.existsById(studentId)) {
+            return tokenService.getRoleID(tokenService.retrieveUser(request));
+        }
+        return studentId;
     }
 }
