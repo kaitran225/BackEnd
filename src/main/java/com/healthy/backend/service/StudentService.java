@@ -136,7 +136,7 @@ public class StudentService {
         }
         return surveys.stream()
                 .map(sr -> {
-                            SurveyResult surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(sr.getSurveyID(), studentId);
+                            SurveyResult surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(sr.getSurveyID(), studentId).getLast();
                             return surveyMapper.buildSurveysResponse(
                                     sr,
                                     surveyQuestionRepository.findBySurveyID(sr.getSurveyID()).size(),
