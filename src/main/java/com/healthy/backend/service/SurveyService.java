@@ -145,7 +145,7 @@ public class SurveyService {
 
         Surveys survey = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
-        SurveyResult surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentId);
+        List<SurveyResult> surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentId);
         List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
         if (surveyQuestions.isEmpty()) {
             throw new ResourceNotFoundException("No questions found for surveyID " + surveyID);
@@ -155,7 +155,7 @@ public class SurveyService {
                 .map(questions -> {
                             List<QuestionOption> questionOption = getQuestionResponse(questions);
                             questionOption.forEach(option -> {
-                                if (option.getAnswerID().equals(surveyResult.getChoices().get(surveyQuestions.indexOf(questions)).getOptionID())) {
+                                if (option.getAnswerID().equals(surveyResult.getLast().getChoices().get(surveyQuestions.indexOf(questions)).getOptionID())) {
                                     option.setChecked(true);
                                 }
                             });
@@ -169,7 +169,7 @@ public class SurveyService {
         return surveyMapper.buildSurveyResultResponse(questionList,
                 survey,
                 getSurveyStatus(survey),
-                surveyResult.getResult() + "/" + surveyResult.getMaxScore());
+                surveyResult.getLast().getResult() + "/" + surveyResult.getLast().getMaxScore());
     }
 
 
@@ -213,6 +213,7 @@ public class SurveyService {
     }
 
     public SurveyQuestionResponse getSurveyQuestion(String surveyID) {
+
         Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID)
         );
