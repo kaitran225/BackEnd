@@ -1,30 +1,42 @@
 package com.healthy.backend.controller;
 
 
-import com.healthy.backend.dto.timeslot.*;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
+import com.healthy.backend.dto.psychologist.PsychologistRequest;
+import com.healthy.backend.dto.psychologist.PsychologistResponse;
+import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
+import com.healthy.backend.dto.timeslot.TimeSlotBatchCreateRequest;
+import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.format.annotation.DateTimeFormat;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import com.healthy.backend.dto.psychologist.*;
-import org.springframework.http.ResponseEntity;
-import com.healthy.backend.mapper.TimeSlotMapper;
-import org.springframework.web.bind.annotation.*;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 
-
-import java.time.LocalDate;
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @CrossOrigin
@@ -43,9 +55,7 @@ public class PsychologistController {
     @Operation(summary = "Get all psychologists")
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
-        if (!tokenService.validateRole(request, Role.MANAGER)) {
-            throw new OperationFailedException("Unauthorized access, only Managers can view psychologists");
-        }
+     
         List<PsychologistResponse> psychologistResponse = psychologistService.getAllPsychologistDTO();
         return !psychologistResponse.isEmpty() ? ResponseEntity.ok(psychologistResponse) : ResponseEntity.noContent().build();
     }
