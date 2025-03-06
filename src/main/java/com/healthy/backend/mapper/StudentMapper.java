@@ -38,7 +38,7 @@ public class StudentMapper {
                 .depressionScore(student.getDepressionScore())
                 .anxietyScore(student.getAnxietyScore())
                 .stressScore(student.getStressScore())
-                .surveyResults(surveyResultsResponseList)
+                .surveyResults(surveyResultsResponseList.isEmpty() ? null : surveyResultsResponseList)
                 .build();
     }
 
