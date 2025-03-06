@@ -157,19 +157,22 @@ public class AppointmentController {
 
 
     // Hủy lịch hẹn
+    // Trong AppointmentController
     @Operation(summary = "Request cancel of an appointment")
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
             @PathVariable String appointmentId,
+            @Valid @RequestBody CancelAppointmentRequest cancelRequest, // Thêm request body
             HttpServletRequest request) {
+
         Users currentUser = tokenService.retrieveUser(request);
         AppointmentResponse response = appointmentService.cancelAppointment(
                 appointmentId,
-                currentUser.getUserId()
+                currentUser.getUserId(),
+                cancelRequest.getReason() // Truyền lý do vào service
         );
         return ResponseEntity.ok(response);
     }
-
 
     // Check-in - chỉ Psychologist
     @Operation(summary = "Check in to an appointment")
