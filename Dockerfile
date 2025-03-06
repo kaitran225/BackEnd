@@ -1,11 +1,26 @@
 # Use Maven to build the application
 FROM maven:3.9.8-eclipse-temurin-21 AS build
-COPY . .
+WORKDIR /app
+
+# Copy pom.xml first to leverage Docker layer caching
+COPY pom.xml .
+RUN mvn dependency:resolve
+
+# Copy source code
+COPY src ./src
+
+# Build the application
 RUN mvn clean package -DskipTests
 
-# Use OpenJDK 21 for running the application
-FROM openjdk:21
-COPY --from=build /target/swagger-api-server.jar swagger-api-server.jar
+# Use a smaller JDK runtime for running the application
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Set timezone to prevent time issues
+ENV TZ=Asia/Ho_Chi_Minh
+
+# Copy only the built JAR
+COPY --from=build /app/target/swagger-api-server.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080
@@ -13,5 +28,5 @@ EXPOSE 8080
 # Set the active Spring profile to production
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "swagger-api-server.jar"]
+# Run the application with optimized JVM flags
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=90", "-XX:+AlwaysActAsServerClassMachine", "-jar", "app.jar"]

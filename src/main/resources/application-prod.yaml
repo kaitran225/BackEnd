@@ -4,7 +4,7 @@ spring:
       on-profile: prod
 
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL}?serverTimezone=Asia/Ho_Chi_Minh
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver

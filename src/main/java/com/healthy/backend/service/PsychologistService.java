@@ -7,6 +7,7 @@ import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
+import com.healthy.backend.exception.AuthorizeException;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
@@ -98,7 +99,7 @@ public class PsychologistService {
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
 
         if (!psychologist.getUserID().equals(currentUserId)) {
-            throw new OperationFailedException("Unauthorized update");
+            throw new AuthorizeException("Unauthorized update");
         }
 
         if (request.getDepartmentID() == null
@@ -242,21 +243,33 @@ public class PsychologistService {
             String studentId) {
 
         List<TimeSlots> slots;
-        if (date != null) {
+
+        // Scenario 1: Both psychologistId and date are provided
+        if (psychologistId != null && date != null) {
             slots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, date);
-        } else {
+        }
+        // Scenario 2: Only psychologistId is provided
+        else if (psychologistId != null) {
             slots = timeSlotRepository.findByPsychologistId(psychologistId);
         }
+        // Scenario 3: Neither psychologistId nor date is provided - get all time slots
+        else {
+            slots = timeSlotRepository.findAll();
+        }
 
+        // Map time slots and check booking status
         return slots.stream()
                 .map(slot -> {
                     TimeSlotResponse response = timeSlotMapper.toResponse(slot);
-                    // Kiểm tra xem student đã đặt slot này chưa
+
+                    // Check if student has booked this slot
                     boolean isBooked = studentId != null &&
                             appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID());
                     response.setBooked(isBooked);
+
                     return response;
                 })
                 .collect(Collectors.toList());
     }
+
 }
