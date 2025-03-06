@@ -163,6 +163,18 @@ public class ProgramController {
         return ResponseEntity.ok(programsResponseList);
     }
 
+    @Operation(summary = "Check psychologist availability", description = "Checks if a psychologist is available for a specific date range.")
+    @GetMapping("/psychologists_availability")
+    public boolean checkPsychologistAvailability(
+            @RequestParam String psychologistId,
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestParam String dateOfWeek,
+            @RequestParam String startTime,
+            @RequestParam String endTime) {
+        return programService.isFacilitatorAvailable(psychologistId, startDate, endDate, dateOfWeek, startTime, endTime);
+    }
+
     // Get program participants
     @Operation(summary = "Get program participants",
             description = "Returns a list of participants for a specific program.")

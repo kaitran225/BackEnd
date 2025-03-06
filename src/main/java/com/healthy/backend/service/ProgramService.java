@@ -19,11 +19,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,15 +76,19 @@ public class ProgramService {
     }
 
 
-
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, String userId) {
         String programId = __.generateProgramID();
         Users staffUser = fetchUser(userId);
         HashSet<Tags> tags = fetchTags(programsRequest.getTags());
         Department department = fetchDepartment(programsRequest.getDepartmentId());
         Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId(), department);
-        isFacilitatorAvailable(facilitator.getPsychologistID(), programsRequest);
+
+        validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
+
         Programs program = buildProgram(programId, programsRequest, department, facilitator, tags, staffUser);
+
+        validateParticipantCount(programId, programsRequest.getNumberParticipants());
+
         ProgramSchedule programSchedule = createProgramSchedule(
                 program,
                 programsRequest.getWeeklyScheduleRequest().getWeeklyAt(),
@@ -91,6 +97,7 @@ public class ProgramService {
         );
 
         saveProgramAndSchedule(program, programSchedule);
+
         return getProgramById(programId);
     }
 
@@ -223,8 +230,6 @@ public class ProgramService {
 
         return getProgramResponse(program);
     }
-
-
 
 
     public ProgramsResponse getProgramParticipants(String programId) {
@@ -375,6 +380,11 @@ public class ProgramService {
         }
     }
 
+    private void validateFacilitatorAvailability(String facilitatorId, ProgramsRequest programsRequest) {
+        if (!isFacilitatorAvailable(facilitatorId, programsRequest)) {
+            throw new OperationFailedException("Facilitator is not available for the program");
+        }
+    }
 
     private void updateAndSaveProgramDetails(Programs program, ProgramUpdateRequest updateRequest, Set<Tags> tags) {
         program.setProgramName(updateRequest.getName());
@@ -463,7 +473,6 @@ public class ProgramService {
         Psychologists facilitator = psychologistRepository.findById(facilitatorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
-
         List<LocalDate> scheduleDates = generateWeeklySchedule(programsRequest);
 
         LocalTime programStartTime = LocalTime.parse(programsRequest
@@ -471,10 +480,21 @@ public class ProgramService {
         LocalTime programEndTime = LocalTime.parse(programsRequest
                 .getWeeklyScheduleRequest().getEndTime(), DateTimeFormatter.ofPattern("h:mm a"));
 
-        List<LocalDate> conflictingDates = validateTimeSlotOverlaps(scheduleDates, facilitator.getPsychologistID(), programStartTime, programEndTime);
+        return validateTimeSlotOverlaps(scheduleDates, facilitator.getPsychologistID(), programStartTime, programEndTime);
+    }
 
-        // Output conflicting dates
-        return conflictingDates.isEmpty();
+    public boolean isFacilitatorAvailable(String facilitatorId, String startDate,
+                                          String endDate, String dateOfWeek,
+                                          String startTime, String endTime) {
+        Psychologists facilitator = psychologistRepository.findById(facilitatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        List<LocalDate> scheduleDates = generateWeeklySchedule(startDate, dateOfWeek, endDate);
+
+        LocalTime programStartTime = LocalTime.parse(startTime, DateTimeFormatter.ofPattern("h:mm a"));
+        LocalTime programEndTime = LocalTime.parse(endTime, DateTimeFormatter.ofPattern("h:mm a"));
+
+        return !validateTimeSlotOverlaps(scheduleDates, facilitator.getPsychologistID(), programStartTime, programEndTime);
     }
 
 
@@ -482,30 +502,68 @@ public class ProgramService {
         return (startTime1.isBefore(endTime2) && endTime1.isAfter(startTime2));
     }
 
+    private boolean checkIfPsychologistIsAvailable(String psychologistId, List<LocalDate> scheduleDates) {
 
-    private List<LocalDate> validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
-        List<LocalDate> conflictingDates = List.of();
-
-        // Iterate through each schedule date
         for (LocalDate scheduleDate : scheduleDates) {
-            // Retrieve time slots for the psychologist on that date with status 'BOOKED'
             List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
                     .stream()
                     .filter(slot -> slot.getStatus().equals(TimeslotStatus.BOOKED))
                     .toList();
 
-            // Check for overlaps
-            for (TimeSlots slot : timeSlots) {
-                if (isTimeOverlap(programStartTime, programEndTime, slot.getStartTime(), slot.getEndTime())) {
-                    conflictingDates.add(scheduleDate); // Add the date if there is an overlap
-                    break; // No need to check further if one conflict is found
-                }
+            if (!timeSlots.isEmpty()) {
+                return false;
             }
         }
-
-        return conflictingDates;
+        // If no booked time slots are found across all dates, return true (psychologist is available)
+        return true;
     }
 
+    private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
+        List<LocalDate> conflictingDates = new ArrayList<>(List.of());
+
+        for (LocalDate scheduleDate : scheduleDates) {
+            List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
+                    .stream()
+                    .toList();
+            timeSlots.forEach(slot -> {
+                if (slot.getStatus().equals(TimeslotStatus.BOOKED)) {
+                    conflictingDates.add(scheduleDate);
+                    return;
+                }
+                if (isTimeOverlap(programStartTime, programEndTime,
+                        slot.getStartTime(), slot.getEndTime())) {
+                    conflictingDates.add(scheduleDate);
+                }
+            });
+        }
+        return conflictingDates.isEmpty();
+    }
+
+    private static int calculateDurationInWeeks(LocalDate startDate, LocalDate endDate) {
+        long weeksBetween = ChronoUnit.WEEKS.between(startDate, endDate);
+        return (int) weeksBetween;
+    }
+
+    private List<LocalDate> generateWeeklySchedule(String startDate,
+                                                   String endDate, String dateOfWeek) {
+
+        int duration = calculateDurationInWeeks(LocalDate.parse(startDate), LocalDate.parse(endDate));
+
+        LocalDate start = LocalDate.parse(startDate);
+
+        DayOfWeek targetDay = DayOfWeek.valueOf(dateOfWeek.toUpperCase());
+
+        List<LocalDate> scheduleDates = new ArrayList<>();
+
+        LocalDate nextOccurrence = getNextDayOfWeek(start, targetDay);
+        scheduleDates.add(nextOccurrence);
+
+        for (int i = 1; i < duration; i++) {
+            nextOccurrence = nextOccurrence.plusWeeks(1); // Add one week
+            scheduleDates.add(nextOccurrence);
+        }
+        return scheduleDates;
+    }
 
     private List<LocalDate> generateWeeklySchedule(ProgramsRequest programsRequest) {
 
