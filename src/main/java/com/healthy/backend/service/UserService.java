@@ -294,7 +294,7 @@ public class UserService {
                         appointmentMapper.buildAppointmentResponse(
                                 appointment,
                                 psychologistsMapper.buildPsychologistResponse(
-                                        psychologistRepository.findByUserID(
+                                        psychologistRepository.findByPsychologistID(
                                                 appointment.getPsychologistID())),
                                 null
                         ))
