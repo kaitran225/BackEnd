@@ -1,7 +1,7 @@
 package com.healthy.backend.entity;
 
 import java.util.List;
-
+import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,6 +50,14 @@ public class SurveyResult {
 
     @OneToMany(mappedBy = "surveyResult", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SurveyQuestionOptionsChoices> choices;
+
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public SurveyResult(String resultID, String surveyID, String studentID) {
         this.resultID = resultID;

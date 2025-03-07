@@ -47,6 +47,8 @@ public class AppointmentService {
     private final DepartmentMapper departmentMapper;
     private final StudentMapper studentMapper;
     private final UserMapper userMapper;
+    private final PsychologistService psychologistService;
+
 
     public List<AppointmentResponse> filterAppointments(
             String studentId,
@@ -94,7 +96,9 @@ public class AppointmentService {
     private AppointmentResponse mapToAppointmentResponse(Appointments appointment) {
         AppointmentResponse response = new AppointmentResponse();
         response.setAppointmentID(appointment.getAppointmentID());
+        response.setStudentName(appointment.getStudent().getUser().getFullName());
         response.setStudentID(appointment.getStudentID());
+        response.setPsychologistName(appointment.getPsychologist().getUser().getFullName());
         response.setPsychologistID(appointment.getPsychologistID());
         response.setStatus(String.valueOf(appointment.getStatus()));
         response.setCreatedAt(appointment.getCreatedAt());
@@ -223,6 +227,9 @@ public class AppointmentService {
                 savedAppointment.getAppointmentID()
         );
 
+        LocalDate slotDate = timeSlot.getSlotDate();
+        psychologistService.increaseAchievedSlots(psychologist.getPsychologistID(), slotDate);
+
         // Trả về response
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
@@ -233,7 +240,7 @@ public class AppointmentService {
 
     // Cancel
     @Transactional
-    public AppointmentResponse cancelAppointment(String appointmentId, String userId) {
+    public AppointmentResponse cancelAppointment(String appointmentId, String userId, String reason) {
         // Tìm appointment
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
@@ -263,6 +270,7 @@ public class AppointmentService {
         // Cập nhật trạng thái appointment
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
+        appointment.setCancellationReason(reason);
 
         // Cập nhật lại số lượng bookings trong time slot
         timeSlot.setCurrentBookings(timeSlot.getCurrentBookings() - 1);
@@ -276,38 +284,37 @@ public class AppointmentService {
         String studentName = appointment.getStudent().getUser().getFullName();
 
         if ("Psychologist".equalsIgnoreCase(String.valueOf(user.getRole()))) {
-            // Thông báo cho student
             notificationService.createAppointmentNotification(
                     appointment.getStudent().getUserID(),
                     "Appointment Canceled",
-                    "Your appointment has been canceled by " + psychologistName,
+                    "Your appointment has been canceled by " + psychologistName + ". Reason: " + reason,
                     appointmentId
             );
 
-            // Thông báo cho psychologist
             notificationService.createAppointmentNotification(
                     appointment.getPsychologist().getUserID(),
                     "Appointment Canceled",
-                    "You declined the appointment",
+                    "You declined the appointment. Reason: " + reason,
                     appointmentId
             );
         } else if ("Student".equalsIgnoreCase(String.valueOf(user.getRole()))) {
-            // Thông báo cho psychologist
             notificationService.createAppointmentNotification(
                     appointment.getPsychologist().getUserID(),
                     "Appointment Canceled",
-                    "Your appointment has been canceled by " + studentName,
+                    "Your appointment has been canceled by " + studentName + ". Reason: " + reason,
                     appointmentId
             );
 
-            // Thông báo cho student
             notificationService.createAppointmentNotification(
                     appointment.getStudent().getUserID(),
                     "Appointment Canceled",
-                    "You declined the appointment",
+                    "You declined the appointment. Reason: " + reason,
                     appointmentId
             );
         }
+
+        LocalDate slotDate = timeSlot.getSlotDate();
+        psychologistService.decreaseAchievedSlots(appointment.getPsychologistID(), slotDate);
 
         // Trả về response
         return appointmentMapper.buildAppointmentResponse(appointment);

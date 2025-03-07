@@ -13,6 +13,9 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -40,6 +43,32 @@ public class PsychologistService {
     private final GeneralService __;
 
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
+
+    private final PsychologistKPIRepository kpiRepository;
+
+
+    @Transactional
+    public void increaseAchievedSlots(String psychologistId, LocalDate slotDate) {
+        int month = slotDate.getMonthValue();
+        int year = slotDate.getYear();
+        PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(psychologistId, month, year);
+        if (kpi == null) {
+            throw new ResourceNotFoundException("KPI not set for psychologist " + psychologistId);
+        }
+        kpi.setAchievedSlots(kpi.getAchievedSlots() + 1);
+        kpiRepository.save(kpi);
+    }
+
+    @Transactional
+    public void decreaseAchievedSlots(String psychologistId, LocalDate slotDate) {
+        int month = slotDate.getMonthValue();
+        int year = slotDate.getYear();
+        PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(psychologistId, month, year);
+        if (kpi != null) {
+            kpi.setAchievedSlots(Math.max(kpi.getAchievedSlots() - 1, 0));
+            kpiRepository.save(kpi);
+        }
+    }
 
 
 
@@ -271,5 +300,7 @@ public class PsychologistService {
                 })
                 .collect(Collectors.toList());
     }
+
+
 
 }
