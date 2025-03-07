@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthy.backend.dto.survey.ConfirmationRequest;
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.StatusStudent;
 import com.healthy.backend.dto.survey.SurveyQuestionResponse;
@@ -287,4 +288,34 @@ public class SurveyController {
             @RequestParam String format) {
         return "Survey results exported in format: " + format;
     }
+
+    @GetMapping("/survey/{surveyId}/students/checkResultsToHaveAppointment")
+    public ResponseEntity<?> getLowScoringStudentsForAppointment(
+            HttpServletRequest request,
+            @PathVariable String surveyId)
+            {
+        try {
+            List<ConfirmationRequest> confirmationRequests = surveyService.getLowScoringStudentsForAppointment(request, surveyId);
+            return ResponseEntity.ok(confirmationRequests);
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request" + ex.getMessage());
+        }
+    }
+
+    @PostMapping("/survey/{surveyId}/students/appointments")
+    public ResponseEntity<?> handleAppointmentRequest(
+            @RequestBody List<ConfirmationRequest> requests)
+            {
+        try {
+            
+            return ResponseEntity.ok(surveyService.handleAppointmentRequest(requests) ? "You can make appointment now" : "");
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request" + ex.getMessage());
+        }
+    }
+
 }
