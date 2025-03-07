@@ -67,11 +67,10 @@ public class UserService {
                 return getPsychologistDetails(user);
             }
             case MANAGER -> {
-                break;
+                return getManagerDetails(user);
             }
             default -> throw new ResourceNotFoundException("User not found with id: " + userId);
         }
-        return new UsersResponse();
     }
 
     public UsersResponse updateUser(String userId, Users updatedUser) {
@@ -117,6 +116,16 @@ public class UserService {
                 null);
     }
 
+    private UsersResponse getManagerDetails(Users user) {
+        return userMapper.buildUserDetailsResponse(
+                user,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+    }
     private UsersResponse getPsychologistDetails(Users user) {
         return userMapper.buildUserDetailsResponse(
                 user,
@@ -139,7 +148,6 @@ public class UserService {
                 null,
                 parent.getStudents().stream()
                         .map(studentMapper::buildStudentResponse)
-                        .peek(student -> student.setUsersResponse(getStudentDetails(studentRepository.findByUserID(student.getUserId()).getUser())))
                         .toList());
     }
 
