@@ -1,11 +1,6 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.manager.AppointmentStatsResponse;
-import com.healthy.backend.dto.manager.KpiResponse;
-import com.healthy.backend.dto.manager.NotificationScheduleResponse;
-import com.healthy.backend.dto.manager.PsychologistStatsResponse;
-import com.healthy.backend.entity.PsychologistKPI;
-import com.healthy.backend.entity.Users;
+import com.healthy.backend.dto.manager.*;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.repository.PsychologistKPIRepository;
 import com.healthy.backend.security.TokenService;
@@ -88,6 +83,19 @@ public class ManagerController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ManagerDashboardResponse> getManagerDashboard(
+            @RequestParam(required = false) String filter, // week/month/year
+            @RequestParam(required = false) Integer value, // week number/month number/year
+            HttpServletRequest httpRequest
+    ) {
+        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
+            throw new IllegalArgumentException("Unauthorized access");
+        }
+
+        return ResponseEntity.ok(managerService.getDashboardStats(filter, value));
     }
 
 }

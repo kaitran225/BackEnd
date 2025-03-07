@@ -9,10 +9,21 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface ProgramParticipationRepository extends JpaRepository<ProgramParticipation, String> {
+    @Query("SELECT COUNT(pp) FROM ProgramParticipation pp " +
+            "WHERE pp.programID = :programId " +
+            "AND pp.status = :status " +
+            "AND (:startDate IS NULL OR pp.startDate >= :startDate) " +
+            "AND (:endDate IS NULL OR pp.startDate <= :endDate)")
+    Long countByProgramAndStatusAndDateRange(@Param("programId") String programId,
+                                             @Param("status") ParticipationStatus status,
+                                             @Param("startDate") LocalDate startDate,
+                                             @Param("endDate") LocalDate endDate);
 
     List<ProgramParticipation> findByStudentID(String studentID);
 
@@ -40,4 +51,6 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
 
     @Query("SELECT p.studentID FROM ProgramParticipation p WHERE p.programID = :programId AND p.status <> :excludedStatus")
     List<String> findActiveStudentIDsByProgramID(@Param("programId") String programId, @Param("excludedStatus") ParticipationStatus excludedStatus);
+
+
 }
