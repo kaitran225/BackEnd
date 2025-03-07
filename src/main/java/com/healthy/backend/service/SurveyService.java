@@ -1,6 +1,5 @@
 package com.healthy.backend.service;
 
-import java.lang.classfile.instruction.SwitchCase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -567,14 +566,12 @@ public class SurveyService {
                     .map(student -> {
                         return surveyResultRepository.findByStudentID(student).getLast();
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
-                List<ConfirmationRequest> confirmationRequests = resultList.stream()
+                return resultList.stream()
                     .filter(result -> result.getResult() == 0 || result.getResult() > (0.95 * result.getMaxScore()))
                     .map(result -> new ConfirmationRequest(result.getStudentID(), false))
                     .collect(Collectors.toList());
-        
-                return confirmationRequests;
                 
         default:
                throw new RuntimeException("You don't have permission to access");
