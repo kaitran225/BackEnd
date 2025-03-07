@@ -8,9 +8,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface ProgramScheduleRepository extends JpaRepository<ProgramSchedule, String> {
-
 
     @Modifying
     @Transactional
@@ -19,4 +20,6 @@ public interface ProgramScheduleRepository extends JpaRepository<ProgramSchedule
 
     @Query("SELECT p.scheduleID FROM ProgramSchedule p ORDER BY p.scheduleID DESC LIMIT 1")
     String findLastProgramScheduleId();
+
+    List<ProgramSchedule> findByProgramID(String programID);
 }

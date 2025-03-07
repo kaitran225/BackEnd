@@ -5,7 +5,9 @@ import com.healthy.backend.dto.event.EventDetails;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.ProgramParticipationRepository;
+import com.healthy.backend.repository.ProgramScheduleRepository;
 import com.healthy.backend.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ public class EventMapper {
     private final PsychologistsMapper psychologistsMapper;
     private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
+    private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
     private final StudentRepository studentRepository;
 
@@ -42,7 +45,7 @@ public class EventMapper {
                 .toList();
 
         List<ProgramsResponse> programsResponses = programs.stream()
-                .map(programMapper::buildBasicProgramResponse)
+                .map(this::getProgramBasicResponse)
                 .toList();
 
         Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);
@@ -68,7 +71,7 @@ public class EventMapper {
                 .toList();
 
         List<ProgramsResponse> programsResponses = programs.stream()
-                .map(programMapper::buildBasicProgramResponse)
+                .map(this::getProgramBasicResponse)
                 .toList();
 
         Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);
@@ -116,8 +119,7 @@ public class EventMapper {
                 .map(p -> {
                     List<String> studentIDList = programParticipationRepository.findStudentIDsByProgramID(p.getProgramID());
                     List<Students> students = studentRepository.findAllById(studentIDList);
-                    return programMapper.buildProgramsDetailsResponse(p,
-                            students.stream().map(studentMapper::buildBasicStudentResponse).toList());
+                    return getProgramDetailsResponse(p,students);
                 })
                 .toList();
 
@@ -149,5 +151,19 @@ public class EventMapper {
             dateMap.get(date).getProgram().add(programsResponses.get(programs.indexOf(program)));
         }
         return dateMap;
+    }
+
+    private ProgramsResponse getProgramBasicResponse(Programs program) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        return programMapper.buildBasicProgramResponse(program,
+                programSchedule.getLast());
+    }
+
+    private ProgramsResponse getProgramDetailsResponse(Programs program,List<Students> students) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        return programMapper.buildProgramsDetailsResponse(program,
+                students.stream().map(studentMapper::buildBasicStudentResponse).toList(),programSchedule.getLast());
     }
 }
