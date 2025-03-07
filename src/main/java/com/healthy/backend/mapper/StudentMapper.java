@@ -1,14 +1,16 @@
 package com.healthy.backend.mapper;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class StudentMapper {
@@ -82,9 +84,9 @@ public class StudentMapper {
                 .grade(student.getStudentDetails().getGrade())
                 .className(student.getStudentDetails().getClassName())
                 .schoolName(student.getStudentDetails().getSchoolName())
-                .depressionScore(0)
-                .anxietyScore(0)
-                .stressScore(0)
+                .depressionScore(BigDecimal.valueOf(0.0))
+                .anxietyScore(BigDecimal.valueOf(0.0))
+                .stressScore(BigDecimal.valueOf(0.0))
                 .user(user)
                 .build();
     }

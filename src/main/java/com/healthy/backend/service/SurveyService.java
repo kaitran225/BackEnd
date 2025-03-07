@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
-import java.lang.classfile.instruction.SwitchCase;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,7 +136,7 @@ public class SurveyService {
     }
 
     private List<SurveyResult> getSurveyResultByStudentIDAndSurveyID(String surveyID, String studentId) {
-        return surveyResultRepository.findSurveyIDAndStudentID(surveyID, studentId);
+        return surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentId);
     }
 
     public SurveyQuestionResponse getSurveyResultByStudentID(HttpServletRequest request, String surveyID, String studentId) {
@@ -355,7 +357,9 @@ public class SurveyService {
     private String calculateTotalRightQuestion(List<SurveyQuestions> questions, List<String> options, Surveys survey, Students student) {
         Map<String, Integer> mapScore = new HashMap<>();
         int sum = 0;
-        int count = questions.size() * 3;
+        int count = questions.size();
+        int count1 = 0;
+        
 
         questions.forEach(question -> {
 
@@ -368,16 +372,29 @@ public class SurveyService {
         for (String surveyQuestionOption : options) {
             sum += mapScore.getOrDefault(surveyQuestionOption, 0);
         }
+        
+
         switch (survey.getCategoryID()) {
-            case "CAT001" -> student.setStressScore(sum);
-            case "CAT002" -> student.setAnxietyScore(sum);
-            case "CAT003" -> student.setDepressionScore(sum);
+            case "CAT001" -> {
+                newAvgScore(survey, sum, student);
+                count1 = count * 4;
+            }
+            case "CAT002" -> {
+                newAvgScore(survey, sum, student);
+                count1 = count * 3;
+            } 
+            
+            case "CAT003" -> {
+                newAvgScore(survey, sum, student);
+                count1 = count * 3;
+            } 
+
             default -> {
                 throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
             }
         }
 
-        return sum + "/" + count;
+        return sum + "/" + count1;
 
     }
 
@@ -387,6 +404,7 @@ public class SurveyService {
 
         Surveys survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found survey"));
+                
 
         List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
         int sizeQues = surveyQuestionRepository.countQuestionInSuv(surveyId);
@@ -405,6 +423,13 @@ public class SurveyService {
         String[] parts = total.split("/");
         String firstParts = parts[0];
         int num = Integer.parseInt(firstParts);
+        
+        int result = switch (survey.getCategoryID()) {
+            case "CAT001" -> sizeQues * 4;
+            case "CAT002" -> sizeQues * 3;
+            case "CAT003" -> sizeQues * 3;
+            default -> throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
+        };
 
         if (total != null) {
             SurveyResult surveyResult = new SurveyResult();
@@ -413,7 +438,7 @@ public class SurveyService {
             surveyResult.setResultID(newResultId);
             surveyResult.setStudentID(studentId);
             surveyResult.setSurveyID(surveyId);
-            surveyResult.setMaxScore(sizeQues * 3);
+            surveyResult.setMaxScore(result);
             surveyResult.setResult(num);
 
             surveyResultRepository.save(surveyResult);
@@ -463,7 +488,7 @@ public class SurveyService {
                     List<StatusStudent> statusStuList = students.stream()
                         .map(student -> {
                             
-                            List<SurveyResult> surveyResultSTD = surveyResultRepository.findSurveyIDAndStudentID(
+                            List<SurveyResult> surveyResultSTD = surveyResultRepository.findBySurveyIDAndStudentID(
                                 survey.getSurveyID(),
                                 student.getStudentID());
 
@@ -555,8 +580,6 @@ public class SurveyService {
                 : "COMPLETED";
     }
 
-    
-
     public List<ConfirmationRequest> getLowScoringStudentsForAppointment(HttpServletRequest request, String surveyId) {
         Role role = tokenService.retrieveUser(request).getRole();
         switch (role) {
@@ -579,7 +602,6 @@ public class SurveyService {
         default:
                throw new RuntimeException("You don't have permission to access");
         }
-
         
     }
 
@@ -587,6 +609,81 @@ public class SurveyService {
 
        return !requests.stream().anyMatch(request -> !request.isConfirmation());
     }
+
+    // public double canculateScoreAvgStudent(String surveyId, String studentId) {
+    //     List<SurveyResult> resultList = surveyResultRepository.findSurveyIDAndStudentID(surveyId, studentId);
+    //     if(resultList.isEmpty()) {
+    //         return 0.0;
+    //     }
+
+    //     int totalWeightScore = IntStream.range(0, resultList.size())
+    //         .map(num -> resultList.get(num).getResult() * (num + 1))
+    //         .sum();
+        
+    //     int totalWeight = IntStream.range(1, resultList.size() + 1).sum();
+
+    //     return (double) totalWeightScore / totalWeight;
+
+    // }
+
+    public void newAvgScore(Surveys survey, int result, Students student) {
+            String categoryId = survey.getCategoryID();
+            int size = surveyResultRepository.countResultStudent(survey.getSurveyID(), student.getStudentID());
+            BigDecimal newAverage = BigDecimal.ZERO;
+            
+            switch (categoryId) {
+                case "CAT001":
+                    BigDecimal currentAvgStressScore = student.getStressScore();
+                    newAverage = calculateNewWeightedAvg(
+                        currentAvgStressScore,
+                        result,
+                        size);
+                    
+                    student.setStressScore(newAverage);
+                    studentRepository.save(student);
+                    break;
+
+                case "CAT002":
+                    BigDecimal currentAvgAnxietyScore = student.getAnxietyScore();
+                    newAverage = calculateNewWeightedAvg(
+                        currentAvgAnxietyScore,
+                        result,
+                        size);
+                    
+                    student.setAnxietyScore(newAverage);
+                    studentRepository.save(student);
+                    break;
+
+                case "CAT003" :
+                    BigDecimal currentAvgDepressionScore = student.getDepressionScore();
+                    newAverage = calculateNewWeightedAvg(
+                        currentAvgDepressionScore,
+                        result,
+                        size);
+                    
+                    student.setDepressionScore(newAverage);
+                    studentRepository.save(student);
+                    break;
+                           
+                default:
+                    throw new AssertionError("Invalid category ID");
+                }    
+
+    }
+
+    public BigDecimal calculateNewWeightedAvg(BigDecimal presentResult, int result, int size) {
+        int totalWeightBefore = (size * (size + 1)) / 2;
+        int newWeight = size + 1;
+
+        BigDecimal weightCurrentTotal = presentResult.multiply(BigDecimal.valueOf(totalWeightBefore));
+        BigDecimal weightNewTotal = BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(newWeight));
+        BigDecimal totalWeights = BigDecimal.valueOf(totalWeightBefore).add(BigDecimal.valueOf(newWeight));
+    
+        BigDecimal newAverage = (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, BigDecimal.ROUND_HALF_UP);
+        System.out.println(newAverage);
+        return newAverage;
+
+    }    
 
 
 
