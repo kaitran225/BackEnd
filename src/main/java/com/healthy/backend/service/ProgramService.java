@@ -13,13 +13,12 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -75,6 +74,45 @@ public class ProgramService {
         return programMapper.buildProgramTagResponse(newTag);
     }
 
+    private boolean checkIfTimeSlotExists(String facilitatorId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        Psychologists psychologist = psychologistRepository.findById(facilitatorId).orElseThrow(() -> new ResourceNotFoundException("Facilitator not found"));
+        return timeSlotRepository.existsByPsychologistAndSlotDateAndStartTimeAndEndTime(psychologist, date, startTime, endTime);
+    }
+
+    private void createMissingTimeSlots(String facilitatorId, ProgramsRequest programsRequest) {
+        List<LocalDate> scheduleDates = generateWeeklySchedule(
+                programsRequest.getStartDate(),
+                programsRequest.getDuration(),
+                programsRequest.getWeeklyScheduleRequest().getWeeklyAt());
+
+        LocalTime programStartTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
+        LocalTime programEndTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
+
+    }
+
+    @Transactional
+    private void setTimeSlotUnavailable(String facilitatorId, ProgramsRequest programsRequest) {
+        List<LocalDate> scheduleDates = generateWeeklySchedule(
+                programsRequest.getStartDate(),
+                programsRequest.getDuration(),
+                programsRequest.getWeeklyScheduleRequest().getWeeklyAt());
+
+        LocalTime programStartTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
+        LocalTime programEndTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
+
+        List<TimeSlots> timeSlots = new ArrayList<>();
+        for (LocalDate date : scheduleDates) {
+            timeSlots.addAll(timeSlotRepository.findByPsychologistIdAndDate(facilitatorId, date));
+        }
+
+        List<TimeSlots> occupiedSlots = timeSlots.stream()
+                .filter(slot -> slot.getStartTime().isBefore(programEndTime) && slot.getEndTime().isAfter(programStartTime))
+                .collect(Collectors.toList());
+
+        occupiedSlots.forEach(slot -> slot.setStatus(TimeslotStatus.UNAVAILABLE));
+
+        timeSlotRepository.saveAll(occupiedSlots);
+    }
 
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, String userId) {
         String programId = __.generateProgramID();
@@ -85,7 +123,10 @@ public class ProgramService {
 
         validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
 
+        setTimeSlotUnavailable(facilitator.getPsychologistID(), programsRequest);
+
         Programs program = buildProgram(programId, programsRequest, department, facilitator, tags, staffUser);
+
 
         validateParticipantCount(programId, programsRequest.getNumberParticipants());
 
@@ -502,21 +543,7 @@ public class ProgramService {
         return (startTime1.isBefore(endTime2) && endTime1.isAfter(startTime2));
     }
 
-    private boolean checkIfPsychologistIsAvailable(String psychologistId, List<LocalDate> scheduleDates) {
 
-        for (LocalDate scheduleDate : scheduleDates) {
-            List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
-                    .stream()
-                    .filter(slot -> slot.getStatus().equals(TimeslotStatus.BOOKED))
-                    .toList();
-
-            if (!timeSlots.isEmpty()) {
-                return false;
-            }
-        }
-        // If no booked time slots are found across all dates, return true (psychologist is available)
-        return true;
-    }
 
     private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
         List<LocalDate> conflictingDates = new ArrayList<>(List.of());
@@ -548,6 +575,25 @@ public class ProgramService {
                                                    String endDate, String dateOfWeek) {
 
         int duration = calculateDurationInWeeks(LocalDate.parse(startDate), LocalDate.parse(endDate));
+
+        LocalDate start = LocalDate.parse(startDate);
+
+        DayOfWeek targetDay = DayOfWeek.valueOf(dateOfWeek.toUpperCase());
+
+        List<LocalDate> scheduleDates = new ArrayList<>();
+
+        LocalDate nextOccurrence = getNextDayOfWeek(start, targetDay);
+        scheduleDates.add(nextOccurrence);
+
+        for (int i = 1; i < duration; i++) {
+            nextOccurrence = nextOccurrence.plusWeeks(1); // Add one week
+            scheduleDates.add(nextOccurrence);
+        }
+        return scheduleDates;
+    }
+
+    private List<LocalDate> generateWeeklySchedule(String startDate,
+                                                   int duration, String dateOfWeek) {
 
         LocalDate start = LocalDate.parse(startDate);
 
@@ -781,5 +827,21 @@ public class ProgramService {
                     }
                 })
                 .toList();
+    }
+
+    private boolean _checkIfPsychologistIsAvailable(String psychologistId, List<LocalDate> scheduleDates) {
+
+        for (LocalDate scheduleDate : scheduleDates) {
+            List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
+                    .stream()
+                    .filter(slot -> slot.getStatus().equals(TimeslotStatus.BOOKED))
+                    .toList();
+
+            if (!timeSlots.isEmpty()) {
+                return false;
+            }
+        }
+        // If no booked time slots are found across all dates, return true (psychologist is available)
+        return true;
     }
 }
