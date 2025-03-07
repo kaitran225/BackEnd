@@ -36,6 +36,10 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT COUNT(DISTINCT sr.studentID) FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
     int countDistinctStudentsBySurveyID(@Param("surveyID") String surveyID);
 
+    @Query("SELECT DISTINCT sr.studentID FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
+    List<String> findStudentsBySurveyID(@Param("surveyID") String surveyID);
+    
+
     @Query("SELECT sr FROM SurveyResult sr JOIN FETCH sr.choices WHERE sr.resultID = :resultID")
     SurveyResult findByIdWithChoices(@Param("resultID") String resultID);
 

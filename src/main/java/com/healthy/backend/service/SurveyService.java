@@ -1,5 +1,6 @@
 package com.healthy.backend.service;
 
+import java.lang.classfile.instruction.SwitchCase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.healthy.backend.dto.survey.ConfirmationRequest;
 import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.QuestionResponse;
 import com.healthy.backend.dto.survey.StatusStudent;
@@ -444,7 +446,6 @@ public class SurveyService {
         surveyQuestionOptionsChoicesRepository.saveAll(choiceList);
     }
 
-
     private List<SurveysResponse> getSurveyResult(List<Students> students,String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
         HashMap<String, String> map = new HashMap<>();
@@ -494,11 +495,10 @@ public class SurveyService {
                     getTotalQuestion(survey),
                     ID.contains("PRT") ? null : getSurveyStatus(survey),
                     statusStuList);
-
-
                 })
                 .collect(Collectors.toList());                      
        } 
+    
 
     @Transactional
     public int calculateTotalScore(List<SurveyQuestionOptionsChoices> questionOptionsChoices) {
@@ -555,57 +555,40 @@ public class SurveyService {
                 : "COMPLETED";
     }
 
-//     public Feedback submitSurveyFeedback(HttpServletRequest request, String surveyId, String feedbackComment, Integer rating) {
     
-//     Role role = tokenService.retrieveUser(request).getRole();
-    
-   
-//     switch (role) {
-//         case MANAGER:
-//         case PSYCHOLOGIST:
-            
-//             Surveys survey = surveyRepository.findById(surveyId)
-//                     .orElseThrow(() -> new ResourceNotFoundException("Survey not found"));
-   
-            
-//             List<SurveyResult> surveyResults = surveyResultRepository.findBySurveyID(surveyId);
-            
-            
-//             for (SurveyResult surveyResult : surveyResults) {
+
+    public List<ConfirmationRequest> getLowScoringStudentsForAppointment(HttpServletRequest request, String surveyId) {
+        Role role = tokenService.retrieveUser(request).getRole();
+        switch (role) {
+            case MANAGER:
+            case PSYCHOLOGIST:    
+                List<String> studentIdList = surveyResultRepository.findStudentsBySurveyID(surveyId);
+                List<SurveyResult> resultList = studentIdList.stream()
+                    .map(student -> {
+                        return surveyResultRepository.findByStudentID(student).getLast();
+                    })
+                    .collect(Collectors.toList());
+
+                List<ConfirmationRequest> confirmationRequests = resultList.stream()
+                    .filter(result -> result.getResult() == 0 || result.getResult() > (0.95 * result.getMaxScore()))
+                    .map(result -> new ConfirmationRequest(result.getStudentID(), false))
+                    .collect(Collectors.toList());
+        
+                return confirmationRequests;
                 
-//                 if (surveyResult.getResult() >= 15) {
-                    
-//                     Appointments appointment = new Appointments();
-//                     appointment.setAppointmentID(UUID.randomUUID().toString());  
-//                     appointment.setStudentID(surveyResult.getStudentID());  
-//                     appointment.setPsychologistID(assignedPsychologistId);  
-//                     appointment.setStatus(AppointmentStatus.SCHEDULED);  
+        default:
+               throw new RuntimeException("You don't have permission to access");
+        }
 
-                    
-//                     appointmentRepository.save(appointment);
+        
+    }
 
-//                     Notifications notification = new Notifications();
-//                     notification.setAppointment(appointment);
-//                     notification.setMessage("You have a new appointment scheduled.");
-//                     notificationsRepository.save(notification);
-//                 }
-//             }
+    public boolean handleAppointmentRequest(List<ConfirmationRequest> requests) {
 
-           
-//             Feedback feedback = new Feedback();
-//             feedback.setComment(feedbackComment); 
-//             feedback.setRating(rating);  
-//             feedback.setAppointment(appointment);  
-            
-//             feedbackRepository.save(feedback);
+       return !requests.stream().anyMatch(request -> !request.isConfirmation());
+    }
 
-//             return feedback;
 
-//         default:
-           
-//             throw new AssertionError("Unauthorized role. Only Managers and Psychologists can submit feedback.");
-//     }
-// }
 
 
 }

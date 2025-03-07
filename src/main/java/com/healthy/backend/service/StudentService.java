@@ -41,8 +41,7 @@ public class StudentService {
     private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
     private final AppointmentMapper appointmentMapper;
-    private final SurveyQuestionOptionsChoicesRepository surveyQuestionOptionsChoicesRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
 
     public boolean isStudentExist(String studentId) {
@@ -61,6 +60,7 @@ public class StudentService {
                 .map(studentMapper::buildStudentResponse)
                 .toList();
     }
+
     public String getStudentIdByUserId(String userId) {
         Students students = studentRepository.findByUserID(userId);
         if (students == null) {
@@ -153,12 +153,7 @@ public class StudentService {
             throw new OperationFailedException("You don't have permission to view this student programs");
         }
         return programParticipationRepository.findByStudentID(studentId).stream()
-                .map(p -> programMapper.buildProgramResponse(
-                        programRepository
-                                .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(p.getProgram().getProgramID()).size()
-                )).toList();
+                .map(p -> getProgramResponse(p.getProgram())).toList();
     }
 
     public List<ProgramsResponse> getCompletedPrograms(String studentId, HttpServletRequest request) {
@@ -172,12 +167,7 @@ public class StudentService {
             throw new ResourceNotFoundException("No enrolled programs found");
         }
         return participation.stream()
-                .map(p -> programMapper.buildProgramResponse(
-                        programRepository
-                                .findById(p.getProgram().getProgramID())
-                                .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                        getStudentsByProgram(p.getProgram().getProgramID()).size()
-                ))
+                .map(p -> getProgramResponse(p.getProgram()))
                 .toList();
     }
 
@@ -232,5 +222,15 @@ public class StudentService {
             return tokenService.getRoleID(tokenService.retrieveUser(request));
         }
         return studentId;
+    }
+
+    private ProgramsResponse getProgramResponse(Programs program) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        return programMapper.buildProgramResponse(
+                programRepository
+                        .findById(program.getProgramID())
+                        .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
+                getStudentsByProgram(program.getProgramID()).size(), programSchedule.getLast());
     }
 }

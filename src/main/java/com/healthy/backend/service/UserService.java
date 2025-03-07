@@ -29,6 +29,7 @@ public class UserService {
     private final SurveyResultRepository surveyResultRepository;
     private final PsychologistRepository psychologistRepository;
     private final ProgramParticipationRepository programParticipationRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
 
     private final UserMapper userMapper;
     private final EventMapper eventMapper;
@@ -126,6 +127,7 @@ public class UserService {
                 null,
                 null);
     }
+
     private UsersResponse getPsychologistDetails(Users user) {
         return userMapper.buildUserDetailsResponse(
                 user,
@@ -302,20 +304,23 @@ public class UserService {
     private List<ProgramsResponse> getUserProgramFacility(String id) {
         return programRepository.findByFacilitatorID(id)
                 .stream()
-                .map(programs -> programMapper.buildProgramsDetailsResponse(programs,
-                        programParticipationRepository.findStudentIDsByProgramID(
-                                        programs.getProgramID()).stream()
-                                .map(studentRepository::findByStudentID)
-                                .map(studentMapper::buildStudentResponse)
-                                .peek(sr -> {
-                                    ProgramParticipation programParticipation = programParticipationRepository
-                                            .findByProgramIDAndStudentID(programs.getProgramID(), sr.getStudentId()).getLast();
-                                    if (programParticipation != null) {
-                                        sr.setProgramStatus(programParticipation.getStatus().name());
-                                    }
-                                })
-                                .toList()
-                )).toList();
+                .map(programs -> {
+                            List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(programs.getProgramID());
+                            return programMapper.buildProgramsDetailsResponse(programs,
+                                    programParticipationRepository.findStudentIDsByProgramID(
+                                                    programs.getProgramID()).stream()
+                                            .map(studentRepository::findByStudentID)
+                                            .map(studentMapper::buildStudentResponse)
+                                            .peek(sr -> {
+                                                ProgramParticipation programParticipation = programParticipationRepository
+                                                        .findByProgramIDAndStudentID(programs.getProgramID(), sr.getStudentId()).getLast();
+                                                if (programParticipation != null) {
+                                                    sr.setProgramStatus(programParticipation.getStatus().name());
+                                                }
+                                            })
+                                            .toList(), programSchedule.getLast());
+                        }
+                ).toList();
     }
 
     // Get user program participation
@@ -324,11 +329,16 @@ public class UserService {
         List<ProgramParticipation> participation = programParticipationRepository.findByStudentID(student);
         // Construct responses
         return participation.stream()
-                .map(programParticipation -> programMapper.buildProgramResponse(
-                        programParticipation.getProgram(),
-                        programParticipationRepository.findStudentIDsByProgramID(
-                                programParticipation.getProgramID()).size()
-                ))
+                .map(programParticipation -> {
+                    ProgramSchedule programSchedule = programScheduleRepository
+                            .findByProgramID(programParticipation.getProgramID()).getLast();
+                    return programMapper.buildProgramResponse(
+                            programParticipation.getProgram(),
+                            programParticipationRepository.findStudentIDsByProgramID(
+                                    programParticipation.getProgramID()).size(),
+                            programSchedule
+                    );
+                })
                 .toList();
     }
 

@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -29,8 +30,12 @@ public class ProgramsResponse {
     private String description;
     @Schema(example = "2023-01-01")
     private LocalDate startDate;
+    @Schema(example = "2023-01-02")
+    private LocalDate endDate;
     @Schema(example = "2")
     private Integer duration;
+    @Schema(example = "")
+    private ProgramWeeklyScheduleResponse weeklySchedule;
     @Schema(example = "10")
     private Integer currentParticipants;
     @Schema(example = "20")
