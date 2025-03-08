@@ -30,8 +30,12 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT COUNT(sr) > 0 FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     boolean existsBySurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
-    @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
-    List<SurveyResult> findSurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+    @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID = :studentID")
+    List<SurveyResult> findBySurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+
+    @Query("SELECT COUNT(sr) FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
+    int countResultStudent(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
+
     
     @Query("SELECT COUNT(DISTINCT sr.studentID) FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
     int countDistinctStudentsBySurveyID(@Param("surveyID") String surveyID);
@@ -43,7 +47,6 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT sr FROM SurveyResult sr JOIN FETCH sr.choices WHERE sr.resultID = :resultID")
     SurveyResult findByIdWithChoices(@Param("resultID") String resultID);
 
-    List<SurveyResult> findBySurveyIDAndStudentID(String surveyID, String studentID);
 
     // @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     // List<SurveyResult> findByResult(@Param("surveyID") String surveyID, @Param("studentID") String studentID);

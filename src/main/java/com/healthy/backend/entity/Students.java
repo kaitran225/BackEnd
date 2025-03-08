@@ -1,8 +1,21 @@
 package com.healthy.backend.entity;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import lombok.*;
+import java.math.BigDecimal;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -33,14 +46,14 @@ public class Students {
     @Column(name = "SchoolName", length = 100)
     private String schoolName;
 
-    @Column(name = "AnxietyScore")
-    private Integer anxietyScore;
+    @Column(name = "AnxietyScore", precision = 5, scale = 2)
+    private BigDecimal anxietyScore;
 
-    @Column(name = "StressScore")
-    private Integer stressScore;
+    @Column(name = "StressScore", precision = 5, scale = 2)
+    private BigDecimal stressScore;
 
-    @Column(name = "DepressionScore")
-    private Integer depressionScore;
+    @Column(name = "DepressionScore", precision = 5, scale = 2)
+    private BigDecimal depressionScore;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
@@ -50,7 +63,7 @@ public class Students {
     @JoinColumn(name = "ParentID", referencedColumnName = "ParentID", insertable = false, updatable = false)
     private Parents parents;
 
-    public Students(String studentID, String userID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
+    public Students(String studentID, String userID, Integer grade, String className, String schoolName, BigDecimal anxietyScore, BigDecimal depressionScore, BigDecimal stressScore) {
         this.studentID = studentID;
         this.userID = userID;
         this.grade = grade;
@@ -60,7 +73,7 @@ public class Students {
         this.anxietyScore = anxietyScore;
         this.stressScore = stressScore;
     }
-    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, Integer anxietyScore, Integer depressionScore, Integer stressScore) {
+    public Students(String studentID, String userID, String parentID, Integer grade, String className, String schoolName, BigDecimal anxietyScore, BigDecimal depressionScore, BigDecimal stressScore) {
         this.studentID = studentID;
         this.userID = userID;
         this.parentID = parentID;
