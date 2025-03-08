@@ -41,7 +41,11 @@ public class Programs {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "FacilitatorID", length = 36, nullable = false,insertable=false, updatable=false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CreatedByUser", referencedColumnName = "UserID", nullable = false)
+    private Users createdByUser;
+
+    @Column(name = "FacilitatorID", length = 36, nullable = false, insertable = false, updatable = false)
     private String facilitatorID;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,14 +55,17 @@ public class Programs {
     @Column(name = "StartDate")
     private LocalDate startDate;
 
+    @Column(name = "EndDate")
+    private LocalDate endDate;
+
     @Column(name = "MeetingLink", length = 255)
     private String meetingLink;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "AppointmentType", length =  50, nullable = false)
+    @Column(name = "AppointmentType", length = 50, nullable = false)
     private ProgramType type;
 
-    @Column(name = "DepartmentID", length = 36, nullable = false,insertable = false, updatable = false)
+    @Column(name = "DepartmentID", length = 36, nullable = false, insertable = false, updatable = false)
     private String departmentID;
 
     @Column(name = "Rating")
@@ -76,35 +83,56 @@ public class Programs {
     )
     private Set<Tags> tags = new HashSet<>();
 
-    @OneToMany(mappedBy = "programs",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "programs", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
     public Programs(
-            String programID,
-            String programName,
-            String description,
-            int i, int i1, ProgramStatus status,
-            Department department,
-            Psychologists psychologists,
-            HashSet<Tags> tags,
-            LocalDate startDate,
-            String meetingLink,
-            ProgramType type) {
+            String programID, String programName,
+            String description, int maxParticipants, int duration,
+            ProgramStatus status, Department department,
+            Psychologists psychologists, HashSet<Tags> tags, LocalDate startDate,
+            String meetingLink, ProgramType type, String userID) {
         this.programID = programID;
         this.programName = programName;
         this.description = description;
-        this.numberParticipants = i;
-        this.duration = i1;
+        this.numberParticipants = duration;
+        this.duration = maxParticipants;
         this.status = status;
         this.department = department;
         this.psychologists = psychologists;
         this.tags = tags;
         this.startDate = startDate;
         this.type = type;
+        this.endDate = startDate.plusDays(duration);
         this.meetingLink = meetingLink;
         this.facilitatorID = psychologists.getPsychologistID();
         this.departmentID = department.getDepartmentID();
     }
+
+    public Programs(
+            String programID, String programName,
+            String description, int maxParticipants, int duration,
+            ProgramStatus status, Department department,
+            Psychologists psychologists, HashSet<Tags> tags, LocalDate startDate,
+            String meetingLink, ProgramType type, Users createdByUser) {
+        this.programID = programID;
+        this.programName = programName;
+        this.description = description;
+        this.numberParticipants = maxParticipants;
+        this.duration = duration;
+        this.status = status;
+        this.department = department;
+        this.psychologists = psychologists;
+        this.tags = tags;
+        this.startDate = startDate;
+        this.type = type;
+        this.endDate = startDate.plusDays(duration);
+        this.meetingLink = meetingLink;
+        this.facilitatorID = psychologists.getPsychologistID();
+        this.departmentID = department.getDepartmentID();
+        this.createdByUser = createdByUser;
+    }
+
 
     @PrePersist
     protected void onCreate() {

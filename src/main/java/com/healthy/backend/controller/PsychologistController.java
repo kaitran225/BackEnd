@@ -53,6 +53,7 @@ public class PsychologistController {
     private final TokenService tokenService;
     private final StudentRepository studentRepository;
 
+
     @Operation(summary = "Get all psychologists")
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {

@@ -74,6 +74,9 @@ public class Appointments {
     private List<Feedback> feedbacks;
 
 
+    @Column(name = "CancellationReason", columnDefinition = "TEXT")
+    private String cancellationReason;
+
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;

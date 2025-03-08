@@ -20,9 +20,6 @@ public class ProgramSchedule {
     @Column(name = "ScheduleID", length = 36, nullable = false)
     private String scheduleID;
 
-    @Column(name = "ProgramID", length = 36, nullable = false)
-    private String programID;
-
     @Column(name = "DayOfWeek", length = 10, nullable = false)
     private String dayOfWeek;
 
@@ -32,15 +29,19 @@ public class ProgramSchedule {
     @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
 
+    @Column(name = "ProgramID", length = 36, nullable = false)
+    private String programID;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProgramID", referencedColumnName = "ProgramID", insertable = false, updatable = false)
+    @JoinColumn(name = "Program", referencedColumnName = "ProgramID", nullable = false)
     private Programs program;
 
-    public ProgramSchedule(String scheduleID, String programID, String dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public ProgramSchedule(String scheduleID, Programs program, String dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.scheduleID = scheduleID;
-        this.programID = programID;
+        this.program = program;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.programID = program.getProgramID();
     }
 } 

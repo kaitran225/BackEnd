@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -150,7 +151,6 @@ public class DataInitializer implements CommandLineRunner {
     }
 
 
-
     private void initializeTags() {
         List<Tags> tags = Arrays.stream(ProgramTags.values())
                 .map(tag -> new Tags(String.format("TAG%03d", tag.ordinal() + 1), tag))
@@ -164,76 +164,77 @@ public class DataInitializer implements CommandLineRunner {
                 departmentRepository.findById("DPT006").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
-                LocalDate.parse("2025-02-23"), "https://example.com/meeting1", ProgramType.ONLINE));
+                LocalDate.parse("2025-02-23"), "https://example.com/meeting1", ProgramType.ONLINE,
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG002", "Anxiety Support Group",
                 "Support group for individuals with anxiety", 15, 6, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT006").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
-                LocalDate.parse("2025-02-25"), "https://example.com/meeting2", ProgramType.OFFLINE));
+                LocalDate.parse("2025-02-25"), "https://example.com/meeting2", ProgramType.OFFLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG003", "Mindfulness Workshop",
                 "Workshop on mindfulness techniques", 25, 3, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT003").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
-                LocalDate.parse("2025-02-28"), "https://example.com/meeting3", ProgramType.ONLINE));
+                LocalDate.parse("2025-02-28"), "https://example.com/meeting3", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG004", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-03-01"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-03-01"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG005", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-03-12"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-03-12"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG006", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-03-22"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-03-22"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG007", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-03-28"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-03-28"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG008", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY002").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-04-20"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-04-20"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG009", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-04-22"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-04-22"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
         programRepository.save(new Programs("PRG010", "Depression Counseling",
                 "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
                 departmentRepository.findById("DPT007").orElseThrow(),
                 psychologistRepository.findById("PSY001").orElseThrow(),
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.parse("2025-04-28"), "https://example.com/meeting4", ProgramType.ONLINE));
+                LocalDate.parse("2025-04-28"), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
 
     }
 
     private void initializeProgramSchedule() {
         // Initialize Program Schedule
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG001", "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG002", "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG003", "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG004", "Friday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG005", "Saturday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG006", "Wednesday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG007", "Tuesday", LocalTime.parse("08:30:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG008", "Monday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG009", "Tuesday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), "PRG010", "Monday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG001").orElseThrow(), "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG002").orElseThrow(), "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG003").orElseThrow(), "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG004").orElseThrow(), "Friday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG005").orElseThrow(), "Saturday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG006").orElseThrow(), "Wednesday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG007").orElseThrow(), "Tuesday", LocalTime.parse("08:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG008").orElseThrow(), "Monday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG009").orElseThrow(), "Tuesday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
+        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(), programRepository.findById("PRG010").orElseThrow(), "Monday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
     }
 
     private void initializeCategories() {
@@ -437,7 +438,6 @@ public class DataInitializer implements CommandLineRunner {
         surveyQuestionOptionsRepository.save(new SurveyQuestionOptions("SQO121", "SQR028", "More than half the days", 2));
         surveyQuestionOptionsRepository.save(new SurveyQuestionOptions("SQO122", "SQR028", "Nearly every day", 3));
 
-
     }
 
     private void initializeSurveyResults() {
@@ -552,7 +552,7 @@ public class DataInitializer implements CommandLineRunner {
     private void initScore() {
         List<SurveyResult> surveyResults = surveyResultRepository.findAll();
         surveyResults.forEach(
-                result ->{
+                result -> {
                     result.setMaxScore(surveyService.calculateMaxScore(result.getSurvey()));
                     result.setResult(surveyService.calculateTotalScore(result.getResultID()));
                 }
