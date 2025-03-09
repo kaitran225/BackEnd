@@ -240,7 +240,7 @@ public class ProgramController {
         throw new ResourceNotFoundException("Failed to register for program");
     }
 
-    // Submit feedback
+    // Create a program tag
     @PostMapping("/tags/create")
     public ResponseEntity<?> createProgramTag(
             @RequestBody ProgramTagRequest programTagRequest,
@@ -254,7 +254,7 @@ public class ProgramController {
     }
 
     // Submit feedback
-    @Operation(deprecated = true, summary = "Submit feedback", description = "Submits feedback for a specific program.")
+    @Operation(hidden = true, deprecated = true, summary = "Submit feedback", description = "Submits feedback for a specific program.")
     @PostMapping("/{programId}/feedback")
     public ResponseEntity<?> submitFeedback(@RequestParam String programId) {
         return ResponseEntity.ok("Feedback submitted for program " + programId);
