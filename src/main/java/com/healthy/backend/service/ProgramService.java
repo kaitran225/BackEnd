@@ -2,7 +2,6 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
 import com.healthy.backend.exception.OperationFailedException;
@@ -739,7 +738,7 @@ public class ProgramService {
 
 
     @Transactional
-    private List<TimeSlotResponse> createTimeSlotsFromDefaults(
+    private void createTimeSlotsFromDefaults(
             String psychologistId,
             LocalDate slotDate,
             List<String> defaultSlotIds
@@ -779,10 +778,6 @@ public class ProgramService {
         if (!newSlots.isEmpty()) {
             timeSlotRepository.saveAll(newSlots);
         }
-
-        return newSlots.stream()
-                .map(timeSlotsMapper::toResponse)
-                .toList();
     }
 
 
