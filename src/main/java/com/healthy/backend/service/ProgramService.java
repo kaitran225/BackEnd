@@ -2,6 +2,7 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
+import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
 import com.healthy.backend.exception.OperationFailedException;
@@ -9,6 +10,7 @@ import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
+import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -36,11 +38,13 @@ public class ProgramService {
     private final DepartmentRepository departmentRepository;
     private final PsychologistRepository psychologistRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
 
     private final ProgramMapper programMapper;
     private final StudentMapper studentMapper;
+    private final TimeSlotMapper timeSlotsMapper;
 
     private final GeneralService __;
     private final NotificationService notificationService;
@@ -85,6 +89,15 @@ public class ProgramService {
         LocalTime programStartTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
         LocalTime programEndTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
 
+        for (LocalDate date : scheduleDates) {
+            if (!checkIfTimeSlotExists(facilitatorId, date, programStartTime, programEndTime)) {
+                createTimeSlotsFromDefaults(
+                        facilitatorId,
+                        date,
+                        getDefaultSlotIds(programStartTime, programEndTime)
+                );
+            }
+        }
     }
 
     @Transactional
@@ -119,6 +132,8 @@ public class ProgramService {
         Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId(), department);
 
         validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
+
+        createMissingTimeSlots(facilitator.getPsychologistID(), programsRequest);
 
         setTimeSlotUnavailable(facilitator.getPsychologistID(), programsRequest);
 
@@ -696,6 +711,83 @@ public class ProgramService {
     public void scheduledStatusUpdate() {
         System.out.println("Checking program statuses at midnight...");
         updateProgramStatuses();
+    }
+
+    private final Map<String, LocalTime> DEFAULT_SLOT_IDS = Map.ofEntries(
+            // Morning
+            Map.entry("MORNING-00", LocalTime.of(8, 0)), Map.entry("MORNING-01", LocalTime.of(8, 30)),
+            Map.entry("MORNING-02", LocalTime.of(9, 0)), Map.entry("MORNING-03", LocalTime.of(9, 30)),
+            Map.entry("MORNING-04", LocalTime.of(10, 0)), Map.entry("MORNING-05", LocalTime.of(10, 30)),
+            // Afternoon
+            Map.entry("AFTERNOON-00", LocalTime.of(13, 0)), Map.entry("AFTERNOON-01", LocalTime.of(13, 30)),
+            Map.entry("AFTERNOON-02", LocalTime.of(14, 0)), Map.entry("AFTERNOON-03", LocalTime.of(14, 30)),
+            Map.entry("AFTERNOON-04", LocalTime.of(15, 0)), Map.entry("AFTERNOON-05", LocalTime.of(15, 30)),
+            Map.entry("AFTERNOON-06", LocalTime.of(16, 0)), Map.entry("AFTERNOON-07", LocalTime.of(16, 30))
+    );
+
+    private List<String> getDefaultSlotIds(LocalTime startTime, LocalTime endTime) {
+        return DEFAULT_SLOT_IDS.entrySet().stream()
+                .filter(entry -> {
+                    LocalTime slotStart = entry.getValue();
+                    LocalTime slotEnd = slotStart.plusMinutes(30);
+                    return (slotStart.isBefore(endTime) || slotStart.equals(endTime)) &&
+                            (slotEnd.isAfter(startTime) || slotEnd.equals(startTime));
+                })
+                .map(Map.Entry::getKey)
+                .toList();
+    }
+
+
+    @Transactional
+    private List<TimeSlotResponse> createTimeSlotsFromDefaults(
+            String psychologistId,
+            LocalDate slotDate,
+            List<String> defaultSlotIds
+    ) {
+        Psychologists psychologist = psychologistRepository.findById(psychologistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
+
+        List<DefaultTimeSlot> defaultSlots = defaultTimeSlotRepository.findAllById(defaultSlotIds);
+        if (defaultSlots.size() != defaultSlotIds.size()) {
+            throw new ResourceNotFoundException("Some default slots not found");
+        }
+
+        // Fetch all existing slots in one query
+        List<TimeSlots> existingSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologist.getPsychologistID(), slotDate);
+        Set<String> existingTimeRanges = existingSlots.stream()
+                .map(slot -> slot.getStartTime() + "-" + slot.getEndTime())
+                .collect(Collectors.toSet());
+
+        List<TimeSlots> newSlots = new ArrayList<>();
+
+        for (DefaultTimeSlot defaultSlot : defaultSlots) {
+            String slotKey = defaultSlot.getStartTime() + "-" + defaultSlot.getEndTime();
+
+            if (!existingTimeRanges.contains(slotKey)) {
+                TimeSlots slot = new TimeSlots();
+                slot.setSlotDate(slotDate);
+                slot.setStartTime(defaultSlot.getStartTime());
+                slot.setEndTime(defaultSlot.getEndTime());
+                slot.setPsychologist(psychologist);
+                slot.setMaxCapacity(3); // Default capacity
+                slot.setStatus(TimeslotStatus.UNAVAILABLE);
+                slot.setTimeSlotsID(generateSlotId(psychologistId, slotDate, defaultSlot.getSlotId()));
+                newSlots.add(slot);
+            }
+        }
+
+        if (!newSlots.isEmpty()) {
+            timeSlotRepository.saveAll(newSlots);
+        }
+
+        return newSlots.stream()
+                .map(timeSlotsMapper::toResponse)
+                .toList();
+    }
+
+
+    private String generateSlotId(String psychologistId, LocalDate date, String defaultSlotId) {
+        return "TS-" + psychologistId + "-" + date.toString() + "-" + defaultSlotId;
     }
 
 
