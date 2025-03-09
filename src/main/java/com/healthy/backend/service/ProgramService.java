@@ -89,11 +89,12 @@ public class ProgramService {
         LocalTime programEndTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
 
         for (LocalDate date : scheduleDates) {
-            if (!checkIfTimeSlotExists(facilitatorId, date, programStartTime, programEndTime)) {
+            List<String> defaultSlotIds = getDefaultSlotIds(programStartTime, programEndTime);
+            if (!checkIfTimeSlotExists(facilitatorId, date, programStartTime, programEndTime) || defaultSlotIds.isEmpty()) {
                 createTimeSlotsFromDefaults(
                         facilitatorId,
                         date,
-                        getDefaultSlotIds(programStartTime, programEndTime)
+                        defaultSlotIds
                 );
             }
         }
@@ -128,7 +129,7 @@ public class ProgramService {
         Users staffUser = fetchUser(userId);
         HashSet<Tags> tags = fetchTags(programsRequest.getTags());
         Department department = fetchDepartment(programsRequest.getDepartmentId());
-        Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId(), department);
+        Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId());
 
         validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
 
@@ -151,6 +152,33 @@ public class ProgramService {
         saveProgramAndSchedule(program, programSchedule);
 
         return getProgramById(programId, null);
+    }
+
+    public void _createProgram(ProgramsRequest programsRequest, Users user) {
+        String programId = __.generateProgramID();
+        Users staffUser = fetchUser(user.getUserId());
+        HashSet<Tags> tags = fetchTags(programsRequest.getTags());
+        Department department = fetchDepartment(programsRequest.getDepartmentId());
+        Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId());
+
+        validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
+
+        createMissingTimeSlots(facilitator.getPsychologistID(), programsRequest);
+
+        setTimeSlotUnavailable(facilitator.getPsychologistID(), programsRequest);
+
+        Programs program = buildProgram(programId, programsRequest, department, facilitator, tags, staffUser);
+
+
+        validateParticipantCount(programId, programsRequest.getNumberParticipants());
+
+        ProgramSchedule programSchedule = createProgramSchedule(
+                program,
+                programsRequest.getWeeklyScheduleRequest().getWeeklyAt(),
+                programsRequest.getWeeklyScheduleRequest().getStartTime(),
+                programsRequest.getWeeklyScheduleRequest().getEndTime()
+        );
+        saveProgramAndSchedule(program, programSchedule);
     }
 
 
@@ -319,14 +347,9 @@ public class ProgramService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + departmentId));
     }
 
-    private Psychologists fetchFacilitator(String facilitatorId, Department department) {
-        Psychologists facilitator = psychologistRepository.findById(facilitatorId)
+    private Psychologists fetchFacilitator(String facilitatorId) {
+        return psychologistRepository.findById(facilitatorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + facilitatorId));
-
-        if (!facilitator.getDepartmentID().equals(department.getDepartmentID())) {
-            throw new OperationFailedException("Facilitator does not belong to the specified department");
-        }
-        return facilitator;
     }
 
     private Programs buildProgram(String programId, ProgramsRequest request, Department department,
@@ -541,10 +564,10 @@ public class ProgramService {
 
         List<LocalDate> scheduleDates = generateWeeklySchedule(programsRequest);
 
-        LocalTime programStartTime = LocalTime.parse(programsRequest
-                .getWeeklyScheduleRequest().getStartTime(), DateTimeFormatter.ofPattern("h:mm a"));
-        LocalTime programEndTime = LocalTime.parse(programsRequest
-                .getWeeklyScheduleRequest().getEndTime(), DateTimeFormatter.ofPattern("h:mm a"));
+        LocalTime programStartTime = parseTime(programsRequest
+                .getWeeklyScheduleRequest().getStartTime());
+        LocalTime programEndTime = parseTime(programsRequest
+                .getWeeklyScheduleRequest().getEndTime());
 
         return validateTimeSlotOverlaps(scheduleDates, facilitator.getPsychologistID(), programStartTime, programEndTime);
     }
