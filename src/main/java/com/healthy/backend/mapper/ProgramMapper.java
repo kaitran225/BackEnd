@@ -3,6 +3,8 @@ package com.healthy.backend.mapper;
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.ParticipationStatus;
+import com.healthy.backend.enums.Role;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -52,7 +54,7 @@ public class ProgramMapper {
                 .build();
     }
 
-    public ProgramsResponse buildProgramResponse(Programs program,Integer enrolledCount, ProgramSchedule programSchedule) {
+    public ProgramsResponse buildProgramResponse(Programs program, Integer enrolledCount, ProgramSchedule programSchedule, String programStatus) {
         return ProgramsResponse.builder()
                 .programID(program.getProgramID())
                 .title(program.getProgramName())
@@ -67,6 +69,7 @@ public class ProgramMapper {
                 .departmentName(program.getPsychologists().getDepartment().getName())
                 .tags(program.getTags().stream().map(Tags::getTagName).map(String::toUpperCase).collect(Collectors.toSet()))
                 .type(program.getType().toString())
+                .studentStatus(programStatus)
                 .meetingLink(program.getMeetingLink())
                 .build();
     }

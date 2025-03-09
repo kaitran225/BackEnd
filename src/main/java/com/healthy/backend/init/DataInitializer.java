@@ -568,9 +568,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeArticles() {
-        MentalHealthArticlesData.getMentalHealthArticles().forEach(article -> {
-            articleRepository.save(article);
-        });
+        MentalHealthArticlesData.getMentalHealthArticles().forEach(articleRepository::save);
 
     
         // articleRepository.save(new Article("ATC001", "Managing Stress", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing stress..."));

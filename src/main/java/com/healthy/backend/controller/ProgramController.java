@@ -1,6 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.programs.*;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -16,8 +17,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -80,7 +83,15 @@ public class ProgramController {
         if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
             throw new OperationFailedException("You don't have permission to get program tags");
         }
-        List<ProgramsResponse> programsResponseList = programService.getAllPrograms();
+        Users user = tokenService.retrieveUser(request);
+        List<ProgramsResponse> programsResponseList = programService.getAllPrograms(
+                switch (user.getRole()) {
+                    case STUDENT -> tokenService.getRoleID(user);
+                    case PSYCHOLOGIST, MANAGER, PARENT -> null;
+                    default ->
+                            throw new IllegalArgumentException("Invalid role: " + user.getRole());
+                }
+        );
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(programsResponseList);
     }
@@ -124,7 +135,15 @@ public class ProgramController {
         if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
             throw new OperationFailedException("You don't have permission to get program tags");
         }
-        ProgramsResponse programsResponse = programService.getProgramById(programId);
+        Users user = tokenService.retrieveUser(request);
+        ProgramsResponse programsResponse = programService.getProgramById(programId,
+                switch (user.getRole()) {
+                    case STUDENT -> tokenService.getRoleID(user);
+                    case PSYCHOLOGIST, MANAGER, PARENT -> null;
+                    default ->
+                            throw new IllegalArgumentException("Invalid role: " + user.getRole());
+                }
+        );
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");
         return ResponseEntity.ok(programsResponse);
     }

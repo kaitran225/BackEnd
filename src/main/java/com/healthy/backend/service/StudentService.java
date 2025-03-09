@@ -153,7 +153,9 @@ public class StudentService {
             throw new OperationFailedException("You don't have permission to view this student programs");
         }
         return programParticipationRepository.findByStudentID(studentId).stream()
-                .map(p -> getProgramResponse(p.getProgram())).toList();
+                .map(p -> getProgramResponse(p.getProgram(),
+                        studentRepository.findByStudentID(studentId)
+                )).toList();
     }
 
     public List<ProgramsResponse> getCompletedPrograms(String studentId, HttpServletRequest request) {
@@ -167,7 +169,9 @@ public class StudentService {
             throw new ResourceNotFoundException("No enrolled programs found");
         }
         return participation.stream()
-                .map(p -> getProgramResponse(p.getProgram()))
+                .map(p -> getProgramResponse(p.getProgram(),
+                        studentRepository.findByStudentID(studentId)
+                ))
                 .toList();
     }
 
@@ -224,13 +228,24 @@ public class StudentService {
         return studentId;
     }
 
-    private ProgramsResponse getProgramResponse(Programs program) {
+    private ProgramsResponse getProgramResponse(Programs program, Students student) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        String status = null;
+        if (student != null) {
+            List<ProgramParticipation> participation =
+                    programParticipationRepository.findByProgramIDAndStudentID(program.getProgramID(), student.getStudentID());
+
+            if (!participation.isEmpty()) {
+                status = String.valueOf(participation.getLast().getStatus());
+            }
+        }
         return programMapper.buildProgramResponse(
                 programRepository
                         .findById(program.getProgramID())
                         .orElseThrow(() -> new ResourceNotFoundException("Program not found")),
-                getStudentsByProgram(program.getProgramID()).size(), programSchedule.getLast());
+                getStudentsByProgram(program.getProgramID()).size(), programSchedule.getLast(),
+                status
+        );
     }
 }

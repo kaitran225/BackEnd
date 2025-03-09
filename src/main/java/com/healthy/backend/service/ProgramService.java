@@ -3,10 +3,7 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.ParticipationStatus;
-import com.healthy.backend.enums.ProgramStatus;
-import com.healthy.backend.enums.ProgramType;
-import com.healthy.backend.enums.TimeslotStatus;
+import com.healthy.backend.enums.*;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -55,12 +52,12 @@ public class ProgramService {
         return programs.stream().map(this::getProgramDetailsResponse).toList();
     }
 
-    public List<ProgramsResponse> getAllPrograms() {
+    public List<ProgramsResponse> getAllPrograms(String studentID) {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(program -> {
             List<StudentResponse> enrolled = getActiveStudentsByProgram(program.getProgramID());
-            return getProgramResponse(program);
+            return getProgramResponse(program, studentID);
         }).toList();
     }
 
@@ -139,14 +136,14 @@ public class ProgramService {
 
         saveProgramAndSchedule(program, programSchedule);
 
-        return getProgramById(programId);
+        return getProgramById(programId, null);
     }
 
 
-    public ProgramsResponse getProgramById(String programId) {
+    public ProgramsResponse getProgramById(String programId, String studentID) {
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
-        return getProgramResponse(program);
+        return getProgramResponse(program, studentID);
     }
 
     public List<ProgramTagResponse> getProgramTags() {
@@ -234,7 +231,7 @@ public class ProgramService {
         return participationList.stream()
                 .map(participation -> {
                     Programs program = participation.getProgram();
-                    return getProgramResponse(program);
+                    return getProgramResponse(program, studentId);
                 }).toList();
     }
 
@@ -269,25 +266,9 @@ public class ProgramService {
         updateAndSaveProgramDetails(program, updateRequest, tags);
         updateProgramSchedule(programScheduleRepository.findByProgramID(programId).getLast(), updateRequest);
 
-        return getProgramResponse(program);
+        return getProgramResponse(program, null);
     }
 
-
-    public ProgramsResponse getProgramParticipants(String programId) {
-
-        Programs program = programRepository.findById(programId).orElse(null);
-        if (program == null) throw new ResourceNotFoundException("Program not found");
-        List<StudentResponse> studentResponses = getActiveStudentsByProgram(programId)
-                .stream()
-                .filter(studentResponse -> {
-                    ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
-                    return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
-                })
-                .collect(Collectors.toList());
-        if (studentResponses.isEmpty()) programMapper.buildProgramsParticipantResponse(program, new ArrayList<>());
-        return programMapper.buildProgramsParticipantResponse(program, studentResponses);
-    }
 
     private List<StudentResponse> getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
@@ -463,12 +444,42 @@ public class ProgramService {
         programScheduleRepository.save(programSchedule);
     }
 
-    private ProgramsResponse getProgramResponse(Programs program) {
+    private ProgramsResponse getProgramResponse(Programs program, String studentID) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
+
+        Students student = studentRepository.findByStudentID(studentID);
+
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
-        return programMapper.buildProgramResponse(program,
-                getActiveStudentsByProgram(program.getProgramID()).size(),
-                programSchedule.getLast());
+        ProgramSchedule lastSchedule = programSchedule.isEmpty() ? null : programSchedule.getLast();
+
+        Integer activeStudentsCount = getActiveStudentsByProgram(program.getProgramID()).size();
+
+        String status = null;
+        if (student != null) {
+            List<ProgramParticipation> participation =
+                    programParticipationRepository.findByProgramIDAndStudentID(program.getProgramID(), student.getStudentID());
+            if (!participation.isEmpty()) {
+                status = String.valueOf(participation.getLast().getStatus());
+            }
+        }
+        return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
+    }
+
+
+    public ProgramsResponse getProgramParticipants(String programId) {
+
+        Programs program = programRepository.findById(programId).orElse(null);
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<StudentResponse> studentResponses = getActiveStudentsByProgram(programId)
+                .stream()
+                .filter(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
+                    return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
+                })
+                .collect(Collectors.toList());
+        if (studentResponses.isEmpty()) return programMapper.buildProgramsParticipantResponse(program, List.of());
+        return programMapper.buildProgramsParticipantResponse(program, studentResponses);
     }
 
     private ProgramsResponse getProgramDetailsResponse(Programs program) {
@@ -542,7 +553,6 @@ public class ProgramService {
     private boolean isTimeOverlap(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
         return (startTime1.isBefore(endTime2) && endTime1.isAfter(startTime2));
     }
-
 
 
     private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
@@ -731,10 +741,10 @@ public class ProgramService {
 
         programRepository.save(program);
         programScheduleRepository.save(programSchedule);
-        return getProgramById(programId);
+        return getProgramById(programId, null);
     }
 
-    public ProgramsResponse _updateProgram(String programId, ProgramUpdateRequest updateRequest) {
+    private ProgramsResponse _updateProgram(String programId, ProgramUpdateRequest updateRequest) {
 
         Programs program = programRepository.findById(programId).orElse(null);
         if (program == null) throw new ResourceNotFoundException("Program not found");
@@ -808,7 +818,7 @@ public class ProgramService {
         }
         program.setTags(tags);
         programRepository.save(program);
-        return getProgramResponse(program);
+        return getProgramResponse(program, null);
     }
 
     private List<StudentResponse> _getStudentsByProgram(String programId) {
