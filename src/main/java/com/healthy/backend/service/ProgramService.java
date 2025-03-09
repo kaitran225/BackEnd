@@ -679,7 +679,7 @@ public class ProgramService {
         LocalDate today = LocalDate.now();
         List<Programs> programs = programRepository.findAll();
 
-        for (Programs program : programs) {
+        programs.forEach(program -> {
             LocalDate endDate = program.getStartDate().plusDays(program.getDuration());
 
             // Change PENDING → IN_PROGRESS
@@ -690,8 +690,16 @@ public class ProgramService {
             // Change IN_PROGRESS → COMPLETED
             if (program.getStatus() == ProgramStatus.IN_PROGRESS && endDate.isBefore(today)) {
                 program.setStatus(ProgramStatus.COMPLETED);
+                // Update participation status
+                List<ProgramParticipation> programParticipationList = programParticipationRepository.findByProgramID(program.getProgramID());
+                programParticipationList.forEach(participation -> {
+                    if (participation.getStatus().equals(ParticipationStatus.JOINED)) {
+                        participation.setStatus(ParticipationStatus.COMPLETED);
+                    }
+                });
+                programParticipationRepository.saveAll(programParticipationList);
             }
-        }
+        });
 
         programRepository.saveAll(programs); // Bulk update
         System.out.println("Program statuses updated: " + today);
