@@ -266,6 +266,9 @@ public class AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new ResourceInvalidException("Appointment is already completed");
         }
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new ResourceInvalidException("Cannot cancel an appointment that CANCELLED");
+        }
 
         // Cập nhật trạng thái appointment
         appointment.setStatus(AppointmentStatus.CANCELLED);

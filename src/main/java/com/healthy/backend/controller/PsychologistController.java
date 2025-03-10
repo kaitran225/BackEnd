@@ -193,6 +193,8 @@ public class PsychologistController {
                 request.getDefaultSlotIds()
         );
         return ResponseEntity.ok(responses);
+
+
     }
 
 

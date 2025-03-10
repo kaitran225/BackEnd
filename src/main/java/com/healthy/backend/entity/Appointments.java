@@ -79,7 +79,7 @@ public class Appointments {
 
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notifications> notifications;
+    private List<Notifications > notifications;
 
     public Appointments() {
         this.status = AppointmentStatus.SCHEDULED;
