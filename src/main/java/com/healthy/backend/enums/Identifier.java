@@ -17,6 +17,7 @@ public enum Identifier {
     PRT,  // ProgramParticipation
     PRS,  // ProgramSchedule
     ART,  // Article
+    ATC,
     LOG,  // UserLog
     PAR,  // Parent
     DPT,  // Department
