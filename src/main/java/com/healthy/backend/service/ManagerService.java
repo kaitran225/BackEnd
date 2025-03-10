@@ -169,7 +169,6 @@ public class ManagerService {
     }
 
     private final  NotificationService notificationService;
-
     @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
     public void sendWeeklyKpiReminders() {
         synchronized (notificationLock) {
