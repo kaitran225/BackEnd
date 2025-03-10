@@ -158,7 +158,7 @@ public class ManagerService {
     }
 
     private final  NotificationService notificationService;
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(cron = "0 0 0 * * MON") // Temporary fix for host
     public void sendWeeklyKpiReminders() {
         NotificationSchedule schedule = notificationScheduleRepository.findFirstByOrderByNotificationTimeAsc();
 
