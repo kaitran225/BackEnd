@@ -336,7 +336,8 @@ public class UserService {
                             programParticipation.getProgram(),
                             programParticipationRepository.findStudentIDsByProgramID(
                                     programParticipation.getProgramID()).size(),
-                            programSchedule
+                            programSchedule,
+                            programParticipation.getStudentID()
                     );
                 })
                 .toList();

@@ -54,7 +54,9 @@ public class ProgramsResponse {
     private String type;
     @Schema(example = "https://zoom.us/j/123456789")
     private String meetingLink;
-    @Schema(example = "10")
+    @Schema(example = "")
+    private String studentStatus;
+    @Schema(example = "")
     private List<StudentResponse> enrolled;
 }
 
