@@ -194,14 +194,14 @@ public class ManagerService {
                 if (kpi != null && kpi.getTargetSlots() > kpi.getAchievedSlots()) {
                     int remaining = kpi.getTargetSlots() - kpi.getAchievedSlots();
                     String message = String.format(
-                            "Bạn cần đạt thêm %d slot trong tháng %d để hoàn thành chỉ tiêu KPI.",
+                            "You need to reach %d more slots in month %d to complete KPI target.",
                             remaining,
                             currentMonth
                     );
 
                     notificationService.createAppointmentNotification(
                             psychologist.getUserID(),
-                            "Nhắc nhở KPI hàng tuần",
+                            "Weekly KPI reminder",
                             message,
                             null
                     );
@@ -327,12 +327,6 @@ public class ManagerService {
         stats.setStatusDistribution(distribution);
         return stats;
     }
-
-
-
-
-
-
 
 
 }

@@ -74,10 +74,12 @@ public class ProgramService {
         return programMapper.buildProgramTagResponse(newTag);
     }
 
+
     private boolean checkIfTimeSlotExists(String facilitatorId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         Psychologists psychologist = psychologistRepository.findById(facilitatorId).orElseThrow(() -> new ResourceNotFoundException("Facilitator not found"));
         return timeSlotRepository.existsByPsychologistAndSlotDateAndStartTimeAndEndTime(psychologist, date, startTime, endTime);
     }
+
 
     private void createMissingTimeSlots(String facilitatorId, ProgramsRequest programsRequest) {
         List<LocalDate> scheduleDates = generateWeeklySchedule(

@@ -53,7 +53,11 @@ public class ManagerController {
             @RequestParam String psychologistId,
             @RequestParam int month,
             @RequestParam int year,
-            @RequestParam int targetSlots) {
+            @RequestParam int targetSlots,
+            HttpServletRequest  httpServlet) {
+        if (!tokenService.validateRole(httpServlet, Role.MANAGER)) {
+            throw new IllegalArgumentException("Unauthorized access");
+        }
 
         managerService.setKpiForPsychologist(psychologistId, month, year, targetSlots);
 
@@ -71,7 +75,11 @@ public class ManagerController {
     @PostMapping("/notification-schedule")
     public ResponseEntity<NotificationScheduleResponse> setNotificationSchedule(
             @RequestParam String notificationTime,
-            @RequestParam DayOfWeek notificationDay) {
+            @RequestParam DayOfWeek notificationDay,
+    HttpServletRequest httpRequest) {
+        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
+            throw new IllegalArgumentException("Unauthorized access");
+        }
 
         LocalTime time = LocalTime.parse(notificationTime);
         managerService.setNotificationSchedule(time, notificationDay);

@@ -219,7 +219,8 @@ public class PsychologistService {
             String psychologistId,
             LocalDate slotDate,
             List<String> defaultSlotIds
-    ) {
+    )
+    {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 
