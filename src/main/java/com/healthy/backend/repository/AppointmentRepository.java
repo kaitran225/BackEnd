@@ -25,7 +25,9 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
             "FROM Appointments a " +
-            "WHERE a.studentID = :studentId AND a.timeSlotsID = :timeSlotId")
+            "WHERE a.studentID = :studentId " +
+            "AND a.timeSlotsID = :timeSlotId " +
+            "AND a.status != com.healthy.backend.enums.AppointmentStatus.CANCELLED")
     boolean existsByStudentIDAndTimeSlotsID(
             @Param("studentId") String studentId,
             @Param("timeSlotId") String timeSlotId);
