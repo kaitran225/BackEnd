@@ -302,6 +302,4 @@ public class PsychologistService {
                 .collect(Collectors.toList());
     }
 
-
-
 }

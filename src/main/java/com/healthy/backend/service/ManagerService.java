@@ -17,9 +17,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.mysql.cj.conf.PropertyKey.logger;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +40,17 @@ public class ManagerService {
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final ProgramParticipationRepository programParticipationRepository;
-    private final ProgramRepository programRepository;
     private final StudentRepository studentRepository;
     private final TagsRepository tagsRepository;
 
-
+    private NotificationSchedule cachedSchedule = null;
+    private LocalDateTime lastScheduleCheck = null;
     private LocalDate lastNotificationDate = null;
+    private final Object notificationLock = new Object();
+    private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
+
+
+
 
 
     public ManagerDashboardResponse getDashboardStats(String filter, Integer value) {
@@ -158,56 +169,77 @@ public class ManagerService {
     }
 
     private final  NotificationService notificationService;
-    @Scheduled(fixedRate = 1000)
+
+    @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
     public void sendWeeklyKpiReminders() {
-        NotificationSchedule schedule = notificationScheduleRepository.findFirstByOrderByNotificationTimeAsc();
+        synchronized (notificationLock) {
+            try {
+                // 1. Cập nhật cache lịch trình
+                refreshScheduleCache();
 
-        if (schedule == null) {
-            return; // Nếu chưa thiết lập thời gian, không gửi thông báo
+                // 2. Kiểm tra điều kiện gửi
+                if (cachedSchedule == null) return;
+
+                LocalDate today = LocalDate.now();
+                LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+
+                // 3. Kiểm tra ngày và giờ
+                if (shouldSendNotification(today, now)) {
+                    // 4. Thực hiện gửi thông báo
+                    sendNotifications();
+
+                    // 5. Cập nhật trạng thái
+                    lastNotificationDate = today;
+                }
+            } catch (Exception e) {
+                // Xử lý exception
+                logger.error("Error sending KPI reminders: {}", e.getMessage(), e);
+            }
         }
+    }
 
-        LocalTime now = LocalTime.now();
-        DayOfWeek today = LocalDate.now().getDayOfWeek();
-
-        if (lastNotificationDate != null && lastNotificationDate.equals(LocalDate.now())) {
-            return;
+    private void refreshScheduleCache() {
+        if (cachedSchedule == null
+                || lastScheduleCheck == null
+                || lastScheduleCheck.isBefore(LocalDateTime.now().minusMinutes(5))) {
+            cachedSchedule = notificationScheduleRepository.findFirstByOrderByNotificationTimeAsc();
+            lastScheduleCheck = LocalDateTime.now();
         }
+    }
+    private boolean shouldSendNotification(LocalDate today, LocalTime now) {
+        return cachedSchedule.getNotificationDay() == today.getDayOfWeek()
+                && now.equals(cachedSchedule.getNotificationTime().truncatedTo(ChronoUnit.MINUTES))
+                && (lastNotificationDate == null || !lastNotificationDate.equals(today));
+    }
+    private void sendNotifications() {
+        LocalDate todayDate = LocalDate.now();
+        int currentMonth = todayDate.getMonthValue();
+        int currentYear = todayDate.getYear();
 
-        // Kiểm tra nếu thời gian hiện tại khớp với thời gian đã thiết lập
-        if (today.equals(schedule.getNotificationDay())
-                && now.getHour() == schedule.getNotificationTime().getHour()
-                && now.getMinute() == schedule.getNotificationTime().getMinute()) {
+        List<Psychologists> psychologists = psychologistRepository.findAll();
 
-            LocalDate todayDate = LocalDate.now();
-            int currentMonth = todayDate.getMonthValue();
-            int currentYear = todayDate.getYear();
+        for (Psychologists psychologist : psychologists) {
+            PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(
+                    psychologist.getPsychologistID(),
+                    currentMonth,
+                    currentYear
+            );
 
-            List<Psychologists> psychologists = psychologistRepository.findAll();
-
-            for (Psychologists psychologist : psychologists) {
-                PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(
-                        psychologist.getPsychologistID(),
-                        currentMonth,
-                        currentYear
+            if (kpi != null && kpi.getTargetSlots() > kpi.getAchievedSlots()) {
+                int remaining = kpi.getTargetSlots() - kpi.getAchievedSlots();
+                String message = String.format(
+                        "You need to reach %d more slots in month %d to complete KPI target.",
+                        remaining,
+                        currentMonth
                 );
 
-                if (kpi != null && kpi.getTargetSlots() > kpi.getAchievedSlots()) {
-                    int remaining = kpi.getTargetSlots() - kpi.getAchievedSlots();
-                    String message = String.format(
-                            "You need to reach %d more slots in month %d to complete KPI target.",
-                            remaining,
-                            currentMonth
-                    );
-
-                    notificationService.createAppointmentNotification(
-                            psychologist.getUserID(),
-                            "Weekly KPI reminder",
-                            message,
-                            null
-                    );
-                }
+                notificationService.createAppointmentNotification(
+                        psychologist.getUserID(),
+                        "Weekly KPI reminder",
+                        message,
+                        null
+                );
             }
-            lastNotificationDate = LocalDate.now();
         }
     }
 
@@ -239,6 +271,9 @@ public class ManagerService {
         schedule.setNotificationTime(notificationTime);
         schedule.setNotificationDay(notificationDay);
         notificationScheduleRepository.save(schedule);
+
+        cachedSchedule = schedule;
+        lastScheduleCheck = LocalDateTime.now();
     }
 
 
