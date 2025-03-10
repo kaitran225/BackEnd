@@ -85,8 +85,9 @@ public class UserController {
             @RequestParam(required = false) String userId,
             HttpServletRequest request) {
         userId = tokenService.validateRequestUserID(request, userId);
+
         if (tokenService.validateUID(request, userId)
-                && !tokenService.isManager(request)) {
+                && !tokenService.isManager(request) && !tokenService.isParent(request)) {
             throw new OperationFailedException("You can not get other users details");
         }
         UsersResponse user = userService.getUserDetailsById(userId);

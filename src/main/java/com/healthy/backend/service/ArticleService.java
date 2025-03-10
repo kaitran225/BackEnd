@@ -39,8 +39,6 @@ public class ArticleService {
         switch (role) {
             case MANAGER:
             case PSYCHOLOGIST:
-                
-
                 Article article = Article.builder()
                 .articleID(__.generateArticleID())
                 .title(request.getTitle())
@@ -96,7 +94,7 @@ public class ArticleService {
 
     if (request.getTags() != null) {
         for (String tagName : request.getTags()) {
-            Tags tag = tagsRepository.findByTagName(tagName)
+            Tags tag = tagsRepository.findById(tagName)
                 .orElseThrow(() -> new RuntimeException("Tag not found: " + tagName));
             articleTags.add(tag);
         }

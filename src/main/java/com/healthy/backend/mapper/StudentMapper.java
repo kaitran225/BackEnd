@@ -59,6 +59,25 @@ public class StudentMapper {
                 .build();
     }
 
+    public StudentResponse buildParentStudentResponse(
+            Students student) {
+        return StudentResponse.builder()
+                .userId(student.getUser().getUserId())
+                .studentId(student.getStudentID())
+                .grade(student.getGrade())
+                .fullName(student.getUser().getFullName())
+                .email(student.getUser().getEmail())
+                .phone(student.getUser().getPhoneNumber())
+                .address(student.getUser().getAddress())
+                .gender(student.getUser().getGender().toString())
+                .className(student.getClassName())
+                .schoolName(student.getSchoolName())
+                .depressionScore(student.getDepressionScore())
+                .anxietyScore(student.getAnxietyScore())
+                .stressScore(student.getStressScore())
+                .build();
+    }
+
     public StudentResponse buildStudentResponse(
             Students student) {
         return StudentResponse.builder()

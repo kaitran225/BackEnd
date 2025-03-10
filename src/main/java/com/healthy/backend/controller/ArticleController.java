@@ -1,29 +1,20 @@
 package com.healthy.backend.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.healthy.backend.dto.article.ArticleRequest;
 import com.healthy.backend.dto.article.ArticleResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.ArticleService;
-
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -41,14 +32,10 @@ public class ArticleController {
             summary = "Create a new article",
             description = "Creates a new article."
     )
-    public ResponseEntity<?> createArticle(HttpServletRequest requestUser, @RequestBody ArticleRequest article) {   
-        
+    public ResponseEntity<?> createArticle(
+            HttpServletRequest requestUser,
+            @RequestBody @Valid ArticleRequest article) {
         try {
-            System.out.println("Title: " + article.getTitle());  
-        System.out.println("Content: " + article.getContent());
-        System.out.println("Tags: " + article.getTags());
-        System.out.println("Likes: " + article.getLikes());
-
             articleService.createArticle(requestUser, article);
             return ResponseEntity.ok("Article created successfully");
         } catch (ResourceNotFoundException ex) {

@@ -149,7 +149,7 @@ public class UserService {
                 null,
                 null,
                 parent.getStudents().stream()
-                        .map(studentMapper::buildStudentResponse)
+                        .map(studentMapper::buildParentStudentResponse)
                         .toList());
     }
 
