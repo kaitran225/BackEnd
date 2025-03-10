@@ -1,16 +1,27 @@
 package com.healthy.backend.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.healthy.backend.dto.article.ArticleRequest;
 import com.healthy.backend.dto.article.ArticleResponse;
 import com.healthy.backend.entity.Article;
+import com.healthy.backend.entity.Tags;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.enums.Role;
+import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.ArticleMapper;
 import com.healthy.backend.repository.ArticleRepository;
+import com.healthy.backend.repository.TagsRepository;
 import com.healthy.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.healthy.backend.security.TokenService;
 
-import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -20,21 +31,29 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final GeneralService __;
     private final ArticleMapper articleMapper;
+    private final TokenService tokenService;
+    private final TagsRepository tagsRepository;
 
-    public ArticleResponse createArticle(ArticleRequest request) {
-        Users author = userRepository.findById(request.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("Author not found"));
+    public void createArticle(HttpServletRequest requestUser  ,ArticleRequest request) {
+        Role role = tokenService.retrieveUser(requestUser).getRole();
+        switch (role) {
+            case MANAGER:
+            case PSYCHOLOGIST:
+                
 
-        Article article = Article.builder()
+                Article article = Article.builder()
+                .articleID(__.generateArticleID())
                 .title(request.getTitle())
                 .content(request.getContent())
-                .category(request.getCategory())
-                .author(author)
+                .author(tokenService.retrieveUser(requestUser))
+                .articleTag(setArticleTag(request))
                 .likes(0)
                 .build();
-
-        articleRepository.save(article);
-        return articleMapper.mapToResponse(article);
+                articleRepository.save(article);
+            return;           
+        default:
+            throw new RuntimeException("You don't have permission to access this resource.");
+        }
     }
 
     public List<ArticleResponse> getAllArticles() {
@@ -49,39 +68,87 @@ public class ArticleService {
         return articleMapper.mapToResponse(article);
     }
 
-    public ArticleResponse updateArticle(String articleId, ArticleRequest request) {
-        Article article = articleRepository.findById(articleId)
+    public void updateArticle(String articleId, HttpServletRequest requestUser, ArticleRequest request) {
+        Role role = tokenService.retrieveUser(requestUser).getRole();
+        
+        switch (role) {
+            case MANAGER:
+            case PSYCHOLOGIST:
+
+         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
 
         article.setTitle(request.getTitle());
-        article.setContent(request.getContent());
-        article.setCategory(request.getCategory());
+        article.setContent(request.getContent());  
+        
+        article.setArticleTag(setArticleTag(request));
 
         articleRepository.save(article);
-        return articleMapper.mapToResponse(article);
-    }
-
-    public void deleteArticle(String articleId) {
-        if (!articleRepository.existsById(articleId)) {
-            throw new RuntimeException("Article not found");
+             
+        default:
+            throw new RuntimeException("You don't have permission to access this resource.");
         }
-        articleRepository.deleteById(articleId);
+        
     }
 
-    public List<ArticleResponse> getArticlesByCategory(String category) {
-        return articleRepository.findByCategory(category)
-                .stream().map(articleMapper::mapToResponse)
-                .toList();
+    public HashSet<Tags> setArticleTag(ArticleRequest request) {
+    HashSet<Tags> articleTags = new HashSet<>();
+
+    if (request.getTags() != null) {
+        for (String tagName : request.getTags()) {
+            Tags tag = tagsRepository.findByTagName(tagName)
+                .orElseThrow(() -> new RuntimeException("Tag not found: " + tagName));
+            articleTags.add(tag);
+        }
     }
+    return articleTags;
+    }   
+
+
+    public void deleteArticle(HttpServletRequest requestUser, String articleId) {
+        Role role = tokenService.retrieveUser(requestUser).getRole();
+        
+        switch (role) {
+            case MANAGER:
+
+            if (!articleRepository.existsById(articleId)) {
+                throw new RuntimeException("Article not found");
+            }
+            articleRepository.deleteById(articleId);
+             
+        default:
+            throw new RuntimeException("You don't have permission to access this resource.");
+        }        
+        
+        
+        
+    }
+
+    public List<ArticleResponse> getArticlesByTag(String tagName) {
+        List<Tags> tags = tagsRepository.findKeyWordInTag(tagName);
+
+        Set<Article> setArticle = tags.stream()
+            .flatMap(art -> art.getArticles().stream()) 
+            .collect(Collectors.toSet());
+
+        List<ArticleResponse> articleResponses = setArticle.stream()
+            .map(article -> {
+                return articleMapper.mapToResponse(article);
+            })   
+            .collect(Collectors.toList()); 
+
+        return articleResponses;    
+    }
+    
 
     public List<ArticleResponse> getArticlesByAuthor(String authorId) {
-        return articleRepository.findByAuthorId(authorId)
+        return articleRepository.findArticleByAuthor(authorId)
                 .stream().map(articleMapper::mapToResponse)
                 .toList();
     }
 
     public List<ArticleResponse> searchArticles(String keyword) {
-        return articleRepository.findByTitleContainingOrContentContaining(keyword, keyword)
+        return articleRepository.searchByKeyWordInTitle(keyword)
                 .stream().map(articleMapper::mapToResponse)
                 .toList();
     }

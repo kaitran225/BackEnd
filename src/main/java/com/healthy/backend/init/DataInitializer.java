@@ -52,6 +52,7 @@ public class DataInitializer implements CommandLineRunner {
     private final GeneralService __;
     private final AuthenticationService authenticationService;
     private final SurveyService surveyService;
+    private final MentalHealthArticlesData mentalHealthArticlesData;
 
     private void initialize() {
         registerUsers();
@@ -568,7 +569,8 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeArticles() {
-        MentalHealthArticlesData.getMentalHealthArticles().forEach(article -> {
+        List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
+        articles.forEach(article -> {
             articleRepository.save(article);
         });
 
