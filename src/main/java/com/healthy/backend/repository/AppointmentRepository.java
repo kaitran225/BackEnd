@@ -55,9 +55,16 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
                                    @Param("startDate") LocalDateTime startDate,
                                    @Param("endDate") LocalDateTime endDate);
 
-
+    @Query("SELECT a FROM Appointments a " +
+            "WHERE a.status = :status " +
+            "AND (:start IS NULL OR a.createdAt >= :start) " +
+            "AND (:end IS NULL OR a.createdAt <= :end)")
+    List<Appointments> findByStatusAndDateRange(
+            @Param("status") AppointmentStatus status,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+  
     @Query("SELECT a FROM Appointments a WHERE a.studentID = :studentID AND a.status IN ('SCHEDULED', 'IN_PROGRESS')")
-    List<Appointments> findScheduledOrInProgressAppointmentsByStudentId(@Param("studentID") String studentID);
-
-
+    List<Appointments> findScheduledOrInProgressAppointmentsByStudentId(@Param("studentID") String studentID)
 } 

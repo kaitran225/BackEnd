@@ -2,6 +2,7 @@ package com.healthy.backend.dto.manager;
 
 
 import com.healthy.backend.stats.AppointmentStats;
+import com.healthy.backend.stats.DepartmentStats;
 import com.healthy.backend.stats.ProgramStats;
 import com.healthy.backend.stats.SurveyStats;
 import lombok.AllArgsConstructor;
@@ -17,5 +18,6 @@ public class ManagerDashboardResponse {
     private SurveyStats surveyStats;
     private ProgramStats programStats;
     private AppointmentStats appointmentStats;
+    private DepartmentStats departmentStats;
     // getters & setters
 }
