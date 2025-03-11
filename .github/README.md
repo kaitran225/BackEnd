@@ -35,7 +35,7 @@ The project is actively being developed, and new features are continuously being
    ```
 2. Navigate to the project directory:  
    ```sh
-   cd mental-health-care-system
+   cd BackEnd
    ```
 3. Build and run the application:  
    ```sh

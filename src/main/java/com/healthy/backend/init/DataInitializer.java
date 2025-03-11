@@ -49,6 +49,7 @@ public class DataInitializer implements CommandLineRunner {
     private final AuthenticationService authenticationService;
     private final ProgramService programService;
     private final SurveyService surveyService;
+    private final MentalHealthArticlesData mentalHealthArticlesData;
 
     private void initialize() {
         registerUsers();
@@ -777,8 +778,11 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeArticles() {
-        MentalHealthArticlesData.getMentalHealthArticles().forEach(articleRepository::save);
-
+        List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
+        articles.forEach(article -> {
+            articleRepository.save(article);
+        });
+        // MentalHealthArticlesData.getMentalHealthArticles().forEach(articleRepository::save);
 
         // articleRepository.save(new Article("ATC001", "Managing Stress", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing stress..."));
         // articleRepository.save(new Article("ATC002", "Anxiety Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing anxiety..."));

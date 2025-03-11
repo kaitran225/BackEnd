@@ -58,7 +58,8 @@ public class SurveyMapper {
                 .score(score)
                 .build();
     }
-    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudent> status) {
+
+    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudent> status) {
         return SurveysResponse.builder()
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
@@ -74,23 +75,22 @@ public class SurveyMapper {
                 .completeStatus(completeStatus)
                 .statusStudent(status)
                 .build();
-        }           
+    }
 
-
-    public StatusStudent maptoResultStudent1(String status, String score, String studentId) {
+    public StatusStudent mapToResultStudent(String score, String status, String studentId) {
         return StatusStudent.builder()
+                .studentComplete(status)
                 .score(score)
                 .studentId(studentId)
                 .build();
     }
 
-//     public StatusStudent maptoResultStudent2(String status, String score, String studentId, String complete) {
-//         return StatusStudent.builder()
-//                 .score(score)
-//                 .studentId(studentId)
-//                 .completeStatus(complete)
-//                 .build();
-//     }
+    public StatusStudent mapToResultStudent(String score, String studentId) {
+        return StatusStudent.builder()
+                .score(score)
+                .studentId(studentId)
+                .build();
+    }
 
     public SurveyResultsResponse mapToListResultsResponse(Surveys survey, List<StatusStudent> std) {
         return SurveyResultsResponse.builder()
@@ -179,7 +179,7 @@ public class SurveyMapper {
 
     public SurveyQuestionResponse buildSurveyResultResponse(
             List<QuestionResponse> questionResponseList,
-            Surveys survey, String completeStatus,String score
+            Surveys survey, String completeStatus, String score
     ) {
         return SurveyQuestionResponse.builder()
                 .surveyId(survey.getSurveyID())

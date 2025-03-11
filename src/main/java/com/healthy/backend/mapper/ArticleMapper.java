@@ -1,19 +1,23 @@
 package com.healthy.backend.mapper;
 
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.healthy.backend.dto.article.ArticleResponse;
 import com.healthy.backend.entity.Article;
-import org.springframework.stereotype.Component;
+import com.healthy.backend.entity.Tags;
 
 @Component
 public class ArticleMapper {
     public ArticleResponse mapToResponse(Article article) {
-        return new ArticleResponse(
-                article.getArticleID(),
-                article.getTitle(),
-                article.getContent(),
-                article.getCategory(),
-                article.getAuthor().getFullName(),
-                article.getLikes()
-        );
+        return ArticleResponse.builder()
+            .articleId(article.getArticleID())
+            .authorName(article.getAuthor().getFullName())
+            .tags(article.getArticleTag().stream().map(Tags :: getTagName).map(String :: toUpperCase).collect(Collectors.toSet()))
+            .content(article.getContent())
+            .title(article.getTitle())
+            .likes(article.getLikes())
+            .build();
     }
 }
