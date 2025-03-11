@@ -66,5 +66,5 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     );
   
     @Query("SELECT a FROM Appointments a WHERE a.studentID = :studentID AND a.status IN ('SCHEDULED', 'IN_PROGRESS')")
-    List<Appointments> findScheduledOrInProgressAppointmentsByStudentId(@Param("studentID") String studentID)
+    List<Appointments> findScheduledOrInProgressAppointmentsByStudentId(@Param("studentID") String studentID);
 } 
