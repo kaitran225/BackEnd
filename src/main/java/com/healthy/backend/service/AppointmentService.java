@@ -226,6 +226,13 @@ public class AppointmentService {
                 "You have a new appointment with " + student.getUser().getFullName(),
                 savedAppointment.getAppointmentID()
         );
+        // Tạo notification cho student
+        notificationService.createAppointmentNotification(
+                student.getUser().getUserId(),
+                "New Appointment Booked",
+                "you have made an appointment with the psychologist " + psychologistUser.getFullName(),
+                savedAppointment.getAppointmentID()
+        );
 
         LocalDate slotDate = timeSlot.getSlotDate();
         psychologistService.increaseAchievedSlots(psychologist.getPsychologistID(), slotDate);

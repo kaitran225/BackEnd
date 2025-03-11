@@ -9,6 +9,7 @@ import com.healthy.backend.enums.ParticipationStatus;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.repository.*;
 import com.healthy.backend.stats.AppointmentStats;
+import com.healthy.backend.stats.DepartmentStats;
 import com.healthy.backend.stats.ProgramStats;
 import com.healthy.backend.stats.SurveyStats;
 import jakarta.transaction.Transactional;
@@ -59,7 +60,8 @@ public class ManagerService {
         return new ManagerDashboardResponse(
                 calculateSurveyStats(dateRange),
                 calculateProgramStats(dateRange),
-                calculateAppointmentStats(dateRange)
+                calculateAppointmentStats(dateRange),
+                calculateDepartmentStats(dateRange)
 
         );
     }
@@ -361,6 +363,35 @@ public class ManagerService {
         AppointmentStats stats = new AppointmentStats();
         stats.setStatusDistribution(distribution);
         return stats;
+    }
+    private DepartmentStats calculateDepartmentStats(LocalDate[] dateRange) {
+        Map<String, Double> distribution = new HashMap<>();
+
+        // Chuyển đổi LocalDate sang LocalDateTime
+        LocalDateTime startDateTime = dateRange[0] != null ? dateRange[0].atStartOfDay() : null;
+        LocalDateTime endDateTime = dateRange[1] != null ? dateRange[1].atTime(23, 59, 59) : null;
+
+        // Lấy tất cả appointments đã hoàn thành trong khoảng thời gian
+        List<Appointments> completedAppointments = appointmentRepository
+                .findByStatusAndDateRange(AppointmentStatus.COMPLETED, startDateTime, endDateTime);
+
+        // Tổng số appointments đã hoàn thành
+        long totalCompleted = completedAppointments.size();
+
+        if (totalCompleted == 0) return new DepartmentStats(distribution);
+
+        // Nhóm theo department và tính tỷ lệ
+        completedAppointments.stream()
+                .collect(Collectors.groupingBy(
+                        appointment -> appointment.getPsychologist().getDepartment().getName(),
+                        Collectors.counting()
+                ))
+                .forEach((departmentName, count) -> {
+                    double percentage = (count * 100.0) / totalCompleted;
+                    distribution.put(departmentName, percentage);
+                });
+
+        return new DepartmentStats(distribution);
     }
 
 
