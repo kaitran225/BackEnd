@@ -243,12 +243,11 @@ public class UserService {
     public List<AppointmentResponse> getUserAppointment(String userId) {
         Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
         if (users.getRole().equals(Role.STUDENT)) {
-            return this.getStudentAppointments(userId);
+            return getStudentAppointments(userId);
         }
         if (users.getRole().equals(Role.PSYCHOLOGIST)) {
-            return this.getPsychologistAppointments(userId);
+            return getPsychologistAppointments(userId);
         }
         if (users.getRole().equals(Role.MANAGER)) {
             return appointmentRepository.findAll().stream()
@@ -258,9 +257,28 @@ public class UserService {
         return null;
     }
 
+    private List<AppointmentResponse> _getManagerAppointments() {
+
+        List<Appointments> appointmentsList = appointmentRepository.findAll();
+
+        return appointmentsList.stream()
+                        .map(appointment ->
+                                appointmentMapper.buildAppointmentResponse(
+                                        appointment,
+                                        psychologistsMapper.buildPsychologistResponse(
+                                                psychologistRepository.findByPsychologistID(
+                                                        appointment.getPsychologistID())
+                                        ),
+                                        studentMapper.buildStudentResponse(
+                                                studentRepository.findByStudentID(
+                                                        appointment.getStudentID()))
+                                ))
+                        .toList();
+    }
+
     private List<AppointmentResponse> getPsychologistAppointments(String userId) {
         Users user = userRepository.findById(userId).orElseThrow();
-        List<Appointments> appointmentsList = null;
+        List<Appointments> appointmentsList;
 
         if (!user.getRole().equals(Role.PSYCHOLOGIST)) {
             return null;
@@ -276,7 +294,7 @@ public class UserService {
                                 appointment,
                                 null,
                                 studentMapper.buildStudentResponse(
-                                        studentRepository.findByUserID(
+                                        studentRepository.findByStudentID(
                                                 appointment.getStudentID()))
                         ))
                 .toList() : null;
@@ -337,7 +355,7 @@ public class UserService {
                             programParticipationRepository.findStudentIDsByProgramID(
                                     programParticipation.getProgramID()).size(),
                             programSchedule,
-                            programParticipation.getStudentID()
+                            programParticipation.getStatus().name()
                     );
                 })
                 .toList();
