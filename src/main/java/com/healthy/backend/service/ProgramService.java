@@ -1,5 +1,8 @@
 package com.healthy.backend.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
@@ -7,6 +10,7 @@ import com.healthy.backend.enums.*;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.AppointmentMapper;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
@@ -40,9 +44,11 @@ public class ProgramService {
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
+    private final AppointmentRepository appointmentRepository;
 
     private final ProgramMapper programMapper;
     private final StudentMapper studentMapper;
+    private final AppointmentMapper appointmentMapper;
     private final TimeSlotMapper timeSlotsMapper;
 
     private final GeneralService __;
@@ -126,12 +132,36 @@ public class ProgramService {
         timeSlotRepository.saveAll(occupiedSlots);
     }
 
+    private void validateTimeRequest(ProgramsRequest programsRequest) {
+        LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
+        LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
+
+        if (!isModulo30(startTime) || !isModulo30(endTime)) {
+            throw new IllegalArgumentException("Start time and end time must be in 30 minute intervals");
+        }
+
+        if (startTime.isAfter(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+
+        if (startTime.isBefore(endTime)) {
+            return;
+        }
+    }
+
+    private boolean isModulo30(LocalTime time) {
+        return time.getMinute() % 30 == 0;
+    }
+
+
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, String userId) {
         String programId = __.generateProgramID();
         Users staffUser = fetchUser(userId);
         HashSet<Tags> tags = fetchTags(programsRequest.getTags());
         Department department = fetchDepartment(programsRequest.getDepartmentId());
         Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId());
+
+        validateTimeRequest(programsRequest);
 
         validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
 
@@ -162,6 +192,8 @@ public class ProgramService {
         HashSet<Tags> tags = fetchTags(programsRequest.getTags());
         Department department = fetchDepartment(programsRequest.getDepartmentId());
         Psychologists facilitator = fetchFacilitator(programsRequest.getFacilitatorId());
+
+        validateTimeRequest(programsRequest);
 
         validateFacilitatorAvailability(facilitator.getPsychologistID(), programsRequest);
 
@@ -196,11 +228,58 @@ public class ProgramService {
         return tags.stream().map(programMapper::buildProgramTagResponse).toList();
     }
 
+    private void validateStudentAvailability(String studentId, Programs program) {
+        if (!programParticipationRepository.existsByProgramIDAndStudentID(studentId, program.getProgramID())) {
+            throw new ResourceAlreadyExistsException("Student is already registered for a program");
+        }
+        List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
+                studentId);
+
+        ProgramSchedule programSchedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+
+        LocalTime programStart = programSchedule.getStartTime();
+        LocalTime programEnd = programSchedule.getEndTime();
+
+//        boolean hasOverlap = appointments.stream()
+//                .anyMatch(appointment -> isOverlapping(
+//                        appointment.getTimeSlot().getStartTime(), appointment.getTimeSlot().getEndTime(),
+//                        programStart, programEnd));
+
+        List<Appointments> overlappingAppointments = appointments.stream()
+                .filter(appointment -> isOverlapping(
+                        appointment.getTimeSlot().getStartTime(),
+                        appointment.getTimeSlot().getEndTime(),
+                        programStart, programEnd))
+                .toList();
+
+        if (!overlappingAppointments.isEmpty()) {
+            String jsonResponse = convertToJson(overlappingAppointments);
+            throw new OperationFailedException("Student has conflicting appointments: " + jsonResponse);
+        }
+    }
+
+    private String convertToJson(List<Appointments> overlappingAppointments) {
+        try {
+            List<AppointmentResponse> responses = overlappingAppointments.stream()
+                    .map(appointmentMapper::buildAppointmentResponse)
+                    .toList();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(responses);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting appointments to JSON", e);
+        }
+    }
+
+    private boolean isOverlapping(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
+        return start1.isBefore(end2) && end1.isAfter(start2);
+    }
     public boolean registerForProgram(String programId, String studentId) {
 
         Programs program = programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
 
+        validateStudentAvailability(studentId, program);
 
         if (isJoined(programId, studentId)) {
             throw new ResourceAlreadyExistsException("Student is already registered for this program");
