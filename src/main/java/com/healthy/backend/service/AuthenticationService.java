@@ -4,9 +4,10 @@ import com.healthy.backend.dto.auth.request.*;
 import com.healthy.backend.dto.auth.response.AuthenticationResponse;
 import com.healthy.backend.dto.auth.response.VerificationResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.Role;
-import com.healthy.backend.enums.UserType;
+import com.healthy.backend.entity.RefreshToken;
+import com.healthy.backend.entity.ResetToken;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
@@ -29,7 +30,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,9 +70,9 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {
-        if(!tokenService.isManager(httpServletRequest)) {
+        if (!tokenService.isManager(httpServletRequest)) {
             throw new RuntimeException("You don't have permission to register psychologist");
-        };
+        }
         AuthenticationResponse response = registerUser(request);
         String psychologistId = __.generatePsychologistID();
         psychologistsRepository.save(

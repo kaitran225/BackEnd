@@ -6,16 +6,13 @@ import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
 import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.*;
+import com.healthy.backend.enums.PsychologistStatus;
+import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.AuthorizeException;
-import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -24,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,7 +66,6 @@ public class PsychologistService {
             kpiRepository.save(kpi);
         }
     }
-
 
 
     public PsychologistResponse getPsychologistByUserId(String userId) {
@@ -219,8 +215,7 @@ public class PsychologistService {
             String psychologistId,
             LocalDate slotDate,
             List<String> defaultSlotIds
-    )
-    {
+    ) {
         Psychologists psychologist = psychologistRepository.findById(psychologistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found"));
 

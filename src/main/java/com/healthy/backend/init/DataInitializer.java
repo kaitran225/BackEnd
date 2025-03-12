@@ -1,21 +1,21 @@
 package com.healthy.backend.init;
 
-import java.math.BigDecimal;
-
 import com.healthy.backend.dto.auth.request.RegisterRequest;
 import com.healthy.backend.dto.programs.ProgramWeeklyScheduleRequest;
 import com.healthy.backend.dto.programs.ProgramsRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.*;
 import com.healthy.backend.repository.*;
-import com.healthy.backend.service.*;
-
+import com.healthy.backend.service.AuthenticationService;
+import com.healthy.backend.service.GeneralService;
+import com.healthy.backend.service.ProgramService;
+import com.healthy.backend.service.SurveyService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;

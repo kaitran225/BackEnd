@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +28,7 @@ import java.util.List;
 @Tag(name = "Manager Controller", description = "Manager specific APIs")
 public class ManagerController {
     private final ManagerService managerService;
-    private  final TokenService tokenService;
+    private final TokenService tokenService;
     private final PsychologistKPIRepository kpiRepository;
 
     // Endpoint to get appointment statistics by status
@@ -40,14 +39,14 @@ public class ManagerController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "Get appointment statistics by status",
-        description = ""
+            summary = "Get appointment statistics by status",
+            description = ""
     )
     @GetMapping("/stats/appointments")
     public AppointmentStatsResponse getAppointmentStats(
             HttpServletRequest httpRequest
     ) {
-        if (!tokenService.validateRole(httpRequest, Role.MANAGER) ) {
+        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
             throw new IllegalArgumentException("Unauthorized access get Appointments ");
         }
 
@@ -64,7 +63,7 @@ public class ManagerController {
     public List<PsychologistStatsResponse> getPsychologistStats(
             HttpServletRequest httpRequest
     ) {
-        if (!tokenService.validateRole(httpRequest, Role.MANAGER) ) {
+        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
             throw new IllegalArgumentException("Unauthorized access get Appointments ");
         }
         return managerService.getPsychologistStats();
@@ -82,7 +81,7 @@ public class ManagerController {
             @RequestParam int month,
             @RequestParam int year,
             @RequestParam int targetSlots,
-            HttpServletRequest  httpServlet) {
+            HttpServletRequest httpServlet) {
         if (!tokenService.validateRole(httpServlet, Role.MANAGER)) {
             throw new IllegalArgumentException("Unauthorized access");
         }
@@ -111,7 +110,7 @@ public class ManagerController {
     public ResponseEntity<NotificationScheduleResponse> setNotificationSchedule(
             @RequestParam String notificationTime,
             @RequestParam DayOfWeek notificationDay,
-    HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest) {
         if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
             throw new IllegalArgumentException("Unauthorized access");
         }

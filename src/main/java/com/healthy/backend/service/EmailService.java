@@ -22,7 +22,7 @@ public class EmailService {
     }
 
     @Async
-    public void sendNewAppointmentEmail(String email, String psychologistName, Students student, String ID, TimeSlots timeSlots ,String subject) {
+    public void sendNewAppointmentEmail(String email, String psychologistName, Students student, String ID, TimeSlots timeSlots, String subject) {
         String content = subject.toLowerCase().contains("transfer") ? "We are pleased to informed that an appointment of yours has been transferred.\n\n" +
                 "The details of the transferred appointment are as follows:\n\n" +
                 "**Student:** " + student.getUser().getFullName() + "\n" +
@@ -33,13 +33,13 @@ public class EmailService {
                 "Please log in to the system for further details." :
                 // If the subject doesn't contain "transfer", use the original content
                 "We are pleased to inform you that a new appointment has been scheduled.\n\n" +
-                "You have a new appointment scheduled with the following details:\n" +
-                "**Student:** " + student.getUser().getFullName() + "\n" +
-                "**Class:**" + student.getGrade() + student.getClassName() + "\n" +
-                "**Appointment ID:** " + ID + "\n" +
-                "**Date:** " + timeSlots.getSlotDate() + "\n" +
-                "**Time:** " + timeSlots.getStartTime() + " - " + timeSlots.getEndTime() + "\n\n" +
-                "Please log in to the system to view more details or manage your appointments.\n\n";
+                        "You have a new appointment scheduled with the following details:\n" +
+                        "**Student:** " + student.getUser().getFullName() + "\n" +
+                        "**Class:**" + student.getGrade() + student.getClassName() + "\n" +
+                        "**Appointment ID:** " + ID + "\n" +
+                        "**Date:** " + timeSlots.getSlotDate() + "\n" +
+                        "**Time:** " + timeSlots.getStartTime() + " - " + timeSlots.getEndTime() + "\n\n" +
+                        "Please log in to the system to view more details or manage your appointments.\n\n";
         sendEmail(email, subject, content, psychologistName);
     }
 

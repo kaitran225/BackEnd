@@ -50,7 +50,7 @@ public class NotificationController {
     @Operation(summary = "Mark notification as read")
     @PostMapping("/{notificationId}/read")
     public ResponseEntity<Void> markAsRead(
-            @RequestParam(required = false)String notificationId,
+            @RequestParam(required = false) String notificationId,
             HttpServletRequest request) {
         notificationService.markAsRead(notificationId, request);
         return ResponseEntity.ok().build();

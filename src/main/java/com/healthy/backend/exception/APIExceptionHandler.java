@@ -13,23 +13,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class APIExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(APIExceptionHandler.class);
-
-    @Getter
-    @Setter
-    private static class ErrorResponse {
-        private LocalDateTime timestamp;
-        private String message;
-
-        public ErrorResponse(String message) {
-            this.timestamp = LocalDateTime.now();
-            this.message = message;
-        }
-    }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException exception) {
@@ -132,5 +120,17 @@ public class APIExceptionHandler {
                 new ErrorResponse(exception.getMessage()),
                 HttpStatus.NOT_FOUND
         );
+    }
+
+    @Getter
+    @Setter
+    private static class ErrorResponse {
+        private LocalDateTime timestamp;
+        private String message;
+
+        public ErrorResponse(String message) {
+            this.timestamp = LocalDateTime.now();
+            this.message = message;
+        }
     }
 }

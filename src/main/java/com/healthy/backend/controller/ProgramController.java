@@ -10,7 +10,6 @@ import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ProgramService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,12 +17,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 
@@ -95,8 +91,7 @@ public class ProgramController {
                 switch (user.getRole()) {
                     case STUDENT -> tokenService.getRoleID(user);
                     case PSYCHOLOGIST, MANAGER, PARENT -> null;
-                    default ->
-                            throw new IllegalArgumentException("Invalid role: " + user.getRole());
+                    default -> throw new IllegalArgumentException("Invalid role: " + user.getRole());
                 }
         );
         if (programsResponseList.isEmpty()) return ResponseEntity.noContent().build();
@@ -139,8 +134,7 @@ public class ProgramController {
                 switch (user.getRole()) {
                     case STUDENT -> tokenService.getRoleID(user);
                     case PSYCHOLOGIST, MANAGER, PARENT -> null;
-                    default ->
-                            throw new IllegalArgumentException("Invalid role: " + user.getRole());
+                    default -> throw new IllegalArgumentException("Invalid role: " + user.getRole());
                 }
         );
         if (programsResponse == null) throw new ResourceNotFoundException("Program not found");

@@ -1,10 +1,14 @@
 package com.healthy.backend.mapper;
 
-import com.healthy.backend.dto.programs.*;
+import com.healthy.backend.dto.programs.ProgramParticipationResponse;
+import com.healthy.backend.dto.programs.ProgramTagResponse;
+import com.healthy.backend.dto.programs.ProgramWeeklyScheduleResponse;
+import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.ParticipationStatus;
-import com.healthy.backend.enums.Role;
+import com.healthy.backend.entity.ProgramParticipation;
+import com.healthy.backend.entity.ProgramSchedule;
+import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Tags;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

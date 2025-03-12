@@ -1,10 +1,6 @@
 package com.healthy.backend.repository;
 
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.Article;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Comment;
-import com.healthy.backend.entity.Users;
+import com.healthy.backend.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 

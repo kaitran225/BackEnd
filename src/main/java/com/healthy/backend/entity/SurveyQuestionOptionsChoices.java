@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -46,16 +45,16 @@ public class SurveyQuestionOptionsChoices {
     @JoinColumn(name = "ResultID", referencedColumnName = "ResultID", insertable = false, updatable = false)
     private SurveyResult surveyResult;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
     public SurveyQuestionOptionsChoices(String resultID, String questionID, String optionsID) {
         this.optionsChoicesID = getOptionsChoicesID(resultID, questionID, optionsID);
         this.resultID = resultID;
         this.questionID = questionID;
         this.optionID = optionsID;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 

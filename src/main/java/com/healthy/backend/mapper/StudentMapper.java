@@ -1,16 +1,15 @@
 package com.healthy.backend.mapper;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 public class StudentMapper {
@@ -29,6 +28,7 @@ public class StudentMapper {
                 .info(usersResponse)
                 .build();
     }
+
     public StudentResponse buildStudentResponse(
             Students student,
             List<SurveyResultsResponse> surveyResultsResponseList) {

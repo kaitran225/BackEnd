@@ -1,14 +1,11 @@
 package com.healthy.backend.repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.healthy.backend.entity.SurveyResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.healthy.backend.entity.SurveyResult;
+import java.util.List;
 
 public interface SurveyResultRepository extends JpaRepository<SurveyResult, String> {
 
@@ -36,13 +33,13 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
     @Query("SELECT COUNT(sr) FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     int countResultStudent(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
-    
+
     @Query("SELECT COUNT(DISTINCT sr.studentID) FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
     int countDistinctStudentsBySurveyID(@Param("surveyID") String surveyID);
 
     @Query("SELECT DISTINCT sr.studentID FROM SurveyResult sr WHERE sr.surveyID = :surveyID")
     List<String> findStudentsBySurveyID(@Param("surveyID") String surveyID);
-    
+
 
     @Query("SELECT sr FROM SurveyResult sr JOIN FETCH sr.choices WHERE sr.resultID = :resultID")
     SurveyResult findByIdWithChoices(@Param("resultID") String resultID);

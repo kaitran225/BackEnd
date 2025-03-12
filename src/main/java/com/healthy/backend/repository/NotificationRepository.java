@@ -13,10 +13,11 @@ public interface NotificationRepository extends JpaRepository<Notifications, Str
 
     @Query("SELECT n.notificationID  FROM Notifications n ORDER BY n.notificationID DESC LIMIT 1")
     String findLastNotificationId();
-    
+
     @Query("SELECT n.notificationID FROM Notifications n ORDER BY n.createdAt DESC")
     List<String> findLastNotificationID();
 
     List<Notifications> findByUserIDAndIsReadTrueOrderByCreatedAtDesc(String userID);
+
     List<Notifications> findByUserIDAndIsReadFalseOrderByCreatedAtDesc(String userID);
 }

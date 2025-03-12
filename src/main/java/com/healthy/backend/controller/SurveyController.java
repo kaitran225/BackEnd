@@ -1,42 +1,25 @@
 package com.healthy.backend.controller;
 
-import java.util.List;
-
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.healthy.backend.dto.survey.ConfirmationRequest;
-import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.StatusStudent;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.dto.survey.*;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.SurveyService;
-
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -299,7 +282,7 @@ public class SurveyController {
     public ResponseEntity<?> addAnswerToQuestion(@RequestParam String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption> answer) {
         try {
             surveyService.addAnswerToQuestion(surveyId, questionId, answer);
-            
+
             return ResponseEntity.ok("List of answers add sucessfully");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -439,8 +422,7 @@ public class SurveyController {
     @GetMapping("/survey/{surveyId}/students/checkResultsToHaveAppointment")
     public ResponseEntity<?> getLowScoringStudentsForAppointment(
             HttpServletRequest request,
-            @PathVariable String surveyId)
-            {
+            @PathVariable String surveyId) {
         try {
             List<ConfirmationRequest> confirmationRequests = surveyService.getLowScoringStudentsForAppointment(request, surveyId);
             return ResponseEntity.ok(confirmationRequests);
@@ -460,10 +442,9 @@ public class SurveyController {
     })
     @PostMapping("/survey/{surveyId}/students/appointments")
     public ResponseEntity<?> handleAppointmentRequest(
-            @RequestBody List<ConfirmationRequest> requests)
-            {
+            @RequestBody List<ConfirmationRequest> requests) {
         try {
-            
+
             return ResponseEntity.ok(surveyService.handleAppointmentRequest(requests) ? "You can make appointment now" : "");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

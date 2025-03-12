@@ -1,21 +1,20 @@
 package com.healthy.backend.security;
 
-import com.healthy.backend.dto.auth.request.RegisterRequest;
-import io.jsonwebtoken.Jwts;
+import com.healthy.backend.entity.Users;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.security.Keys;
-import com.healthy.backend.entity.Users;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Service;
-import org.springframework.security.core.Authentication;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
 import java.security.Key;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -176,6 +175,7 @@ public class JwtService {
             Claims claims = extractAllClaims(token);
             claims.setExpiration(new Date(System.currentTimeMillis() - 1000));
         } catch (Exception e) {
-            throw new RuntimeException(e);}
+            throw new RuntimeException(e);
+        }
     }
 }

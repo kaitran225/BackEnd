@@ -262,18 +262,18 @@ public class UserService {
         List<Appointments> appointmentsList = appointmentRepository.findAll();
 
         return appointmentsList.stream()
-                        .map(appointment ->
-                                appointmentMapper.buildAppointmentResponse(
-                                        appointment,
-                                        psychologistsMapper.buildPsychologistResponse(
-                                                psychologistRepository.findByPsychologistID(
-                                                        appointment.getPsychologistID())
-                                        ),
-                                        studentMapper.buildStudentResponse(
-                                                studentRepository.findByStudentID(
-                                                        appointment.getStudentID()))
-                                ))
-                        .toList();
+                .map(appointment ->
+                        appointmentMapper.buildAppointmentResponse(
+                                appointment,
+                                psychologistsMapper.buildPsychologistResponse(
+                                        psychologistRepository.findByPsychologistID(
+                                                appointment.getPsychologistID())
+                                ),
+                                studentMapper.buildStudentResponse(
+                                        studentRepository.findByStudentID(
+                                                appointment.getStudentID()))
+                        ))
+                .toList();
     }
 
     private List<AppointmentResponse> getPsychologistAppointments(String userId) {

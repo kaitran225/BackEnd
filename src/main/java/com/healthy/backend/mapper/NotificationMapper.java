@@ -13,8 +13,8 @@ public class NotificationMapper {
         return NotificationResponse.builder()
                 .id(notification.getNotificationID())
                 .IDType(notification.getAppointmentID() != null ? notification.getAppointmentID() :
-                        notification.getProgramID() != null ? notification.getProgramID() : 
-                        notification.getSurveyID())
+                        notification.getProgramID() != null ? notification.getProgramID() :
+                                notification.getSurveyID())
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .type(notification.getType().name())
@@ -23,6 +23,7 @@ public class NotificationMapper {
                 .UserID(notification.getUserID())
                 .build();
     }
+
     public List<NotificationResponse> buildNotificationResponseList(List<Notifications> notifications) {
         return notifications.stream()
                 .map(this::toResponse)

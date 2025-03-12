@@ -17,23 +17,23 @@ import java.util.List;
 public class SurveyRequest {
     @Schema(example = "Example Survey")
     private String title;
-    @Schema (example = "Survey Description")
+    @Schema(example = "Survey Description")
     private String description;
-    @Schema (example = "Details")
+    @Schema(example = "Details")
     private String detailedDescription;
-    @Schema (example = "General")
+    @Schema(example = "General")
     private String categoryID;
-    @Schema (example = "15-20")
+    @Schema(example = "15-20")
     private String duration;
-    @Schema (example = "10")
+    @Schema(example = "10")
     private Integer numberOfQuestions;
-    @Schema (example = "Anxiety")
+    @Schema(example = "Anxiety")
     private String categoryName;
-    @Schema (example = "Finished")
+    @Schema(example = "Finished")
     private String status;
-    @Schema (example = "2023-01-01")
+    @Schema(example = "2023-01-01")
     private String createdAt;
-    @Schema (example = "US001")
+    @Schema(example = "US001")
     private String createBy;
     @Schema(example = "")
     private List<SurveyQuestionRequest> question;

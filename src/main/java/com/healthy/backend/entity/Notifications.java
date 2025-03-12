@@ -60,7 +60,7 @@ public class Notifications {
     @ManyToOne
     @JoinColumn(name = "SurveyID", insertable = false, updatable = false)
     private Surveys surveys;
-  
+
     public Notifications() {
         isRead = false;
     }

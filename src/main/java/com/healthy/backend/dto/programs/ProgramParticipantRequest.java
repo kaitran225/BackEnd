@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class  ProgramParticipantRequest {
+public class ProgramParticipantRequest {
 
     @Schema(example = "PRG001")
     private String programId;

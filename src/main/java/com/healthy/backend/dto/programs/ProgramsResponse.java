@@ -2,9 +2,6 @@ package com.healthy.backend.dto.programs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.Tags;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 

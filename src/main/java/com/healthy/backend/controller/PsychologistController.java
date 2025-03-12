@@ -1,24 +1,6 @@
 package com.healthy.backend.controller;
 
 
-import java.time.LocalDate;
-import java.util.List;
-
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
@@ -29,19 +11,27 @@ import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.AuthorizeException;
-import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
-
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -77,7 +67,7 @@ public class PsychologistController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(summary = "Get psychologist by ID")
-    @GetMapping({ "/detail"})
+    @GetMapping({"/detail"})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
 
             @RequestParam(required = false) String psychologistId,
@@ -90,18 +80,18 @@ public class PsychologistController {
         if (tokenService.validateRole(request, Role.MANAGER) && psychologistId == null) {
             throw new AuthorizeException("Psychologist ID is required for managers");
         }
-        if (tokenService.validateRole(request, Role.STUDENT) ) {
+        if (tokenService.validateRole(request, Role.STUDENT)) {
             throw new AuthorizeException("Unauthorized access, Student can not view psychologists ");
         }
-         if (psychologistId != null && !psychologistId.isEmpty()) {
-                // Kiểm tra nếu Psychologist cố tình truyền ID khác
-                PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
-                if (!current.getPsychologistId().equals(psychologistId)) {
-                    throw new AuthorizeException("You can only view your own profile");
-                }
+        if (psychologistId != null && !psychologistId.isEmpty()) {
+            // Kiểm tra nếu Psychologist cố tình truyền ID khác
+            PsychologistResponse current = psychologistService.getPsychologistByUserId(user.getUserId());
+            if (!current.getPsychologistId().equals(psychologistId)) {
+                throw new AuthorizeException("You can only view your own profile");
             }
-            // Tự động lấy ID từ token nếu không truyền
-            actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
+        }
+        // Tự động lấy ID từ token nếu không truyền
+        actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
 
 
         // Xử lý cho Manager
@@ -117,7 +107,7 @@ public class PsychologistController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(summary = "Update psychologist details")
-    @PutMapping({ "/detail"})
+    @PutMapping({"/detail"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
             @RequestParam(required = false) String psychologistId,
             @RequestBody @Valid PsychologistRequest request,
@@ -136,9 +126,7 @@ public class PsychologistController {
 
         if (psychologistId == null) {
             psychologistId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
-        }
-
-        else {
+        } else {
             // Kiểm tra Psychologist chỉ update chính mình
             String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
             if (!psychologistId.equals(actualId)) {
@@ -209,7 +197,7 @@ public class PsychologistController {
 
         Users currentUser = tokenService.retrieveUser(httpRequest);
 
-        if (tokenService.validateRole(httpRequest, Role.STUDENT) ) {
+        if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
             throw new AuthorizeException("Unauthorized access, Student can not create timeSlot ");
         }
 

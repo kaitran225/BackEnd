@@ -1,18 +1,17 @@
 package com.healthy.backend.dto.student;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -47,7 +46,7 @@ public class StudentResponse {
     private BigDecimal anxietyScore;
     @Schema(example = "0")
     private BigDecimal stressScore;
-    @Schema(examples = {"General", "Behavior", "Academic", "Emotional"} )
+    @Schema(examples = {"General", "Behavior", "Academic", "Emotional"})
     private List<SurveyResultsResponse> surveyResults;
     @Schema(example = "2023-01-01")
     private LocalDateTime createdAt;

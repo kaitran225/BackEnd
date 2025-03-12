@@ -4,7 +4,10 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventDetails;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
-import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.ProgramSchedule;
+import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.ProgramParticipationRepository;
 import com.healthy.backend.repository.ProgramScheduleRepository;
@@ -119,7 +122,7 @@ public class EventMapper {
                 .map(p -> {
                     List<String> studentIDList = programParticipationRepository.findStudentIDsByProgramID(p.getProgramID());
                     List<Students> students = studentRepository.findAllById(studentIDList);
-                    return getProgramDetailsResponse(p,students);
+                    return getProgramDetailsResponse(p, students);
                 })
                 .toList();
 
@@ -160,10 +163,10 @@ public class EventMapper {
                 programSchedule.getLast());
     }
 
-    private ProgramsResponse getProgramDetailsResponse(Programs program,List<Students> students) {
+    private ProgramsResponse getProgramDetailsResponse(Programs program, List<Students> students) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
         return programMapper.buildProgramsDetailsResponse(program,
-                students.stream().map(studentMapper::buildBasicStudentResponse).toList(),programSchedule.getLast());
+                students.stream().map(studentMapper::buildBasicStudentResponse).toList(), programSchedule.getLast());
     }
 }

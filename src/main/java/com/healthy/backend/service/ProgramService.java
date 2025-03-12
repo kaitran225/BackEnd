@@ -6,7 +6,10 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.programs.*;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.*;
-import com.healthy.backend.enums.*;
+import com.healthy.backend.enums.ParticipationStatus;
+import com.healthy.backend.enums.ProgramStatus;
+import com.healthy.backend.enums.ProgramType;
+import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -53,6 +56,22 @@ public class ProgramService {
 
     private final GeneralService __;
     private final NotificationService notificationService;
+    private final Map<String, LocalTime> DEFAULT_SLOT_IDS = Map.ofEntries(
+            // Morning
+            Map.entry("MORNING-00", LocalTime.of(8, 0)), Map.entry("MORNING-01", LocalTime.of(8, 30)),
+            Map.entry("MORNING-02", LocalTime.of(9, 0)), Map.entry("MORNING-03", LocalTime.of(9, 30)),
+            Map.entry("MORNING-04", LocalTime.of(10, 0)), Map.entry("MORNING-05", LocalTime.of(10, 30)),
+            // Afternoon
+            Map.entry("AFTERNOON-00", LocalTime.of(13, 0)), Map.entry("AFTERNOON-01", LocalTime.of(13, 30)),
+            Map.entry("AFTERNOON-02", LocalTime.of(14, 0)), Map.entry("AFTERNOON-03", LocalTime.of(14, 30)),
+            Map.entry("AFTERNOON-04", LocalTime.of(15, 0)), Map.entry("AFTERNOON-05", LocalTime.of(15, 30)),
+            Map.entry("AFTERNOON-06", LocalTime.of(16, 0)), Map.entry("AFTERNOON-07", LocalTime.of(16, 30))
+    );
+
+    private static int calculateDurationInWeeks(LocalDate startDate, LocalDate endDate) {
+        long weeksBetween = ChronoUnit.WEEKS.between(startDate, endDate);
+        return (int) weeksBetween;
+    }
 
     public List<ProgramsResponse> getAllProgramsDetails() {
 
@@ -80,12 +99,10 @@ public class ProgramService {
         return programMapper.buildProgramTagResponse(newTag);
     }
 
-
     private boolean checkIfTimeSlotExists(String facilitatorId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         Psychologists psychologist = psychologistRepository.findById(facilitatorId).orElseThrow(() -> new ResourceNotFoundException("Facilitator not found"));
         return timeSlotRepository.existsByPsychologistAndSlotDateAndStartTimeAndEndTime(psychologist, date, startTime, endTime);
     }
-
 
     private void createMissingTimeSlots(String facilitatorId, ProgramsRequest programsRequest) {
         List<LocalDate> scheduleDates = generateWeeklySchedule(
@@ -145,14 +162,12 @@ public class ProgramService {
         }
 
         if (startTime.isBefore(endTime)) {
-            return;
         }
     }
 
     private boolean isModulo30(LocalTime time) {
         return time.getMinute() % 30 == 0;
     }
-
 
     public ProgramsResponse createProgram(ProgramsRequest programsRequest, String userId) {
         String programId = __.generateProgramID();
@@ -214,7 +229,6 @@ public class ProgramService {
         );
         saveProgramAndSchedule(program, programSchedule);
     }
-
 
     public ProgramsResponse getProgramById(String programId, String studentID) {
         Programs program = programRepository.findById(programId).orElse(null);
@@ -393,7 +407,6 @@ public class ProgramService {
         return getProgramResponse(program, null);
     }
 
-
     private List<StudentResponse> getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
 
@@ -409,7 +422,6 @@ public class ProgramService {
                 })
                 .toList();
     }
-
 
     private Users fetchUser(String userId) {
         return userRepository.findById(userId)
@@ -457,7 +469,6 @@ public class ProgramService {
         programRepository.save(program);
         programScheduleRepository.save(schedule);
     }
-
 
     private Programs fetchProgram(String programId) {
         return programRepository.findById(programId)
@@ -584,7 +595,6 @@ public class ProgramService {
         return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
     }
 
-
     public ProgramsResponse getProgramParticipants(String programId) {
 
         Programs program = programRepository.findById(programId).orElse(null);
@@ -633,7 +643,6 @@ public class ProgramService {
         }
     }
 
-
     private boolean isValidDayOfWeek(String day) {
         return Arrays.stream(DayOfWeek.values())
                 .map(d -> d.name().toLowerCase())
@@ -668,11 +677,9 @@ public class ProgramService {
         return !validateTimeSlotOverlaps(scheduleDates, facilitator.getPsychologistID(), programStartTime, programEndTime);
     }
 
-
     private boolean isTimeOverlap(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
         return (startTime1.isBefore(endTime2) && endTime1.isAfter(startTime2));
     }
-
 
     private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
         List<LocalDate> conflictingDates = new ArrayList<>(List.of());
@@ -693,11 +700,6 @@ public class ProgramService {
             });
         }
         return conflictingDates.isEmpty();
-    }
-
-    private static int calculateDurationInWeeks(LocalDate startDate, LocalDate endDate) {
-        long weeksBetween = ChronoUnit.WEEKS.between(startDate, endDate);
-        return (int) weeksBetween;
     }
 
     private List<LocalDate> generateWeeklySchedule(String startDate,
@@ -779,7 +781,6 @@ public class ProgramService {
         return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 
-
     private void updateProgramStatuses() {
         LocalDate today = LocalDate.now();
         List<Programs> programs = programRepository.findAll();
@@ -824,18 +825,6 @@ public class ProgramService {
         System.out.println("Checking program statuses at midnight...");
         updateProgramStatuses();
     }
-
-    private final Map<String, LocalTime> DEFAULT_SLOT_IDS = Map.ofEntries(
-            // Morning
-            Map.entry("MORNING-00", LocalTime.of(8, 0)), Map.entry("MORNING-01", LocalTime.of(8, 30)),
-            Map.entry("MORNING-02", LocalTime.of(9, 0)), Map.entry("MORNING-03", LocalTime.of(9, 30)),
-            Map.entry("MORNING-04", LocalTime.of(10, 0)), Map.entry("MORNING-05", LocalTime.of(10, 30)),
-            // Afternoon
-            Map.entry("AFTERNOON-00", LocalTime.of(13, 0)), Map.entry("AFTERNOON-01", LocalTime.of(13, 30)),
-            Map.entry("AFTERNOON-02", LocalTime.of(14, 0)), Map.entry("AFTERNOON-03", LocalTime.of(14, 30)),
-            Map.entry("AFTERNOON-04", LocalTime.of(15, 0)), Map.entry("AFTERNOON-05", LocalTime.of(15, 30)),
-            Map.entry("AFTERNOON-06", LocalTime.of(16, 0)), Map.entry("AFTERNOON-07", LocalTime.of(16, 30))
-    );
 
     private List<String> getDefaultSlotIds(LocalTime startTime, LocalTime endTime) {
         return DEFAULT_SLOT_IDS.entrySet().stream()

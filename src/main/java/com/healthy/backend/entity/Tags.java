@@ -1,18 +1,13 @@
 package com.healthy.backend.entity;
 
-import java.util.Set;
-
 import com.healthy.backend.enums.ProgramTags;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,9 +27,8 @@ public class Tags {
     @ManyToMany(mappedBy = "tags")
     private Set<Programs> programs;
 
-    @ManyToMany(mappedBy= "articleTag")
+    @ManyToMany(mappedBy = "articleTag")
     private Set<Article> articles;
-
 
 
     public Tags(String tagId, String tagName) {

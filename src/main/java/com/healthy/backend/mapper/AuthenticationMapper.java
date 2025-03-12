@@ -22,7 +22,8 @@ public class AuthenticationMapper {
                 .role(user.getRole().toString())
                 .build();
     }
-        public AuthenticationResponse toAuthenticationResponse(
+
+    public AuthenticationResponse toAuthenticationResponse(
             Users user,
             String accessToken, String refreshToken) {
         return AuthenticationResponse.builder()
@@ -34,6 +35,7 @@ public class AuthenticationMapper {
                 .role(user.getRole().toString())
                 .build();
     }
+
     public AuthenticationResponse toAuthenticationResponse(
             Users user, Students student,
             String accessToken, String refreshToken) {

@@ -18,7 +18,6 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlots, String> {
     Optional<TimeSlots> findByIdWithPsychologist(@Param("id") String id);
 
 
-
     @Query("SELECT ts FROM TimeSlots ts " +
             "WHERE ts.psychologist.psychologistID = :psychologistId " +
             "AND ts.slotDate = :date")

@@ -10,11 +10,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Repository
-public interface AppointmentRepository extends JpaRepository<Appointments, String> , JpaSpecificationExecutor<Appointments> {
+public interface AppointmentRepository extends JpaRepository<Appointments, String>, JpaSpecificationExecutor<Appointments> {
 
     List<Appointments> findByStudentID(String studentID);
+
     List<Appointments> findByPsychologistID(String psychologistID);
+
     @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
     String findLastAppointmentId();
 
@@ -28,7 +31,6 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     boolean existsByStudentIDAndTimeSlotsID(
             @Param("studentId") String studentId,
             @Param("timeSlotId") String timeSlotId);
-
 
 
     @Query("SELECT a FROM Appointments a " +
@@ -64,7 +66,7 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
-  
+
     @Query("SELECT a FROM Appointments a WHERE a.studentID = :studentID AND a.status IN ('SCHEDULED', 'IN_PROGRESS')")
     List<Appointments> findScheduledOrInProgressAppointmentsByStudentId(@Param("studentID") String studentID);
 } 

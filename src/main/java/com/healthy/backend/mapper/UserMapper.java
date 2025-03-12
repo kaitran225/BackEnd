@@ -1,9 +1,7 @@
 package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
-import com.healthy.backend.dto.auth.request.ParentRegisterRequest;
 import com.healthy.backend.dto.auth.request.RegisterRequest;
-import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;

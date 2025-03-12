@@ -1,38 +1,37 @@
 package com.healthy.backend.init;
 
+import com.healthy.backend.entity.Article;
+import com.healthy.backend.entity.Tags;
+import com.healthy.backend.repository.TagsRepository;
+import com.healthy.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import com.healthy.backend.entity.Article;
-import com.healthy.backend.entity.Tags;
-import com.healthy.backend.repository.TagsRepository;
-import com.healthy.backend.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
 @Service
 @Component
 @RequiredArgsConstructor
 
 
 public class MentalHealthArticlesData {
-        
+
     private final TagsRepository tagsRepository;
     private final UserRepository userRepository;
-    
-        
-    public  List<Article> getMentalHealthArticles() {
+
+
+    public List<Article> getMentalHealthArticles() {
         List<Article> articles = new ArrayList<>();
 
         // Add all 50 articles
         articles.add(new Article(
                 "ATC001",
                 "Understanding Anxiety Disorders: Causes, Symptoms, and Treatment Options",
-                 // Replace with actual authorId
+                // Replace with actual authorId
                 "Anxiety disorders represent a group of mental health conditions characterized by excessive worry, fear, "
                         +
                         "and related behavioral disturbances. These disorders affect approximately 264 million people worldwide, making them among the most common mental health issues globally. "
@@ -48,12 +47,12 @@ public class MentalHealthArticlesData {
                         +
                         "of social situations and potential judgment from others, whereas specific phobias involve intense fear of particular objects or situations.",
                 new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG013", "TAG060"))),
-                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))      
-        ));        
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
         articles.add(new Article(
                 "ATC002",
                 "Depression in the Modern Age: Recognition, Management, and Recovery Paths",
-                 // Replace with actual authorId
+                // Replace with actual authorId
                 "Depression, clinically known as major depressive disorder, represents one of the most prevalent mental health challenges of our time, affecting approximately 264 million people globally across all age groups. "
                         +
                         "Far beyond merely feeling sad or experiencing temporary low mood, depression manifests as a serious and often debilitating condition that impacts every aspect of an individual's life - from thought patterns and "
@@ -69,14 +68,14 @@ public class MentalHealthArticlesData {
                         "or excessive guilt, diminished ability to think or concentrate, and recurrent thoughts of death or suicide. For a clinical diagnosis, these symptoms must persist for at least two weeks and cause significant "
                         +
                         "distress or impairment in daily functioning.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG011", "TAG013", "TAG027", "TAG008"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG011", "TAG013", "TAG027", "TAG008"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
                 "ATC003",
                 "The Science of Stress: Understanding Our Body's Response System",
-                
+
                 "Stress represents one of the most ubiquitous experiences in human life, yet its mechanisms and implications remain widely misunderstood. While commonly experienced as an unpleasant emotional state, stress actually "
                         +
                         "constitutes a complex physiological response system that has evolved over millions of years to help organisms survive threats. Understanding the intricate science behind stress can provide valuable insights into "
@@ -89,13 +88,13 @@ public class MentalHealthArticlesData {
                         "mobilizes resources to deal with threats efficiently - increasing alertness, accelerating heart rate, elevating blood pressure, and directing energy to muscles. While this system served hunter-gatherers well when "
                         +
                         "facing acute physical threats, today's chronic stressors often involve psychological pressures like work deadlines, financial concerns, relationship difficulties, and information overload.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG013"))),
-                       Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG013"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
         articles.add(new Article(
                 "ATC004",
                 "Understanding OCD: Breaking the Cycle of Intrusive Thoughts and Compulsions",
-                
+
                 "Obsessive-Compulsive Disorder (OCD) is a chronic mental health condition characterized by unwanted, intrusive thoughts (obsessions) and repetitive behaviors or mental acts (compulsions) performed to alleviate anxiety. "
                         +
                         "Affecting approximately 1-2% of the population, OCD manifests in various forms including contamination fears, need for symmetry, taboo thoughts, and checking behaviors. The disorder exists on a spectrum, "
@@ -108,14 +107,14 @@ public class MentalHealthArticlesData {
                         "(CBT) with exposure and response prevention (ERP), along with SSRIs as first-line pharmacological interventions. Emerging therapies include deep brain stimulation for treatment-resistant cases and virtual reality "
                         +
                         "exposure therapy for complex contamination fears.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG017", "TAG021"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG017", "TAG021"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
                 "ATC005",
                 "PTSD: Navigating Trauma and the Path to Healing",
-                
+
                 "Post-Traumatic Stress Disorder (PTSD) develops in some individuals following exposure to traumatic events such as combat, assault, accidents, or natural disasters. Characterized by intrusive memories, hypervigilance, "
                         +
                         "avoidance behaviors, and negative alterations in mood and cognition, PTSD affects approximately 3.5% of U.S. adults annually. The disorder demonstrates complex interactions between neurobiological changes and "
@@ -126,14 +125,14 @@ public class MentalHealthArticlesData {
                         "Effective treatments include trauma-focused psychotherapies like prolonged exposure (PE) therapy and cognitive processing therapy (CPT). Neuroimaging studies show that successful treatment correlates with "
                         +
                         "normalization of amygdala hyperactivity and increased prefrontal cortex regulation. Recent advances include MDMA-assisted psychotherapy in clinical trials and the use of neurofeedback to modulate fear responses.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG025", "TAG030"))),  
-                       Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG025", "TAG030"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
                 "ATC006",
                 "The Power of Mindfulness: Ancient Practice in Modern Mental Health Care",
-                
+
                 "Mindfulness-based interventions have gained significant empirical support in recent decades as effective adjuncts to traditional mental health treatments. Rooted in Buddhist meditation practices, mindfulness involves "
                         +
                         "purposeful, non-judgmental attention to present-moment experiences. Research demonstrates its efficacy in reducing symptoms of anxiety, depression, and stress while improving emotional regulation and cognitive flexibility.\n\n"
@@ -144,14 +143,14 @@ public class MentalHealthArticlesData {
                         "Stress Reduction (MBSR) and Mindfulness-Based Cognitive Therapy (MBCT), both shown to reduce relapse rates in recurrent depression. Emerging research explores its role in pain management, addiction treatment, "
                         +
                         "and attention deficit disorders.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG040", "TAG026"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG040", "TAG026"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
                 "ATC007",
                 "Eating Disorders: Beyond the Surface of Food and Body Image",
-                
+
                 "Eating disorders represent complex mental health conditions characterized by severe disturbances in eating behaviors and related thoughts/emotions. The main types include anorexia nervosa, bulimia nervosa, binge-eating disorder, "
                         +
                         "and avoidant/restrictive food intake disorder (ARFID). These disorders have the highest mortality rate of any mental illness, emphasizing the critical need for early intervention and comprehensive treatment approaches.\n\n"
@@ -160,14 +159,14 @@ public class MentalHealthArticlesData {
                         "Biological factors play a significant role, with heritability estimates ranging from 28-74%. Neuroendocrine abnormalities in hunger/satiety signaling and altered reward processing in the brain contribute to symptom "
                         +
                         "maintenance. Treatment requires multidisciplinary care including medical stabilization, nutritional rehabilitation, and psychotherapy. Family-Based Treatment (FBT) has shown particular efficacy for adolescent anorexia cases.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG024"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG024"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
                 "ATC008",
                 "The Mental Health-Sleep Connection: Understanding Bidirectional Impacts",
-                
+
                 "Sleep and mental health share a complex bidirectional relationship, with sleep disturbances both contributing to and resulting from psychiatric conditions. Chronic insomnia increases the risk of developing depression by a factor "
                         +
                         "of 10, while 50-80% of psychiatric patients experience sleep problems. The REM sleep phase appears particularly crucial for emotional processing and memory consolidation.\n\n"
@@ -176,14 +175,14 @@ public class MentalHealthArticlesData {
                         "Cognitive-Behavioral Therapy for Insomnia (CBT-I) has emerged as the gold standard treatment, addressing maladaptive sleep behaviors and cognitive distortions about sleep. Recent discoveries about the glymphatic system's "
                         +
                         "role in clearing neural waste during sleep have opened new research avenues into neurodegenerative aspects of chronic sleep deprivation and mental illness.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG005", "TAG043"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-                ));
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG005", "TAG043"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
         articles.add(new Article(
                 "ATC009",
                 "Personality Disorders: Understanding Complex Patterns of Behavior",
-                
+
                 "Personality disorders represent enduring patterns of inner experience and behavior that deviate markedly from cultural expectations, leading to significant distress or impairment. The DSM-5 recognizes 10 specific personality disorders "
                         +
                         "organized into three clusters: A (odd/eccentric), B (dramatic/erratic), and C (anxious/fearful). Borderline Personality Disorder (BPD) remains the most researched, with dialectical behavior therapy (DBT) showing particular "
@@ -194,14 +193,14 @@ public class MentalHealthArticlesData {
                         "Neurobiological research highlights altered frontolimbic circuitry in BPD patients, particularly in emotional regulation and impulse control. The dimensional approach in ICD-11 marks a paradigm shift, assessing personality "
                         +
                         "functioning across five trait domains rather than categorical diagnoses. Early intervention programs for emerging personality disorders in adolescents show promise in improving long-term outcomes.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG025"))),  
-                        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-                        ));     
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG025"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
         articles.add(new Article(
                 "ATC010",
                 "Digital Age Mental Health: Navigating Technology's Double-Edged Sword",
-                
+
                 "The digital revolution has transformed mental health care delivery while introducing new psychological challenges. Teletherapy platforms and mental health apps increase accessibility, particularly for rural populations. However, "
                         +
                         "excessive screen time, social media comparison, and cyberbullying correlate with increased anxiety and depression rates, especially among adolescents.\n\n"
@@ -210,157 +209,155 @@ public class MentalHealthArticlesData {
                         "Emerging technologies like AI-powered chatbots and virtual reality exposure therapy show promise in supplementing traditional treatments. However, digital phenotyping and predictive algorithms raise ethical concerns "
                         +
                         "regarding privacy and diagnostic accuracy. The WHO's digital mental health intervention guidelines emphasize the need for evidence-based digital tools with human oversight.",
-                        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG037"))),  
-                        userRepository.findById("UID001").orElseThrow()
-                        ));
-
-        articles.add(new Article(
-        "ATC011",
-        "Childhood Trauma and Adult Mental Health: Breaking the Cycle",
-        
-        "Adverse Childhood Experiences (ACEs) demonstrate a strong dose-response relationship with adult mental health outcomes. The landmark ACE study revealed that individuals with ≥4 ACEs have 4-12x increased risk for depression, "
-                +
-                "suicide attempts, and substance abuse. Epigenetic mechanisms help explain how early trauma becomes biologically embedded, altering stress response systems and neural development.\n\n"
-                +
-
-                "Trauma-informed care approaches emphasize safety, trustworthiness, and empowerment in therapeutic settings. Evidence-based interventions like Trauma-Focused CBT and eye movement desensitization and reprocessing (EMDR) "
-                +
-                "help process traumatic memories. Recent research focuses on resilience factors and post-traumatic growth trajectories.",
-        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG003", "TAG040"))),
-        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG037"))),
+                userRepository.findById("UID001").orElseThrow()
         ));
 
         articles.add(new Article(
-        "ATC012",
-        "Bipolar Disorder: Managing the Peaks and Valleys",
-        
-        "Bipolar disorder is characterized by extreme mood swings between manic/hypomanic and depressive episodes. The condition affects approximately 2.8% of U.S. adults, with onset typically occurring in late adolescence or early adulthood. "
-                +
-                "Accurate diagnosis remains challenging, with average delays of 5-10 years between symptom onset and proper treatment.\n\n"
-                +
+                "ATC011",
+                "Childhood Trauma and Adult Mental Health: Breaking the Cycle",
 
-                "Mood stabilizers like lithium remain first-line treatments, demonstrating neuroprotective effects and suicide risk reduction. Psychoeducation programs focusing on early warning sign detection significantly improve outcomes. "
-                +
-                "Emerging research explores the role of circadian rhythm disruptions and light therapy in managing bipolar depression.",
-        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG005", "TAG008"))),
-        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                "Adverse Childhood Experiences (ACEs) demonstrate a strong dose-response relationship with adult mental health outcomes. The landmark ACE study revealed that individuals with ≥4 ACEs have 4-12x increased risk for depression, "
+                        +
+                        "suicide attempts, and substance abuse. Epigenetic mechanisms help explain how early trauma becomes biologically embedded, altering stress response systems and neural development.\n\n"
+                        +
+
+                        "Trauma-informed care approaches emphasize safety, trustworthiness, and empowerment in therapeutic settings. Evidence-based interventions like Trauma-Focused CBT and eye movement desensitization and reprocessing (EMDR) "
+                        +
+                        "help process traumatic memories. Recent research focuses on resilience factors and post-traumatic growth trajectories.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG003", "TAG040"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
-        "ATC013",
-        "The Psychology of Addiction: Beyond Chemical Dependence",
-        
-        "Addiction is a complex brain disorder characterized by compulsive substance use despite harmful consequences. The DSM-5 recognizes substance-related disorders across 10 drug classes, while behavioral addictions like gambling disorder "
-                +
-                "are increasingly acknowledged. Neuroimaging studies reveal addiction-related changes in the mesolimbic dopamine system, prefrontal cortex, and stress response systems.\n\n"
-                +
+                "ATC012",
+                "Bipolar Disorder: Managing the Peaks and Valleys",
 
-                "Effective treatment combines medication-assisted treatment (MAT) with behavioral therapies like contingency management and motivational interviewing. The harm reduction model emphasizes meeting patients where they are, "
-                +
-                "while neuroscience-informed approaches target impaired decision-making processes. Recent advances include deep brain stimulation for opioid use disorder and digital recovery support platforms.",
-        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG014"))),
-        Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                "Bipolar disorder is characterized by extreme mood swings between manic/hypomanic and depressive episodes. The condition affects approximately 2.8% of U.S. adults, with onset typically occurring in late adolescence or early adulthood. "
+                        +
+                        "Accurate diagnosis remains challenging, with average delays of 5-10 years between symptom onset and proper treatment.\n\n"
+                        +
+
+                        "Mood stabilizers like lithium remain first-line treatments, demonstrating neuroprotective effects and suicide risk reduction. Psychoeducation programs focusing on early warning sign detection significantly improve outcomes. "
+                        +
+                        "Emerging research explores the role of circadian rhythm disruptions and light therapy in managing bipolar depression.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG005", "TAG008"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
         ));
 
         articles.add(new Article(
-        "ATC014",
-        "Mindfulness-Based Stress Reduction: Science and Practice",
-        
-        "MBSR programs demonstrate 31% reduction in stress symptoms and 22% improvement in emotional regulation according to meta-analyses. The 8-week protocol combines body scanning, sitting meditation, and yoga to enhance present-moment awareness. "
-                +
-                "Neuroimaging studies show increased gray matter density in the hippocampus and decreased amygdala activation following MBSR training.\n\n"
-                +
-                "Clinical applications now extend beyond stress reduction to chronic pain management and cancer care. Recent adaptations include digital MBSR platforms with comparable efficacy to in-person programs. Research challenges include "
-                +
-                "standardizing teacher competency and addressing cultural adaptation needs in non-Western populations.",
-        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
-        Objects.requireNonNull(userRepository.findByUserId("UID002").orElse(null))
+                "ATC013",
+                "The Psychology of Addiction: Beyond Chemical Dependence",
+
+                "Addiction is a complex brain disorder characterized by compulsive substance use despite harmful consequences. The DSM-5 recognizes substance-related disorders across 10 drug classes, while behavioral addictions like gambling disorder "
+                        +
+                        "are increasingly acknowledged. Neuroimaging studies reveal addiction-related changes in the mesolimbic dopamine system, prefrontal cortex, and stress response systems.\n\n"
+                        +
+
+                        "Effective treatment combines medication-assisted treatment (MAT) with behavioral therapies like contingency management and motivational interviewing. The harm reduction model emphasizes meeting patients where they are, "
+                        +
+                        "while neuroscience-informed approaches target impaired decision-making processes. Recent advances include deep brain stimulation for opioid use disorder and digital recovery support platforms.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG014"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
+
+        articles.add(new Article(
+                "ATC014",
+                "Mindfulness-Based Stress Reduction: Science and Practice",
+
+                "MBSR programs demonstrate 31% reduction in stress symptoms and 22% improvement in emotional regulation according to meta-analyses. The 8-week protocol combines body scanning, sitting meditation, and yoga to enhance present-moment awareness. "
+                        +
+                        "Neuroimaging studies show increased gray matter density in the hippocampus and decreased amygdala activation following MBSR training.\n\n"
+                        +
+                        "Clinical applications now extend beyond stress reduction to chronic pain management and cancer care. Recent adaptations include digital MBSR platforms with comparable efficacy to in-person programs. Research challenges include "
+                        +
+                        "standardizing teacher competency and addressing cultural adaptation needs in non-Western populations.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID002").orElse(null))
         ));
 
 
+        articles.add(new Article(
+                "ATC015",
+                "Schizophrenia: Advances in Early Detection and Intervention",
 
+                "Schizophrenia affects approximately 1% of the global population, characterized by psychotic symptoms like hallucinations and delusions, along with cognitive impairments. Early detection and intervention can significantly improve long-term outcomes.\n\n"
+                        +
+                        "The prodromal phase often precedes a full psychotic episode by several years. Early intervention programs using antipsychotics and psychosocial support have been shown to delay or prevent the onset of full-blown psychosis. "
+                        +
+                        "Neuroinflammatory processes and genetic risk factors continue to be key research areas.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG034"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
         articles.add(new Article(
-    "ATC015",
-    "Schizophrenia: Advances in Early Detection and Intervention",
-    
-    "Schizophrenia affects approximately 1% of the global population, characterized by psychotic symptoms like hallucinations and delusions, along with cognitive impairments. Early detection and intervention can significantly improve long-term outcomes.\n\n"
-            +
-            "The prodromal phase often precedes a full psychotic episode by several years. Early intervention programs using antipsychotics and psychosocial support have been shown to delay or prevent the onset of full-blown psychosis. "
-            +
-            "Neuroinflammatory processes and genetic risk factors continue to be key research areas.",
-     new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG034"))),    
-    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-));
+                "ATC016",
+                "Autism Spectrum Disorder: Rethinking Neurodiversity",
 
-articles.add(new Article(
-    "ATC016",
-    "Autism Spectrum Disorder: Rethinking Neurodiversity",
-    
-    "Autism Spectrum Disorder (ASD) is a neurodevelopmental condition affecting 1 in 54 children in the U.S. ASD is characterized by difficulties in social communication and repetitive behaviors, with significant variability in symptom severity. "
-            +
-            "The neurodiversity movement advocates for recognizing and valuing neurological differences rather than viewing ASD as a deficit.\n\n"
-            +
+                "Autism Spectrum Disorder (ASD) is a neurodevelopmental condition affecting 1 in 54 children in the U.S. ASD is characterized by difficulties in social communication and repetitive behaviors, with significant variability in symptom severity. "
+                        +
+                        "The neurodiversity movement advocates for recognizing and valuing neurological differences rather than viewing ASD as a deficit.\n\n"
+                        +
 
-            "Interventions like Applied Behavior Analysis (ABA) remain controversial, with debates over their effectiveness and ethical implications. Emerging treatments focus on sensory integration therapies and supporting individuals' unique strengths. "
-            +
-            "Innovations in assistive technologies are improving communication for nonverbal individuals, while inclusive education models promote integration in mainstream settings.",
-        new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
-    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-));
+                        "Interventions like Applied Behavior Analysis (ABA) remain controversial, with debates over their effectiveness and ethical implications. Emerging treatments focus on sensory integration therapies and supporting individuals' unique strengths. "
+                        +
+                        "Innovations in assistive technologies are improving communication for nonverbal individuals, while inclusive education models promote integration in mainstream settings.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
-articles.add(new Article(
-    "ATC017",
-    "OCD: Breaking the Cycle of Obsessions and Compulsions",
-    
-    "Obsessive-compulsive disorder (OCD) affects 1-2% of the population, with symptoms typically emerging in childhood or adolescence. OCD is characterized by recurrent intrusive thoughts (obsessions) and repetitive behaviors (compulsions) aimed at reducing distress.\n\n"
-            +
-            "Cognitive-behavioral therapy (CBT) with exposure and response prevention (ERP) is the gold-standard treatment for OCD, showing significant symptom reduction. Selective serotonin reuptake inhibitors (SSRIs) remain first-line pharmacotherapy, with augmentation strategies like deep brain stimulation reserved for treatment-resistant cases. "
-            +
-            "Current research explores the role of inflammation and microbiome-gut-brain axis in OCD pathophysiology.",
-            new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
-   Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-));
+        articles.add(new Article(
+                "ATC017",
+                "OCD: Breaking the Cycle of Obsessions and Compulsions",
 
-articles.add(new Article(
-    "ATC018",
-    "Eating Disorders: Navigating the Complexities of Treatment",
-   
-    "Eating disorders like anorexia nervosa, bulimia nervosa, and binge-eating disorder affect approximately 9% of the global population, with a higher prevalence among adolescents. Treatment often requires multidisciplinary approaches combining psychotherapy, nutritional support, and medical management.\n\n"
-            +
-            "Cognitive-behavioral therapy (CBT) remains the most effective psychological intervention, while family-based therapy (FBT) has been successful in treating younger patients with anorexia nervosa. New research on the gut-brain axis is exploring how gut microbiota imbalances may contribute to eating disorder pathology. "
-            +
-            "Virtual reality-based therapies are also being tested for body image distortion in patients with eating disorders.",
-            new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
-    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+                "Obsessive-compulsive disorder (OCD) affects 1-2% of the population, with symptoms typically emerging in childhood or adolescence. OCD is characterized by recurrent intrusive thoughts (obsessions) and repetitive behaviors (compulsions) aimed at reducing distress.\n\n"
+                        +
+                        "Cognitive-behavioral therapy (CBT) with exposure and response prevention (ERP) is the gold-standard treatment for OCD, showing significant symptom reduction. Selective serotonin reuptake inhibitors (SSRIs) remain first-line pharmacotherapy, with augmentation strategies like deep brain stimulation reserved for treatment-resistant cases. "
+                        +
+                        "Current research explores the role of inflammation and microbiome-gut-brain axis in OCD pathophysiology.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
-));
+        articles.add(new Article(
+                "ATC018",
+                "Eating Disorders: Navigating the Complexities of Treatment",
 
-articles.add(new Article(
-    "ATC019",
-    "The Role of Neuroplasticity in Post-Stroke Recovery",
-    
-    "Stroke is a leading cause of disability worldwide, with approximately 15 million people experiencing a stroke each year. Advances in neuroplasticity research highlight the brain's capacity to reorganize and recover function after stroke through rehabilitation therapies.\n\n"
-            +
-            "Constraint-induced movement therapy (CIMT) and task-specific training have been shown to enhance motor recovery by promoting neuroplastic changes in affected brain areas. Non-invasive brain stimulation techniques like transcranial magnetic stimulation (TMS) are also being investigated as adjunctive treatments for post-stroke recovery. "
-            +
-            "Emerging technologies like brain-computer interfaces (BCIs) hold promise for assisting patients with severe motor impairments.",
-    new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG019", "TAG002"))),        
-    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-));
+                "Eating disorders like anorexia nervosa, bulimia nervosa, and binge-eating disorder affect approximately 9% of the global population, with a higher prevalence among adolescents. Treatment often requires multidisciplinary approaches combining psychotherapy, nutritional support, and medical management.\n\n"
+                        +
+                        "Cognitive-behavioral therapy (CBT) remains the most effective psychological intervention, while family-based therapy (FBT) has been successful in treating younger patients with anorexia nervosa. New research on the gut-brain axis is exploring how gut microbiota imbalances may contribute to eating disorder pathology. "
+                        +
+                        "Virtual reality-based therapies are also being tested for body image distortion in patients with eating disorders.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG002", "TAG005"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
 
-articles.add(new Article(
-    "ATC020",
-    "Alzheimer's Disease: New Insights and Therapeutic Approaches",
-    
-    "Alzheimer's disease is the most common form of dementia, affecting over 50 million people worldwide. Current treatments primarily target symptom management, with acetylcholinesterase inhibitors and NMDA receptor antagonists being the most commonly prescribed drugs.\n\n"
-            +
-            "Recent advances in amyloid-targeting therapies, including monoclonal antibodies like aducanumab, have sparked debate over their clinical efficacy and safety. Non-pharmacological interventions, such as cognitive stimulation therapy, physical exercise, and diet, are increasingly recognized for their neuroprotective effects. "
-            +
-            "Ongoing research is also investigating the role of neuroinflammation and metabolic dysfunction in Alzheimer's pathology.",
-    new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG003", "TAG007"))),
-    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
-));
+        ));
+
+        articles.add(new Article(
+                "ATC019",
+                "The Role of Neuroplasticity in Post-Stroke Recovery",
+
+                "Stroke is a leading cause of disability worldwide, with approximately 15 million people experiencing a stroke each year. Advances in neuroplasticity research highlight the brain's capacity to reorganize and recover function after stroke through rehabilitation therapies.\n\n"
+                        +
+                        "Constraint-induced movement therapy (CIMT) and task-specific training have been shown to enhance motor recovery by promoting neuroplastic changes in affected brain areas. Non-invasive brain stimulation techniques like transcranial magnetic stimulation (TMS) are also being investigated as adjunctive treatments for post-stroke recovery. "
+                        +
+                        "Emerging technologies like brain-computer interfaces (BCIs) hold promise for assisting patients with severe motor impairments.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG019", "TAG002"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
+
+        articles.add(new Article(
+                "ATC020",
+                "Alzheimer's Disease: New Insights and Therapeutic Approaches",
+
+                "Alzheimer's disease is the most common form of dementia, affecting over 50 million people worldwide. Current treatments primarily target symptom management, with acetylcholinesterase inhibitors and NMDA receptor antagonists being the most commonly prescribed drugs.\n\n"
+                        +
+                        "Recent advances in amyloid-targeting therapies, including monoclonal antibodies like aducanumab, have sparked debate over their clinical efficacy and safety. Non-pharmacological interventions, such as cognitive stimulation therapy, physical exercise, and diet, are increasingly recognized for their neuroprotective effects. "
+                        +
+                        "Ongoing research is also investigating the role of neuroinflammation and metabolic dysfunction in Alzheimer's pathology.",
+                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG003", "TAG007"))),
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))
+        ));
 
 
         // articles.add(new Article(

@@ -37,25 +37,26 @@ public class Psychologists {
     private String departmentID; // Only store the Department ID here
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DepartmentID", referencedColumnName = "DepartmentID", insertable = false, updatable = false) // Establish foreign key relationship
+    @JoinColumn(name = "DepartmentID", referencedColumnName = "DepartmentID", insertable = false, updatable = false)
+    // Establish foreign key relationship
     private Department department;
+
+    public Psychologists() {
+        status = PsychologistStatus.ACTIVE;
+    }
+
+    public Psychologists(String psychologistID, String userID, Integer yearsOfExperience, PsychologistStatus status, String departmentID) {
+        this.psychologistID = psychologistID;
+        this.userID = userID;
+        this.yearsOfExperience = yearsOfExperience;
+        this.status = status;
+        this.departmentID = departmentID;
+    }
 
     public String getFullNameFromUser() {
         if (user != null) {
             return user.getFullName();
         }
         return null;
-    }
-
-    public Psychologists() {
-        status = PsychologistStatus.ACTIVE;
-    }
-
-    public Psychologists(String psychologistID, String userID, Integer yearsOfExperience, PsychologistStatus status,String departmentID) {
-        this.psychologistID = psychologistID;
-        this.userID = userID;
-        this.yearsOfExperience = yearsOfExperience;
-        this.status = status;
-        this.departmentID = departmentID;
     }
 } 

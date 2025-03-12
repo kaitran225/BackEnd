@@ -1,52 +1,25 @@
 package com.healthy.backend.service;
 
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.healthy.backend.dto.survey.ConfirmationRequest;
-import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.QuestionResponse;
-import com.healthy.backend.dto.survey.StatusStudent;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.entity.Categories;
-import com.healthy.backend.entity.Parents;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.SurveyQuestionOptions;
-import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
-import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResult;
-import com.healthy.backend.entity.Surveys;
-import com.healthy.backend.entity.Users;
+import com.healthy.backend.dto.survey.*;
+import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.CategoriesRepository;
-import com.healthy.backend.repository.ParentRepository;
-import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
-import com.healthy.backend.repository.SurveyQuestionRepository;
-import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
+import com.healthy.backend.repository.*;
 import com.healthy.backend.security.TokenService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -551,7 +524,7 @@ public class SurveyService {
     }
 
     private int getTotalStudentDone(Surveys surveys) {
-        return (int) surveyResultRepository.countDistinctStudentsBySurveyID(surveys.getSurveyID());
+        return surveyResultRepository.countDistinctStudentsBySurveyID(surveys.getSurveyID());
     }
 
     private int getTotalStudent() {
@@ -665,7 +638,7 @@ public class SurveyService {
         BigDecimal weightNewTotal = BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(newWeight));
         BigDecimal totalWeights = BigDecimal.valueOf(totalWeightBefore).add(BigDecimal.valueOf(newWeight));
 
-        BigDecimal newAverage = (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal newAverage = (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, RoundingMode.HALF_UP);
         System.out.println(newAverage);
         return newAverage;
 

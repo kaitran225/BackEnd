@@ -1,11 +1,10 @@
 package com.healthy.backend.dto.programs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
-
-import java.util.HashSet;
 
 @Data
 @SuperBuilder

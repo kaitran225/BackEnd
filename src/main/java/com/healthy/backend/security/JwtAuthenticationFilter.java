@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Validation of the claims
                 if (hashedID == null || email == null || role == null) {
-                    returnErrorResponse(response, "Invalid JWT token: Missing essential claims." );
+                    returnErrorResponse(response, "Invalid JWT token: Missing essential claims.");
                     return;
                 }
 
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 if (!isActive) {
-                    returnErrorResponse(response, "User is not active." );
+                    returnErrorResponse(response, "User is not active.");
                     return;
                 }
 

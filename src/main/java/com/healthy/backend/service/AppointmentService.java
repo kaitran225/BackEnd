@@ -14,10 +14,8 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -418,7 +416,7 @@ public class AppointmentService {
     }
 
     // Check in
-    public AppointmentResponse checkIn(String appointmentId,String psychologistId) {
+    public AppointmentResponse checkIn(String appointmentId, String psychologistId) {
         Appointments appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentId));
 
@@ -534,9 +532,6 @@ public class AppointmentService {
             timeSlotRepository.save(oldTimeSlot);
         }
     }
-
-
-
 
 
 }

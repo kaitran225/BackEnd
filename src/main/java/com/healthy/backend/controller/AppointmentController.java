@@ -8,11 +8,7 @@ import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.AuthorizeException;
-import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.AppointmentMapper;
-import com.healthy.backend.mapper.PsychologistsMapper;
-import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.StudentRepository;
@@ -22,12 +18,12 @@ import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.NotificationService;
 import com.healthy.backend.service.PsychologistService;
 import com.healthy.backend.service.StudentService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -55,8 +50,8 @@ public class AppointmentController {
     private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final PsychologistService   psychologistService;
-    private  final StudentRepository studentRepository;
+    private final PsychologistService psychologistService;
+    private final StudentRepository studentRepository;
     private final StudentService studentService;
 
     @ApiResponses(value = {
@@ -141,7 +136,7 @@ public class AppointmentController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @Operation(summary = "Book an appointment",description ="Book an appointment")
+    @Operation(summary = "Book an appointment", description = "Book an appointment")
     @PostMapping("/book")
     public ResponseEntity<AppointmentResponse> bookAppointment(
 
@@ -283,7 +278,7 @@ public class AppointmentController {
         }
 
         // Nếu user là Manager hoặc Admin, không cần kiểm tra (có thể tùy chỉnh theo yêu cầu)
-        if (currentUser.getRole() == Role.MANAGER ) {
+        if (currentUser.getRole() == Role.MANAGER) {
             AppointmentResponse response = appointmentService.getAppointmentById(appointmentId);
             return ResponseEntity.ok(response);
         }
@@ -320,12 +315,10 @@ public class AppointmentController {
         }
 
         AppointmentResponse response = appointmentService.checkOut(appointmentId, request.getPsychologistNote());
-        
-     
+
 
         return ResponseEntity.ok(response);
     }
-
 
 
     @ApiResponses(value = {

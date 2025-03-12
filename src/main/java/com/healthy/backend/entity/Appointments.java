@@ -40,10 +40,8 @@ public class Appointments {
     private String psychologistNote;
 
 
-
     @Column(name = "Rating")
     private Integer rating;
-
 
 
     @Column(name = "CreatedAt", updatable = false)
@@ -79,7 +77,7 @@ public class Appointments {
 
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notifications > notifications;
+    private List<Notifications> notifications;
 
     public Appointments() {
         this.status = AppointmentStatus.SCHEDULED;

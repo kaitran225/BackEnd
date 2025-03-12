@@ -14,6 +14,8 @@ import com.healthy.backend.stats.ProgramStats;
 import com.healthy.backend.stats.SurveyStats;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,37 +24,28 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.mysql.cj.conf.PropertyKey.logger;
 
 
 @Service
 @RequiredArgsConstructor
 public class ManagerService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
     private final AppointmentRepository appointmentRepository;
     private final PsychologistRepository psychologistRepository;
     private final PsychologistKPIRepository kpiRepository;
     private final NotificationScheduleRepository notificationScheduleRepository;
-    private  final GeneralService generalService;
-
+    private final GeneralService generalService;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final ProgramParticipationRepository programParticipationRepository;
     private final StudentRepository studentRepository;
     private final TagsRepository tagsRepository;
-
+    private final Object notificationLock = new Object();
+    private final NotificationService notificationService;
     private NotificationSchedule cachedSchedule = null;
     private LocalDateTime lastScheduleCheck = null;
     private LocalDate lastNotificationDate = null;
-    private final Object notificationLock = new Object();
-    private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
-
-
-
-
 
     public ManagerDashboardResponse getDashboardStats(String filter, Integer value) {
         LocalDate[] dateRange = resolveDateRange(filter, value);
@@ -65,7 +58,6 @@ public class ManagerService {
 
         );
     }
-
 
     private SurveyStats calculateSurveyStats(LocalDate[] dateRange) {
         Map<String, Double> rates = new HashMap<>();
@@ -126,8 +118,6 @@ public class ManagerService {
         return stats;
     }
 
-
-
     private ProgramStats calculateProgramStats(LocalDate[] dateRange) {
         Map<String, Double> rates = new HashMap<>();
 
@@ -170,7 +160,6 @@ public class ManagerService {
         return stats;
     }
 
-    private final  NotificationService notificationService;
     @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
     public void sendWeeklyKpiReminders() {
         synchronized (notificationLock) {
@@ -207,11 +196,13 @@ public class ManagerService {
             lastScheduleCheck = LocalDateTime.now();
         }
     }
+
     private boolean shouldSendNotification(LocalDate today, LocalTime now) {
         return cachedSchedule.getNotificationDay() == today.getDayOfWeek()
                 && now.equals(cachedSchedule.getNotificationTime().truncatedTo(ChronoUnit.MINUTES))
                 && (lastNotificationDate == null || !lastNotificationDate.equals(today));
     }
+
     private void sendNotifications() {
         LocalDate todayDate = LocalDate.now();
         int currentMonth = todayDate.getMonthValue();
@@ -318,7 +309,6 @@ public class ManagerService {
     }
 
 
-
     private LocalDate[] resolveDateRange(String filter, Integer value) {
         LocalDate now = LocalDate.now();
         if (filter == null) return new LocalDate[]{null, null};
@@ -363,6 +353,7 @@ public class ManagerService {
         stats.setStatusDistribution(distribution);
         return stats;
     }
+
     private DepartmentStats calculateDepartmentStats(LocalDate[] dateRange) {
         Map<String, Double> distribution = new HashMap<>();
 

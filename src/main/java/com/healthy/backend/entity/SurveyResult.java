@@ -1,13 +1,13 @@
 package com.healthy.backend.entity;
 
-import java.util.List;
-import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,11 +47,6 @@ public class SurveyResult {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
     public SurveyResult(String resultID, String surveyID, String studentID) {
         this.resultID = resultID;
         this.surveyID = surveyID;
@@ -64,5 +59,10 @@ public class SurveyResult {
         this.studentID = studentID;
         this.result = result;
         this.maxScore = maxScore;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }
