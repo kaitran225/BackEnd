@@ -229,7 +229,7 @@ public class ProgramService {
     }
 
     private void validateStudentAvailability(String studentId, Programs program) {
-        if (!programParticipationRepository.existsByProgramIDAndStudentID(studentId, program.getProgramID())) {
+        if (!programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
             throw new ResourceAlreadyExistsException("Student is already registered for a program");
         }
         List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
@@ -274,6 +274,7 @@ public class ProgramService {
     private boolean isOverlapping(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
         return start1.isBefore(end2) && end1.isAfter(start2);
     }
+
     public boolean registerForProgram(String programId, String studentId) {
 
         Programs program = programRepository.findById(programId)
