@@ -65,8 +65,8 @@ public class AuthenticationService {
     @Value("${app.url}")
     private String siteURL;
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        return registerUser(request);
+    public void register(RegisterRequest request) {
+        registerUser(request);
     }
 
     public AuthenticationResponse registerPsychologist(PsychologistRegisterRequest request, HttpServletRequest httpServletRequest) {

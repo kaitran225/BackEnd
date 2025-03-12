@@ -1,10 +1,12 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.programs.*;
+import com.healthy.backend.entity.Psychologists;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ProgramService;
@@ -31,6 +33,7 @@ import java.util.List;
 @Tag(name = "Programs Controller", description = "Program related APIs")
 public class ProgramController {
 
+    private final PsychologistRepository psychologistRepository;
     private final StudentRepository studentRepository;
     private final ProgramService programService;
     private final TokenService tokenService;
@@ -114,6 +117,38 @@ public class ProgramController {
         List<ProgramsResponse> programsResponseList = programService.getAllProgramsDetails();
         if (programsResponseList.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return ResponseEntity.ok(programsResponseList);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    // Get facilitator program details
+    @Operation(summary = "Get facilitator's programs details", description = "Returns details of a list of program.")
+    @GetMapping("/facilitator")
+    public ResponseEntity<List<ProgramsResponse>> getFacilitatorPrograms(
+            @RequestParam(required = false) String facilitatorID, HttpServletRequest request) {
+
+        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
+            throw new OperationFailedException("Unauthorized access: You do not have permission to retrieve facilitator programs.");
+        }
+
+        if (tokenService.isManager(request) && (facilitatorID == null || facilitatorID.isBlank())) {
+            throw new OperationFailedException("Facilitator ID is required for managers.");
+        }
+
+        String finalFacilitatorID = validatePsychologistID(request, facilitatorID);
+        if (tokenService.isPsychologist(request) && !finalFacilitatorID.equals(tokenService.getRoleID(tokenService.retrieveUser(request)))) {
+            throw new OperationFailedException("Unauthorized access: You can only retrieve your own programs.");
+        }
+
+        Psychologists psychologist = psychologistRepository.findById(finalFacilitatorID)
+                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + finalFacilitatorID));
+
+        List<ProgramsResponse> programsResponse = programService.getFacilitatorPrograms(psychologist);
+        return ResponseEntity.ok(programsResponse);
     }
 
     @ApiResponses(value = {
@@ -315,6 +350,10 @@ public class ProgramController {
             throw new OperationFailedException("You don't have permission to create this program");
         }
         String managerId = tokenService.retrieveUser(request).getUserId();
+//        String finalFacilitatorID = validatePsychologistID(request, programsRequest.getFacilitatorId()); // Check
+//        if(tokenService.isManager(request) || !finalFacilitatorID.equals(programsRequest.getFacilitatorId())){
+//            throw new OperationFailedException("You can't assign other psychologist for this program");
+//        }
         ProgramsResponse programsResponse = programService.createProgram(programsRequest, managerId);
         if (programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
@@ -394,12 +433,39 @@ public class ProgramController {
     }
 
     private String validateStudentID(HttpServletRequest request, String studentId) {
-        if (studentId == null) {
-            return tokenService.getRoleID(tokenService.retrieveUser(request));
+        // If no student ID is provided, retrieve the requester's student ID
+        if (studentId == null || studentId.isBlank()) {
+            String requesterID = tokenService.getRoleID(tokenService.retrieveUser(request));
+            if (requesterID == null) {
+                throw new OperationFailedException("Unable to determine student ID for the requester.");
+            }
+            return requesterID;
         }
+
+        // Validate that the provided student ID exists
         if (!studentRepository.existsById(studentId)) {
-            return tokenService.getRoleID(tokenService.retrieveUser(request));
+            throw new ResourceNotFoundException("Student not found with ID: " + studentId);
         }
+
         return studentId;
     }
+
+    private String validatePsychologistID(HttpServletRequest request, String psychologistID) {
+        // If no ID is provided, retrieve the requester's role-based ID
+        if (psychologistID == null || psychologistID.isBlank()) {
+            String requesterID = tokenService.getRoleID(tokenService.retrieveUser(request));
+            if (requesterID == null) {
+                throw new OperationFailedException("Unable to determine psychologist ID for the requester.");
+            }
+            return requesterID;
+        }
+
+        // Validate that the provided psychologist ID exists
+        if (!psychologistRepository.existsById(psychologistID)) {
+            throw new ResourceNotFoundException("Psychologist not found with ID: " + psychologistID);
+        }
+
+        return psychologistID;
+    }
+
 }

@@ -236,6 +236,23 @@ public class ProgramService {
         return getProgramResponse(program, studentID);
     }
 
+    public List<ProgramsResponse> getFacilitatorPrograms(Psychologists psychologists) {
+        List<Programs> programsList = programRepository.findByFacilitatorID(psychologists.getPsychologistID());
+        if (programsList.isEmpty()) {
+            return List.of();
+        }
+        return programsList.stream().map(
+                program -> {
+                    List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+                    return programMapper.buildProgramsDetailsResponse(
+                            program,
+                            getActiveStudentsByProgram(program.getProgramID()),
+                            programSchedule.getLast()
+                    );
+                }
+        ).toList();
+    }
+
     public List<ProgramTagResponse> getProgramTags() {
         List<Tags> tags = tagsRepository.findAll();
         if (tags.isEmpty()) throw new ResourceNotFoundException("No tags found");
