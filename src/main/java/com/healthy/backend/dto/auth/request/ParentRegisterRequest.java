@@ -17,11 +17,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParentRegisterRequest extends RegisterRequest {
 
-    @Schema(
-            description = "A list of student IDs associated with the parent.",
-            example = "[\"STU001\", \"STU002\", \"STU003\"]",
-            implementation = ChildrenDetails.class
-    )
+    @Schema
     @Valid
     private ChildrenDetails childrenDetails;
 
