@@ -87,7 +87,7 @@ public class ProgramController {
     @GetMapping()
     public ResponseEntity<List<ProgramsResponse>> getPrograms(HttpServletRequest request) {
         if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST, Role.STUDENT, Role.PARENT))) {
-            throw new OperationFailedException("You don't have permission to get program tags");
+            throw new OperationFailedException("You don't have permission to get program");
         }
         Users user = tokenService.retrieveUser(request);
         List<ProgramsResponse> programsResponseList = programService.getAllPrograms(
@@ -131,23 +131,34 @@ public class ProgramController {
     public ResponseEntity<List<ProgramsResponse>> getFacilitatorPrograms(
             @RequestParam(required = false) String facilitatorID, HttpServletRequest request) {
 
-        if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
-            throw new OperationFailedException("Unauthorized access: You do not have permission to retrieve facilitator programs.");
-        }
+        Users currentUser = tokenService.retrieveUser(request);
+        String finalFacilitatorID;
 
-        if (tokenService.isManager(request) && (facilitatorID == null || facilitatorID.isBlank())) {
-            throw new OperationFailedException("Facilitator ID is required for managers.");
-        }
-
-        String finalFacilitatorID = validatePsychologistID(request, facilitatorID);
-        if (tokenService.isPsychologist(request) && !finalFacilitatorID.equals(tokenService.getRoleID(tokenService.retrieveUser(request)))) {
-            throw new OperationFailedException("Unauthorized access: You can only retrieve your own programs.");
+        switch (currentUser.getRole()) {
+            case MANAGER:
+                if (facilitatorID == null || facilitatorID.isBlank()) {
+                    throw new OperationFailedException("Facilitator ID is required for managers.");
+                }
+                finalFacilitatorID = facilitatorID;
+                break;
+            case PSYCHOLOGIST:
+                finalFacilitatorID = validatePsychologistID(request, facilitatorID);
+                if (!finalFacilitatorID.equals(tokenService.getRoleID(currentUser))) {
+                    throw new OperationFailedException("Unauthorized access: You can only retrieve your own programs.");
+                }
+                break;
+            default:
+                throw new OperationFailedException("Unauthorized access: You do not have permission to retrieve facilitator programs.");
         }
 
         Psychologists psychologist = psychologistRepository.findByPsychologistID(finalFacilitatorID);
+        if (psychologist == null) {
+            throw new OperationFailedException("Facilitator not found.");
+        }
 
         List<ProgramsResponse> programsResponse = programService.getFacilitatorPrograms(psychologist);
         return ResponseEntity.ok(programsResponse);
+
     }
 
     @ApiResponses(value = {
@@ -466,5 +477,4 @@ public class ProgramController {
 
         return psychologistID;
     }
-
 }

@@ -243,11 +243,11 @@ public class ProgramService {
         }
         return programsList.stream().map(
                 program -> {
-                    List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+                    ProgramSchedule programSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
                     return programMapper.buildProgramsDetailsResponse(
                             program,
                             getActiveStudentsByProgram(program.getProgramID()),
-                            programSchedule.getLast()
+                            programSchedule
                     );
                 }
         ).toList();
@@ -266,7 +266,7 @@ public class ProgramService {
         List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
                 studentId);
 
-        ProgramSchedule programSchedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+        ProgramSchedule programSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
 
         LocalTime programStart = programSchedule.getStartTime();
         LocalTime programEnd = programSchedule.getEndTime();
@@ -351,9 +351,9 @@ public class ProgramService {
         if (!isJoined(programId, studentId)) {
             throw new ResourceNotFoundException("Participation not found");
         }
-        ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
+        ProgramParticipation participation = programParticipationRepository.    findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
                 programId,
-                studentId).getLast();
+                studentId);
         if (participation.getStatus().equals(ParticipationStatus.CANCELLED))
             throw new ResourceAlreadyExistsException("Participation is already cancelled");
 
@@ -406,8 +406,24 @@ public class ProgramService {
         if (programRepository.findById(programId).isPresent()) return false;
         return programRepository.findById(programId).isEmpty();
     }
-
     public ProgramsResponse updateProgram(String programId, ProgramUpdateRequest updateRequest) {
+        Programs program = fetchProgram(programId);
+        validateProgramStatus(program, updateRequest);
+        validateDateConstraints(program, updateRequest);
+        validateParticipantCount(programId, updateRequest.getNumberParticipants());
+        validateDepartmentAndFacilitator(updateRequest);
+        validateMeetingLink(updateRequest.getMeetingLink());
+        isFacilitatorAvailable(updateRequest.getFacilitatorId(), updateRequest);
+
+        Set<Tags> tags = fetchTags(updateRequest.getTags());
+
+        updateAndSaveProgramDetails(program, updateRequest, tags);
+        updateProgramSchedule(programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(programId), updateRequest);
+
+        return getProgramResponse(program, null);
+    }
+
+    public ProgramsResponse __updateProgram(String programId, ProgramUpdateRequest updateRequest) {
         Programs program = fetchProgram(programId);
         validateProgramStatus(program, updateRequest);
         validateDateConstraints(program, updateRequest);
@@ -617,6 +633,26 @@ public class ProgramService {
 
     private ProgramsResponse getProgramResponse(Programs program, String studentID) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
+        ProgramSchedule lastSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
+
+        int activeStudentsCount = Math.toIntExact(programParticipationRepository.countActiveStudentsByProgramID(program.getProgramID()));
+
+        String status = null;
+
+        if (studentID != null && !studentID.isBlank()) {
+            ProgramParticipation latestParticipation = programParticipationRepository
+                    .findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(program.getProgramID(), studentID);
+
+            if (latestParticipation != null) {
+                status = String.valueOf(latestParticipation.getStatus());
+            }
+        }
+
+        return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
+    }
+
+    private ProgramsResponse _getProgramResponse(Programs program, String studentID) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
 
         Students student = studentRepository.findByStudentID(studentID);
 
@@ -627,10 +663,10 @@ public class ProgramService {
 
         String status = null;
         if (student != null) {
-            List<ProgramParticipation> participation =
-                    programParticipationRepository.findByProgramIDAndStudentID(program.getProgramID(), student.getStudentID());
-            if (!participation.isEmpty()) {
-                status = String.valueOf(participation.getLast().getStatus());
+            ProgramParticipation participation =
+                    programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(program.getProgramID(), student.getStudentID());
+            if (participation != null) {
+                status = String.valueOf(participation.getStatus());
             }
         }
         return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
@@ -644,7 +680,7 @@ public class ProgramService {
                 .stream()
                 .filter(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
+                            .findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(programId, studentResponse.getStudentId());
                     return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
                 })
                 .toList();
@@ -652,6 +688,14 @@ public class ProgramService {
     }
 
     private ProgramsResponse getProgramDetailsResponse(Programs program) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        ProgramSchedule programSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
+        return programMapper.buildProgramsDetailsResponse(program,
+                getActiveStudentsByProgram(program.getProgramID()),
+                programSchedule);
+    }
+
+    private ProgramsResponse _getProgramDetailsResponse(Programs program) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
         return programMapper.buildProgramsDetailsResponse(program,
@@ -816,8 +860,8 @@ public class ProgramService {
         if (!programParticipationRepository.existsByProgramIDAndStudentID(programId, studentId)) {
             return false;
         }
-        ProgramParticipation participation = programParticipationRepository.findByProgramIDAndStudentID(
-                programId, studentId).getLast();
+        ProgramParticipation participation = programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
+                programId, studentId);
         return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 
@@ -1060,7 +1104,7 @@ public class ProgramService {
                 .map(studentMapper::buildStudentResponse)
                 .peek(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
+                            .findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(programId, studentResponse.getStudentId());
                     if (programParticipation != null) {
                         studentResponse.setProgramStatus(programParticipation.getStatus().name());
                     }

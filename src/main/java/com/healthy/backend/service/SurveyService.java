@@ -226,8 +226,8 @@ public class SurveyService {
 
                 for (QuestionResponse questionRes : questionResponse.getQuestionList()) {
 
-                    SurveyQuestions newQuestion = surveyQuestionRepository.findFirstByOrderByQuestionIDDesc();
-                    System.out.println("newQuestion.." + newQuestion.getQuestionID());
+//                    SurveyQuestions newQuestion = surveyQuestionRepository.findFirstByOrderByQuestionIDDesc();
+//                    System.out.println("newQuestion.." + newQuestion.getQuestionID());
                     String latestQuestion = generalService.generateSurveyQuestionId();
 
 
@@ -638,11 +638,6 @@ public class SurveyService {
         BigDecimal weightNewTotal = BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(newWeight));
         BigDecimal totalWeights = BigDecimal.valueOf(totalWeightBefore).add(BigDecimal.valueOf(newWeight));
 
-        BigDecimal newAverage = (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, RoundingMode.HALF_UP);
-        System.out.println(newAverage);
-        return newAverage;
-
+        return (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, RoundingMode.HALF_UP);
     }
-
-
 }
