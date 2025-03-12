@@ -84,7 +84,6 @@ public class ProgramService {
         List<Programs> programs = programRepository.findAll();
         if (programs.isEmpty()) throw new ResourceNotFoundException("No programs found");
         return programs.stream().map(program -> {
-            List<StudentResponse> enrolled = getActiveStudentsByProgram(program.getProgramID());
             return getProgramResponse(program, studentID);
         }).toList();
     }
@@ -149,7 +148,7 @@ public class ProgramService {
         timeSlotRepository.saveAll(occupiedSlots);
     }
 
-    private void validateTimeRequest(ProgramsRequest programsRequest) {
+    private void validateTimeRequest(ProgramsRequest programsRequest)   {
         LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
         LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
 
@@ -160,9 +159,10 @@ public class ProgramService {
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
-
-        if (startTime.isBefore(endTime)) {
-        }
+//
+//        if (startTime.isBefore(endTime)) {
+//            return;
+//        }
     }
 
     private boolean isModulo30(LocalTime time) {
@@ -426,6 +426,30 @@ public class ProgramService {
 
     private List<StudentResponse> getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
+        List<Students> students = studentRepository.findStudentsByIds(studentIDs);
+        List<ProgramParticipation> programParticipations = programParticipationRepository
+                .findProgramParticipationsByProgramIdAndStudentIds(programId, studentIDs);
+        Map<String, ProgramParticipation> studentProgramParticipationMap = programParticipations.stream()
+                .collect(Collectors.toMap(
+                        ProgramParticipation::getStudentID,
+                        participation -> participation
+                ));
+
+        return students.stream()
+                .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = studentProgramParticipationMap.get(studentResponse.getStudentId());
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+
+
+    private List<StudentResponse> _getActiveStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
 
         return studentIDs.stream()
                 .map(studentRepository::findByStudentID)
@@ -623,8 +647,7 @@ public class ProgramService {
                             .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
                     return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
                 })
-                .collect(Collectors.toList());
-        if (studentResponses.isEmpty()) return programMapper.buildProgramsParticipantResponse(program, List.of());
+                .toList();
         return programMapper.buildProgramsParticipantResponse(program, studentResponses);
     }
 

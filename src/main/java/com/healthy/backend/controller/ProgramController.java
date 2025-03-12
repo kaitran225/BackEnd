@@ -144,8 +144,7 @@ public class ProgramController {
             throw new OperationFailedException("Unauthorized access: You can only retrieve your own programs.");
         }
 
-        Psychologists psychologist = psychologistRepository.findById(finalFacilitatorID)
-                .orElseThrow(() -> new ResourceNotFoundException("Psychologist not found with ID: " + finalFacilitatorID));
+        Psychologists psychologist = psychologistRepository.findByPsychologistID(finalFacilitatorID);
 
         List<ProgramsResponse> programsResponse = programService.getFacilitatorPrograms(psychologist);
         return ResponseEntity.ok(programsResponse);

@@ -3,6 +3,7 @@ package com.healthy.backend.repository;
 import com.healthy.backend.entity.Students;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface StudentRepository extends JpaRepository<Students, String> {
 
     List<Students> findByParentID(String parentId);
 
-} 
+    @Query("SELECT s FROM Students s WHERE s.studentID IN :studentIDs")
+    List<Students> findStudentsByIds(@Param("studentIDs") List<String> studentIDs);
+}
