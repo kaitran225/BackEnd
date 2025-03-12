@@ -29,4 +29,4 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Run the application with optimized JVM flags
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:MaxRAMPercentage=75", "-XX:+UseZGC","-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:+UseZGC","-jar", "app.jar"]
