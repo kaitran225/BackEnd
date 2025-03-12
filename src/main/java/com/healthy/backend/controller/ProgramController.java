@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,40 +44,46 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Get all programs
-    @ApiResponse(
-            responseCode = "200",
-            description = "Programs retrieved successfully",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ProgramsResponse.class),
-                    examples = @ExampleObject(
-                            name = "Success Response",
-                            value = "{ \"status\": \"success\", \"data\": [ { \"programId\": \"P001\", \"name\": \"Program A\", \"status\": \"Active\" }, { \"programId\": \"P002\", \"name\": \"Program B\", \"status\": \"Inactive\" } ] }"
-                    )
-            )
-    )
-    @ApiResponse(
-            responseCode = "400",
-            description = "Invalid program ID format",
-            content = @Content(
-                    mediaType = "application/json",
-                    examples = @ExampleObject(
-                            name = "Bad Request Example",
-                            value = "{\"error\": \"Invalid program ID format\", \"status\": 400}"
-                    )
-            )
-    )
-    @ApiResponse(
-            responseCode = "500",
-            description = "Internal server error",
-            content = @Content(
-                    mediaType = "application/json",
-                    examples = @ExampleObject(
-                            name = "Internal Server Error Example",
-                            value = "{\"error\": \"Unexpected error occurred\", \"status\": 500}"
-                    )
-            )
-    )
+//    @ApiResponse(
+//            responseCode = "200",
+//            description = "Programs retrieved successfully",
+//            content = @Content(
+//                    mediaType = "application/json",
+//                    schema = @Schema(implementation = ProgramsResponse.class),
+//                    examples = @ExampleObject(
+//                            name = "Success Response",
+//                            value = "{ \"status\": \"success\", \"data\": [ { \"programId\": \"P001\", \"name\": \"Program A\", \"status\": \"Active\" }, { \"programId\": \"P002\", \"name\": \"Program B\", \"status\": \"Inactive\" } ] }"
+//                    )
+//            )
+//    )
+//    @ApiResponse(
+//            responseCode = "400",
+//            description = "Invalid program ID format",
+//            content = @Content(
+//                    mediaType = "application/json",
+//                    examples = @ExampleObject(
+//                            name = "Bad Request Example",
+//                            value = "{\"error\": \"Invalid program ID format\", \"status\": 400}"
+//                    )
+//            )
+//    )
+//    @ApiResponse(
+//            responseCode = "500",
+//            description = "Internal server error",
+//            content = @Content(
+//                    mediaType = "application/json",
+//                    examples = @ExampleObject(
+//                            name = "Internal Server Error Example",
+//                            value = "{\"error\": \"Unexpected error occurred\", \"status\": 500}"
+//                    )
+//            )
+//    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get all programs", description = "Returns a list of all programs.")
     @GetMapping()
     public ResponseEntity<List<ProgramsResponse>> getPrograms(HttpServletRequest request) {
@@ -97,26 +104,12 @@ public class ProgramController {
     }
 
     // Get all program details
-    @ApiResponse(
-            responseCode = "200",
-            description = "Programs retrieved successfully",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ProgramsResponse.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "400",
-            description = "Invalid program ID format"
-    )
-    @ApiResponse(
-            responseCode = "401",
-            description = "Unauthorized access"
-    )
-    @ApiResponse(
-            responseCode = "500",
-            description = "Internal server error"
-    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get all program statuses", description = "Returns a list of all program statuses.")
     @GetMapping("/details/all")
     public ResponseEntity<?> getAllProgramStatuses(HttpServletRequest request) {
@@ -128,6 +121,12 @@ public class ProgramController {
         return ResponseEntity.ok(programsResponseList);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     // Get program details
     @Operation(summary = "Get program details", description = "Returns details of a specific program.")
     @GetMapping("/details")
@@ -149,6 +148,12 @@ public class ProgramController {
     }
 
     // Get program status
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get program status",
             description = "Returns the status of a specific program.")
     @GetMapping("/status")
@@ -166,6 +171,12 @@ public class ProgramController {
     }
 
     // Get enrolled programs of a student
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get enrolled programs of a student",
             description = "Returns a list of enrolled program.")
     @GetMapping("/enrolled")
@@ -182,6 +193,12 @@ public class ProgramController {
         return ResponseEntity.ok(programsResponseList);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Check psychologist availability", description = "Checks if a psychologist is available for a specific date range.")
     @GetMapping("/psychologists_availability")
     public boolean checkPsychologistAvailability(
@@ -195,6 +212,12 @@ public class ProgramController {
     }
 
     // Get program participants
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get program participants",
             description = "Returns a list of participants for a specific program.")
     @GetMapping("/participants")
@@ -210,6 +233,12 @@ public class ProgramController {
     }
 
     // Get program tags
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get program tags", description = "Returns a list of tags for programs.")
     @GetMapping("/tags")
     public ResponseEntity<List<ProgramTagResponse>> getProgramTags(HttpServletRequest request) {
@@ -225,6 +254,12 @@ public class ProgramController {
     /////////////////////////////////////////////////////POST REQUESTS/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Register for a program
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Register for a program", description = "Registers a student for a program.")
     @PostMapping("/register")
     public ResponseEntity<?> registerForProgram(
@@ -241,6 +276,12 @@ public class ProgramController {
     }
 
     // Create a program tag
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/tags/create")
     public ResponseEntity<?> createProgramTag(
             @RequestBody ProgramTagRequest programTagRequest,
@@ -254,6 +295,12 @@ public class ProgramController {
     }
 
     // Submit feedback
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(hidden = true, deprecated = true, summary = "Submit feedback", description = "Submits feedback for a specific program.")
     @PostMapping("/{programId}/feedback")
     public ResponseEntity<?> submitFeedback(@RequestParam String programId) {
@@ -261,6 +308,12 @@ public class ProgramController {
     }
 
     // Create a new program
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Create a new program", description = "Creates a new program.")
     @PostMapping("/create")
     public ResponseEntity<?> createProgram(@RequestBody ProgramsRequest programsRequest, HttpServletRequest request) {
@@ -278,6 +331,12 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Update a program
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Update a program",
             description = "Updates an existing program.")
     @PutMapping("/edit")
@@ -294,6 +353,12 @@ public class ProgramController {
     }
 
     // Cancel registration
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Cancel registration for a program", description = "Cancels registration for a program.")
     @PutMapping("/cancel-request")
     public ResponseEntity<String> cancelParticipation(
@@ -316,6 +381,12 @@ public class ProgramController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Delete a program
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Delete a program", description = "Deletes an existing program.")
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteProgram(@RequestParam String programId,

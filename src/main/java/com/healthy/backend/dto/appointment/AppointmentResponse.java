@@ -29,14 +29,14 @@ public class AppointmentResponse {
     @Schema(example = "TimeSlotInfo")
     private TimeSlots timeSlotInfo;
 
-    @Schema(examples = "{" +
+    @Schema(example = "{" +
             "studentId='STU001'," +
             "studentName='John Doe'," +
             "}"
     )
     private StudentResponse studentResponse;
 
-    @Schema(examples = "{" +
+    @Schema(example = "{" +
             "psychologistId='PSY001'," +
             "specialization='Mental Specialist'," +
             "}"

@@ -2,6 +2,10 @@ package com.healthy.backend.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -45,6 +49,12 @@ public class SurveyController {
     private final SurveyService surveyService;
     private final TokenService tokenService;
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get all surveys",
             description = "Returns a list of available surveys."
@@ -59,6 +69,12 @@ public class SurveyController {
         return ResponseEntity.ok(surveys);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get score in survey",
             description = "Return the score that the student achieved in the survey"
@@ -72,6 +88,12 @@ public class SurveyController {
         return ResponseEntity.ok(status);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get survey details",
             description = "Returns details for a specific survey."
@@ -85,6 +107,12 @@ public class SurveyController {
         return ResponseEntity.ok(surveyQuestions);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Update question in survey",
             description = "Updates a question in a survey."
@@ -105,6 +133,12 @@ public class SurveyController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Submit survey response",
@@ -115,6 +149,13 @@ public class SurveyController {
         return "Survey responses saved for survey " + surveyId;
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
 
             summary = "Get survey results",
@@ -127,6 +168,13 @@ public class SurveyController {
         return ResponseEntity.ok(surveyResult);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Submit survey feedback",
@@ -138,6 +186,13 @@ public class SurveyController {
         return "Feedback submitted for survey " + surveyId;
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Create survey",
             description = "Creates a new survey."
@@ -148,6 +203,13 @@ public class SurveyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new SurveyRequest());
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Update survey",
@@ -158,6 +220,13 @@ public class SurveyController {
         return "Survey updated successfully";
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Cancel survey",
@@ -168,6 +237,13 @@ public class SurveyController {
         return "Survey canceled successfully";
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Add question to survey",
             description = "Adds a question to a survey."
@@ -186,6 +262,13 @@ public class SurveyController {
         }
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Delete question from survey",
@@ -196,6 +279,13 @@ public class SurveyController {
         return "Question removed from survey " + surveyId;
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Add answer to question",
             description = "Adds an answer to a question."
@@ -213,6 +303,13 @@ public class SurveyController {
         }
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get student survey results",
             description = "Returns results for a specific student's survey."
@@ -227,6 +324,12 @@ public class SurveyController {
         return ResponseEntity.ok(surveyResponse);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Get survey dashboard",
@@ -237,6 +340,13 @@ public class SurveyController {
         return "Survey dashboard overview";
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Schedule survey",
@@ -249,6 +359,13 @@ public class SurveyController {
         return "Survey " + surveyId + " scheduled successfully";
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Update survey status",
             description = "Updates the status of a survey."
@@ -267,6 +384,13 @@ public class SurveyController {
         }
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Enable anonymous survey",
@@ -277,6 +401,13 @@ public class SurveyController {
         return "Survey " + surveyId + " set to anonymous";
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             deprecated = true,
             summary = "Export survey results",
@@ -289,6 +420,13 @@ public class SurveyController {
         return "Survey results exported in format: " + format;
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/survey/{surveyId}/students/checkResultsToHaveAppointment")
     public ResponseEntity<?> getLowScoringStudentsForAppointment(
             HttpServletRequest request,
@@ -304,6 +442,13 @@ public class SurveyController {
         }
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/survey/{surveyId}/students/appointments")
     public ResponseEntity<?> handleAppointmentRequest(
             @RequestBody List<ConfirmationRequest> requests)
@@ -317,5 +462,4 @@ public class SurveyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request" + ex.getMessage());
         }
     }
-
 }

@@ -7,6 +7,10 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.apache.catalina.connector.Response;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -19,8 +23,7 @@ import org.springframework.context.annotation.Configuration;
                         name = "Health service Team",
                         email = "support@healthservice.com",
                         url = "https://www.cybriadev.com"
-                ),
-                summary = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczOTg0NzMyNywiZXhwIjoxNzM5OTMzNzI3fQ._-IpOX-qHVr73XaMCvkqrvAsgXmkZYUsceourKqAzdk"
+                )
         ),
         servers = {
                 @Server(

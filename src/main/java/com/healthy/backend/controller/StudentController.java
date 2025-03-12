@@ -9,6 +9,10 @@ import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +33,12 @@ public class StudentController {
     private final StudentService studentService;
 
     // Get student by ID
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get student by ID", description = "Returns a student by ID.")
     @GetMapping("")
     public ResponseEntity<StudentResponse> getStudentById(
@@ -38,6 +48,12 @@ public class StudentController {
     }
 
     // Update student details
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Update student details", description = "Updates a student's details.")
     @PutMapping("/update")
     public ResponseEntity<StudentResponse> updateStudent(
@@ -48,6 +64,12 @@ public class StudentController {
     }
 
     // Get student survey
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get student survey", description = "Returns a list of student survey.")
     @GetMapping("/surveys")
     public ResponseEntity<List<SurveysResponse>> getStudentSurveys(
@@ -59,6 +81,12 @@ public class StudentController {
     }
 
     // Get pending surveys for student
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get pending surveys for student", description = "Returns a list of pending surveys for a student.")
     @GetMapping("/surveys/pending")
     public ResponseEntity<List<SurveysResponse>> getPendingSurveys(
@@ -68,6 +96,12 @@ public class StudentController {
     }
 
     // Get programs assigned to student
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get programs assigned to student", description = "Returns a list of programs assigned to a student.")
     @GetMapping("/programs")
     public ResponseEntity<List<ProgramsResponse>> getStudentPrograms(
@@ -77,6 +111,12 @@ public class StudentController {
     }
 
     // Get completed programs
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get completed programs", description = "Returns a list of completed programs.")
     @GetMapping("/programs/completed")
     public ResponseEntity<List<ProgramsResponse>> getCompletedPrograms(
@@ -86,6 +126,12 @@ public class StudentController {
     }
 
     // Get student appointments
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get student appointments", description = "Returns a list of student appointments.")
     @GetMapping("/appointments")
     public ResponseEntity<List<AppointmentResponse>> getStudentAppointments(
@@ -95,6 +141,12 @@ public class StudentController {
     }
 
     // Get upcoming student appointments
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get upcoming student appointments", description = "Returns a list of upcoming student appointments.")
     @GetMapping("/appointments/upcoming")
     public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(

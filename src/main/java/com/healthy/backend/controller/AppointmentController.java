@@ -22,6 +22,10 @@ import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.NotificationService;
 import com.healthy.backend.service.PsychologistService;
 import com.healthy.backend.service.StudentService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,6 +59,13 @@ public class AppointmentController {
     private  final StudentRepository studentRepository;
     private final StudentService studentService;
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "Filter appointments", description = "Returns a list of filtered appointments.")
     @GetMapping("/filter")
     public ResponseEntity<List<AppointmentResponse>> filterAppointments(
             @RequestParam(required = false) String studentId,
@@ -124,8 +135,13 @@ public class AppointmentController {
         return ResponseEntity.ok(responses);
     }
 
-
-    @Operation(summary = "Book an appointment")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "Book an appointment",description ="Book an appointment")
     @PostMapping("/book")
     public ResponseEntity<AppointmentResponse> bookAppointment(
 
@@ -158,6 +174,12 @@ public class AppointmentController {
 
     // Hủy lịch hẹn
     // Trong AppointmentController
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Request cancel of an appointment")
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
@@ -175,6 +197,12 @@ public class AppointmentController {
     }
 
     // Check-in - chỉ Psychologist
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Check in to an appointment")
     @PostMapping("/{appointmentId}/check-in")
     public ResponseEntity<AppointmentResponse> checkIn(
@@ -199,7 +227,12 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get all appointments",
             description = "Returns a list of all appointments."
@@ -219,6 +252,12 @@ public class AppointmentController {
         return ResponseEntity.noContent().build();
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get appointment by ID",
             description = "Returns the appointment with the specified ID."
@@ -254,7 +293,12 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentResponse);
     }
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Check out from an appointment")
     @PostMapping("/{appointmentId}/check-out")
     public ResponseEntity<AppointmentResponse> checkOut(
@@ -284,7 +328,12 @@ public class AppointmentController {
 
 
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Update an appointment",
             description = "Updates time slot, notes of an appointment."

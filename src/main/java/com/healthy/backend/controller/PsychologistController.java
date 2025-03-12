@@ -4,6 +4,10 @@ package com.healthy.backend.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -53,7 +57,12 @@ public class PsychologistController {
     private final TokenService tokenService;
     private final StudentRepository studentRepository;
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get all psychologists")
     @GetMapping()
     public ResponseEntity<List<PsychologistResponse>> getAllPsychologist(HttpServletRequest request) {
@@ -61,7 +70,12 @@ public class PsychologistController {
         return !psychologistResponse.isEmpty() ? ResponseEntity.ok(psychologistResponse) : ResponseEntity.noContent().build();
     }
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get psychologist by ID")
     @GetMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> getPsychologistById(
@@ -96,7 +110,12 @@ public class PsychologistController {
         return ResponseEntity.ok(psychologistService.getPsychologistById(actualId));
     }
 
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Update psychologist details")
     @PutMapping({ "/detail"})
     public ResponseEntity<PsychologistResponse> updatePsychologist(
@@ -134,6 +153,13 @@ public class PsychologistController {
         ));
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get all psychologists",
             description = "Returns a list of all registered psychologists filtered by specialization."
@@ -148,6 +174,13 @@ public class PsychologistController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Get all departments",
             description = "Returns a list of all departments.")
@@ -161,6 +194,12 @@ public class PsychologistController {
     }
 
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Create time slots from default templates")
     @PostMapping("/timeslots/batch")
     public ResponseEntity<List<TimeSlotResponse>> createTimeSlotsFromDefaults(
@@ -198,6 +237,12 @@ public class PsychologistController {
     }
 
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Lấy danh sách time slots")
     @GetMapping("/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(

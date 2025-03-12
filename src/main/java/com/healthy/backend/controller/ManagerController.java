@@ -5,6 +5,11 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.repository.PsychologistKPIRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ManagerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +31,18 @@ public class ManagerController {
     private final ManagerService managerService;
     private  final TokenService tokenService;
     private final PsychologistKPIRepository kpiRepository;
+
     // Endpoint to get appointment statistics by status
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
+        summary = "Get appointment statistics by status",
+        description = ""
+    )
     @GetMapping("/stats/appointments")
     public AppointmentStatsResponse getAppointmentStats(
             HttpServletRequest httpRequest
@@ -38,6 +54,12 @@ public class ManagerController {
         return managerService.getAppointmentStats();
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/stats/psychologists")
     public List<PsychologistStatsResponse> getPsychologistStats(
             HttpServletRequest httpRequest
@@ -48,6 +70,12 @@ public class ManagerController {
         return managerService.getPsychologistStats();
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/kpi")
     public ResponseEntity<KpiResponse> setKpi(
             @RequestParam String psychologistId,
@@ -72,6 +100,13 @@ public class ManagerController {
         return ResponseEntity.ok(response);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/notification-schedule")
     public ResponseEntity<NotificationScheduleResponse> setNotificationSchedule(
             @RequestParam String notificationTime,
@@ -93,6 +128,13 @@ public class ManagerController {
         return ResponseEntity.ok(response);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/dashboard")
     public ResponseEntity<ManagerDashboardResponse> getManagerDashboard(
             @RequestParam(required = false) String filter, // week/month/year

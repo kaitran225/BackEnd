@@ -11,6 +11,10 @@ import com.healthy.backend.exception.InvalidTokenException;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,6 +46,12 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final LogoutService logoutHandler;
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Register new student",
             description = "Register a new student with the provided details"
@@ -52,6 +62,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.registerStudent(request));
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Register new parent",
             description = "Register a new parent with the provided details"
@@ -63,6 +80,13 @@ public class AuthenticationController {
     }
 
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Register new psychologist",
             description = "Register a new psychologist with the provided details"
@@ -75,6 +99,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.registerPsychologist(request, httpServletRequest));
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Authenticate user",
             description = "Authenticate a user and return JWT tokens"
@@ -88,6 +119,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationResponse);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Transactional
     @Operation(
             summary = "Refresh token",
@@ -99,6 +137,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Transactional
     @Operation(
             summary = "Initiate password reset",
@@ -115,6 +160,13 @@ public class AuthenticationController {
         return ResponseEntity.ok("Password reset link have been sent to " + email);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Reset password",
             description = "Reset password using token from email (Soon be hidden)"
@@ -132,6 +184,13 @@ public class AuthenticationController {
         return ResponseEntity.ok("Password successfully reset");
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Logout user",
             description = "Logout the current user"
@@ -146,6 +205,13 @@ public class AuthenticationController {
         return ResponseEntity.ok("Successfully logged out");
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Extract tokens",
             description = "Extract tokens from request"
@@ -156,6 +222,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.extractTokens(request));
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(
             summary = "Verify user registration",
             description = "Verify user registration using verification token"

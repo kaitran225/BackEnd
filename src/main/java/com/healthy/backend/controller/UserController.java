@@ -11,6 +11,10 @@ import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ExportService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +51,12 @@ public class UserController {
             summary = "Get all users",
             description = "Returns a list of all registered users."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/all")
     public ResponseEntity<List<UsersResponse>> getAllUsers(HttpServletRequest request) {
         if (!tokenService.isManager(request)) {
@@ -62,6 +72,12 @@ public class UserController {
             summary = "Get user by ID",
             description = "Returns the user with the specified ID."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("")
     public ResponseEntity<UsersResponse> getUserById(
             @RequestParam(required = false) String userId,
@@ -80,6 +96,12 @@ public class UserController {
             summary = "Get user by ID",
             description = "Returns the user details with the specified ID."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/details")
     public ResponseEntity<UsersResponse> getUserDetailsById(
             @RequestParam(required = false) String userId,
@@ -100,6 +122,12 @@ public class UserController {
             summary = "Update user details",
             description = "Updates a user's details."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PutMapping("/update")
     public ResponseEntity<UsersResponse> updateUser(
             @RequestParam(required = false) String userId,
@@ -119,6 +147,12 @@ public class UserController {
             summary = "Deactivate user account",
             description = "Deactivates a user's account."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/deactivate")
     public ResponseEntity<?> deactivateUser(
             @RequestParam String userId,
@@ -136,6 +170,12 @@ public class UserController {
             summary = "Reactivate user account",
             description = "Reactivates a user's account."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/reactivate")
     public ResponseEntity<?> reactivateUser(
             @RequestParam String userId, HttpServletRequest request) {
@@ -154,6 +194,12 @@ public class UserController {
             summary = "Update user role",
             description = "Updates a user's role."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PutMapping("/role")
     public ResponseEntity<?> updateUserRole(
             @RequestParam String userId,
@@ -169,6 +215,12 @@ public class UserController {
             summary = "Export user data",
             description = "Exports user data in a specified format (CSV, JSON, or PDF)."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/export")
     public ResponseEntity<?> exportUserData(
             @RequestParam String userId,
@@ -204,6 +256,12 @@ public class UserController {
             summary = "Submit feedback for user",
             description = "Submits feedback for a specific user."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @PostMapping("/feedback")
     public String submitFeedback(@RequestParam String userId, @RequestBody String feedback) {
         return "Feedback submitted by user " + userId;
@@ -213,6 +271,12 @@ public class UserController {
             summary = "Search users by name",
             description = "Searches for users with a specific name."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/search")
     public ResponseEntity<List<UsersResponse>> searchUsers(
             @RequestParam String name, HttpServletRequest request) {
@@ -229,6 +293,12 @@ public class UserController {
             summary = "Delete user account",
             description = "Deletes a user's account."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @DeleteMapping("/delete")
     public ResponseEntity<UsersResponse> deleteUser(
             @RequestParam String userId,
@@ -246,6 +316,12 @@ public class UserController {
             summary = "Get all events",
             description = "Returns a list of all events for a specific user."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/events")
     public ResponseEntity<?> getAllEvents(
             @RequestParam(required = false) String userId,
@@ -265,6 +341,12 @@ public class UserController {
             summary = "Get user's appointments",
             description = "Returns all appointments for a specific user (student or psychologist)."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @GetMapping("/appointments")
     public ResponseEntity<List<AppointmentResponse>> getUserAppointments(
             @RequestParam(required = false) String userId,
