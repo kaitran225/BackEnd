@@ -263,6 +263,13 @@ public class PsychologistController {
         return ResponseEntity.ok(slots);
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
     @Operation(summary = "Get default time slots")
     @GetMapping("/default-time-slots")
     public ResponseEntity<List<DefaultTimeSlotResponse>> getDefaultTimeSlots() {

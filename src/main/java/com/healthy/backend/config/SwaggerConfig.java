@@ -7,9 +7,8 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.apache.catalina.connector.Response;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -44,4 +43,11 @@ import org.springframework.context.annotation.Configuration;
         in = SecuritySchemeIn.HEADER
 )
 public class SwaggerConfig {
+    @Bean
+    public GroupedOpenApi healthServiceApi() {
+        return GroupedOpenApi.builder()
+                .group("Health Service API")
+                .packagesToScan("com.healthy.backend.controller")
+                .build();
+    }
 }
