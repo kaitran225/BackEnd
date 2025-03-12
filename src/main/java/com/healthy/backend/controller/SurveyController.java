@@ -140,6 +140,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Submit survey response",
             description = "Submits a response to a survey."
@@ -176,6 +177,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Submit survey feedback",
             description = "Submits feedback for a survey."
@@ -211,6 +213,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Update survey",
             description = "Updates an existing survey."
@@ -228,6 +231,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Cancel survey",
             description = "Cancels a survey."
@@ -270,6 +274,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Delete question from survey",
             description = "Deletes a question from a survey."
@@ -331,6 +336,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Get survey dashboard",
             description = "Returns a dashboard overview for surveys."
@@ -348,6 +354,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Schedule survey",
             description = "Schedules a survey."
@@ -392,6 +399,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Enable anonymous survey",
             description = "Enables anonymous mode for a survey."
@@ -409,6 +417,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
+            hidden = true,
             deprecated = true,
             summary = "Export survey results",
             description = "Exports survey results in a specified format."
