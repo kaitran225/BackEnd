@@ -3,6 +3,8 @@ package com.healthy.backend.config;
 import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -10,7 +12,7 @@ import java.time.ZonedDateTime;
 public class SystemConfig {
 
 //    @Scheduled(cron = "0 0 12 * * ?")
-    @Scheduled(cron = "0 32 10 * * ?")
+    @Scheduled(cron = "0 50 22 * * ?")
     public void shutdownAtNoon() {
         System.out.println("Shutting down the application at noon...");
         System.exit(0);
