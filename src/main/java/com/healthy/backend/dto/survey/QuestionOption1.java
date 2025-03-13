@@ -18,13 +18,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class QuestionOption {
+public class QuestionOption1 {
     @Schema(example = "")
     private int value;
     @Schema(example = "")
     private String label;
-    @Schema(example = "")
+    @Schema(example = "SQO001")
     private String answerID;
-    @Schema(example = "", nullable = false)
-    private boolean checked;
 }
