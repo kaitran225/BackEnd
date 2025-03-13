@@ -159,8 +159,9 @@ public class ManagerService {
         stats.setProgramParticipationRates(rates);
         return stats;
     }
-
-    @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
+    
+    @Scheduled(cron = "0 0 9 * * MON") // Tempo fix
+    // @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
     public void sendWeeklyKpiReminders() {
         synchronized (notificationLock) {
             try {
