@@ -160,7 +160,6 @@ public class ManagerService {
         return stats;
     }
 
-    @Async
     @Scheduled(cron = "0 0 9 * * MON")
     public void sendWeeklyKpiReminders() {
         synchronized (notificationLock) {
