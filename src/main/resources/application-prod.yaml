@@ -12,28 +12,75 @@ spring:
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 4
-      maximum-pool-size: 10
+      minimum-idle: 1
+      maximum-pool-size: 4
       idle-timeout: 120000
       max-lifetime: 1800000
       keepalive-time: 120000
+      leak-detection-threshold: 60000
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
 
   jpa:
     properties:
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
+        # Optimize memory usage by batching and caching
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        # Enable memory-efficient second-level cache
+        cache.use_second_level_cache: true
+        cache.use_query_cache: true
+        cache.region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
+        javax.cache.uri: META-INF/ehcache.xml
+        # Optimize memory by avoiding unnecessary SQL logging
+        show_sql: false
+        format_sql: false
+        # Reduce memory footprint
+        default_batch_fetch_size: 30
+        generate_statistics: false
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
-    open-in-view: true
+    open-in-view: false
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
 
+  # Optimize Jackson to reduce memory usage
   jackson:
     default-property-inclusion: non_null
     serialization:
       fail-on-empty-beans: false
+    # Reduce memory usage from deserialization
+    deserialization:
+      fail-on-unknown-properties: false
+      fail-on-ignored-properties: false
+    # Reduce memory usage from property detection
+    mapper:
+      sort-properties-alphabetically: false
+      use-annotations: true
+
+  # Optimize Spring startup
+  main:
+    lazy-initialization: true
+    banner-mode: off
+    # Do not allow bean definition overriding
+    allow-bean-definition-overriding: false
+    
+  # Reduce thread pool sizes for tasks
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 50
+        allow-core-thread-timeout: true
+    scheduling:
+      pool:
+        size: 2
 
   cors:
     allowed-origins: "*"
@@ -56,18 +103,35 @@ spring:
 springdoc:
   swagger-ui:
     disable-swagger-default-response-messages: true
+    # Optimize memory usage by lazy loading swagger resources
+    lazy-initialization: true
+    enabled: ${ENABLE_SWAGGER:false}
+  api-docs:
+    enabled: ${ENABLE_SWAGGER:false}
 
 server:
   address: 0.0.0.0
-  port: 8080
+  port: ${PORT:8080}
   tomcat:
     threads:
-      min-spare: 10
-      max: 200
+      min-spare: 1
+      max: 20
+    max-connections: 50
+    accept-count: 25
+    connection-timeout: 30000
+    max-swallow-size: 2MB
+    max-http-form-post-size: 2MB
+    # Reduce memory with relaxed settings
+    relaxed-query-chars: '|,{,},[,]'
+    relaxed-path-chars: '|,{,},[,]'
   compression:
     enabled: true
-    mime-types: application/json,text/html,text/xml
+    mime-types: application/json,text/html,text/xml,application/xml,application/javascript
     min-response-size: 1024
+  # Reduce response headers
+  servlet:
+    session:
+      tracking-modes: cookie
 
 hibernate:
   transaction:
@@ -76,12 +140,19 @@ hibernate:
 
 logging:
   level:
-    root: INFO
-    org.springframework: INFO
+    root: ERROR
+    org.springframework: WARN
     com.zaxxer.hikari: WARN
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.hibernate: ERROR
+    org.hibernate.SQL: ERROR
+    org.hibernate.type.descriptor.sql.BasicBinder: ERROR
+    com.healthy.backend: WARN
+    org.springframework.security: WARN
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+  # Reduce logging memory footprint
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
 
 jwt:
   secret: ${JWT_SECRET}

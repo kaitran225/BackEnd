@@ -3,13 +3,11 @@ WORKDIR /app
 
 # Copy pom.xml first to leverage Docker layer caching
 COPY pom.xml .
-RUN mvn dependency:resolve
+RUN mvn dependency:go-offline -B
 
-# Copy source code
+# Copy source code and build with minimal memory usage
 COPY src ./src
-
-# Build the application
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true
 
 # Use a smaller JDK runtime for running the application
 FROM eclipse-temurin:21-jre-alpine
@@ -27,5 +25,22 @@ EXPOSE 8080
 # Set the active Spring profile to production
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Run the application with optimized JVM flags
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:+UseZGC","-jar", "app.jar"]
+# Create a non-root user to run the application
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Run the application with optimized JVM flags for cloud environments
+ENTRYPOINT ["java", \
+            "-XX:InitialRAMPercentage=50", \
+            "-XX:MaxRAMPercentage=70", \
+            "-XX:MinRAMPercentage=50", \
+            "-XX:+UseContainerSupport", \
+            "-XX:+UseG1GC", \
+            "-XX:MaxGCPauseMillis=100", \
+            "-XX:+ParallelRefProcEnabled", \
+            "-XX:MaxTenuringThreshold=1", \
+            "-XX:+DisableExplicitGC", \
+            "-Djava.security.egd=file:/dev/./urandom", \
+            "-Dserver.tomcat.max-threads=50", \
+            "-Dspring.jmx.enabled=false", \
+            "-jar", "app.jar"]
