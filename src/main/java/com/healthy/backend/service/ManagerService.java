@@ -160,7 +160,8 @@ public class ManagerService {
         return stats;
     }
 
-    @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
+    @Async
+    @Scheduled(cron = "0 0 9 * * MON")
     public void sendWeeklyKpiReminders() {
         synchronized (notificationLock) {
             try {
