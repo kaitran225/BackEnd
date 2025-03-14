@@ -1,5 +1,5 @@
 # Use Maven to build the application
-FROM maven:3.9.8-eclipse-temurin-21 AS build
+FROM maven:3.9.8-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
 # Copy pom.xml first to leverage Docker layer caching
@@ -29,4 +29,4 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Run the application with optimized JVM flags
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:+UseZGC","-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:MaxRAM=256m","-XX:+UseSerialGC","-jar", "-XX:+PrintGCDetails","-XX:+PrintGCTimeStamps","-Xss216k" ,"-XX:+PrintGCDateStamps", "app.jar"]
