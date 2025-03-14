@@ -4,7 +4,6 @@ spring:
       on-profile: prod
 
   main:
-    # Change from 'reactive' to 'servlet' to use servlet-based servers like Undertow
     web-application-type: servlet
 
   datasource:
@@ -15,8 +14,8 @@ spring:
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 4
-      maximum-pool-size: 10
+      minimum-idle: 1
+      maximum-pool-size: 3
       idle-timeout: 120000
       max-lifetime: 1800000
       keepalive-time: 120000
@@ -32,6 +31,12 @@ spring:
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
 
   jackson:
     default-property-inclusion: non_null
@@ -58,6 +63,8 @@ spring:
   springdoc:
     swagger-ui:
       disable-swagger-default-response-messages: true
+    api-docs:
+      enabled: false
 
 server:
   address: 0.0.0.0
@@ -68,8 +75,8 @@ server:
     min-response-size: 1024
 
   undertow:
-    io-threads: 4
-    worker-threads: 8
+    io-threads: 2
+    worker-threads: 4
     buffer-size: 1024KB
 
 hibernate:
