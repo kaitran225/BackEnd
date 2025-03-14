@@ -28,17 +28,14 @@
     </properties>
 
     <dependencies>
-        <!-- Spring Boot Web Starter for API and Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
-
         <!-- Spring Boot Data JPA for ORM -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>3.4.1</version>
         </dependency>
 
         <!-- MySQL Connector for Database Connectivity -->
@@ -48,10 +45,7 @@
             <version>9.1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
+
 
         <!-- Lombok for Getter/Setter Generation -->
         <dependency>
@@ -64,19 +58,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-
-        <!-- Atomikos JTA Transaction Management -->
-        <dependency>
-            <groupId>com.atomikos</groupId>
-            <artifactId>transactions-jta</artifactId>
-            <version>5.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.atomikos</groupId>
-            <artifactId>transactions-jdbc</artifactId>
-            <version>5.0.9</version>
         </dependency>
 
         <!-- Jackson Hibernate Datatype for proper serialization of Hibernate Entities -->
@@ -90,20 +71,20 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.8.1</version>
+            <version>2.8.5</version>
         </dependency>
 
-        <!-- PDF Generation (iText) -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>8.0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>layout</artifactId>
-            <version>8.0.5</version>
-        </dependency>
+<!--        &lt;!&ndash; PDF Generation (iText) &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.itextpdf</groupId>-->
+<!--            <artifactId>kernel</artifactId>-->
+<!--            <version>8.0.5</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.itextpdf</groupId>-->
+<!--            <artifactId>layout</artifactId>-->
+<!--            <version>8.0.5</version>-->
+<!--        </dependency>-->
 
         <!-- JSON Web Token (JWT) for Authentication -->
         <dependency>
@@ -132,14 +113,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-
-        <!-- Servlet API (provided) for Web Container -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.0.0</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
