@@ -2,15 +2,15 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.repository.UserRepository;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.properties.TextAlignment;
+//import com.itextpdf.io.font.constants.StandardFonts;
+//import com.itextpdf.kernel.font.PdfFont;
+//import com.itextpdf.kernel.font.PdfFontFactory;
+//import com.itextpdf.kernel.geom.PageSize;
+//import com.itextpdf.kernel.pdf.PdfDocument;
+//import com.itextpdf.kernel.pdf.PdfWriter;
+//import com.itextpdf.layout.Document;
+//import com.itextpdf.layout.element.Paragraph;
+//import com.itextpdf.layout.properties.TextAlignment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,35 +53,35 @@ public class ExportService {
     }
 
     private byte[] exportUserAsPDF(Users user) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-            PdfWriter writer = new PdfWriter(outputStream);
-            PdfDocument pdfDocument = new PdfDocument(writer);
-            Document document = new Document(pdfDocument, PageSize.A4);
-
-            document.setMargins(50, 50, 50, 50);
-
-            PdfFont titleFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-            PdfFont normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-            // Add title
-            Paragraph title = new Paragraph("User Details Report")
-                    .setFont(titleFont)
-                    .setFontSize(16)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
-            document.add(title);
-
-            // Add user details
-            document.add(new Paragraph("User ID: " + user.getUserId()).setFont(normalFont).setFontSize(12));
-            document.add(new Paragraph("Name: " + user.getFullName()).setFont(normalFont).setFontSize(12));
-            document.add(new Paragraph("Email: " + user.getEmail()).setFont(normalFont).setFontSize(12));
-
-            document.close();
-
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
+//        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+//
+//            PdfWriter writer = new PdfWriter(outputStream);
+//            PdfDocument pdfDocument = new PdfDocument(writer);
+//            Document document = new Document(pdfDocument, PageSize.A4);
+//
+//            document.setMargins(50, 50, 50, 50);
+//
+//            PdfFont titleFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+//            PdfFont normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+//
+//            // Add title
+//            Paragraph title = new Paragraph("User Details Report")
+//                    .setFont(titleFont)
+//                    .setFontSize(16)
+//                    .setTextAlignment(TextAlignment.CENTER)
+//                    .setMarginBottom(20);
+//            document.add(title);
+//
+//            // Add user details
+//            document.add(new Paragraph("User ID: " + user.getUserId()).setFont(normalFont).setFontSize(12));
+//            document.add(new Paragraph("Name: " + user.getFullName()).setFont(normalFont).setFontSize(12));
+//            document.add(new Paragraph("Email: " + user.getEmail()).setFont(normalFont).setFontSize(12));
+//
+//            document.close();
+//
+//            return outputStream.toByteArray();
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error generating PDF", e);
+//        }
     }
 }

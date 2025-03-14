@@ -201,6 +201,7 @@ public class UserController {
     }
 
     @Operation(
+            hidden = true,
             summary = "Export user data",
             description = "Exports user data in a specified format (CSV, JSON, or PDF)."
     )
