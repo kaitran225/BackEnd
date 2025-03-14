@@ -9,7 +9,7 @@ RUN mvn dependency:resolve
 # Copy source code
 COPY src ./src
 
-# Build the application
+# Build the application with thin jar
 RUN mvn clean package -DskipTests
 
 # Use a smaller JDK runtime for running the application
@@ -19,8 +19,9 @@ WORKDIR /app
 # Set timezone to prevent time issues
 ENV TZ=Asia/Ho_Chi_Minh
 
-# Copy only the built JAR
-COPY --from=build /app/target/swagger-api-server.jar app.jar
+# Copy the thin jar and its dependencies
+COPY --from=build /app/target/thin/root/repository repository/
+COPY --from=build /app/target/*.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080
@@ -29,4 +30,12 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Run the application with optimized JVM flags
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:+AlwaysActAsServerClassMachine", "-XX:+UseZGC","-jar", "app.jar"]
+ENTRYPOINT ["java", 
+    "-XX:+UseContainerSupport",
+    "-XX:+AlwaysActAsServerClassMachine",
+    "-Xmx128m",
+    "-Xms128m",
+    "-XX:MaxRAMPercentage=75.0",
+    "-XX:+UseSerialGC",
+    "-jar", 
+    "app.jar"]
