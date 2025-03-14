@@ -4,7 +4,8 @@ spring:
       on-profile: prod
 
   main:
-    web-application-type: reactive  # Use reactive web server type for Undertow
+    # Change from 'reactive' to 'servlet' to use servlet-based servers like Undertow
+    web-application-type: servlet
 
   datasource:
     url: ${DATABASE_URL}?serverTimezone=Asia/Ho_Chi_Minh
@@ -67,7 +68,6 @@ server:
     min-response-size: 1024
 
   undertow:
-    # Optional undertow configurations (max threads, etc.)
     io-threads: 4
     worker-threads: 8
     buffer-size: 1024KB
