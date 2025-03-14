@@ -4,12 +4,12 @@ WORKDIR /app
 
 # Copy pom.xml first to leverage Docker layer caching
 COPY pom.xml .
-RUN mvn dependency:resolve
+RUN mvn dependency:go-offline
 
 # Copy source code
 COPY src ./src
 
-# Build the application with thin jar
+# Build the application
 RUN mvn clean package -DskipTests
 
 # Use a smaller JDK runtime for running the application
@@ -19,9 +19,8 @@ WORKDIR /app
 # Set timezone to prevent time issues
 ENV TZ=Asia/Ho_Chi_Minh
 
-# Copy the thin jar and its dependencies
-COPY --from=build /app/target/thin/root/repository repository/
-COPY --from=build /app/target/*.jar app.jar
+# Copy only the built JAR
+COPY --from=build /app/target/swagger-api-server.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080
@@ -37,5 +36,13 @@ ENTRYPOINT ["java", \
     "-Xms128m",\
     "-XX:MaxRAMPercentage=75.0",\
     "-XX:+UseSerialGC",\
+    "-Xss256k",\
+    "-XX:MaxMetaspaceSize=64m",\
+    "-XX:CompressedClassSpaceSize=32m",\
+    "-Djava.security.egd=file:/dev/./urandom",\
+    "-XX:+UseStringDeduplication",\
+    "-XX:+DisableExplicitGC",\
+    "-XX:SoftRefLRUPolicyMSPerMB=0",\
+    "-noverify",\
     "-jar", \
     "app.jar"]

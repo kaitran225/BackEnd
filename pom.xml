@@ -121,14 +121,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.springframework.boot.experimental</groupId>
-                        <artifactId>spring-boot-thin-layout</artifactId>
-                        <version>1.0.31.RELEASE</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
         <finalName>swagger-api-server</finalName>
