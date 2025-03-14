@@ -22,7 +22,6 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <jmockit.version>1.49</jmockit.version>
         <!-- Memory Optimization Properties for Maven Build -->
         <maven.compiler.memory.initial>128m</maven.compiler.memory.initial>
         <maven.compiler.memory.max>512m</maven.compiler.memory.max>
@@ -159,19 +158,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- Maven Surefire Plugin for Running Tests (Optional) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
-                <configuration>
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
-                        -XX:+EnableDynamicAgentLoading
-                    </argLine>
-                </configuration>
             </plugin>
         </plugins>
 
