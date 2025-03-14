@@ -11,8 +11,7 @@ build/
 !**/src/test/**/target/
 !**/src/main/**/build/
 !**/src/test/**/build/
-.mvn/
-.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/*.jar
 
 ### IDE Specific ###
 # Spring Tool Suite (STS)
