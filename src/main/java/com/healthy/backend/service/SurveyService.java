@@ -1,25 +1,60 @@
 package com.healthy.backend.service;
 
 
-import com.healthy.backend.dto.survey.*;
-import com.healthy.backend.entity.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.healthy.backend.dto.survey.ConfirmationRequest;
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.QuestionOption1;
+import com.healthy.backend.dto.survey.QuestionOptionRequest;
+import com.healthy.backend.dto.survey.QuestionRequest;
+import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.QuestionResponse1;
+import com.healthy.backend.dto.survey.StatusStudent;
+import com.healthy.backend.dto.survey.SurveyQuestionRequest;
+import com.healthy.backend.dto.survey.SurveyQuestionRequest1;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyRequest;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.entity.Categories;
+import com.healthy.backend.entity.Parents;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.SurveyQuestionOptions;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
+import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.backend.entity.SurveyResult;
+import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.*;
+import com.healthy.backend.repository.CategoriesRepository;
+import com.healthy.backend.repository.ParentRepository;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
+import com.healthy.backend.repository.SurveyQuestionRepository;
+import com.healthy.backend.repository.SurveyRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
 import com.healthy.backend.security.TokenService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -142,45 +177,93 @@ public class SurveyService {
                 surveyResult.getLast().getResult() + "/" + surveyResult.getLast().getMaxScore());
     }
 
-
-    public void updateSurveyQuestion(String surveyID, SurveyQuestionResponse surveyQuestionResponse) {
-        List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
-
-        if (surveyQuestions.isEmpty()) {
-            throw new ResourceNotFoundException("surveyID not found" + surveyID);
-        }
-        Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
-                .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
-
-        for (QuestionResponse sqr : surveyQuestionResponse.getQuestionList()) {
-            SurveyQuestions surveyQuestion1 = surveyQuestionMap.get(sqr.getId());
-
-            Categories categories = categoriesRepository.findById(surveyQuestion1.getCategoryID())
-                    .orElseThrow(() -> new ResourceNotFoundException("Categories not found" + surveyQuestion1.getCategoryID()));
-
-
-            surveyQuestion1.setQuestionText(sqr.getQuestionText());
-            categories.setCategoryName(SurveyCategory.valueOf(sqr.getQuestionCategory()));
-            List<QuestionOption> questionOption = sqr.getQuestionOptions();
-
-            List<SurveyQuestionOptions> answers = surveyQuestionOptionsRepository.findByQuestionID(surveyQuestion1.getQuestionID());
-
-            if (!answers.isEmpty()) {
-                for (int i = 0; i < answers.size(); i++) {
-                    SurveyQuestionOptions ans = answers.get(i);
-
-                    if (i < questionOption.size()) {
-                        ans.setOptionText(questionOption.get(i).getLabel());
-                        ans.setScore(questionOption.get(i).getValue());
-
-                    }
+    public void updateSurveyQuestion(HttpServletRequest request, String surveyID, SurveyQuestionRequest1 surveyQuestionRequest) {
+        Role role = tokenService.retrieveUser(request).getRole();
+        switch (role) {
+            case MANAGER:
+            case PSYCHOLOGIST:
+                List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
+                if(surveyQuestions.isEmpty()) {
+                     throw new ResourceNotFoundException("SurveyID not found "+ surveyID);
                 }
-            }
-            surveyQuestionOptionsRepository.saveAll(answers);
-            surveyQuestionRepository.save(surveyQuestion1);
-            categoriesRepository.save(categories);
+
+                SurveyCategory surveyCategory = SurveyCategory.valueOf(surveyQuestionRequest.getCategory().toUpperCase());
+                Categories category = categoriesRepository.findByCategoryName(surveyCategory); 
+                    
+                Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
+                    .collect(Collectors.toMap(SurveyQuestions :: getQuestionID, Function.identity()));
+        
+                for (QuestionResponse1 sqr : surveyQuestionRequest.getQuestionList()) {
+                    SurveyQuestions surveyQuestion = surveyQuestionMap.get(sqr.getId());
+                    surveyQuestion.setQuestionText(sqr.getQuestionText());
+                    surveyQuestion.setCategoryID(category.getCategoryID());
+
+                    List<QuestionOption1> questionOption = sqr.getQuestionOptions();
+                    
+                    Map<String, SurveyQuestionOptions> optionMap = questionOption.stream()
+                        .map(option -> {
+                            return surveyQuestionOptionsRepository.findByOptionID(option.getAnswerID());
+                        })
+                        .collect(Collectors.toMap(SurveyQuestionOptions :: getOptionID, Function.identity()));
+
+                    List<SurveyQuestionOptions> optionList = questionOption.stream()
+                        .map(option -> {
+                            SurveyQuestionOptions sqo = optionMap.get(option.getAnswerID());
+                            sqo.setOptionText(option.getLabel());
+                            sqo.setScore(option.getValue());
+                            
+                            return sqo;
+                        })
+                        .collect(Collectors.toList());
+                    surveyQuestionOptionsRepository.saveAll(optionList);             
+                }    
+                    
+            return;
+            default:
+                throw new RuntimeException("You don't have permission to access");
         }
+        
     }
+
+        
+    // public void updateSurveyQuestion(String surveyID, SurveyQuestionResponse surveyQuestionResponse) {
+    //     List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
+
+    //     if (surveyQuestions.isEmpty()) {
+    //         throw new ResourceNotFoundException("surveyID not found" + surveyID);
+    //     }
+    //     Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
+    //             .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
+
+    //     for (QuestionResponse sqr : surveyQuestionResponse.getQuestionList()) {
+    //         SurveyQuestions surveyQuestion1 = surveyQuestionMap.get(sqr.getId());
+
+    //         Categories categories = categoriesRepository.findById(surveyQuestion1.getCategoryID())
+    //                 .orElseThrow(() -> new ResourceNotFoundException("Categories not found" + surveyQuestion1.getCategoryID()));
+
+
+    //         surveyQuestion1.setQuestionText(sqr.getQuestionText());
+    //         categories.setCategoryName(SurveyCategory.valueOf(sqr.getQuestionCategory()));
+    //         List<QuestionOption> questionOption = sqr.getQuestionOptions();
+
+    //         List<SurveyQuestionOptions> answers = surveyQuestionOptionsRepository.findByQuestionID(surveyQuestion1.getQuestionID());
+
+    //         if (!answers.isEmpty()) {
+    //             for (int i = 0; i < answers.size(); i++) {
+    //                 SurveyQuestionOptions ans = answers.get(i);
+
+    //                 if (i < questionOption.size()) {
+    //                     ans.setOptionText(questionOption.get(i).getLabel());
+    //                     ans.setScore(questionOption.get(i).getValue());
+
+    //                 }
+    //             }
+    //         }
+    //         surveyQuestionOptionsRepository.saveAll(answers);
+    //         surveyQuestionRepository.save(surveyQuestion1);
+    //         categoriesRepository.save(categories);
+    //     }
+    // }
 
     public SurveyQuestionResponse getSurveyQuestion(String surveyID) {
 
@@ -212,105 +295,74 @@ public class SurveyService {
                 .toList();
     }
 
+    public String getLastIdInDB(String index) {
+        String prefix = index.replaceAll("\\d", "");
+        String numberPart = index.replaceAll("\\D", "");
 
-    public void addSurveyQuestion(HttpServletRequest request, String surveyId, SurveyQuestionResponse questionResponse) {
+        int currentID = Integer.parseInt(numberPart);
+        int newID = currentID + 1;
+        String formatID = prefix + String.format("%03d", newID);
+        return formatID; 
+    }
 
+    public void addSurveyQuestion(HttpServletRequest request, String surveyId, SurveyQuestionRequest surveyQuestionRequest) {
         Role role = tokenService.retrieveUser(request).getRole();
         switch (role) {
             case MANAGER:
             case PSYCHOLOGIST:
                 List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(surveyId);
-                if (surveyQuestion.isEmpty()) {
-                    throw new ResourceNotFoundException("Not found survey for " + surveyId);
+                SurveyCategory surveyCategory = SurveyCategory.valueOf(surveyQuestionRequest.getCategory().toUpperCase());
+                Categories category = categoriesRepository.findByCategoryName(surveyCategory);
+                
+                if(surveyQuestion.isEmpty()) {
+                    throw new ResourceNotFoundException("Not found survey for" + surveyId);
                 }
 
-                for (QuestionResponse questionRes : questionResponse.getQuestionList()) {
-
-//                    SurveyQuestions newQuestion = surveyQuestionRepository.findFirstByOrderByQuestionIDDesc();
-//                    System.out.println("newQuestion.." + newQuestion.getQuestionID());
+                for(QuestionRequest questionRequest : surveyQuestionRequest.getQuestionList()) {
                     String latestQuestion = generalService.generateSurveyQuestionId();
+                    SurveyQuestions surveyQuestion1 = SurveyQuestions.builder()
+                        .questionText(questionRequest.getQuestionText())
+                        .questionID(latestQuestion)
+                        .surveyID(surveyId)
+                        .categoryID(category.getCategoryID())
+                        .build();
 
-
-                    SurveyQuestions surveyQuestion1 = new SurveyQuestions();
-                    surveyQuestion1.setQuestionText(questionRes.getQuestionText());
-                    surveyQuestion1.setQuestionID(latestQuestion);
-                    surveyQuestion1.setSurveyID(surveyId);
-
-                    SurveyCategory categories;
-                    try {
-                        categories = SurveyCategory.valueOf(questionRes.getQuestionCategory());
-                    } catch (IllegalArgumentException ex) {
-                        throw new ResourceNotFoundException("Category not found " + questionRes.getQuestionCategory());
-                    }
-
-                    Categories category = categoriesRepository.findByCategoryName(categories);
-
-                    surveyQuestion1.setCategoryID(category.getCategoryID());
                     surveyQuestionRepository.save(surveyQuestion1);
 
-                    List<SurveyQuestionOptions> optionsList = new ArrayList<>();
-                    List<QuestionOption> questionOption = questionRes.getQuestionOptions();
+                    List<QuestionOptionRequest> questionOption = questionRequest.getQuestionOptions();
+                    AtomicInteger index = new AtomicInteger(0);
+                    String[] latestOptionID = {null};
 
-                    String nextAnsId = null;
-                    int index = 0;
-                    SurveyQuestionOptions lastAns = null;
-                    for (QuestionOption QO : questionOption) {
-                        SurveyQuestionOptions option = new SurveyQuestionOptions();
-                        option.setOptionText(QO.getLabel());
-                        option.setScore(QO.getValue());
+                    List<SurveyQuestionOptions> surveyQuestionOptionses = questionOption.stream()
+                        .map(questionOptionRequest -> {
+                            if(index.get() == 0) {
+                                latestOptionID[0] = generalService.generateQuestionOptionId();
+                                System.out.println(latestOptionID[0]);
+                            }
+                            else {
+                                latestOptionID[0] = (latestOptionID[0] != null) ? getLastIdInDB(latestOptionID[0]) : "SQO001";
+                            }
+                            index.getAndIncrement();
 
-                        if (index == 0) {
-                            lastAns = surveyQuestionOptionsRepository.findFirstByOrderByOptionIDDesc();
-                            nextAnsId = lastAns.getOptionID();
-                        }
+                            return SurveyQuestionOptions.builder()
+                                .optionText(questionOptionRequest.getLabel())
+                                .score(questionOptionRequest.getValue())
+                                .optionID(latestOptionID[0])
+                                .questionID(latestQuestion)
+                                .build();
 
-                        String newAns = generalService.generateQuestionOptionId();
-                        nextAnsId = newAns;
-                        option.setQuestionID(newAns);
-                        option.setQuestionID(latestQuestion);
-                        optionsList.add(option);
-                        index++;
-                    }
-                    surveyQuestionOptionsRepository.saveAll(optionsList);
+                        })
+                        .collect(Collectors.toList());
+                    
+                    surveyQuestionOptionsRepository.saveAll(surveyQuestionOptionses);
+                return;
                 }
-
-            default:
-                throw new RuntimeException("You don't have permission to access");
+        default:
+            throw new RuntimeException("You don't have permission to access");
         }
     }
 
 
-    public void addAnswerToQuestion(String surveyId, String questionId, List<QuestionOption> answerOption) {
-        List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(surveyId);
-        Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestionList.stream()
-                .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
-
-        SurveyQuestions surveyQuestion = surveyQuestionMap.get(questionId);
-        List<SurveyQuestionOptions> optionsList = new ArrayList<>();
-        int index = 0;
-        String aswersDesc1 = null;
-        SurveyQuestionOptions answerDesc = null;
-        for (QuestionOption questionOption : answerOption) {
-            SurveyQuestionOptions options = new SurveyQuestionOptions();
-
-            if (index == 0) {
-                answerDesc = surveyQuestionOptionsRepository.findFirstByOrderByOptionIDDesc();
-                aswersDesc1 = answerDesc.getOptionID();
-            }
-
-            String numberOfAns = generalService.generateQuestionOptionId();
-            aswersDesc1 = numberOfAns;
-
-            options.setQuestionID(numberOfAns);
-            options.setOptionText(questionOption.getLabel());
-            options.setScore(questionOption.getValue());
-            options.setQuestionID(surveyQuestion.getQuestionID());
-            optionsList.add(options);
-            index++;
-
-        }
-        surveyQuestionOptionsRepository.saveAll(optionsList);
-    }
 
     public void updateSurveyStatus(String surveyId, SurveyRequest status) {
         Surveys survey = surveyRepository.findById(surveyId)
