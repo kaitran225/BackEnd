@@ -18,7 +18,17 @@
     allow-bean-definition-overriding: false
     allow-circular-references: false
     cloud-platform: none
-    
+    register-shutdown-hook: false
+  
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration
+      - org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
+      - org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration
+      - org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
+      - org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
+      - org.springframework.boot.autoconfigure.jta.JtaAutoConfiguration
+
   resources:
     add-mappings: false
     
@@ -46,6 +56,10 @@
       validation-timeout: 5000
       keepalive-time: 0
       leak-detection-threshold: 0
+      register-mbeans: false
+      allow-pool-suspension: false
+      initialization-fail-timeout: 1
+      validation-query: SELECT 1
 
   # Common timeZone setting
   jackson:
@@ -124,7 +138,8 @@
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-
+    show-sql: false
+    
   task:
     execution:
       pool:
@@ -160,13 +175,13 @@
       docExpansion: none
       filter: true
       use-root-path: true
-      enabled: false  # Disable in production
+      enabled: true  # Disable in production
     override-with-generic-response: false
     cache:
       disabled: true
     writer-with-default-pretty-printer: false
     api-docs:
-      enabled: false
+      enabled: true
 
 # Server settings
 server:
@@ -195,7 +210,7 @@ logging:
     io.undertow.websockets.jsr: ERROR  # Suppress websocket warnings
     org.springframework.security.config.annotation.authentication.configuration: ERROR  # Suppress authentication warnings
   pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level --- [%thread] %logger{36} : %msg%n"
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} : %msg%n"
 
 # JWT Configuration
 jwt:
