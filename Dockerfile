@@ -29,24 +29,29 @@ COPY --from=build /app/target/swagger-api-server.jar app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Set production profile
-ENV SPRING_PROFILES_ACTIVE=prod
+# Set production profile and minimal memory settings
+ENV SPRING_PROFILES_ACTIVE=prod \
+    SPRING_MAIN_LAZY_INITIALIZATION=true \
+    SPRING_JPA_OPEN_IN_VIEW=false \
+    SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=2 \
+    SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE=1
 
-# Run with optimized JVM flags for containers
+# Run with optimized JVM flags for minimal idle memory
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
-    "-XX:+AlwaysActAsServerClassMachine", \
+    "-Xms32m", \
     "-Xmx150m", \
-    "-Xms150m", \
     "-XX:MaxRAMPercentage=75.0", \
     "-XX:+UseSerialGC", \
-    "-Xss512k", \
-    "-XX:MetaspaceSize=96m", \
-    "-XX:MaxMetaspaceSize=96m", \
-    "-XX:CompressedClassSpaceSize=64m", \
+    "-Xss256k", \
+    "-XX:MetaspaceSize=32m", \
+    "-XX:MaxMetaspaceSize=64m", \
+    "-XX:+ShrinkHeapInSteps", \
+    "-XX:MinHeapFreeRatio=10", \
+    "-XX:MaxHeapFreeRatio=20", \
+    "-XX:-TieredCompilation", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
-    "-XX:SoftRefLRUPolicyMSPerMB=0", \
     "-Djava.security.egd=file:/dev/./urandom", \
     "-jar", \
     "app.jar"]
