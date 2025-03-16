@@ -14,7 +14,7 @@ public class CommentMapper {
                 comment.getId(),
                 comment.getContent(),
                 comment.getRating(),
-                comment.getAuthor().getFullName(),
+                comment.getUser().getFullName(),
                 comment.getCreatedAt(),
                 comment.getReplies().stream()
                         .map(this::mapToResponse)

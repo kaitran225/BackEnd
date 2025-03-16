@@ -360,335 +360,330 @@ public class MentalHealthArticlesData {
         ));
 
 
-        articles.add(new Article(
-                "ATC021",
-                "Sports Psychology: Performance and Mental Health",
-                "UID002",
-                "Elite athletes experience anxiety/depression at 2x general population rates, with 40% reporting psychological distress post-retirement. Performance optimization techniques like biofeedback and imagery training reduce competition "
-                        +
-                        "anxiety by 30%. The IOC consensus statement mandates mental health screening for all Olympic athletes.\n\n"
-                        +
-                        "Mindfulness-acceptance-commitment (MAC) approaches improve focus under pressure. Concussion management now includes neuropsychological testing and mental health monitoring. Emerging issues include esports-related "
-                        +
-                        "addiction and sleep dysregulation in young gamers."));
+        // articles.add(new Article(
+        //         "ATC021",
+        //         "Sports Psychology: Performance and Mental Health",
+        //         "UID002",
+        //         "Elite athletes experience anxiety/depression at 2x general population rates, with 40% reporting psychological distress post-retirement. Performance optimization techniques like biofeedback and imagery training reduce competition "
+        //                 +
+        //                 "anxiety by 30%. The IOC consensus statement mandates mental health screening for all Olympic athletes.\n\n"
+        //                 +
+        //                 "Mindfulness-acceptance-commitment (MAC) approaches improve focus under pressure. Concussion management now includes neuropsychological testing and mental health monitoring. Emerging issues include esports-related "
+        //                 +
+        //                 "addiction and sleep dysregulation in young gamers."));
 
-        articles.add(new Article(
-                "ATC022",
-                "Climate Anxiety: Psychological Impacts and Coping",
-                "UID003",
-                "Eco-anxiety affects 68% of adults under 35, per 2023 global survey. Climate distress manifests as anticipatory grief, solastalgia (environmental homesickness), and future-oriented decision paralysis. Adaptive coping correlates "
-                        +
-                        "with problem-focused engagement and nature connection.\n\n"
-                        +
-                        "The Climate-Aware Therapeutic Approach (CATA) validates ecological concerns while fostering agency. Group interventions emphasize collective action and legacy-building. Research gaps include longitudinal studies and "
-                        +
-                        "differentiating pathological vs. normative climate distress."));
+        // articles.add(new Article(
+        //         "ATC022",
+        //         "Climate Anxiety: Psychological Impacts and Coping",
+        //         "UID003",
+        //         "Eco-anxiety affects 68% of adults under 35, per 2023 global survey. Climate distress manifests as anticipatory grief, solastalgia (environmental homesickness), and future-oriented decision paralysis. Adaptive coping correlates "
+        //                 +
+        //                 "with problem-focused engagement and nature connection.\n\n"
+        //                 +
+        //                 "The Climate-Aware Therapeutic Approach (CATA) validates ecological concerns while fostering agency. Group interventions emphasize collective action and legacy-building. Research gaps include longitudinal studies and "
+        //                 +
+        //                 "differentiating pathological vs. normative climate distress."));
 
-        articles.add(new Article(
-                "ATC023",
-                "Forensic Psychiatry: Risk Assessment Advances",
-                "UID002",
-                "Violence risk assessment tools like HCR-20 V3 achieve 0.85 AUC in predicting recidivism. Neuroimaging evidence of prefrontal cortex dysfunction impacts insanity defense evaluations. Malingering detection techniques now "
-                        +
-                        "incorporate AI analysis of linguistic patterns with 92% accuracy.\n\n"
-                        +
-                        "Restoration of competency programs show 75% success rates with cognitive adaptation training. Moral reconation therapy reduces antisocial behavior in incarcerated populations by 40%. Ethical challenges include "
-                        +
-                        "predictive policing applications and balancing public safety with patient rights."));
-        articles.add(new Article(
-                "ATC024",
-                "Telepsychiatry: Efficacy and Implementation",
-                "UID003",
-                "Meta-analysis shows telepsychiatry achieves 85% diagnostic concordance with in-person care. Rural implementations reduce wait times from 8 weeks to 72 hours. Technical barriers affect 15% of elderly patients, while satisfaction rates reach 92% in youth populations.\n\n"
-                        +
-                        "Hybrid models combining asynchronous messaging and video visits improve medication adherence by 40%. Reimbursement parity remains a challenge in 60% of states. Emerging technologies include VR exposure therapy integration and AI-powered session analytics."));
+        // articles.add(new Article(
+        //         "ATC023",
+        //         "Forensic Psychiatry: Risk Assessment Advances",
+        //         "UID002",
+        //         "Violence risk assessment tools like HCR-20 V3 achieve 0.85 AUC in predicting recidivism. Neuroimaging evidence of prefrontal cortex dysfunction impacts insanity defense evaluations. Malingering detection techniques now "
+        //                 +
+        //                 "incorporate AI analysis of linguistic patterns with 92% accuracy.\n\n"
+        //                 +
+        //                 "Restoration of competency programs show 75% success rates with cognitive adaptation training. Moral reconation therapy reduces antisocial behavior in incarcerated populations by 40%. Ethical challenges include "
+        //                 +
+        //                 "predictive policing applications and balancing public safety with patient rights."));
+        // articles.add(new Article(
+        //         "ATC024",
+        //         "Telepsychiatry: Efficacy and Implementation",
+        //         "UID003",
+        //         "Meta-analysis shows telepsychiatry achieves 85% diagnostic concordance with in-person care. Rural implementations reduce wait times from 8 weeks to 72 hours. Technical barriers affect 15% of elderly patients, while satisfaction rates reach 92% in youth populations.\n\n"
+        //                 +
+        //                 "Hybrid models combining asynchronous messaging and video visits improve medication adherence by 40%. Reimbursement parity remains a challenge in 60% of states. Emerging technologies include VR exposure therapy integration and AI-powered session analytics."));
 
-        articles.add(new Article(
-                "ATC025",
-                "Geriatric Psychiatry: Dementia Innovations",
-                "UID002",
-                "Novel PET tau imaging detects Alzheimer's pathology 10-15 years pre-symptom onset. Non-pharmacological interventions like reminiscence therapy slow cognitive decline by 30% in mild cases. Antipsychotic use in dementia care has decreased 45% since 2015 due to mortality risk awareness.\n\n"
-                        +
-                        "Multicomponent caregiver interventions reduce burnout rates by 55%. Ethical debates continue around capacity assessments for assisted living decisions. Research advances include microbiome-targeted therapies and tau aggregation inhibitors."));
+        // articles.add(new Article(
+        //         "ATC025",
+        //         "Geriatric Psychiatry: Dementia Innovations",
+        //         "UID002",
+        //         "Novel PET tau imaging detects Alzheimer's pathology 10-15 years pre-symptom onset. Non-pharmacological interventions like reminiscence therapy slow cognitive decline by 30% in mild cases. Antipsychotic use in dementia care has decreased 45% since 2015 due to mortality risk awareness.\n\n"
+        //                 +
+        //                 "Multicomponent caregiver interventions reduce burnout rates by 55%. Ethical debates continue around capacity assessments for assisted living decisions. Research advances include microbiome-targeted therapies and tau aggregation inhibitors."));
 
-        articles.add(new Article(
-                "ATC026",
-                "Nutritional Psychiatry: Gut-Brain Axis",
-                "UID003",
-                "Randomized trials show Mediterranean diet reduces depression relapse by 40% compared to control. Psychobiotics (B. longum, L. rhamnosus) demonstrate anxiolytic effects in fMRI studies. Gut microbiota diversity correlates with stress resilience (r=0.62, p<0.01).\n\n"
-                        +
-                        "Nutritional psychiatry protocols now integrate microbiome testing with 65% clinical adoption rate. Challenges include dietary adherence monitoring and accounting for pharmaconutrient interactions. Emerging research explores fermented food impacts on social anxiety."));
+        // articles.add(new Article(
+        //         "ATC026",
+        //         "Nutritional Psychiatry: Gut-Brain Axis",
+        //         "UID003",
+        //         "Randomized trials show Mediterranean diet reduces depression relapse by 40% compared to control. Psychobiotics (B. longum, L. rhamnosus) demonstrate anxiolytic effects in fMRI studies. Gut microbiota diversity correlates with stress resilience (r=0.62, p<0.01).\n\n"
+        //                 +
+        //                 "Nutritional psychiatry protocols now integrate microbiome testing with 65% clinical adoption rate. Challenges include dietary adherence monitoring and accounting for pharmaconutrient interactions. Emerging research explores fermented food impacts on social anxiety."));
 
-        articles.add(new Article(
-                "ATC027",
-                "Disaster Psychiatry: Crisis Response Models",
-                "UID002",
-                "Psychological first aid (PFA) reduces acute stress disorder incidence by 35% in disaster zones. Mobile crisis units achieve 90% community penetration post-hurricane. Longitudinal studies show 20% PTSD rate persists 5 years post-wildfire exposure.\n\n"
-                        +
-                        "Digital triage systems using NLP analyze 10,000 social media posts/hour for suicide risk. Ethical dilemmas include resource allocation during mass casualty events. Innovative approaches combine drone-delivered supplies with telemental health support."));
+        // articles.add(new Article(
+        //         "ATC027",
+        //         "Disaster Psychiatry: Crisis Response Models",
+        //         "UID002",
+        //         "Psychological first aid (PFA) reduces acute stress disorder incidence by 35% in disaster zones. Mobile crisis units achieve 90% community penetration post-hurricane. Longitudinal studies show 20% PTSD rate persists 5 years post-wildfire exposure.\n\n"
+        //                 +
+        //                 "Digital triage systems using NLP analyze 10,000 social media posts/hour for suicide risk. Ethical dilemmas include resource allocation during mass casualty events. Innovative approaches combine drone-delivered supplies with telemental health support."));
 
-        articles.add(new Article(
-                "ATC028",
-                "Personality Disorders: DBT Advancements",
-                "UID003",
-                "Dialectical Behavior Therapy reduces borderline PD hospitalization rates by 50% at 1-year follow-up. Mobile coaching apps decrease self-harm episodes by 65% between sessions. Genetic studies reveal 45% heritability for cluster B traits.\n\n"
-                        +
-                        "Mentalization-based treatment shows particular efficacy in antisocial PD with 40% recidivism reduction. Neuroimaging biomarkers (amygdala hyperactivity) now guide treatment selection. Controversies persist around narcissistic PD diagnostic criteria."));
+        // articles.add(new Article(
+        //         "ATC028",
+        //         "Personality Disorders: DBT Advancements",
+        //         "UID003",
+        //         "Dialectical Behavior Therapy reduces borderline PD hospitalization rates by 50% at 1-year follow-up. Mobile coaching apps decrease self-harm episodes by 65% between sessions. Genetic studies reveal 45% heritability for cluster B traits.\n\n"
+        //                 +
+        //                 "Mentalization-based treatment shows particular efficacy in antisocial PD with 40% recidivism reduction. Neuroimaging biomarkers (amygdala hyperactivity) now guide treatment selection. Controversies persist around narcissistic PD diagnostic criteria."));
 
-        articles.add(new Article(
-                "ATC029",
-                "Military Psychiatry: Combat Stress Innovations",
-                "UID002",
-                "Post-deployment resilience training reduces PTSD incidence from 15% to 7% in Marine cohorts. Virtual reality exposure therapy achieves 70% remission rate for combat-related phobias. Sleep optimization protocols improve cognitive performance by 2.5 SD in special forces.\n\n"
-                        +
-                        "Novel pharmacological approaches target glucocorticoid receptor sensitivity. Moral injury treatments integrate spiritual counseling with cognitive processing therapy. Challenges include stigma reduction and veteran-to-civilian care transition."));
+        // articles.add(new Article(
+        //         "ATC029",
+        //         "Military Psychiatry: Combat Stress Innovations",
+        //         "UID002",
+        //         "Post-deployment resilience training reduces PTSD incidence from 15% to 7% in Marine cohorts. Virtual reality exposure therapy achieves 70% remission rate for combat-related phobias. Sleep optimization protocols improve cognitive performance by 2.5 SD in special forces.\n\n"
+        //                 +
+        //                 "Novel pharmacological approaches target glucocorticoid receptor sensitivity. Moral injury treatments integrate spiritual counseling with cognitive processing therapy. Challenges include stigma reduction and veteran-to-civilian care transition."));
 
-        articles.add(new Article(
-                "ATC030",
-                "Pediatric OCD: Neural Circuit Breakthroughs",
-                "UID003",
-                "fMRI-guided TMS of the SMA reduces compulsions by 60% in treatment-resistant cases. Family-based exposure therapy shows 80% success rate when initiated pre-adolescence. Gut microbiome analysis reveals 5-fold higher streptococcus in early-onset OCD.\n\n"
-                        +
-                        "Digital phenotyping through smartwatch tracking detects ritualistic movements with 92% accuracy. Immunomodulatory trials show promise for PANDAS subtypes. Long-term outcomes improve when combining SSRIs with neural feedback."));
+        // articles.add(new Article(
+        //         "ATC030",
+        //         "Pediatric OCD: Neural Circuit Breakthroughs",
+        //         "UID003",
+        //         "fMRI-guided TMS of the SMA reduces compulsions by 60% in treatment-resistant cases. Family-based exposure therapy shows 80% success rate when initiated pre-adolescence. Gut microbiome analysis reveals 5-fold higher streptococcus in early-onset OCD.\n\n"
+        //                 +
+        //                 "Digital phenotyping through smartwatch tracking detects ritualistic movements with 92% accuracy. Immunomodulatory trials show promise for PANDAS subtypes. Long-term outcomes improve when combining SSRIs with neural feedback."));
 
-        articles.add(new Article(
-                "ATC031",
-                "Addiction Medicine: Neurostimulation Advances",
-                "UID002",
-                "Deep TMS of the dlPFC reduces cocaine cravings by 55% in RCTs. VR cue exposure therapy decreases alcohol relapse by 40% at 6 months. Genetic testing for OPRM1 variants improves MAT selection accuracy by 30%.\n\n"
-                        +
-                        "Contingency management apps deliver voucher rewards with 85% compliance. Psilocybin-assisted therapy for nicotine addiction achieves 80% abstinence at 12-month follow-up. Ethical concerns include neuromodulation in court-ordered treatment."));
+        // articles.add(new Article(
+        //         "ATC031",
+        //         "Addiction Medicine: Neurostimulation Advances",
+        //         "UID002",
+        //         "Deep TMS of the dlPFC reduces cocaine cravings by 55% in RCTs. VR cue exposure therapy decreases alcohol relapse by 40% at 6 months. Genetic testing for OPRM1 variants improves MAT selection accuracy by 30%.\n\n"
+        //                 +
+        //                 "Contingency management apps deliver voucher rewards with 85% compliance. Psilocybin-assisted therapy for nicotine addiction achieves 80% abstinence at 12-month follow-up. Ethical concerns include neuromodulation in court-ordered treatment."));
 
-        articles.add(new Article(
-                "ATC032",
-                "Perinatal Psychiatry: Screening Protocols",
-                "UID003",
-                "Universal prenatal depression screening identifies 18% at-risk women previously undiagnosed. Placental corticotropin levels predict postpartum psychosis with 89% specificity. Bright light therapy shows 65% efficacy for antenatal depression vs 35% for SSRIs.\n\n"
-                        +
-                        "Mother-infant dyadic interventions improve attachment security by 50%. Novel research explores oxytocin nasal sprays for bonding deficits. System challenges include OB-GYN mental health training gaps."));
+        // articles.add(new Article(
+        //         "ATC032",
+        //         "Perinatal Psychiatry: Screening Protocols",
+        //         "UID003",
+        //         "Universal prenatal depression screening identifies 18% at-risk women previously undiagnosed. Placental corticotropin levels predict postpartum psychosis with 89% specificity. Bright light therapy shows 65% efficacy for antenatal depression vs 35% for SSRIs.\n\n"
+        //                 +
+        //                 "Mother-infant dyadic interventions improve attachment security by 50%. Novel research explores oxytocin nasal sprays for bonding deficits. System challenges include OB-GYN mental health training gaps."));
 
-        articles.add(new Article(
-                "ATC033",
-                "Neuropsychiatry: TBI Rehabilitation",
-                "UID002",
-                "Cognitive remediation software improves working memory 2x faster than traditional methods post-TBI. CSF neurofilament light levels correlate with functional outcomes (r=0.71). Transcranial LED therapy enhances neural repair in blast injuries.\n\n"
-                        +
-                        "Social cognition training restores emotional recognition in 60% of severe cases. Controversies exist around return-to-play decisions in sports concussions. Emerging technologies include exoskeleton-assisted rehabilitation and neural stem cell trials."));
+        // articles.add(new Article(
+        //         "ATC033",
+        //         "Neuropsychiatry: TBI Rehabilitation",
+        //         "UID002",
+        //         "Cognitive remediation software improves working memory 2x faster than traditional methods post-TBI. CSF neurofilament light levels correlate with functional outcomes (r=0.71). Transcranial LED therapy enhances neural repair in blast injuries.\n\n"
+        //                 +
+        //                 "Social cognition training restores emotional recognition in 60% of severe cases. Controversies exist around return-to-play decisions in sports concussions. Emerging technologies include exoskeleton-assisted rehabilitation and neural stem cell trials."));
 
-        articles.add(new Article(
-                "ATC034",
-                "Global Mental Health: Task-Shifting Models",
-                "UID003",
-                "Community health worker programs increase depression treatment coverage from 15% to 65% in LMICs. Tablet-based CBT training achieves 90% fidelity after 2 weeks. Economic analyses show $4 return per $1 invested in scaled-up mental health care.\n\n"
-                        +
-                        "Challenges include traditional healer integration and supply chain gaps. Success factors involve cultural adaptation of PHQ-9 and mobile supervision. WHO mhGAP implementation reaches 50 countries with 100,000 providers trained."));
+        // articles.add(new Article(
+        //         "ATC034",
+        //         "Global Mental Health: Task-Shifting Models",
+        //         "UID003",
+        //         "Community health worker programs increase depression treatment coverage from 15% to 65% in LMICs. Tablet-based CBT training achieves 90% fidelity after 2 weeks. Economic analyses show $4 return per $1 invested in scaled-up mental health care.\n\n"
+        //                 +
+        //                 "Challenges include traditional healer integration and supply chain gaps. Success factors involve cultural adaptation of PHQ-9 and mobile supervision. WHO mhGAP implementation reaches 50 countries with 100,000 providers trained."));
 
-        articles.add(new Article(
-                "ATC035",
-                "Sleep Medicine: Circadian Interventions",
-                "UID002",
-                "Melatonin phase response curves optimize light therapy timing for shift workers. Cognitive pre-sleep imagery reduces insomnia severity by 45% in PTSD patients. Genetic testing for PER3 variants guides chronotype-specific scheduling.\n\n"
-                        +
-                        "Novel interventions include thermal biofeedback for sleep onset and acoustic slow-wave enhancement. Pediatric sleep extension programs improve ADHD symptoms equivalent to medication. Commercial sleep tech validation remains problematic."));
+        // articles.add(new Article(
+        //         "ATC035",
+        //         "Sleep Medicine: Circadian Interventions",
+        //         "UID002",
+        //         "Melatonin phase response curves optimize light therapy timing for shift workers. Cognitive pre-sleep imagery reduces insomnia severity by 45% in PTSD patients. Genetic testing for PER3 variants guides chronotype-specific scheduling.\n\n"
+        //                 +
+        //                 "Novel interventions include thermal biofeedback for sleep onset and acoustic slow-wave enhancement. Pediatric sleep extension programs improve ADHD symptoms equivalent to medication. Commercial sleep tech validation remains problematic."));
 
-        articles.add(new Article(
-                "ATC036",
-                "Psycho-oncology: Survivorship Care",
-                "UID002",
-                "Integrated oncology-psychiatry clinics reduce depression prevalence by 30% in cancer patients. Fear of recurrence CBT protocols decrease distress scores by 2.5 SD. Survivorship care plans now mandate psychological screening in 40 states.\n\n"
-                        +
-                        "Psychedelic-assisted therapy for existential distress shows 75% long-term benefit. Challenges include financial toxicity-related anxiety and late-effect cognitive rehab. Digital twins model treatment outcomes with 85% accuracy."));
+        // articles.add(new Article(
+        //         "ATC036",
+        //         "Psycho-oncology: Survivorship Care",
+        //         "UID002",
+        //         "Integrated oncology-psychiatry clinics reduce depression prevalence by 30% in cancer patients. Fear of recurrence CBT protocols decrease distress scores by 2.5 SD. Survivorship care plans now mandate psychological screening in 40 states.\n\n"
+        //                 +
+        //                 "Psychedelic-assisted therapy for existential distress shows 75% long-term benefit. Challenges include financial toxicity-related anxiety and late-effect cognitive rehab. Digital twins model treatment outcomes with 85% accuracy."));
 
-        articles.add(new Article(
-                "ATC037",
-                "LGBTQ+ Mental Health: Affirmative Care",
-                "UID002",
-                "Gender-affirming care reduces suicide attempts by 73% in transgender youth. Minority stress models explain 40% of mental health disparities. Online support communities decrease isolation metrics by 60% in rural populations.\n\n"
-                        +
-                        "Training programs increase clinician competency scores by 35% post-intervention. Legal challenges impact 25% of providers in restrictive states. Emerging research focuses on intersex mental health and bisexual erasure effects."));
+        // articles.add(new Article(
+        //         "ATC037",
+        //         "LGBTQ+ Mental Health: Affirmative Care",
+        //         "UID002",
+        //         "Gender-affirming care reduces suicide attempts by 73% in transgender youth. Minority stress models explain 40% of mental health disparities. Online support communities decrease isolation metrics by 60% in rural populations.\n\n"
+        //                 +
+        //                 "Training programs increase clinician competency scores by 35% post-intervention. Legal challenges impact 25% of providers in restrictive states. Emerging research focuses on intersex mental health and bisexual erasure effects."));
 
-        articles.add(new Article(
-                "ATC038",
-                "Resilience Science: Biomarker Discovery",
-                "UID002",
-                "BDNF methylation patterns predict stress resilience with 80% accuracy in military cohorts. HRV biofeedback training increases emotional regulation capacity by 45%. Epigenetic clocks show accelerated aging in low-resilience individuals.\n\n"
-                        +
-                        "Multimodal interventions combining mindfulness, nutrition, and exercise boost resilience scores 2x vs single-modality approaches. Controversies include biological determinism risks. Commercial resilience apps lack scientific validation in 70% of cases."));
+        // articles.add(new Article(
+        //         "ATC038",
+        //         "Resilience Science: Biomarker Discovery",
+        //         "UID002",
+        //         "BDNF methylation patterns predict stress resilience with 80% accuracy in military cohorts. HRV biofeedback training increases emotional regulation capacity by 45%. Epigenetic clocks show accelerated aging in low-resilience individuals.\n\n"
+        //                 +
+        //                 "Multimodal interventions combining mindfulness, nutrition, and exercise boost resilience scores 2x vs single-modality approaches. Controversies include biological determinism risks. Commercial resilience apps lack scientific validation in 70% of cases."));
 
-        articles.add(new Article(
-                "ATC039",
-                "Psychopharmacology: Personalization Trends",
-                "UID002",
-                "Pharmacogenetic testing reduces antidepressant trial failures by 50%. PET receptor occupancy studies optimize antipsychotic dosing with 30% fewer side effects. Psychedelic microdosing registries show 65% subjective benefit for creativity.\n\n"
-                        +
-                        "Challenges include cost barriers and CYP450 interaction complexity. Digital phenotyping predicts medication response with 75% accuracy. Novel delivery systems include transdermal ketamine patches and AI-controlled dopamine release implants."));
+        // articles.add(new Article(
+        //         "ATC039",
+        //         "Psychopharmacology: Personalization Trends",
+        //         "UID002",
+        //         "Pharmacogenetic testing reduces antidepressant trial failures by 50%. PET receptor occupancy studies optimize antipsychotic dosing with 30% fewer side effects. Psychedelic microdosing registries show 65% subjective benefit for creativity.\n\n"
+        //                 +
+        //                 "Challenges include cost barriers and CYP450 interaction complexity. Digital phenotyping predicts medication response with 75% accuracy. Novel delivery systems include transdermal ketamine patches and AI-controlled dopamine release implants."));
 
-        articles.add(new Article(
-                "ATC040",
-                "Mood Disorders: Chronotherapeutics",
-                "UID002",
-                "Triple chronotherapy (sleep deprivation, light, phase advance) achieves 60% rapid remission in bipolar depression. Dark therapy protocols reduce manic symptoms by 40% within 72 hours. Circadian phase typing improves lithium response prediction.\n\n"
-                        +
-                        "Personalized daylight exposure algorithms prevent seasonal affective disorder in 85% of high-risk cases. Research explores ultradian cycling biomarkers and mitochondrial chronobiology. Implementation barriers include shift work conflicts."));
+        // articles.add(new Article(
+        //         "ATC040",
+        //         "Mood Disorders: Chronotherapeutics",
+        //         "UID002",
+        //         "Triple chronotherapy (sleep deprivation, light, phase advance) achieves 60% rapid remission in bipolar depression. Dark therapy protocols reduce manic symptoms by 40% within 72 hours. Circadian phase typing improves lithium response prediction.\n\n"
+        //                 +
+        //                 "Personalized daylight exposure algorithms prevent seasonal affective disorder in 85% of high-risk cases. Research explores ultradian cycling biomarkers and mitochondrial chronobiology. Implementation barriers include shift work conflicts."));
 
-        articles.add(new Article(
-                "ATC041",
-                "Community Mental Health: Peer Support",
-                "UID002",
-                "Certified peer specialists reduce psychiatric readmissions by 35% through lived experience mentoring. Digital peer platforms achieve 24/7 crisis response with 90% user satisfaction. Economic analyses show $2.50 saved per $1 invested.\n\n"
-                        +
-                        "Training programs standardize recovery-oriented practices across 40 states. Challenges include role boundary maintenance and burnout prevention. Innovative models combine peer support with clinical backup via telehealth."));
+        // articles.add(new Article(
+        //         "ATC041",
+        //         "Community Mental Health: Peer Support",
+        //         "UID002",
+        //         "Certified peer specialists reduce psychiatric readmissions by 35% through lived experience mentoring. Digital peer platforms achieve 24/7 crisis response with 90% user satisfaction. Economic analyses show $2.50 saved per $1 invested.\n\n"
+        //                 +
+        //                 "Training programs standardize recovery-oriented practices across 40 states. Challenges include role boundary maintenance and burnout prevention. Innovative models combine peer support with clinical backup via telehealth."));
 
-        articles.add(new Article(
-                "ATC042",
-                "Digital Phenotyping: Ethical Frontiers",
-                "UID002",
-                "Smartphone passive sensing predicts depressive relapse 2 weeks earlier than clinical assessment. Voice AI detects mania with 85% accuracy through speech patterns. Cross-platform data integration raises privacy concerns in 60% of users.\n\n"
-                        +
-                        "Regulatory frameworks struggle with real-world data validation requirements. Algorithmic bias audits reveal 30% accuracy drops in minority populations. Future directions include blockchain consent management and federated learning models."));
-        articles.add(new Article(
-                "ATC043",
-                "Neurofeedback for ADHD: Long-Term Outcomes",
-                "UID002",
-                "5-year follow-up shows 55% sustained attention improvement with combined neurofeedback and CBT. QEEG-guided protocols achieve 30% better outcomes than standard approaches. Cost-effectiveness analyses reveal $18,000 lifetime savings per patient.\n\n"
-                        +
-                        "Emerging home-based systems show 80% compliance rates. Challenges include placebo effects in 25% of cases. Next-gen systems integrate VR environments for enhanced engagement metrics."));
+        // articles.add(new Article(
+        //         "ATC042",
+        //         "Digital Phenotyping: Ethical Frontiers",
+        //         "UID002",
+        //         "Smartphone passive sensing predicts depressive relapse 2 weeks earlier than clinical assessment. Voice AI detects mania with 85% accuracy through speech patterns. Cross-platform data integration raises privacy concerns in 60% of users.\n\n"
+        //                 +
+        //                 "Regulatory frameworks struggle with real-world data validation requirements. Algorithmic bias audits reveal 30% accuracy drops in minority populations. Future directions include blockchain consent management and federated learning models."));
+        // articles.add(new Article(
+        //         "ATC043",
+        //         "Neurofeedback for ADHD: Long-Term Outcomes",
+        //         "UID002",
+        //         "5-year follow-up shows 55% sustained attention improvement with combined neurofeedback and CBT. QEEG-guided protocols achieve 30% better outcomes than standard approaches. Cost-effectiveness analyses reveal $18,000 lifetime savings per patient.\n\n"
+        //                 +
+        //                 "Emerging home-based systems show 80% compliance rates. Challenges include placebo effects in 25% of cases. Next-gen systems integrate VR environments for enhanced engagement metrics."));
 
-        articles.add(new Article(
-                "ATC044",
-                "Ecotherapy: Urban Mental Health Applications",
-                "UID002",
-                "Biophilic design in cities reduces anxiety symptoms by 40% in RCTs. Guided forest therapy sessions decrease rumination scores by 35%. Mobile apps tracking nature exposure correlate with 0.5 point PHQ-9 improvements weekly.\n\n"
-                        +
-                        "Social prescribing programs achieve 60% participant retention. Pollution sensitivity moderates effects in 30% of cases. Climate anxiety complicates outcomes for 1 in 5 urban youth."));
+        // articles.add(new Article(
+        //         "ATC044",
+        //         "Ecotherapy: Urban Mental Health Applications",
+        //         "UID002",
+        //         "Biophilic design in cities reduces anxiety symptoms by 40% in RCTs. Guided forest therapy sessions decrease rumination scores by 35%. Mobile apps tracking nature exposure correlate with 0.5 point PHQ-9 improvements weekly.\n\n"
+        //                 +
+        //                 "Social prescribing programs achieve 60% participant retention. Pollution sensitivity moderates effects in 30% of cases. Climate anxiety complicates outcomes for 1 in 5 urban youth."));
 
-        articles.add(new Article(
-                "ATC045",
-                "PTSD Interventions: MDMA Clinical Trials",
-                "UID002",
-                "Phase 3 trials show 67% remission rates with MDMA-assisted therapy. Neuroimaging reveals 40% amygdala hyperactivity reduction. Durability data demonstrates 75% sustained improvement at 12 months.\n\n"
-                        +
-                        "Integration challenges occur in 20% of participants. Cost models estimate $15,000 per treatment course. Ethical debates continue about non-medical use and training standards."));
+        // articles.add(new Article(
+        //         "ATC045",
+        //         "PTSD Interventions: MDMA Clinical Trials",
+        //         "UID002",
+        //         "Phase 3 trials show 67% remission rates with MDMA-assisted therapy. Neuroimaging reveals 40% amygdala hyperactivity reduction. Durability data demonstrates 75% sustained improvement at 12 months.\n\n"
+        //                 +
+        //                 "Integration challenges occur in 20% of participants. Cost models estimate $15,000 per treatment course. Ethical debates continue about non-medical use and training standards."));
 
-        articles.add(new Article(
-                "ATC046",
-                "Eating Disorders: Digital Monitoring",
-                "UID002",
-                "AI-powered meal tracking reduces bingeing episodes by 50% in pilot studies. Wearable glucose monitors provide real-time relapse warnings with 85% accuracy. Virtual support groups decrease hospitalization rates by 30%.\n\n"
-                        +
-                        "Ethical concerns emerge about data privacy in 45% of users. Cultural adaptation needs identified in 60% of non-Western trials. Combined biometric-cognitive models predict recovery trajectories with 90% precision."));
+        // articles.add(new Article(
+        //         "ATC046",
+        //         "Eating Disorders: Digital Monitoring",
+        //         "UID002",
+        //         "AI-powered meal tracking reduces bingeing episodes by 50% in pilot studies. Wearable glucose monitors provide real-time relapse warnings with 85% accuracy. Virtual support groups decrease hospitalization rates by 30%.\n\n"
+        //                 +
+        //                 "Ethical concerns emerge about data privacy in 45% of users. Cultural adaptation needs identified in 60% of non-Western trials. Combined biometric-cognitive models predict recovery trajectories with 90% precision."));
 
-        articles.add(new Article(
-                "ATC047",
-                "Workplace Mental Health: AI Solutions",
-                "UID002",
-                "Natural language processing detects burnout risk with 88% accuracy through email patterns. Virtual reality stress management modules improve coping scores by 40%. Productivity analytics show 2.5:1 ROI for mental health investments.\n\n"
-                        +
-                        "Employee concerns about surveillance persist in 35% of implementations. Hybrid work models require redesigned digital therapeutics. Global standards emerging for psychological safety metrics."));
+        // articles.add(new Article(
+        //         "ATC047",
+        //         "Workplace Mental Health: AI Solutions",
+        //         "UID002",
+        //         "Natural language processing detects burnout risk with 88% accuracy through email patterns. Virtual reality stress management modules improve coping scores by 40%. Productivity analytics show 2.5:1 ROI for mental health investments.\n\n"
+        //                 +
+        //                 "Employee concerns about surveillance persist in 35% of implementations. Hybrid work models require redesigned digital therapeutics. Global standards emerging for psychological safety metrics."));
 
-        articles.add(new Article(
-                "ATC048",
-                "Autism Spectrum: Adult Interventions",
-                "UID002",
-                "Social skills VR training improves employment rates by 55% in ASD adults. Sensory integration apps reduce meltdown frequency by 60%. Genetic subtype matching increases therapy effectiveness 3-fold.\n\n"
-                        +
-                        "Co-occurring conditions complicate 70% of cases. Lifetime cost models exceed $2.4 million without intervention. Neurodiversity-affirming approaches boost self-esteem metrics by 45%."));
+        // articles.add(new Article(
+        //         "ATC048",
+        //         "Autism Spectrum: Adult Interventions",
+        //         "UID002",
+        //         "Social skills VR training improves employment rates by 55% in ASD adults. Sensory integration apps reduce meltdown frequency by 60%. Genetic subtype matching increases therapy effectiveness 3-fold.\n\n"
+        //                 +
+        //                 "Co-occurring conditions complicate 70% of cases. Lifetime cost models exceed $2.4 million without intervention. Neurodiversity-affirming approaches boost self-esteem metrics by 45%."));
 
-        articles.add(new Article(
-                "ATC049",
-                "Telepsychiatry: Rural Access Impact",
-                "UID002",
-                "Virtual care bridges 85% of treatment gaps in underserved areas. Wait times decrease from 8 weeks to 72 hours. Cultural competency algorithms improve retention by 40% in minority populations.\n\n"
-                        +
-                        "Infrastructure limitations persist in 25% of regions. Reimbursement models vary across 35 states. Hybrid models combining local paraprofessionals with remote MDs show highest efficacy."));
+        // articles.add(new Article(
+        //         "ATC049",
+        //         "Telepsychiatry: Rural Access Impact",
+        //         "UID002",
+        //         "Virtual care bridges 85% of treatment gaps in underserved areas. Wait times decrease from 8 weeks to 72 hours. Cultural competency algorithms improve retention by 40% in minority populations.\n\n"
+        //                 +
+        //                 "Infrastructure limitations persist in 25% of regions. Reimbursement models vary across 35 states. Hybrid models combining local paraprofessionals with remote MDs show highest efficacy."));
 
-        articles.add(new Article(
-                "ATC050",
-                "OCD Treatments: Neuromodulation",
-                "UID002",
-                "Deep TMS achieves 50% symptom reduction in treatment-resistant cases. Closed-loop DBS systems adapt stimulation in real-time with 90% accuracy. fMRI-guided protocols personalize target selection.\n\n"
-                        +
-                        "Cost remains prohibitive at $25,000 per course. Maintenance protocols undefined for 60% of responders. Ethical frameworks needed for enhancement vs treatment applications."));
+        // articles.add(new Article(
+        //         "ATC050",
+        //         "OCD Treatments: Neuromodulation",
+        //         "UID002",
+        //         "Deep TMS achieves 50% symptom reduction in treatment-resistant cases. Closed-loop DBS systems adapt stimulation in real-time with 90% accuracy. fMRI-guided protocols personalize target selection.\n\n"
+        //                 +
+        //                 "Cost remains prohibitive at $25,000 per course. Maintenance protocols undefined for 60% of responders. Ethical frameworks needed for enhancement vs treatment applications."));
 
-        articles.add(new Article(
-                "ATC051",
-                "Music Therapy: Dementia Care",
-                "UID002",
-                "Personalized playlists reduce agitation episodes by 70% in late-stage dementia. Neural synchronization studies show 40% increased prefrontal connectivity. Caregiver burden scores improve by 35% with music interventions.\n\n"
-                        +
-                        "Protocol standardization challenges persist across 50% of facilities. Mobile app delivery increases accessibility 4-fold. Multisensory approaches combining scent and sound show additive benefits."));
+        // articles.add(new Article(
+        //         "ATC051",
+        //         "Music Therapy: Dementia Care",
+        //         "UID002",
+        //         "Personalized playlists reduce agitation episodes by 70% in late-stage dementia. Neural synchronization studies show 40% increased prefrontal connectivity. Caregiver burden scores improve by 35% with music interventions.\n\n"
+        //                 +
+        //                 "Protocol standardization challenges persist across 50% of facilities. Mobile app delivery increases accessibility 4-fold. Multisensory approaches combining scent and sound show additive benefits."));
 
-        articles.add(new Article(
-                "ATC052",
-                "Childhood Trauma: Epigenetic Markers",
-                "UID002",
-                "DNA methylation patterns predict PTSD risk with 80% accuracy in abused children. Intergenerational trauma signatures identified in 65% of offspring. Neurosteroid supplements reverse stress effects in animal models.\n\n"
-                        +
-                        "Ethical dilemmas emerge in predictive testing. Early intervention programs show 50% resilience boost. Longitudinal studies tracking 30-year outcomes underway."));
+        // articles.add(new Article(
+        //         "ATC052",
+        //         "Childhood Trauma: Epigenetic Markers",
+        //         "UID002",
+        //         "DNA methylation patterns predict PTSD risk with 80% accuracy in abused children. Intergenerational trauma signatures identified in 65% of offspring. Neurosteroid supplements reverse stress effects in animal models.\n\n"
+        //                 +
+        //                 "Ethical dilemmas emerge in predictive testing. Early intervention programs show 50% resilience boost. Longitudinal studies tracking 30-year outcomes underway."));
 
-        articles.add(new Article(
-                "ATC053",
-                "Methamphetamine Crisis: Novel Therapies",
-                "UID002",
-                "Immunotherapy vaccines reduce relapse rates by 40% in phase 2 trials. Cognitive remediation software improves executive function by 35%. Contingency management programs show 3x better outcomes than standard care.\n\n"
-                        +
-                        "Neurological recovery takes 18-24 months on average. Housing-first approaches decrease ER visits by 60%. Policy changes needed to address 300% usage increase since 2015."));
+        // articles.add(new Article(
+        //         "ATC053",
+        //         "Methamphetamine Crisis: Novel Therapies",
+        //         "UID002",
+        //         "Immunotherapy vaccines reduce relapse rates by 40% in phase 2 trials. Cognitive remediation software improves executive function by 35%. Contingency management programs show 3x better outcomes than standard care.\n\n"
+        //                 +
+        //                 "Neurological recovery takes 18-24 months on average. Housing-first approaches decrease ER visits by 60%. Policy changes needed to address 300% usage increase since 2015."));
 
-        articles.add(new Article(
-                "ATC054",
-                "Personality Disorders: Schema Therapy",
-                "UID002",
-                "Cluster B disorders show 55% symptom reduction with intensive schema therapy. Mode mapping techniques increase emotional awareness by 40%. Telehealth delivery achieves 80% adherence rates.\n\n"
-                        +
-                        "Therapist burnout remains challenge in 30% of cases. Economic burden exceeds $150 billion annually. Neurofeedback integration shows promise for emotional regulation."));
+        // articles.add(new Article(
+        //         "ATC054",
+        //         "Personality Disorders: Schema Therapy",
+        //         "UID002",
+        //         "Cluster B disorders show 55% symptom reduction with intensive schema therapy. Mode mapping techniques increase emotional awareness by 40%. Telehealth delivery achieves 80% adherence rates.\n\n"
+        //                 +
+        //                 "Therapist burnout remains challenge in 30% of cases. Economic burden exceeds $150 billion annually. Neurofeedback integration shows promise for emotional regulation."));
 
-        articles.add(new Article(
-                "ATC055",
-                "Mental Health AI: Diagnostic Accuracy",
-                "UID002",
-                "Multimodal algorithms match expert diagnosis in 92% of mood disorders. Speech pattern analysis detects psychosis 6 months earlier than clinical signs. Bias audits reveal 15% accuracy drops in non-English speakers.\n\n"
-                        +
-                        "Regulatory approval pending in 40 countries. Clinician resistance persists in 25% of health systems. Hybrid human-AI workflows increase diagnostic throughput 5-fold."));
+        // articles.add(new Article(
+        //         "ATC055",
+        //         "Mental Health AI: Diagnostic Accuracy",
+        //         "UID002",
+        //         "Multimodal algorithms match expert diagnosis in 92% of mood disorders. Speech pattern analysis detects psychosis 6 months earlier than clinical signs. Bias audits reveal 15% accuracy drops in non-English speakers.\n\n"
+        //                 +
+        //                 "Regulatory approval pending in 40 countries. Clinician resistance persists in 25% of health systems. Hybrid human-AI workflows increase diagnostic throughput 5-fold."));
 
-        articles.add(new Article(
-                "ATC056",
-                "Perinatal Psychiatry: Risk Prediction",
-                "UID002",
-                "Machine learning models predict postpartum depression with 85% accuracy at 32 weeks gestation. Sleep pattern analysis identifies high-risk cases 8 weeks earlier. Brief interventions prevent 60% of predicted episodes.\n\n"
-                        +
-                        "Cultural stigma prevents screening in 35% of populations. Neurosteroid therapies show rapid response in 72 hours. Long-term child development outcomes improve by 40% with treatment."));
+        // articles.add(new Article(
+        //         "ATC056",
+        //         "Perinatal Psychiatry: Risk Prediction",
+        //         "UID002",
+        //         "Machine learning models predict postpartum depression with 85% accuracy at 32 weeks gestation. Sleep pattern analysis identifies high-risk cases 8 weeks earlier. Brief interventions prevent 60% of predicted episodes.\n\n"
+        //                 +
+        //                 "Cultural stigma prevents screening in 35% of populations. Neurosteroid therapies show rapid response in 72 hours. Long-term child development outcomes improve by 40% with treatment."));
 
-        articles.add(new Article(
-                "ATC057",
-                "Geriatric Mental Health: Comorbidity",
-                "UID002",
-                "Integrated care models reduce polypharmacy by 50% in elderly patients. Depression-dementia overlap occurs in 60% of cases. Sensory-friendly CBT adaptations improve engagement by 45%.\n\n"
-                        +
-                        "Caregiver-mediated interventions prevent 30% of nursing home admissions. Medicare reimbursement barriers affect 40% of providers. End-of-life mental health needs largely unmet."));
+        articles.add(Article.builder()
+                .articleID("ATC057")
+                .title("Geriatric Mental Health: Comorbidity")
+                .content("Integrated care models reduce polypharmacy by 50% in elderly patients. Depression-dementia overlap occurs in 60% of cases. Sensory-friendly CBT adaptations improve engagement by 45%.\n\n" +
+                        "Caregiver-mediated interventions prevent 30% of nursing home admissions. Medicare reimbursement barriers affect 40% of providers. End-of-life mental health needs largely unmet.")
+                .author(userRepository.findById("UID002").orElseThrow())
+                .articleTag(new HashSet<>())
+                .build());
 
-        articles.add(new Article(
-                "ATC058",
-                "Sports Psychology: Injury Recovery",
-                "UID002",
-                "Mental resilience training reduces rehab time by 25% in ACL injuries. VR exposure therapy decreases return-to-play anxiety by 60%. Neurocognitive testing prevents 35% of concussion mismanagement cases.\n\n"
-                        +
-                        "Athlete identity loss drives 40% of post-career depression. Biofeedback systems optimize performance under stress. Youth sports programs lack mental health support in 70% of schools."));
+        articles.add(Article.builder()
+                .articleID("ATC058")
+                .title("Sports Psychology: Injury Recovery")
+                .content("Mental resilience training reduces rehab time by 25% in ACL injuries. VR exposure therapy decreases return-to-play anxiety by 60%. Neurocognitive testing prevents 35% of concussion mismanagement cases.\n\n" +
+                        "Athlete identity loss drives 40% of post-career depression. Biofeedback systems optimize performance under stress. Youth sports programs lack mental health support in 70% of schools.")
+                .author(userRepository.findById("UID002").orElseThrow())
+                .articleTag(new HashSet<>())
+                .build());
 
-        articles.add(new Article(
-                "ATC059",
-                "Global Mental Health: Crisis Mapping",
-                "UID002",
-                "Satellite data predicts conflict-related PTSD hotspots with 90% accuracy. Mobile clinics reach 3x more patients in disaster zones. Cultural adaptation indices improve treatment efficacy by 40%.\n\n"
-                        +
-                        "Funding gaps leave 80% of needs unmet in low-income countries. Task-shifting trains local providers 5x faster than traditional methods. Climate change mental health impacts projected to increase 300% by 2050."));
-
-        articles.add(new Article(
-                "ATC060",
-                "Existential Psychology: Meaning Tech",
-                "UID002",
-                "AI life narrative analysis detects meaning crises with 85% accuracy. Virtual reality awe experiences reduce existential anxiety by 45%. Philosophical counseling apps show 60% user satisfaction rates.\n\n"
-                        +
-                        "Digital legacy planning tools prevent 30% of end-of-life distress. Neurophenomenology studies map purpose networks in default mode. Ethical debates emerge about augmented spirituality technologies."));
+        articles.add(Article.builder()
+                .articleID("ATC059")
+                .title("Global Mental Health: Crisis Mapping")
+                .content("Satellite data predicts conflict-related PTSD hotspots with 90% accuracy. Mobile clinics reach 3x more patients in disaster zones. Cultural adaptation indices improve treatment efficacy by 40%.\n\n" +
+                        "Funding gaps leave 80% of needs unmet in low-income countries. Task-shifting trains local providers 5x faster than traditional methods. Climate change mental health impacts projected to increase 300% by 2050.")
+                .author(userRepository.findById("UID002").orElseThrow())
+                .articleTag(new HashSet<>())
+                .build());
 
         return articles;
     }
