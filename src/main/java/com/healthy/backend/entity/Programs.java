@@ -10,7 +10,6 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -77,7 +76,7 @@ public class Programs {
     @JoinColumn(name = "DepartmentID", referencedColumnName = "DepartmentID", nullable = false)
     private Department department;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "ProgramTags",
             joinColumns = @JoinColumn(name = "ProgramId"),
@@ -85,8 +84,8 @@ public class Programs {
     )
     private Set<Tags> tags = new HashSet<>();
 
-    @OneToMany(mappedBy = "programs", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notifications> notifications;
+    @OneToMany(mappedBy = "programs", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Notifications> notifications = new HashSet<>();
 
     public Programs(
             String programID, String programName,

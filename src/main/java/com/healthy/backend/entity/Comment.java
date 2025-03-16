@@ -6,17 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "Comments")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Comment {
 
     @Id
@@ -36,8 +38,8 @@ public class Comment {
     @Column(name = "ArticleID", length = 36)
     private String articleID;
 
-    @ManyToOne
-    @JoinColumn(name = "Article", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ArticleId", referencedColumnName = "ArticleID")
     private Article article;
 
     @Column(name = "SurveyID", length = 36)
@@ -55,15 +57,16 @@ public class Comment {
     private Appointments appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserID", nullable = false)
-    private Users author;
+    @JoinColumn(name = "UserID", referencedColumnName = "UserID")
+    private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ParentCommentID")
+    @JoinColumn(name = "ParentCommentId")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Comment> replies = new HashSet<>();
 
     @Column(name = "Rating")
     private Integer rating;

@@ -6,15 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
 
 import java.util.Set;
+import java.util.HashSet;
 
 @Entity
+@Table(name = "Tags")
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
-@Table(name = "Tags")
 public class Tags {
 
     @Id
@@ -27,8 +30,9 @@ public class Tags {
     @ManyToMany(mappedBy = "tags")
     private Set<Programs> programs;
 
-    @ManyToMany(mappedBy = "articleTag")
-    private Set<Article> articles;
+    @ManyToMany(mappedBy = "articleTag", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Article> articles = new HashSet<>();
 
 
     public Tags(String tagId, String tagName) {

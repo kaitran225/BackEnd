@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,5 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ChildrenDetails {
     @NotEmpty(message = "Student IDs cannot be empty")
-    private List<String> studentIds;
+    private Set<String> studentIds;
 }

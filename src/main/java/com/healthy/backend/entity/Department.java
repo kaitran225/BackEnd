@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Getter
@@ -23,11 +24,11 @@ public class Department {
     @Column(name = "Name", length = 100, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "department")
-    private Set<Psychologists> psychologists;
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    private Set<Psychologists> psychologists = new HashSet<>();
 
-    @OneToMany(mappedBy = "department")
-    private Set<Programs> programs;
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    private Set<Programs> programs = new HashSet<>();
 
     public Department(String departmentID, String name) {
         this.departmentID = departmentID;

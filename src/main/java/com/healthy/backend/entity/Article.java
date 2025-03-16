@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,7 +36,7 @@ public class Article {
     @JoinColumn(name = "AuthorID", referencedColumnName = "UserID", nullable = false)
     private Users author;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "ArticleTags",
             joinColumns = @JoinColumn(name = "ArticleId", referencedColumnName = "ArticleID"),
@@ -47,9 +45,9 @@ public class Article {
     @Builder.Default
     private Set<Tags> articleTag = new HashSet<>();
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Comment> comments = new ArrayList<>();
+    private Set<Comment> comments = new HashSet<>();
 
 
     public Article(String articleID, String title, String content, HashSet<Tags> articleTag, Users author) {

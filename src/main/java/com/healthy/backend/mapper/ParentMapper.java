@@ -6,13 +6,13 @@ import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 public class ParentMapper {
 
     public Parents buildParentEntity(ParentRegisterRequest parents, Users user,
-                                     String parentID, List<Students> children) {
+                                     String parentID, Set<Students> children) {
         return Parents.builder()
                 .parentID(parentID)
                 .userID(user.getUserId())

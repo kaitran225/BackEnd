@@ -44,7 +44,7 @@ public class SurveyService {
             case STUDENT -> {
                 String studentId = tokenService.getRoleID(user);
                 Students student = studentRepository.findByStudentID(studentId);
-                yield getSurveyResult(List.of(student), tokenService.getRoleID(user));
+                yield getSurveyResult(Set.of(student), tokenService.getRoleID(user));
             }
             case MANAGER, PSYCHOLOGIST -> {
                 List<Surveys> surveys = surveyRepository.findAll();
@@ -59,7 +59,7 @@ public class SurveyService {
             }
             case PARENT -> {
                 Parents parent = parentRepository.findByUserID(user.getUserId());
-                List<Students> children = parent.getStudents();
+                Set<Students> children = parent.getStudents();
                 yield getSurveyResult(children, parent.getParentID());
 
             }
@@ -73,7 +73,7 @@ public class SurveyService {
         Surveys survey = surveyRepository.findById(surveyId).orElseThrow(() -> new ResourceNotFoundException("SurveyId not found" + surveyId));
         return switch (role) {
             case PARENT -> {
-                List<Students> children = parentRepository.findByUserID(tokenService.getRoleID(tokenService.retrieveUser(request))).getStudents();
+                Set<Students> children = parentRepository.findByUserID(tokenService.getRoleID(tokenService.retrieveUser(request))).getStudents();
                 List<SurveyResult> surveyResultList = children.stream().flatMap(child -> getSurveyResultByStudentIDAndSurveyID(surveyId, child.getStudentID()).stream()).toList();
                 yield surveyMapper.mapToListResultsResponse(survey,
                         surveyResultList.stream()
@@ -435,7 +435,7 @@ public class SurveyService {
         surveyQuestionOptionsChoicesRepository.saveAll(choiceList);
     }
 
-    private List<SurveysResponse> getSurveyResult(List<Students> students, String ID) {
+    private List<SurveysResponse> getSurveyResult(Set<Students> students, String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
         HashMap<String, String> map = new HashMap<>();
 
@@ -455,8 +455,6 @@ public class SurveyService {
                                 List<SurveyResult> surveyResultSTD = surveyResultRepository.findBySurveyIDAndStudentID(
                                         survey.getSurveyID(),
                                         student.getStudentID());
-
-                                String studentStatus1 = getStatusStudent(survey.getSurveyID(), student.getStudentID());
 
                                 if (surveyResultSTD.isEmpty()) {
                                     return List.of(surveyMapper.mapToResultStudent(

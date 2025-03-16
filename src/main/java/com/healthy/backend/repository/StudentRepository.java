@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Students, String> {
@@ -28,4 +29,7 @@ public interface StudentRepository extends JpaRepository<Students, String> {
 
     @Query("SELECT s FROM Students s WHERE s.studentID IN :studentIDs")
     List<Students> findStudentsByIds(@Param("studentIDs") List<String> studentIDs);
+
+    @Query("SELECT s FROM Students s WHERE s.studentID IN :ids")
+    Set<Students> findAllByIdAsSet(Iterable<String> ids);
 }

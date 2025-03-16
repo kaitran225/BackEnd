@@ -31,7 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 
 @Service
@@ -86,7 +86,7 @@ public class AuthenticationService {
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
         AuthenticationResponse response = registerUser(request);
 
-        List<Students> children = studentRepository.findAllById(request.getChildrenDetails().getStudentIds());
+        Set<Students> children = studentRepository.findAllByIdAsSet(request.getChildrenDetails().getStudentIds());
 
         for (Students student : children) {
             if (student.getParents() != null) {

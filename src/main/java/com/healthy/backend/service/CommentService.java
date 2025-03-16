@@ -47,7 +47,7 @@ public class CommentService {
         comment.setContent(request.getContent());
         comment.setRating(request.getRating());
         comment.setAppointment(appointment);
-        comment.setAuthor(user);
+        comment.setUser(user);
 
         if (request.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentId())
@@ -78,7 +78,7 @@ public class CommentService {
                 comment.getId(),
                 comment.getContent(),
                 comment.getRating(),
-                comment.getAuthor().getFullName(),
+                comment.getUser().getFullName(),
                 comment.getCreatedAt(),
                 comment.getReplies().stream()
                         .map(this::mapToResponse)
@@ -143,7 +143,7 @@ public class CommentService {
         comment.setContent(request.getContent());
         comment.setRating(request.getRating());
         comment.setAppointment(appointment);
-        comment.setAuthor(user);
+        comment.setUser(user);
 
         if (request.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentId())
@@ -157,7 +157,7 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setContent(request.getContent());
         comment.setArticle(article);
-        comment.setAuthor(user);
+        comment.setUser(user);
 
         if (request.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentId())
@@ -172,7 +172,7 @@ public class CommentService {
         comment.setContent(request.getContent());
         comment.setRating(request.getRating());
         comment.setPrograms(programs);
-        comment.setAuthor(user);
+        comment.setUser(user);
 
         if (request.getParentCommentId() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentId())
