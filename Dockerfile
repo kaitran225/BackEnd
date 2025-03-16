@@ -1,42 +1,38 @@
-# Use Maven to build the application
+# Build stage
 FROM maven:3.9.8-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
 # Copy only necessary files for dependency resolution
-COPY pom.xml .
 COPY .mvn/ .mvn/
-COPY mvnw mvnw.cmd ./
-RUN ./mvnw dependency:go-offline
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 # Copy source and build
 COPY src ./src
-RUN ./mvnw clean package -DskipTests -Dmaven.test.skip=true
+RUN ./mvnw clean package -DskipTests=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
-# Use a smaller JDK runtime for running the application
+# Run stage with minimal image
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Install only essential packages
-RUN apk add --no-cache tzdata \
-    && rm -rf /var/cache/apk/*
+# Add timezone data and clean up in the same layer
+RUN apk --no-cache add tzdata && \
+    rm -rf /var/cache/apk/* /tmp/* /var/tmp/* && \
+    rm -rf /usr/lib/jvm/java-21-openjdk/lib/src.zip
 
-# Set timezone to prevent time issues
+# Set timezone
 ENV TZ=Asia/Ho_Chi_Minh
 
 # Copy only the built JAR
 COPY --from=build /app/target/swagger-api-server.jar app.jar
 
-# Remove unnecessary files
-RUN rm -rf /var/cache/apk/* /tmp/* /var/tmp/* && \
-    rm -rf /usr/lib/jvm/java-21-openjdk/lib/src.zip
-
 # Expose port 8080
 EXPOSE 8080
 
-# Set the active Spring profile to production
+# Set production profile
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Run the application with optimized JVM flags
+# Run with optimized JVM flags for containers
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:+AlwaysActAsServerClassMachine", \
@@ -45,8 +41,8 @@ ENTRYPOINT ["java", \
     "-XX:MaxRAMPercentage=75.0", \
     "-XX:+UseSerialGC", \
     "-Xss256k", \
-    "-XX:MaxMetaspaceSize=128m", \
-    "-XX:CompressedClassSpaceSize=64m", \
+    "-XX:MaxMetaspaceSize=64m", \
+    "-XX:CompressedClassSpaceSize=32m", \
     "-Djava.security.egd=file:/dev/./urandom", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
