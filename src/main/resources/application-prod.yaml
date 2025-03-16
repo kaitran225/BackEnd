@@ -147,9 +147,9 @@ logging:
     org.springframework: INFO
     com.zaxxer.hikari: INFO
     org.hibernate: INFO
-    io.undertow.websockets.jsr: ERROR  # Suppress websocket warnings
     com.healthy.backend: INFO
-    # org.springframework.security.config.annotation.authentication.configuration: ERROR  # Suppress UserDetails warning
+    io.undertow.websockets.jsr: ERROR  # Suppress websocket warnings
+    org.springframework.security.config.annotation.authentication.configuration: ERROR  # Suppress authentication warnings
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level --- [%thread] %logger{36} : %msg%n"
 
