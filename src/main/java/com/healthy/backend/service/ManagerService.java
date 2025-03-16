@@ -35,7 +35,6 @@ public class ManagerService {
     private final PsychologistRepository psychologistRepository;
     private final PsychologistKPIRepository kpiRepository;
     private final NotificationScheduleRepository notificationScheduleRepository;
-    private final GeneralService generalService;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final ProgramParticipationRepository programParticipationRepository;
@@ -43,6 +42,7 @@ public class ManagerService {
     private final TagsRepository tagsRepository;
     private final Object notificationLock = new Object();
     private final NotificationService notificationService;
+    
     private NotificationSchedule cachedSchedule = null;
     private LocalDateTime lastScheduleCheck = null;
     private LocalDate lastNotificationDate = null;

@@ -138,6 +138,7 @@ public class CommentService {
     }
 
 
+    @SuppressWarnings("unused")
     private Comment buildAppointmentComment(CommentRequest request, Appointments appointment, Users user) {
         Comment comment = new Comment();
         comment.setContent(request.getContent());

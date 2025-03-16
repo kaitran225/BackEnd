@@ -155,11 +155,11 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
 
-        String hashedID = claims.getSubject();
+        // String hashedID = claims.getSubject();
         String email = claims.get("email", String.class);
         String role = claims.get("role", String.class);
-        boolean isVerified = claims.get("isVerified", Boolean.class);
-        boolean isActive = claims.get("isActive", Boolean.class);
+        // boolean isVerified = claims.get("isVerified", Boolean.class);
+        // boolean isActive = claims.get("isActive", Boolean.class);
 
         // Convert role string to GrantedAuthority
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));

@@ -8,7 +8,6 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.mapper.ArticleMapper;
 import com.healthy.backend.repository.ArticleRepository;
 import com.healthy.backend.repository.TagsRepository;
-import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final UserRepository userRepository;
     private final GeneralService __;
     private final ArticleMapper articleMapper;
     private final TokenService tokenService;

@@ -37,8 +37,6 @@ public class PsychologistService {
     private final PsychologistsMapper psychologistsMapper;
     private final TimeSlotMapper timeSlotMapper;
 
-    private final GeneralService __;
-
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
 
     private final PsychologistKPIRepository kpiRepository;
@@ -99,8 +97,9 @@ public class PsychologistService {
             throw new IllegalArgumentException("Department ID is required");
         }
 
-        Department department = departmentRepository.findById(departmentID)
-                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        if (!departmentRepository.existsById(departmentID)) {
+            throw new ResourceNotFoundException("Department not found");
+        }
 
         List<Psychologists> psychologists = psychologistRepository.findByDepartmentDepartmentID(departmentID);
         return psychologists.stream()
@@ -112,9 +111,6 @@ public class PsychologistService {
     public PsychologistResponse getPsychologistById(String id) {
         Psychologists psychologist = psychologistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No psychologist found with id " + id));
-
-        // updatePsychologistStatusBasedOnLeaveRequests(psychologist);
-
         return callMapper(psychologist);
     }
 
@@ -156,6 +152,7 @@ public class PsychologistService {
     }
 
     // Check if status is valid
+    @SuppressWarnings("unused")
     private boolean isValidStatus(String status) {
         try {
             PsychologistStatus.valueOf(status);

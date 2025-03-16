@@ -11,7 +11,6 @@ import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.AuthorizeException;
-import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
@@ -40,7 +39,6 @@ import java.util.List;
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
 
-    private final TimeSlotMapper timeSlotMapper;
     private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TokenService tokenService;

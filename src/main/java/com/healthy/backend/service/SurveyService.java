@@ -251,21 +251,16 @@ public class SurveyService {
                     List<SurveyQuestionOptions> optionsList = new ArrayList<>();
                     List<QuestionOption> questionOption = questionRes.getQuestionOptions();
 
-                    String nextAnsId = null;
                     int index = 0;
-                    SurveyQuestionOptions lastAns = null;
                     for (QuestionOption QO : questionOption) {
                         SurveyQuestionOptions option = new SurveyQuestionOptions();
                         option.setOptionText(QO.getLabel());
                         option.setScore(QO.getValue());
 
                         if (index == 0) {
-                            lastAns = surveyQuestionOptionsRepository.findFirstByOrderByOptionIDDesc();
-                            nextAnsId = lastAns.getOptionID();
                         }
 
                         String newAns = generalService.generateQuestionOptionId();
-                        nextAnsId = newAns;
                         option.setQuestionID(newAns);
                         option.setQuestionID(latestQuestion);
                         optionsList.add(option);
@@ -288,19 +283,13 @@ public class SurveyService {
         SurveyQuestions surveyQuestion = surveyQuestionMap.get(questionId);
         List<SurveyQuestionOptions> optionsList = new ArrayList<>();
         int index = 0;
-        String aswersDesc1 = null;
-        SurveyQuestionOptions answerDesc = null;
         for (QuestionOption questionOption : answerOption) {
             SurveyQuestionOptions options = new SurveyQuestionOptions();
 
             if (index == 0) {
-                answerDesc = surveyQuestionOptionsRepository.findFirstByOrderByOptionIDDesc();
-                aswersDesc1 = answerDesc.getOptionID();
             }
 
             String numberOfAns = generalService.generateQuestionOptionId();
-            aswersDesc1 = numberOfAns;
-
             options.setQuestionID(numberOfAns);
             options.setOptionText(questionOption.getLabel());
             options.setScore(questionOption.getValue());

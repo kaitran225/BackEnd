@@ -2,7 +2,6 @@ package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.manager.*;
 import com.healthy.backend.enums.Role;
-import com.healthy.backend.repository.PsychologistKPIRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ManagerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +28,6 @@ import java.util.List;
 public class ManagerController {
     private final ManagerService managerService;
     private final TokenService tokenService;
-    private final PsychologistKPIRepository kpiRepository;
 
     // Endpoint to get appointment statistics by status
     @ApiResponses(value = {

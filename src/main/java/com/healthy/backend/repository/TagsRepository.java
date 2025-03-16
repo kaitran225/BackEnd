@@ -22,5 +22,6 @@ public interface TagsRepository extends JpaRepository<Tags, String> {
     @Query("SELECT t FROM Tags t WHERE UPPER(t.tagName) LIKE UPPER(CONCAT('%', :keyword, '%')) ")
     List<Tags> findKeyWordInTag(@Param("keyword") String keyword);
 
+    @SuppressWarnings("null")
     List<Tags> findAll();
 }

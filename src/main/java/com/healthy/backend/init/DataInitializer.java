@@ -351,7 +351,7 @@ public class DataInitializer implements CommandLineRunner {
         });
     }
 
-
+    @SuppressWarnings("unused")
     private void _initializePrograms() {
         programRepository.save(new Programs("PRG001", "Stress Management",
                 "Program to help manage stress", 20, 4, ProgramStatus.ACTIVE,
@@ -419,6 +419,7 @@ public class DataInitializer implements CommandLineRunner {
 
     }
 
+    @SuppressWarnings("unused")
     private void _initializeProgramSchedule() {
         // Initialize Program Schedule
         programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),

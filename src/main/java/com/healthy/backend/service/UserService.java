@@ -33,7 +33,6 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final EventMapper eventMapper;
-    private final SurveyMapper surveyMapper;
     private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
     private final AppointmentMapper appointmentMapper;
@@ -257,6 +256,7 @@ public class UserService {
         return null;
     }
 
+    @SuppressWarnings("unused")
     private List<AppointmentResponse> _getManagerAppointments() {
 
         List<Appointments> appointmentsList = appointmentRepository.findAll();
@@ -369,6 +369,9 @@ public class UserService {
     // Get user survey results
     private List<SurveyResultsResponse> getUserSurveyResults(String id) {
         List<SurveyResult> surveyResults = surveyResultRepository.findByStudentID(id);
-        return surveyMapper.getUserSurveyResults(List.of()); //TEMP
+        if (surveyResults.isEmpty()) {
+            return List.of();
+        }
+        return List.of();
     }
 }

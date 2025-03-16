@@ -16,7 +16,6 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.AppointmentMapper;
 import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
-import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -52,7 +51,6 @@ public class ProgramService {
     private final ProgramMapper programMapper;
     private final StudentMapper studentMapper;
     private final AppointmentMapper appointmentMapper;
-    private final TimeSlotMapper timeSlotsMapper;
 
     private final GeneralService __;
     private final NotificationService notificationService;
@@ -465,6 +463,7 @@ public class ProgramService {
 
 
 
+    @SuppressWarnings("unused")
     private List<StudentResponse> _getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
 
@@ -652,6 +651,7 @@ public class ProgramService {
         return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
     }
 
+    @SuppressWarnings("unused")
     private ProgramsResponse _getProgramResponse(Programs program, String studentID) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
 
@@ -696,6 +696,7 @@ public class ProgramService {
                 programSchedule);
     }
 
+    @SuppressWarnings("unused")
     private ProgramsResponse _getProgramDetailsResponse(Programs program) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
@@ -974,6 +975,7 @@ public class ProgramService {
 
 
     // Deprecated function
+    @SuppressWarnings("unused")
     private ProgramsResponse _createProgram(ProgramsRequest programsRequest, String userId) {
 
         String programId = __.generateProgramID();
@@ -1018,6 +1020,7 @@ public class ProgramService {
         return getProgramById(programId, null);
     }
 
+    @SuppressWarnings("unused")
     private ProgramsResponse _updateProgram(String programId, ProgramUpdateRequest updateRequest) {
 
         Programs program = programRepository.findById(programId).orElse(null);
@@ -1095,6 +1098,7 @@ public class ProgramService {
         return getProgramResponse(program, null);
     }
 
+    @SuppressWarnings("unused")
     private List<StudentResponse> _getStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findStudentIDsByProgramID(programId);
         if (studentIDs.isEmpty()) {
@@ -1113,6 +1117,7 @@ public class ProgramService {
                 .toList();
     }
 
+    @SuppressWarnings("unused")
     private boolean _checkIfPsychologistIsAvailable(String psychologistId, List<LocalDate> scheduleDates) {
 
         for (LocalDate scheduleDate : scheduleDates) {

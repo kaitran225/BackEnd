@@ -60,6 +60,7 @@ public class TokenService {
         return role.stream().anyMatch(r -> validateRole(request, r));
     }
 
+    @SuppressWarnings("unused")
     private boolean _isManager(HttpServletRequest request) {
         HashMap<String, ?> map = extractRequest(request);
         String role = (String) map.get("role");
@@ -181,6 +182,7 @@ public class TokenService {
         }};
     }
 
+    @SuppressWarnings("unused")
     private HashMap<String, ?> _extractRequest(HttpServletRequest request) {
 
         String authHeader = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
@@ -219,6 +221,7 @@ public class TokenService {
         }
     }
 
+    @SuppressWarnings("unused")
     private void validateToken(String token, Users user) {
         if (!jwtService.isTokenValid(token, user)) {
             throw new InvalidTokenException("Invalid or expired token.");
