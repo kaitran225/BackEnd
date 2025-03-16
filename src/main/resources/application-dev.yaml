@@ -1,8 +1,29 @@
+# Memory Optimization Settings
 spring:
   config:
     activate:
       on-profile: dev
+      
+  jmx:
+    enabled: false
+  main:
+    lazy-initialization: true
+    banner-mode: off
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    cloud-platform: none
+    register-shutdown-hook: true
+    
+  resources:
+    add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+    
+  security:
+    filter:
+      dispatcher-types: REQUEST
 
+  # Database configuration
   datasource:
     url: jdbc:mysql://localhost:3306/SWP391Healthy
     username: root
@@ -17,10 +38,34 @@ spring:
       max-lifetime: 600000
       keepalive-time: 60000
 
+  # Common timeZone setting
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    default-property-inclusion: non_null
+    serialization:
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    parser:
+      allow-single-quotes: true
+      
+  # JPA/Hibernate configuration
   jpa:
     properties:
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
+        jdbc:
+          batch_size: 10
+        order_updates: true
+        batch_versioned_data: true
+        default_batch_fetch_size: 20
+        query:
+          plan_cache_max_size: 64
+          plan_parameter_metadata_max_size: 32
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        generate_statistics: false
     hibernate:
       ddl-auto: update
       database-platform: org.hibernate.dialect.MySQLDialect
@@ -28,11 +73,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     open-in-view: true
-
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      fail-on-empty-beans: false
 
   cors:
     configuration:
@@ -54,29 +94,44 @@ spring:
           auth: true
           starttls.enable: true
 
-
-
+# Swagger UI configuration
 springdoc:
   swagger-ui:
+    customJs: /static/custom-swagger.js
+    customCss: /static/style.css
+    defaultModelsExpandDepth: -1
     disable-swagger-default-response-messages: true
+    lazy-load: true
+    docExpansion: none
+    filter: true
+    use-root-path: true
+  override-with-generic-response: false
+  cache:
+    disabled: true
+  writer-with-default-pretty-printer: false
 
+# Server settings
 server:
   address: 0.0.0.0
   port: 8080
-  tomcat:
-    threads:
-      min-spare: 2
-      max: 5
   compression:
     enabled: true
     mime-types: application/json,text/html,text/xml
     min-response-size: 1024
+  tomcat:
+    threads:
+      min-spare: 2
+      max: 5
+    max-connections: 10
+    accept-count: 5
 
+# Hibernate settings
 hibernate:
   transaction:
     jta:
       platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
 
+# Development logging configuration
 logging:
   level:
     com.zaxxer.hikari.HikariDataSource: DEBUG
@@ -87,6 +142,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
 
+# JWT Configuration
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 86400000

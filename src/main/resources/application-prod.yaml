@@ -1,11 +1,30 @@
+# Memory Optimization Settings
 spring:
   config:
     activate:
       on-profile: prod
-
+      
+  jmx:
+    enabled: false
   main:
     web-application-type: servlet
+    lazy-initialization: true
+    banner-mode: off
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    cloud-platform: none
+    register-shutdown-hook: true
+    
+  resources:
+    add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+    
+  security:
+    filter:
+      dispatcher-types: REQUEST
 
+  # Database configuration
   datasource:
     url: ${DATABASE_URL}?serverTimezone=Asia/Ho_Chi_Minh
     username: ${DATABASE_USER}
@@ -15,15 +34,40 @@ spring:
       auto-commit: false
       pool-name: HikariCP
       minimum-idle: 1
-      maximum-pool-size: 3
+      maximum-pool-size: 2
       idle-timeout: 120000
       max-lifetime: 1800000
       keepalive-time: 120000
+      leak-detection-threshold: 60000
 
+  # Common timeZone setting
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    default-property-inclusion: non_null
+    serialization:
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    parser:
+      allow-single-quotes: true
+      
+  # JPA/Hibernate configuration
   jpa:
     properties:
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
+        jdbc:
+          batch_size: 10
+        order_updates: true
+        batch_versioned_data: true
+        default_batch_fetch_size: 20
+        query:
+          plan_cache_max_size: 64
+          plan_parameter_metadata_max_size: 32
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        generate_statistics: false
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -35,13 +79,8 @@ spring:
   task:
     execution:
       pool:
-        core-size: 2
-        max-size: 10
-
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      fail-on-empty-beans: false
+        core-size: 1
+        max-size: 5
 
   cors:
     allowed-origins: "*"
@@ -59,13 +98,26 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-
+      
+  # Production SpringDoc settings
   springdoc:
     swagger-ui:
+      customJs: /static/custom-swagger.js
+      customCss: /static/style.css
+      defaultModelsExpandDepth: -1
       disable-swagger-default-response-messages: true
+      lazy-load: true
+      docExpansion: none
+      filter: true
+      use-root-path: true
+    override-with-generic-response: false
+    cache:
+      disabled: true
+    writer-with-default-pretty-printer: false
     api-docs:
       enabled: false
 
+# Server settings
 server:
   address: 0.0.0.0
   port: 8080
@@ -73,17 +125,20 @@ server:
     enabled: true
     mime-types: application/json,text/html,text/xml
     min-response-size: 1024
-
   undertow:
-    io-threads: 2
-    worker-threads: 4
+    io-threads: 1
+    worker-threads: 2
     buffer-size: 1024KB
+    direct-buffers: false
+    max-http-post-size: 10485760
 
+# Hibernate settings
 hibernate:
   transaction:
     jta:
       platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
 
+# Production logging configuration
 logging:
   level:
     root: INFO
@@ -93,6 +148,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
 
+# JWT Configuration
 jwt:
   secret: ${JWT_SECRET}
   expiration: 86400000
