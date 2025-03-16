@@ -1,8 +1,16 @@
 package com.healthy.backend.dto.manager;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Builder;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PsychologistStatsResponse {
     private String psychologistId;
     private String fullName;

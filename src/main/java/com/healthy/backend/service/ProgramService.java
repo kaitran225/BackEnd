@@ -48,7 +48,7 @@ public class ProgramService {
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
-    private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository; 
 
     private final ProgramMapper programMapper;
     private final StudentMapper studentMapper;

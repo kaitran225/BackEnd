@@ -5,11 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @Getter
-@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusStudent {
     @Schema(example = "")

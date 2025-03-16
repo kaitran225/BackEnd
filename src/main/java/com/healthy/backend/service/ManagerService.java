@@ -35,7 +35,6 @@ public class ManagerService {
     private final PsychologistRepository psychologistRepository;
     private final PsychologistKPIRepository kpiRepository;
     private final NotificationScheduleRepository notificationScheduleRepository;
-    private final GeneralService generalService;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final ProgramParticipationRepository programParticipationRepository;
