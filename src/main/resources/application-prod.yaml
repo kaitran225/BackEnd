@@ -87,10 +87,13 @@
         order_updates: true
         connection:
           handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
-        temp:
-          use_jdbc_metadata_defaults: false
-        criteria:
-          literal_handling_mode: BIND
+        
+        # Updated metadata access setting
+        boot:
+          allow_jdbc_metadata_access: false
+        
+        # Dialect setting (explicit for production)
+        dialect: org.hibernate.dialect.MySQLDialect
         
         # Disable unnecessary features
         session:
@@ -113,6 +116,7 @@
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    database-platform: org.hibernate.dialect.MySQLDialect
 
   task:
     execution:
