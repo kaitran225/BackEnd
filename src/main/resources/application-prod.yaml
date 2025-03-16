@@ -63,18 +63,50 @@
     properties:
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
+        # Memory optimized JDBC settings
         jdbc:
           batch_size: 10
-        order_updates: true
-        batch_versioned_data: true
-        default_batch_fetch_size: 20
+          fetch_size: 50
+          batch_versioned_data: false
+        
+        # Query and plan cache optimization
         query:
-          plan_cache_max_size: 64
-          plan_parameter_metadata_max_size: 32
+          in_clause_parameter_padding: true
+          plan_cache_max_size: 32
+          plan_parameter_metadata_max_size: 16
+        
+        # Collection and relationship optimization
+        max_fetch_depth: 2
+        default_batch_fetch_size: 10
+        collection:
+          fetch:
+            batch_size: 10
+        
+        # Memory management settings
+        order_inserts: true
+        order_updates: true
+        connection:
+          handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
+        temp:
+          use_jdbc_metadata_defaults: false
+        criteria:
+          literal_handling_mode: BIND
+        
+        # Disable unnecessary features
+        session:
+          events:
+            log: false
+        generate_statistics: false
         cache:
           use_second_level_cache: false
           use_query_cache: false
-        generate_statistics: false
+        
+        # Transaction optimization
+        transaction:
+          flush_before_completion: true
+          auto_close_session: true
+          coordinator_class: jdbc
+    
     hibernate:
       ddl-auto: update
     open-in-view: false
@@ -140,12 +172,6 @@ server:
     websocket:
       buffer-pool: 512
     direct-buffers: true
-
-# Hibernate settings
-hibernate:
-  transaction:
-    jta:
-      platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
 
 # Production logging configuration
 logging:
