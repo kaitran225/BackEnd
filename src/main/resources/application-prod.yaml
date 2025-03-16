@@ -70,7 +70,6 @@
         generate_statistics: false
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -150,6 +149,7 @@ logging:
     org.hibernate: INFO
     io.undertow.websockets.jsr: ERROR  # Suppress websocket warnings
     com.healthy.backend: INFO
+    # org.springframework.security.config.annotation.authentication.configuration: ERROR  # Suppress UserDetails warning
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level --- [%thread] %logger{36} : %msg%n"
 
