@@ -47,6 +47,5 @@ ENTRYPOINT ["java", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
     "-XX:SoftRefLRUPolicyMSPerMB=0", \
-    "-Dspring.config.location=classpath:/application-prod.yaml", \
     "-jar", \
     "app.jar"]
