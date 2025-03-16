@@ -1,9 +1,27 @@
 package com.healthy.backend.service;
 
-import com.healthy.backend.enums.Identifier;
-import com.healthy.backend.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import com.healthy.backend.enums.Identifier;
+import com.healthy.backend.repository.AppointmentRepository;
+import com.healthy.backend.repository.ArticleRepository;
+import com.healthy.backend.repository.DepartmentRepository;
+import com.healthy.backend.repository.NotificationRepository;
+import com.healthy.backend.repository.ParentRepository;
+import com.healthy.backend.repository.ProgramParticipationRepository;
+import com.healthy.backend.repository.ProgramRepository;
+import com.healthy.backend.repository.ProgramScheduleRepository;
+import com.healthy.backend.repository.PsychologistRepository;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
+import com.healthy.backend.repository.SurveyQuestionRepository;
+import com.healthy.backend.repository.SurveyRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
+import com.healthy.backend.repository.TagsRepository;
+import com.healthy.backend.repository.UserLogRepository;
+import com.healthy.backend.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

@@ -2,12 +2,16 @@ package com.healthy.backend.dto.survey;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,6 +23,6 @@ public class QuestionOption {
     private String label;
     @Schema(example = "")
     private String answerID;
-    @Schema(example = "", nullable = true)
+    @Schema(example = "", nullable = false)
     private boolean checked;
 }

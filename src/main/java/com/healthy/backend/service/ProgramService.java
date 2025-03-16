@@ -28,6 +28,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -146,23 +147,6 @@ public class ProgramService {
         timeSlotRepository.saveAll(occupiedSlots);
     }
 
-    private void validateTimeRequest(ProgramsRequest programsRequest)   {
-        LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
-        LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
-
-        if (!isModulo30(startTime) || !isModulo30(endTime)) {
-            throw new IllegalArgumentException("Start time and end time must be in 30 minute intervals");
-        }
-
-        if (startTime.isAfter(endTime)) {
-            throw new IllegalArgumentException("Start time must be before end time");
-        }
-//
-//        if (startTime.isBefore(endTime)) {
-//            return;
-//        }
-    }
-
     private boolean isModulo30(LocalTime time) {
         return time.getMinute() % 30 == 0;
     }
@@ -257,36 +241,6 @@ public class ProgramService {
         return tags.stream().map(programMapper::buildProgramTagResponse).toList();
     }
 
-    private void validateStudentAvailability(String studentId, Programs program) {
-        if (programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
-            throw new ResourceAlreadyExistsException("Student is already registered for a program");
-        }
-        List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
-                studentId);
-
-        ProgramSchedule programSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
-
-        LocalTime programStart = programSchedule.getStartTime();
-        LocalTime programEnd = programSchedule.getEndTime();
-
-//        boolean hasOverlap = appointments.stream()
-//                .anyMatch(appointment -> isOverlapping(
-//                        appointment.getTimeSlot().getStartTime(), appointment.getTimeSlot().getEndTime(),
-//                        programStart, programEnd));
-
-        List<Appointments> overlappingAppointments = appointments.stream()
-                .filter(appointment -> isOverlapping(
-                        appointment.getTimeSlot().getStartTime(),
-                        appointment.getTimeSlot().getEndTime(),
-                        programStart, programEnd))
-                .toList();
-
-        if (!overlappingAppointments.isEmpty()) {
-            String jsonResponse = convertToJson(overlappingAppointments);
-            throw new OperationFailedException("Student has conflicting appointments: " + jsonResponse);
-        }
-    }
-
     private String convertToJson(List<Appointments> overlappingAppointments) {
         try {
             List<AppointmentResponse> responses = overlappingAppointments.stream()
@@ -371,8 +325,7 @@ public class ProgramService {
         return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
-    public List<ProgramsResponse> getEnrolledPrograms(
-            String studentId) {
+    public List<ProgramsResponse> getEnrolledPrograms(String studentId) {
         List<ProgramParticipation> participationList = programParticipationRepository.findByStudentID(studentId).stream()
                 .filter(participation -> !participation.getStatus().equals(ParticipationStatus.CANCELLED))
                 .toList();
@@ -404,37 +357,17 @@ public class ProgramService {
         if (programRepository.findById(programId).isPresent()) return false;
         return programRepository.findById(programId).isEmpty();
     }
-    
+
+
     public ProgramsResponse updateProgram(String programId, ProgramUpdateRequest updateRequest) {
         Programs program = fetchProgram(programId);
-        validateProgramStatus(program, updateRequest);
-        validateDateConstraints(program, updateRequest);
-        validateParticipantCount(programId, updateRequest.getNumberParticipants());
-        validateDepartmentAndFacilitator(updateRequest);
-        validateMeetingLink(updateRequest.getMeetingLink());
-        isFacilitatorAvailable(updateRequest.getFacilitatorId(), updateRequest);
+
+        validateProgramData(program, updateRequest);
 
         Set<Tags> tags = fetchTags(updateRequest.getTags());
 
         updateAndSaveProgramDetails(program, updateRequest, tags);
         updateProgramSchedule(programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(programId), updateRequest);
-
-        return getProgramResponse(program, null);
-    }
-
-    public ProgramsResponse __updateProgram(String programId, ProgramUpdateRequest updateRequest) {
-        Programs program = fetchProgram(programId);
-        validateProgramStatus(program, updateRequest);
-        validateDateConstraints(program, updateRequest);
-        validateParticipantCount(programId, updateRequest.getNumberParticipants());
-        validateDepartmentAndFacilitator(updateRequest);
-        validateMeetingLink(updateRequest.getMeetingLink());
-        isFacilitatorAvailable(updateRequest.getFacilitatorId(), updateRequest);
-
-        Set<Tags> tags = fetchTags(updateRequest.getTags());
-
-        updateAndSaveProgramDetails(program, updateRequest, tags);
-        updateProgramSchedule(programScheduleRepository.findByProgramID(programId).getLast(), updateRequest);
 
         return getProgramResponse(program, null);
     }
@@ -459,25 +392,6 @@ public class ProgramService {
                     }
                 })
                 .collect(Collectors.toList());
-    }
-
-
-
-    @SuppressWarnings("unused")
-    private List<StudentResponse> _getActiveStudentsByProgram(String programId) {
-        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
-
-        return studentIDs.stream()
-                .map(studentRepository::findByStudentID)
-                .map(studentMapper::buildStudentResponse)
-                .peek(studentResponse -> {
-                    ProgramParticipation programParticipation = programParticipationRepository
-                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
-                    if (programParticipation != null) {
-                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
-                    }
-                })
-                .toList();
     }
 
     private Users fetchUser(String userId) {
@@ -530,6 +444,48 @@ public class ProgramService {
     private Programs fetchProgram(String programId) {
         return programRepository.findById(programId)
                 .orElseThrow(() -> new ResourceNotFoundException("Program not found"));
+    }
+
+    private void validateStudentAvailability(String studentId, Programs program) {
+        if (programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
+            throw new ResourceAlreadyExistsException("Student is already registered for a program");
+        }
+        List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
+                studentId);
+
+        ProgramSchedule programSchedule = programScheduleRepository.findFirstByProgramIDOrderByScheduleIDDesc(program.getProgramID());
+
+        LocalTime programStart = programSchedule.getStartTime();
+        LocalTime programEnd = programSchedule.getEndTime();
+
+        List<Appointments> overlappingAppointments = appointments.stream()
+                .filter(appointment -> isOverlapping(
+                        appointment.getTimeSlot().getStartTime(),
+                        appointment.getTimeSlot().getEndTime(),
+                        programStart, programEnd))
+                .toList();
+
+        if (!overlappingAppointments.isEmpty()) {
+            String jsonResponse = convertToJson(overlappingAppointments);
+            throw new OperationFailedException("Student has conflicting appointments: " + jsonResponse);
+        }
+    }
+
+    private void validateTimeRequest(ProgramsRequest programsRequest)   {
+        LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
+        LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
+
+        if (!isModulo30(startTime) || !isModulo30(endTime)) {
+            throw new IllegalArgumentException("Start time and end time must be in 30 minute intervals");
+        }
+
+        if (startTime.isAfter(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+//
+//        if (startTime.isBefore(endTime)) {
+//            return;
+//        }
     }
 
     private void validateProgramStatus(Programs program, ProgramUpdateRequest updateRequest) {
@@ -595,6 +551,94 @@ public class ProgramService {
         }
     }
 
+    private void validateProgramData(Programs program, ProgramUpdateRequest updateRequest) {
+        validateName(updateRequest.getName());
+        validateDescription(updateRequest.getDescription());
+        validateStartDateAndDuration(updateRequest.getStartDate(),updateRequest.getDuration());
+
+        if (updateRequest.getWeeklyScheduleRequest() != null) {
+            validateWeeklySchedule(updateRequest.getWeeklyScheduleRequest());
+        }
+        validateProgramStatus(program, updateRequest);
+        validateDateConstraints(program, updateRequest);
+        validateParticipantCount(program.getProgramID(), updateRequest.getNumberParticipants());
+        validateDepartmentAndFacilitator(updateRequest);
+        validateMeetingLink(updateRequest.getMeetingLink());
+        isFacilitatorAvailable(updateRequest.getFacilitatorId(), updateRequest);
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Program name cannot be empty");
+        }
+    }
+
+    private void validateDescription(String description) {
+        if (description == null || description.isEmpty()) {
+            throw new IllegalArgumentException("Program description cannot be empty");
+        }
+    }
+
+    private void validateStartDateAndDuration(String startDate, Integer duration) {
+        if (startDate == null || startDate.isEmpty()) {
+            throw new IllegalArgumentException("Start date cannot be empty");
+        }
+        try {
+            LocalDate date = LocalDate.parse(startDate);
+            if (date.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Start date cannot be in the past");
+            }
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format");
+        }
+
+        if (duration == null || duration <= 0) {
+            throw new IllegalArgumentException("Duration must be a positive integer");
+        }
+        if (duration > 52) {
+            throw new IllegalArgumentException("Duration cannot exceed 12 months (52 weeks)");
+        }
+    }
+
+    private void validateDuration(Integer duration) {
+        if (duration == null || duration <= 0) {
+            throw new IllegalArgumentException("Duration must be a positive integer");
+        }
+    }
+
+    private void validateWeeklySchedule(ProgramWeeklyScheduleRequest schedule) {
+        if (schedule.getWeeklyAt() == null || schedule.getWeeklyAt().isEmpty()) {
+            throw new IllegalArgumentException("Weekly schedule day cannot be empty");
+        }
+        if (schedule.getStartTime() == null || schedule.getStartTime().isEmpty()) {
+            throw new IllegalArgumentException("Start time cannot be empty");
+        }
+        if (schedule.getEndTime() == null || schedule.getEndTime().isEmpty()) {
+            throw new IllegalArgumentException("End time cannot be empty");
+        }
+    }
+
+    private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
+        List<LocalDate> conflictingDates = new ArrayList<>(List.of());
+
+        for (LocalDate scheduleDate : scheduleDates) {
+            List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
+                    .stream()
+                    .toList();
+            timeSlots.forEach(slot -> {
+                if (slot.getStatus().equals(TimeslotStatus.BOOKED)) {
+                    conflictingDates.add(scheduleDate);
+                    return;
+                }
+                if (isTimeOverlap(programStartTime, programEndTime,
+                        slot.getStartTime(), slot.getEndTime())) {
+                    conflictingDates.add(scheduleDate);
+                }
+            });
+        }
+        return conflictingDates.isEmpty();
+    }
+
     private void updateAndSaveProgramDetails(Programs program, ProgramUpdateRequest updateRequest, Set<Tags> tags) {
         program.setProgramName(updateRequest.getName());
         program.setDescription(updateRequest.getDescription());
@@ -651,28 +695,6 @@ public class ProgramService {
         return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
     }
 
-    @SuppressWarnings("unused")
-    private ProgramsResponse _getProgramResponse(Programs program, String studentID) {
-        if (program == null) throw new ResourceNotFoundException("Program not found");
-
-        Students student = studentRepository.findByStudentID(studentID);
-
-        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
-        ProgramSchedule lastSchedule = programSchedule.isEmpty() ? null : programSchedule.getLast();
-
-        Integer activeStudentsCount = getActiveStudentsByProgram(program.getProgramID()).size();
-
-        String status = null;
-        if (student != null) {
-            ProgramParticipation participation =
-                    programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(program.getProgramID(), student.getStudentID());
-            if (participation != null) {
-                status = String.valueOf(participation.getStatus());
-            }
-        }
-        return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
-    }
-
     public ProgramsResponse getProgramParticipants(String programId) {
 
         Programs program = programRepository.findById(programId).orElse(null);
@@ -694,15 +716,6 @@ public class ProgramService {
         return programMapper.buildProgramsDetailsResponse(program,
                 getActiveStudentsByProgram(program.getProgramID()),
                 programSchedule);
-    }
-
-    @SuppressWarnings("unused")
-    private ProgramsResponse _getProgramDetailsResponse(Programs program) {
-        if (program == null) throw new ResourceNotFoundException("Program not found");
-        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
-        return programMapper.buildProgramsDetailsResponse(program,
-                getActiveStudentsByProgram(program.getProgramID()),
-                programSchedule.getLast());
     }
 
     private ProgramSchedule createProgramSchedule(Programs program, String dayOfWeek, String startTime, String endTime) {
@@ -765,27 +778,6 @@ public class ProgramService {
 
     private boolean isTimeOverlap(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
         return (startTime1.isBefore(endTime2) && endTime1.isAfter(startTime2));
-    }
-
-    private boolean validateTimeSlotOverlaps(List<LocalDate> scheduleDates, String psychologistId, LocalTime programStartTime, LocalTime programEndTime) {
-        List<LocalDate> conflictingDates = new ArrayList<>(List.of());
-
-        for (LocalDate scheduleDate : scheduleDates) {
-            List<TimeSlots> timeSlots = timeSlotRepository.findByPsychologistIdAndDate(psychologistId, scheduleDate)
-                    .stream()
-                    .toList();
-            timeSlots.forEach(slot -> {
-                if (slot.getStatus().equals(TimeslotStatus.BOOKED)) {
-                    conflictingDates.add(scheduleDate);
-                    return;
-                }
-                if (isTimeOverlap(programStartTime, programEndTime,
-                        slot.getStartTime(), slot.getEndTime())) {
-                    conflictingDates.add(scheduleDate);
-                }
-            });
-        }
-        return conflictingDates.isEmpty();
     }
 
     private List<LocalDate> generateWeeklySchedule(String startDate,
@@ -897,6 +889,9 @@ public class ProgramService {
         System.out.println("Program statuses updated: " + today);
     }
 
+
+
+    // Run once at startup
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void onApplicationStart() {
@@ -975,7 +970,52 @@ public class ProgramService {
 
 
     // Deprecated function
-    @SuppressWarnings("unused")
+    private ProgramsResponse _getProgramResponse(Programs program, String studentID) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+
+        Students student = studentRepository.findByStudentID(studentID);
+
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        ProgramSchedule lastSchedule = programSchedule.isEmpty() ? null : programSchedule.getLast();
+
+        Integer activeStudentsCount = getActiveStudentsByProgram(program.getProgramID()).size();
+
+        String status = null;
+        if (student != null) {
+            ProgramParticipation participation =
+                    programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(program.getProgramID(), student.getStudentID());
+            if (participation != null) {
+                status = String.valueOf(participation.getStatus());
+            }
+        }
+        return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
+    }
+
+    private ProgramsResponse _getProgramDetailsResponse(Programs program) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        return programMapper.buildProgramsDetailsResponse(program,
+                getActiveStudentsByProgram(program.getProgramID()),
+                programSchedule.getLast());
+    }
+
+    public ProgramsResponse __updateProgram(String programId, ProgramUpdateRequest updateRequest) {
+        Programs program = fetchProgram(programId);
+        validateProgramStatus(program, updateRequest);
+        validateDateConstraints(program, updateRequest);
+        validateParticipantCount(programId, updateRequest.getNumberParticipants());
+        validateDepartmentAndFacilitator(updateRequest);
+        validateMeetingLink(updateRequest.getMeetingLink());
+        isFacilitatorAvailable(updateRequest.getFacilitatorId(), updateRequest);
+
+        Set<Tags> tags = fetchTags(updateRequest.getTags());
+
+        updateAndSaveProgramDetails(program, updateRequest, tags);
+        updateProgramSchedule(programScheduleRepository.findByProgramID(programId).getLast(), updateRequest);
+
+        return getProgramResponse(program, null);
+    }
+
     private ProgramsResponse _createProgram(ProgramsRequest programsRequest, String userId) {
 
         String programId = __.generateProgramID();
@@ -1132,5 +1172,21 @@ public class ProgramService {
         }
         // If no booked time slots are found across all dates, return true (psychologist is available)
         return true;
+    }
+
+    private List<StudentResponse> _getActiveStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
+
+        return studentIDs.stream()
+                .map(studentRepository::findByStudentID)
+                .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
+                })
+                .toList();
     }
 }

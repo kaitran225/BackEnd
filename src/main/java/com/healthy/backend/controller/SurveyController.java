@@ -1,10 +1,33 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.survey.*;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.healthy.backend.dto.survey.ConfirmationRequest;
+import com.healthy.backend.dto.survey.StatusStudent;
+import com.healthy.backend.dto.survey.SurveyQuestionRequest;
+import com.healthy.backend.dto.survey.SurveyQuestionRequest1;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyRequest;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.SurveyService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,11 +38,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/surveys")
@@ -101,12 +119,13 @@ public class SurveyController {
     )
     @PutMapping("/questions")
     public ResponseEntity<?> updateSurveyQuestion(
+            HttpServletRequest request,
             @RequestParam String surveyId,
-            @Valid @RequestBody SurveyQuestionResponse surveyQuestionResponse
+            @Valid @RequestBody SurveyQuestionRequest1 surveyQuestionRequest
 
     ) {
         try {
-            surveyService.updateSurveyQuestion(surveyId, surveyQuestionResponse);
+            surveyService.updateSurveyQuestion(request, surveyId, surveyQuestionRequest);
             return ResponseEntity.ok("Survey question updated sucessfully");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -237,9 +256,9 @@ public class SurveyController {
     @PostMapping("/questions")
     public ResponseEntity<?> addSurveyQuestion(HttpServletRequest request,
                                                @RequestParam String surveyId,
-                                               @RequestBody SurveyQuestionResponse question) {
+                                               @RequestBody SurveyQuestionRequest surveyQuestionRequest) {
         try {
-            surveyService.addSurveyQuestion(request, surveyId, question);
+            surveyService.addSurveyQuestion(request, surveyId, surveyQuestionRequest);
             return ResponseEntity.ok("Survey question add successfully");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -267,28 +286,7 @@ public class SurveyController {
     }
 
 
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            summary = "Add answer to question",
-            description = "Adds an answer to a question."
-    )
-    @PostMapping("/questions/{questionId}/answers")
-    public ResponseEntity<?> addAnswerToQuestion(@RequestParam String surveyId, @PathVariable String questionId, @RequestBody List<QuestionOption> answer) {
-        try {
-            surveyService.addAnswerToQuestion(surveyId, questionId, answer);
-
-            return ResponseEntity.ok("List of answers add sucessfully");
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding list of answers  " + ex.getMessage());
-        }
-    }
+    
 
 
     @ApiResponses(value = {

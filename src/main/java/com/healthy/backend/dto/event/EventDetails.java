@@ -5,12 +5,12 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
