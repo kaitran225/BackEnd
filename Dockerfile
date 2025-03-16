@@ -36,16 +36,17 @@ ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:+AlwaysActAsServerClassMachine", \
-    "-Xmx128m", \
-    "-Xms128m", \
-    "-Xss256k", \
-    "-XX:MaxMetaspaceSize=64m", \
-    "-XX:CompressedClassSpaceSize=32m", \
+    "-Xmx150m", \
+    "-Xms150m", \
     "-XX:MaxRAMPercentage=75.0", \
     "-XX:+UseSerialGC", \
+    "-Xss512k", \
+    "-XX:MetaspaceSize=96m", \
+    "-XX:MaxMetaspaceSize=96m", \
+    "-XX:CompressedClassSpaceSize=64m", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
-    "-Djava.security.egd=file:/dev/./urandom", \
     "-XX:SoftRefLRUPolicyMSPerMB=0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
     "-jar", \
     "app.jar"]
