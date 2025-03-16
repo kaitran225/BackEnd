@@ -106,17 +106,24 @@
         
         # Transaction optimization
         transaction:
-          flush_before_completion: true
           auto_close_session: true
           coordinator_class: jdbc
     
+    # JPA specific settings
+    properties:
+      jakarta:
+        persistence:
+          persistence-unit:
+            transaction-type: RESOURCE_LOCAL
+          flush:
+            mode: AUTO
+            
     hibernate:
       ddl-auto: update
     open-in-view: false
     naming:
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    database-platform: org.hibernate.dialect.MySQLDialect
 
   task:
     execution:
