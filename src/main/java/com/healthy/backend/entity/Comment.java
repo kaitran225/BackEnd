@@ -39,7 +39,7 @@ public class Comment {
     private String articleID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ArticleId", referencedColumnName = "ArticleID")
+    @JoinColumn(name = "ArticleID", referencedColumnName = "ArticleID", insertable = false, updatable = false)
     private Article article;
 
     @Column(name = "SurveyID", length = 36)

@@ -38,14 +38,14 @@ ENTRYPOINT ["java", \
     "-XX:+AlwaysActAsServerClassMachine", \
     "-Xmx128m", \
     "-Xms128m", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-XX:+UseSerialGC", \
     "-Xss256k", \
     "-XX:MaxMetaspaceSize=64m", \
     "-XX:CompressedClassSpaceSize=32m", \
-    "-Djava.security.egd=file:/dev/./urandom", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-XX:+UseSerialGC", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
+    "-Djava.security.egd=file:/dev/./urandom", \
     "-XX:SoftRefLRUPolicyMSPerMB=0", \
     "-jar", \
     "app.jar"]
