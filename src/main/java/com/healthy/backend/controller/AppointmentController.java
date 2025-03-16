@@ -15,9 +15,6 @@ import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
-import com.healthy.backend.service.NotificationService;
-import com.healthy.backend.service.PsychologistService;
-import com.healthy.backend.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,7 +34,6 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/api/appointments")
 @SecurityRequirement(name = "Bearer Authentication")
@@ -45,14 +41,11 @@ import java.util.List;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
-    private final NotificationService notificationService;
     private final TokenService tokenService;
     private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final PsychologistService psychologistService;
     private final StudentRepository studentRepository;
-    private final StudentService studentService;
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",

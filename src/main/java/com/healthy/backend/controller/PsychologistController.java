@@ -34,7 +34,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/api/psychologists")
 @SecurityRequirement(name = "Bearer Authentication")

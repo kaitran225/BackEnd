@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/programs")
 @RequiredArgsConstructor
@@ -42,41 +41,7 @@ public class ProgramController {
     /////////////////////////////////////////////////////GET REQUESTS//////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Get all programs
-//    @ApiResponse(
-//            responseCode = "200",
-//            description = "Programs retrieved successfully",
-//            content = @Content(
-//                    mediaType = "application/json",
-//                    schema = @Schema(implementation = ProgramsResponse.class),
-//                    examples = @ExampleObject(
-//                            name = "Success Response",
-//                            value = "{ \"status\": \"success\", \"data\": [ { \"programId\": \"P001\", \"name\": \"Program A\", \"status\": \"Active\" }, { \"programId\": \"P002\", \"name\": \"Program B\", \"status\": \"Inactive\" } ] }"
-//                    )
-//            )
-//    )
-//    @ApiResponse(
-//            responseCode = "400",
-//            description = "Invalid program ID format",
-//            content = @Content(
-//                    mediaType = "application/json",
-//                    examples = @ExampleObject(
-//                            name = "Bad Request Example",
-//                            value = "{\"error\": \"Invalid program ID format\", \"status\": 400}"
-//                    )
-//            )
-//    )
-//    @ApiResponse(
-//            responseCode = "500",
-//            description = "Internal server error",
-//            content = @Content(
-//                    mediaType = "application/json",
-//                    examples = @ExampleObject(
-//                            name = "Internal Server Error Example",
-//                            value = "{\"error\": \"Unexpected error occurred\", \"status\": 500}"
-//                    )
-//            )
-//    )
+  
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),

@@ -46,7 +46,6 @@
         </dependency>
 
 
-
         <!-- Lombok for Getter/Setter Generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -74,17 +73,17 @@
             <version>2.8.5</version>
         </dependency>
 
-<!--        &lt;!&ndash; PDF Generation (iText) &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.itextpdf</groupId>-->
-<!--            <artifactId>kernel</artifactId>-->
-<!--            <version>8.0.5</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.itextpdf</groupId>-->
-<!--            <artifactId>layout</artifactId>-->
-<!--            <version>8.0.5</version>-->
-<!--        </dependency>-->
+        <!-- PDF Generation (iText) -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>8.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>8.0.5</version>
+        </dependency>
 
         <!-- JSON Web Token (JWT) for Authentication -->
         <dependency>
@@ -125,11 +124,4 @@
         </plugins>
         <finalName>swagger-api-server</finalName>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/release</url>
-        </repository>
-    </repositories>
 </project>

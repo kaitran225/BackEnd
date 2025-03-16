@@ -6,7 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.util.Collections;
 
 @SpringBootApplication(
-    proxyBeanMethods = false // Disable proxy bean methods to reduce memory usage
+    proxyBeanMethods = false 
+    // Disable proxy bean methods to reduce memory usage
 )
 @EnableScheduling
 public class BackEndApplication {
