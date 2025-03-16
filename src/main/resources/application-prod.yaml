@@ -76,8 +76,46 @@
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
 
+  task:
+    execution:
+      pool:
+        core-size: 1
+        max-size: 5
+
+  cors:
+    allowed-origins: "*"
+    allowed-methods: "*"
+    allowed-headers: "*"
+    exposed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      
+
   # Disable unnecessary features in production
   springdoc:
+    swagger-ui:
+      customJs: /static/custom-swagger.js
+      customCss: /static/style.css
+      defaultModelsExpandDepth: -1
+      disable-swagger-default-response-messages: true
+      lazy-load: true
+      docExpansion: none
+      filter: true
+      use-root-path: true
+    override-with-generic-response: false
+    cache:
+      disabled: true
+    writer-with-default-pretty-printer: false
+
     api-docs:
       enabled: false
     swagger-ui:
@@ -93,9 +131,16 @@ server:
     min-response-size: 1024
   undertow:
     io-threads: 1
-    worker-threads: 4
-    buffer-size: 512
-    direct-buffers: true
+    worker-threads: 2
+    buffer-size: 1024KB
+    direct-buffers: false
+    max-http-post-size: 10485760
+
+# Hibernate settings
+hibernate:
+  transaction:
+    jta:
+      platform: org.hibernate.service.jta.platform.internal.AtomikosJtaPlatform
 
 # Production logging configuration
 logging:
@@ -103,6 +148,10 @@ logging:
     root: INFO
     org.springframework: INFO
     com.zaxxer.hikari: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+
     org.hibernate: INFO
     com.healthy.backend: INFO
 
