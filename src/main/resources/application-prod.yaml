@@ -61,6 +61,7 @@
   # JPA/Hibernate configuration
   jpa:
     properties:
+    
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
         # Memory optimized JDBC settings
@@ -110,7 +111,6 @@
           coordinator_class: jdbc
     
     # JPA specific settings
-    properties:
       jakarta:
         persistence:
           persistence-unit:
