@@ -36,7 +36,7 @@ public class CommentService {
 
         // Kiểm tra xem user đã đánh giá cho appointment này chưa (nếu có rating)
         if (request.getRating() != null) {
-            boolean hasExistingRating = commentRepository.existsByAppointmentAndAuthorAndRatingIsNotNull(appointment, user);
+            boolean hasExistingRating = commentRepository.existsByAppointmentAndUserAndRatingIsNotNull(appointment, user);
             if (hasExistingRating) {
                 throw new OperationFailedException("You've already submitted a rating for this appointment");
             }
@@ -94,7 +94,7 @@ public class CommentService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (request.getRating() != null) {
-            boolean hasExistingRating = commentRepository.existsByProgramsAndAuthorAndRatingIsNotNull(programs, user);
+            boolean hasExistingRating = commentRepository.existsByProgramsAndUserAndRatingIsNotNull(programs, user);
             if (hasExistingRating) {
                 throw new OperationFailedException("You've already submitted a rating for this appointment");
             }
@@ -118,7 +118,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (request.getRating() != null) {
-            boolean hasExistingRating = commentRepository.existsByArticleAndAuthorAndRatingIsNotNull(article, user);
+            boolean hasExistingRating = commentRepository.existsByArticleAndUserAndRatingIsNotNull(article, user);
             if (hasExistingRating) {
                 throw new OperationFailedException("You've already submitted a rating for this appointment");
             }

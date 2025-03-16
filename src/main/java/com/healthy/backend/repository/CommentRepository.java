@@ -13,19 +13,19 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByArticle_ArticleIDAndParentCommentIsNullOrderByCreatedAtAsc(String articleID);
 
-    boolean existsByProgramsAndAuthorAndRatingIsNotNull(
-            @Param("appointment") Programs programs,
-            @Param("author") Users author
+    boolean existsByProgramsAndUserAndRatingIsNotNull(
+            @Param("programs") Programs programs,
+            @Param("user") Users user
     );
 
-    boolean existsByArticleAndAuthorAndRatingIsNotNull(
-            @Param("appointment") Article article,
-            @Param("author") Users author
+    boolean existsByArticleAndUserAndRatingIsNotNull(
+            @Param("article") Article article,
+            @Param("user") Users user
     );
 
-    boolean existsByAppointmentAndAuthorAndRatingIsNotNull(
+    boolean existsByAppointmentAndUserAndRatingIsNotNull(
             @Param("appointment") Appointments appointment,
-            @Param("author") Users author
+            @Param("user") Users user
     );
 
 }
