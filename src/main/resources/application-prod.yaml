@@ -75,7 +75,6 @@
   # JPA/Hibernate configuration
   jpa:
     properties:
-    
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
         # Memory optimized JDBC settings
@@ -102,6 +101,8 @@
         order_updates: true
         connection:
           handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
+          provider_disables_autocommit: false
+          release_mode: after_transaction
         
         # Updated metadata access setting
         boot:
@@ -121,7 +122,7 @@
         
         # Transaction optimization
         transaction:
-          auto_close_session: true
+          auto_close_session: false
           coordinator_class: jdbc
     
     # JPA specific settings
