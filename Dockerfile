@@ -41,11 +41,11 @@ ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-Xms32m", \
     "-Xmx150m", \
-    "-XX:MaxRAMPercentage=75.0", \
+    "-XX:MaxRAMPercentage=50.0", \
     "-XX:+UseSerialGC", \
     "-Xss256k", \
-    "-XX:MetaspaceSize=32m", \
-    "-XX:MaxMetaspaceSize=64m", \
+    "-XX:MetaspaceSize=72m", \
+    "-XX:MaxMetaspaceSize=72m", \
     "-XX:+ShrinkHeapInSteps", \
     "-XX:MinHeapFreeRatio=10", \
     "-XX:MaxHeapFreeRatio=20", \
