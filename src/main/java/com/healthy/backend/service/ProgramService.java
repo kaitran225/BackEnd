@@ -600,6 +600,7 @@ public class ProgramService {
         }
     }
 
+    @SuppressWarnings("unused")
     private void validateDuration(Integer duration) {
         if (duration == null || duration <= 0) {
             throw new IllegalArgumentException("Duration must be a positive integer");
@@ -970,6 +971,7 @@ public class ProgramService {
 
 
     // Deprecated function
+    @SuppressWarnings("unused")
     private ProgramsResponse _getProgramResponse(Programs program, String studentID) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
 
@@ -991,6 +993,7 @@ public class ProgramService {
         return programMapper.buildProgramResponse(program, activeStudentsCount, lastSchedule, status);
     }
 
+    @SuppressWarnings("unused")
     private ProgramsResponse _getProgramDetailsResponse(Programs program) {
         if (program == null) throw new ResourceNotFoundException("Program not found");
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
@@ -1015,7 +1018,8 @@ public class ProgramService {
 
         return getProgramResponse(program, null);
     }
-
+    
+    @SuppressWarnings("unused")
     private ProgramsResponse _createProgram(ProgramsRequest programsRequest, String userId) {
 
         String programId = __.generateProgramID();
@@ -1174,6 +1178,7 @@ public class ProgramService {
         return true;
     }
 
+    @SuppressWarnings("unused")
     private List<StudentResponse> _getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
 
