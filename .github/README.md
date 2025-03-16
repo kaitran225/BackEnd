@@ -43,7 +43,7 @@ The project is actively being developed, and new features are continuously being
    ```
 4. Access OpenApiConfig UI for API testing:  
    ```
-   http://localhost:8080/swagger-ui.html
+   http://localhost:8080/swagger-ui/index.html
    ```
 
 ## 🤝 Contributing  
