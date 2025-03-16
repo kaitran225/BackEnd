@@ -115,12 +115,8 @@
     cache:
       disabled: true
     writer-with-default-pretty-printer: false
-
     api-docs:
       enabled: false
-    swagger-ui:
-      enabled: false
-
 # Server settings
 server:
   address: 0.0.0.0
