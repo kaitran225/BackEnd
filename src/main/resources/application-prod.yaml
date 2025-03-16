@@ -1,5 +1,4 @@
-# Memory Optimization Settings
-spring:
+﻿spring:
   config:
     activate:
       on-profile: prod
