@@ -13,9 +13,9 @@ public class SwaggerCustomConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/")
                 .resourceChain(false);
 
-        // Serve custom JavaScript
-        registry.addResourceHandler("/static/custom-swagger.js")
-                .addResourceLocations("classpath:/static/custom-swagger.js")
-                .resourceChain(false);
+        // // Serve custom JavaScript
+        // registry.addResourceHandler("/static/custom-swagger.js")
+        //         .addResourceLocations("classpath:/static/custom-swagger.js")
+        //         .resourceChain(false);
     }
 }

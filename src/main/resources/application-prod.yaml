@@ -103,14 +103,15 @@
   # Disable unnecessary features in production
   springdoc:
     swagger-ui:
-      customJs: /static/custom-swagger
-      customCss: /static/style
+      customJs: /static/custom-swagger.js
+      customCss: /static/style.css
       defaultModelsExpandDepth: -1
       disable-swagger-default-response-messages: true
       lazy-load: true
       docExpansion: none
       filter: true
       use-root-path: true
+      enabled: false  # Disable in production
     override-with-generic-response: false
     cache:
       disabled: true
