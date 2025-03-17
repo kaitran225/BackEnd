@@ -91,34 +91,31 @@ public class DataInitializer implements CommandLineRunner {
 
     private void registerUsers() {
         List<RegisterRequest> users = List.of(
-                new RegisterRequest("adminpass", "Admin Admin", "admin@example.com", "1111111111", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
-                new RegisterRequest("staff_pass", "Staff Member", "staff@example.com", "2222222222", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest("@Manager_Pass123", "Admin Admin", "manager@cybriadev.com", "1111111111", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Manager_Pass123", "Staff Member", "staff@cybriadev.com", "2222222222", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
 
-                new RegisterRequest("psychologist_pass", "Dr. Brown", "psychologist@example.com", "0912345671", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
-                new RegisterRequest("psychologist_pass", "Dr. Blue", "psychologist2@example.com", "0912345672", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Psychologist_Pass123", "Dr. Brown", "psychologist1@cybriadev.com", "0912345671", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Psychologist_Pass123", "Dr. Blue", "psychologist2@cybriadev.com", "0912345672", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("parent_pass", "Jane Smith", "parent@example.com", "0812345671", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
-                new RegisterRequest("parent_pass", "Bob Johnson", "parent2@example.com", "0812345672", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Parent_Pass123", "Jane Smith", "parent1@cybriadev.com", "0812345671", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest("@Parent_Pass123", "Bob Johnson", "parent2@cybriadev.com", "0812345672", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("student_pass", "John Doe", "student@example.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("student_pass", "John Green", "student2@example.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("student_pass", "Alice Jones", "student3@example.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
-//
-//                new RegisterRequest("psychologist_pass", "Dr. Anh", "cuongcaoleanh@gmail.com", "0912345673", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
-//                new RegisterRequest("psychologist_pass", "Dr. Cuong", "caoleanhcuong78@gmail.com", "0912345674", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString())
+                new RegisterRequest("@Student_Pass123", "John Doe", "student1@cybriadev.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Student_Pass123", "John Green", "student2@cybriadev.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Student_Pass123", "Alice Jones", "student3@cybriadev.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
         );
         users.forEach(authenticationService::register);
     }
 
     private void initializeParentsAndStudents() {
         // Initialize Parents
-        parentRepository.save(new Parents("PRT001", userRepository.findByEmail("parent@example.com").getUserId()));
-        parentRepository.save(new Parents("PRT002", userRepository.findByEmail("parent2@example.com").getUserId()));
+        parentRepository.save(new Parents("PRT001", userRepository.findByEmail("parent1@cybriadev.com").getUserId()));
+        parentRepository.save(new Parents("PRT002", userRepository.findByEmail("parent2@cybriadev.com").getUserId()));
 
         // Initialize Students
-        studentRepository.save(new Students("STU001", userRepository.findByEmail("student@example.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
-        studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@example.com").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
-        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@example.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU001", userRepository.findByEmail("student1@cybriadev.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), parentRepository.findById("PRT002").get().getParentID(), 9, "B", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@cybriadev.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
 
     }
 
@@ -251,7 +248,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(3).toString(),
+                        LocalDate.now().plusWeeks(4).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Friday",
                                 "13:00:00",
@@ -267,7 +264,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(2).toString(),
+                        LocalDate.now().plusWeeks(5).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Monday",
                                 "08:00:00",
@@ -283,7 +280,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(1).toString(),
+                        LocalDate.now().plusWeeks(4).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Tuesday",
                                 "11:00:00",
@@ -299,7 +296,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(2).toString(),
+                        LocalDate.now().plusWeeks(3).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Wednesday",
                                 "12:00:00",
@@ -315,7 +312,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(0).toString(),
+                        LocalDate.now().plusWeeks(2).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Thursday",
                                 "14:00:00",
@@ -452,10 +449,10 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeSurveys() {
-        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.INACTIVE));
+        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
+        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.INACTIVE));
     }
 
     private void initializeSurveyQuestions() {
@@ -768,39 +765,27 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeLogs() {
-        userLogRepository.save(new UserLogs("LOG001", userRepository.findByEmail("psychologist@example.com").getUserId(), "192.168.0.1"));
-        userLogRepository.save(new UserLogs("LOG002", userRepository.findByEmail("student2@example.com").getUserId(), "244.178.44.111"));
-        userLogRepository.save(new UserLogs("LOG003", userRepository.findByEmail("psychologist@example.com").getUserId(), "38.0.101.76"));
-        userLogRepository.save(new UserLogs("LOG004", userRepository.findByEmail("parent2@example.com").getUserId(), "89.0.142.86"));
+        userLogRepository.save(new UserLogs("LOG001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "192.168.0.1"));
+        userLogRepository.save(new UserLogs("LOG002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), "244.178.44.111"));
+        userLogRepository.save(new UserLogs("LOG003", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "38.0.101.76"));
+        userLogRepository.save(new UserLogs("LOG004", userRepository.findByEmail("parent2@cybriadev.com").getUserId(), "89.0.142.86"));
     }
 
     private void initializeArticles() {
         List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
-        articles.forEach(article -> {
-            articleRepository.save(article);
-        });
-        // MentalHealthArticlesData.getMentalHealthArticles().forEach(articleRepository::save);
-
-        // articleRepository.save(new Article("ATC001", "Managing Stress", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing stress..."));
-        // articleRepository.save(new Article("ATC002", "Anxiety Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing anxiety..."));
-        // articleRepository.save(new Article("ATC003", "Depression Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing depression..."));
-        // articleRepository.save(new Article("ATC004", "Sleep Disorders", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing sleep disorders..."));
-        // articleRepository.save(new Article("ATC005", "Eating Disorders", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing eating disorders..."));
-        // articleRepository.save(new Article("ATC006", "Addiction Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing addiction..."));
-        // articleRepository.save(new Article("ATC007", "Anxiety and Depression Management", userRepository.findByEmail("psychologist@example.com").getUserId(), "Tips for managing anxiety..."));
-        // articleRepository.save(new Article("ATC008", "Stress Management", userRepository.findByEmail("psychologist2@example.com").getUserId(), "Tips for managing stress and anxiety ..."));
+        articles.forEach(articleRepository::save);
     }
 
     private void initializeNotifications() {
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist@example.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student@example.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
+        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
     }
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() == 0) {
+        if (userRepository.count()  == 0) {
             this.initialize();
         }
     }

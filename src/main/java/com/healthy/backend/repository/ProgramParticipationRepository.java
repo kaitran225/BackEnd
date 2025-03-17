@@ -51,6 +51,9 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
     @Query("SELECT p.studentID FROM ProgramParticipation p WHERE p.programID = :programId AND p.status <> :excludedStatus")
     List<String> findActiveStudentIDsByProgramID(@Param("programId") String programId, @Param("excludedStatus") ParticipationStatus excludedStatus);
 
+    @Query("SELECT p FROM ProgramParticipation p WHERE p.studentID = :studentId AND p.status <> :excludedStatus")
+    List<ProgramParticipation> findActiveByStudentID(@Param("studentId") String studentId, @Param("excludedStatus") ParticipationStatus excludedStatus);
+
     List<ProgramParticipation> findByProgramIDAndStudentIDIn(String programId, List<String> studentIDs);
 
     @Query("SELECT p FROM ProgramParticipation p WHERE p.programID = :programId AND p.studentID IN :studentIDs")

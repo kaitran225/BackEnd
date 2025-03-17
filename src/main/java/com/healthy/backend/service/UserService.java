@@ -3,9 +3,11 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
+import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.ParticipationStatus;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
@@ -344,19 +346,35 @@ public class UserService {
     // Get user program participation
     private List<ProgramsResponse> getUserProgramParticipation(String userId) {
         String student = studentRepository.findByUserID(userId).getStudentID();
-        List<ProgramParticipation> participation = programParticipationRepository.findByStudentID(student);
-        // Construct responses
+        List<ProgramParticipation> participation = programParticipationRepository
+                .findActiveByStudentID(student, ParticipationStatus.CANCELLED);
         return participation.stream()
                 .map(programParticipation -> {
                     ProgramSchedule programSchedule = programScheduleRepository
                             .findByProgramID(programParticipation.getProgramID()).getLast();
+                    Integer activeStudentsCount = getActiveStudentsByProgram(programParticipation.getProgramID()).size();
                     return programMapper.buildProgramResponse(
                             programParticipation.getProgram(),
-                            programParticipationRepository.findStudentIDsByProgramID(
-                                    programParticipation.getProgramID()).size(),
+                            activeStudentsCount,
                             programSchedule,
                             programParticipation.getStatus().name()
                     );
+                })
+                .toList();
+    }
+
+    private List<StudentResponse> getActiveStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
+
+        return studentIDs.stream()
+                .map(studentRepository::findByStudentID)
+                .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
                 })
                 .toList();
     }
