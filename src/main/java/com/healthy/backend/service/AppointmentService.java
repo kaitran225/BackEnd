@@ -146,16 +146,14 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponse bookAppointment(AppointmentRequest request) {
-        // Validate và tìm time slot
+
         TimeSlots timeSlot = timeSlotRepository.findById(request.getTimeSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Time slot not found with id: " + request.getTimeSlotId()));
 
-        // Kiểm tra capacity của time slot
         if (timeSlot.getCurrentBookings() >= timeSlot.getMaxCapacity()) {
             throw new ResourceAlreadyExistsException("Time slot is full. Maximum capacity: " + timeSlot.getMaxCapacity());
         }
 
-        // Validate student
         Students student = studentRepository.findByUserID(request.getUserId());
         if (student == null) {
             throw new ResourceNotFoundException("Student not found" + request.getUserId());
@@ -172,7 +170,6 @@ public class AppointmentService {
             throw new ResourceAlreadyExistsException("Student already has an appointment in this time slot");
         }
 
-        // Tạo appointment mới
         Appointments appointment = new Appointments();
         appointment.setAppointmentID(__.generateAppointmentId());
         appointment.setTimeSlotsID(timeSlot.getTimeSlotsID());
@@ -183,17 +180,14 @@ public class AppointmentService {
         appointment.setTimeSlot(timeSlot);
         appointment.setStatus(AppointmentStatus.SCHEDULED);
 
-        // Lưu appointment
         Appointments savedAppointment = appointmentRepository.save(appointment);
 
-        // Cập nhật số lượng bookings trong time slot
         timeSlot.setCurrentBookings(timeSlot.getCurrentBookings() + 1);
         if (timeSlot.getCurrentBookings() >= timeSlot.getMaxCapacity()) {
             timeSlot.setStatus(TimeslotStatus.BOOKED);
         }
         timeSlotRepository.save(timeSlot);
 
-        // Gửi thông báo cho psychologist
         Users psychologistUser = userRepository.findByUserId(psychologist.getUserID())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -208,21 +202,20 @@ public class AppointmentService {
             );
         }
 
-        // Tạo notification cho psychologist
         notificationService.createAppointmentNotification(
                 psychologistUser.getUserId(),
                 "New Appointment Booked",
                 "You have a new appointment with " + student.getUser().getFullName(),
                 savedAppointment.getAppointmentID()
         );
-        // Tạo notification cho student
+
         notificationService.createAppointmentNotification(
                 student.getUser().getUserId(),
                 "New Appointment Booked",
                 "you have made an appointment with the psychologist " + psychologistUser.getFullName(),
                 savedAppointment.getAppointmentID()
         );
-        // Trả về response
+
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
                 psychologistMapper.buildPsychologistResponse(psychologist),

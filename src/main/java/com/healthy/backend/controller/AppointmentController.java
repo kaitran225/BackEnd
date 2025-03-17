@@ -132,7 +132,6 @@ public class AppointmentController {
     @Operation(summary = "Book an appointment", description = "Book an appointment")
     @PostMapping("/book")
     public ResponseEntity<AppointmentResponse> bookAppointment(
-
             @RequestParam(required = false) String UserId,
             @RequestBody AppointmentRequest request,
             HttpServletRequest httpRequest) {
@@ -143,15 +142,12 @@ public class AppointmentController {
         }
 
         if (UserId == null) {
-            UserId = userRepository.findById(
-                    tokenService.retrieveUser(httpRequest).getUserId()
-            ).get().getUserId();
+            UserId = tokenService.retrieveUser(httpRequest).getUserId();
         }
 
         if (tokenService.validateRole(httpRequest, Role.STUDENT)) {
-            String actualId = userRepository.findById(currentUser.getUserId()).get().getUserId();
-            if (!UserId.equals(actualId)) {
-                throw new AuthorizeException("Unauthorized to book appointment for orther student");
+            if (!UserId.equals(currentUser.getUserId())) {
+                throw new AuthorizeException("Unauthorized to book appointment for other student");
             }
         }
         request.setUserId(UserId);
