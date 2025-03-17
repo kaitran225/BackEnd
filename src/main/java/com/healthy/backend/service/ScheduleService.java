@@ -17,6 +17,8 @@ public class ScheduleService {
     public void onApplicationStart() {
         System.out.println("Checking program statuses at startup...");
         programService.updateProgramStatuses();
+        System.out.println("Sending program reminders...");
+        programService.sendProgramReminders();
     }
 
     // Run every day at midnight
