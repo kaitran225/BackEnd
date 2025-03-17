@@ -44,8 +44,8 @@ ENTRYPOINT ["java", \
     "-XX:MaxRAMPercentage=50.0", \
     "-XX:+UseSerialGC", \
     "-Xss256k", \
-    "-XX:MetaspaceSize=96m", \
-    "-XX:MaxMetaspaceSize=96m", \
+    "-XX:MetaspaceSize=128m", \
+    "-XX:MaxMetaspaceSize=128m", \
     "-XX:+ShrinkHeapInSteps", \
     "-XX:MinHeapFreeRatio=10", \
     "-XX:MaxHeapFreeRatio=20", \
