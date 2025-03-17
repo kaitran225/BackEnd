@@ -389,24 +389,18 @@ public class ProgramService {
 
     private List<StudentResponse> getActiveStudentsByProgram(String programId) {
         List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
-        List<Students> students = studentRepository.findStudentsByIds(studentIDs);
-        List<ProgramParticipation> programParticipations = programParticipationRepository
-                .findProgramParticipationsByProgramIdAndStudentIds(programId, studentIDs);
-        Map<String, ProgramParticipation> studentProgramParticipationMap = programParticipations.stream()
-                .collect(Collectors.toMap(
-                        ProgramParticipation::getStudentID,
-                        participation -> participation
-                ));
 
-        return students.stream()
+        return studentIDs.stream()
+                .map(studentRepository::findByStudentID)
                 .map(studentMapper::buildStudentResponse)
                 .peek(studentResponse -> {
-                    ProgramParticipation programParticipation = studentProgramParticipationMap.get(studentResponse.getStudentId());
+                    ProgramParticipation programParticipation = programParticipationRepository
+                            .findByProgramIDAndStudentID(programId, studentResponse.getStudentId()).getLast();
                     if (programParticipation != null) {
                         studentResponse.setProgramStatus(programParticipation.getStatus().name());
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Users fetchUser(String userId) {
@@ -1227,5 +1221,28 @@ public class ProgramService {
                     }
                 })
                 .toList();
+    }
+
+    @SuppressWarnings("unused")
+    private List<StudentResponse> __getActiveStudentsByProgram(String programId) {
+        List<String> studentIDs = programParticipationRepository.findActiveStudentIDsByProgramID(programId, ParticipationStatus.CANCELLED);
+        List<Students> students = studentRepository.findStudentsByIds(studentIDs);
+        List<ProgramParticipation> programParticipations = programParticipationRepository
+                .findProgramParticipationsByProgramIdAndStudentIds(programId, studentIDs);
+        Map<String, ProgramParticipation> studentProgramParticipationMap = programParticipations.stream()
+                .collect(Collectors.toMap(
+                        ProgramParticipation::getStudentID,
+                        participation -> participation
+                ));
+
+        return students.stream()
+                .map(studentMapper::buildStudentResponse)
+                .peek(studentResponse -> {
+                    ProgramParticipation programParticipation = studentProgramParticipationMap.get(studentResponse.getStudentId());
+                    if (programParticipation != null) {
+                        studentResponse.setProgramStatus(programParticipation.getStatus().name());
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }
