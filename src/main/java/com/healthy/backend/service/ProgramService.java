@@ -447,7 +447,7 @@ public class ProgramService {
     }
 
     private void validateStudentAvailability(String studentId, Programs program) {
-        if (programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
+        if (!programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
             throw new ResourceAlreadyExistsException("Student is already registered for a program");
         }
         List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
@@ -857,7 +857,7 @@ public class ProgramService {
         }
         ProgramParticipation participation = programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
                 programId, studentId);
-        return participation != null && participation.getStatus().equals(ParticipationStatus.JOINED);
+        return participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 
     private void updateProgramStatuses() {
