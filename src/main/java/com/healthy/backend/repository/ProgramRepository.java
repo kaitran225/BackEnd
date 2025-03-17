@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -13,4 +14,6 @@ public interface ProgramRepository extends JpaRepository<Programs, String> {
 
     @Query("SELECT p.programID FROM Programs p ORDER BY p.programID DESC LIMIT 1")
     String findLastProgramId();
+
+    List<Programs> findByStartDate(LocalDate startDate);
 }
