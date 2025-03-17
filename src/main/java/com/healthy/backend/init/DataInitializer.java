@@ -143,35 +143,34 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeDefaultSlots() {
-        if (defaultTimeSlotRepository.count() == 0) {
-            List<DefaultTimeSlot> slots = new ArrayList<>();
-
-            // Morning slots 8:00-11:00
-            LocalTime time = LocalTime.of(8, 0);
-            for (int i = 0; time.isBefore(LocalTime.of(11, 0)); i++) {
-                slots.add(new DefaultTimeSlot(
-                        "MORNING-" + String.format("%02d", i),
-                        time,
-                        time.plusMinutes(30),
-                        "Morning"
-                ));
-                time = time.plusMinutes(30);
-            }
-
-            // Afternoon slots 13:00-17:00
-            time = LocalTime.of(13, 0);
-            for (int i = 0; time.isBefore(LocalTime.of(17, 0)); i++) {
-                slots.add(new DefaultTimeSlot(
-                        "AFTERNOON-" + String.format("%02d", i),
-                        time,
-                        time.plusMinutes(30),
-                        "Afternoon"
-                ));
-                time = time.plusMinutes(30);
-            }
-
-            defaultTimeSlotRepository.saveAll(slots);
+        if (defaultTimeSlotRepository.count() > 0) {
+            return;
         }
+
+        List<DefaultTimeSlot> slots = new ArrayList<>();
+
+        slots.addAll(generateTimeSlots("MORNING", LocalTime.of(8, 0), LocalTime.of(11, 0), "Morning"));
+        slots.addAll(generateTimeSlots("AFTERNOON", LocalTime.of(13, 0), LocalTime.of(17, 0), "Afternoon"));
+
+        defaultTimeSlotRepository.saveAll(slots);
+    }
+
+    private List<DefaultTimeSlot> generateTimeSlots(String prefix, LocalTime startTime, LocalTime endTime, String period) {
+        List<DefaultTimeSlot> slots = new ArrayList<>();
+        LocalTime time = startTime;
+        int index = 0;
+
+        while (time.isBefore(endTime)) {
+            slots.add(new DefaultTimeSlot(
+                    String.format("%s-%02d", prefix, index++),
+                    time,
+                    time.plusMinutes(30),
+                    period
+            ));
+            time = time.plusMinutes(30);
+        }
+
+        return slots;
     }
 
     private void initializeTags() {

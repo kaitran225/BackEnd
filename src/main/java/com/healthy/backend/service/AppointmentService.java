@@ -42,10 +42,8 @@ public class AppointmentService {
 
     private final PsychologistsMapper psychologistMapper;
     private final AppointmentMapper appointmentMapper;
-    private final DepartmentMapper departmentMapper;
     private final StudentMapper studentMapper;
     private final UserMapper userMapper;
-    private final PsychologistService psychologistService;
 
 
     public List<AppointmentResponse> filterAppointments(
@@ -110,14 +108,6 @@ public class AppointmentService {
         return response;
     }
 
-
-    public List<DepartmentResponse> getAllDepartments() {
-        return departmentRepository.findAll()
-                .stream()
-                .map(departmentMapper::buildDepartmentResponse)
-                .collect(Collectors.toList());
-    }
-
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointments> appointments = appointmentRepository.findAll();
         if (appointments.isEmpty()) {
@@ -177,6 +167,7 @@ public class AppointmentService {
 
         boolean hasExistingAppointment = appointmentRepository.existsByStudentIDAndTimeSlotsID(
                 student.getStudentID(), timeSlot.getTimeSlotsID());
+
         if (hasExistingAppointment) {
             throw new ResourceAlreadyExistsException("Student already has an appointment in this time slot");
         }
@@ -231,10 +222,6 @@ public class AppointmentService {
                 "you have made an appointment with the psychologist " + psychologistUser.getFullName(),
                 savedAppointment.getAppointmentID()
         );
-
-        LocalDate slotDate = timeSlot.getSlotDate();
-        psychologistService.increaseAchievedSlots(psychologist.getPsychologistID(), slotDate);
-
         // Trả về response
         return appointmentMapper.buildAppointmentResponse(
                 savedAppointment,
@@ -264,18 +251,19 @@ public class AppointmentService {
             throw new ResourceInvalidException("You are not authorized to cancel this appointment");
         }
 
-        // Kiểm tra trạng thái appointment
-        if (appointment.getStatus() == AppointmentStatus.IN_PROGRESS) {
-            throw new ResourceInvalidException("Cannot cancel an appointment that is In Progress");
-        }
-        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
-            throw new ResourceInvalidException("Appointment is already completed");
-        }
-        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            throw new ResourceInvalidException("Cannot cancel an appointment that CANCELLED");
+        switch (appointment.getStatus()) {
+            case SCHEDULED:
+                break;
+            case IN_PROGRESS:
+                throw new ResourceInvalidException("Cannot cancel an appointment that is In Progress");
+            case COMPLETED:
+                throw new ResourceInvalidException("Appointment is already completed");
+            case CANCELLED:
+                throw new ResourceInvalidException("Cannot cancel an appointment that CANCELLED");
+            default:
+                throw new ResourceInvalidException("Invalid appointment status");
         }
 
-        // Cập nhật trạng thái appointment
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
         appointment.setCancellationReason(reason);
@@ -320,9 +308,6 @@ public class AppointmentService {
                     appointmentId
             );
         }
-
-        LocalDate slotDate = timeSlot.getSlotDate();
-        psychologistService.decreaseAchievedSlots(appointment.getPsychologistID(), slotDate);
 
         // Trả về response
         return appointmentMapper.buildAppointmentResponse(appointment);
@@ -532,6 +517,4 @@ public class AppointmentService {
             timeSlotRepository.save(oldTimeSlot);
         }
     }
-
-
 }

@@ -39,7 +39,6 @@ import java.util.List;
 @Tag(name = "Psychologist Controller", description = "Psychologist related APIs")
 public class PsychologistController {
 
-    private final AppointmentService appointmentService;
     private final PsychologistService psychologistService;
     private final TokenService tokenService;
     private final StudentRepository studentRepository;
@@ -171,9 +170,9 @@ public class PsychologistController {
             description = "Returns a list of all departments.")
     @GetMapping("/departments")
     public ResponseEntity<List<DepartmentResponse>> getDepartments() {
-        List<DepartmentResponse> appointmentResponse = appointmentService.getAllDepartments();
-        if (!appointmentResponse.isEmpty()) {
-            return ResponseEntity.ok(appointmentResponse);
+        List<DepartmentResponse> departmentResponses = psychologistService.getAllDepartments();
+        if (!departmentResponses.isEmpty()) {
+            return ResponseEntity.ok(departmentResponses);
         }
         return ResponseEntity.noContent().build();
     }
@@ -204,7 +203,6 @@ public class PsychologistController {
 
 
         if (tokenService.validateRole(httpRequest, Role.PSYCHOLOGIST)) {
-            // Kiểm tra Psychologist chỉ được tạo slot cho chính mình
             String actualId = psychologistService.getPsychologistIdByUserId(currentUser.getUserId());
             if (!psychologistId.equals(actualId)) {
                 throw new AuthorizeException("Unauthorized to create slots for other psychologists");
@@ -228,7 +226,7 @@ public class PsychologistController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @Operation(summary = "Lấy danh sách time slots")
+    @Operation(summary = "Get list of time slots")
     @GetMapping("/timeslots")
     public ResponseEntity<List<TimeSlotResponse>> getTimeSlots(
             @RequestParam(required = false) String psychologistId,

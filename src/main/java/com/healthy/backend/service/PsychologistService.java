@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 
+import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
@@ -10,17 +11,15 @@ import com.healthy.backend.enums.PsychologistStatus;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.AuthorizeException;
 import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.DepartmentMapper;
 import com.healthy.backend.mapper.PsychologistsMapper;
 import com.healthy.backend.mapper.TimeSlotMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,37 +32,11 @@ public class PsychologistService {
     private final DepartmentRepository departmentRepository;
     private final AppointmentRepository appointmentRepository;
     private final PsychologistRepository psychologistRepository;
-
-    private final PsychologistsMapper psychologistsMapper;
-    private final TimeSlotMapper timeSlotMapper;
-
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
 
-    private final PsychologistKPIRepository kpiRepository;
-
-
-    @Transactional
-    public void increaseAchievedSlots(String psychologistId, LocalDate slotDate) {
-        int month = slotDate.getMonthValue();
-        int year = slotDate.getYear();
-        PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(psychologistId, month, year);
-        if (kpi == null) {
-            throw new ResourceNotFoundException("KPI not set for psychologist " + psychologistId);
-        }
-        kpi.setAchievedSlots(kpi.getAchievedSlots() + 1);
-        kpiRepository.save(kpi);
-    }
-
-    @Transactional
-    public void decreaseAchievedSlots(String psychologistId, LocalDate slotDate) {
-        int month = slotDate.getMonthValue();
-        int year = slotDate.getYear();
-        PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(psychologistId, month, year);
-        if (kpi != null) {
-            kpi.setAchievedSlots(Math.max(kpi.getAchievedSlots() - 1, 0));
-            kpiRepository.save(kpi);
-        }
-    }
+    private final PsychologistsMapper psychologistsMapper;
+    private final DepartmentMapper departmentMapper;
+    private final TimeSlotMapper timeSlotMapper;
 
 
     public PsychologistResponse getPsychologistByUserId(String userId) {
@@ -89,6 +62,12 @@ public class PsychologistService {
     public List<PsychologistResponse> getAllPsychologistDTO() {
         List<Psychologists> psychologists = psychologistRepository.findAll();
         return psychologists.stream().map(this::callMapper).toList();
+    }
+    public List<DepartmentResponse> getAllDepartments() {
+        return departmentRepository.findAll()
+                .stream()
+                .map(departmentMapper::buildDepartmentResponse)
+                .collect(Collectors.toList());
     }
 
     // Get psychologist by specialization
@@ -162,40 +141,6 @@ public class PsychologistService {
         }
     }
 
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void initDefaultSlots() {
-        if (defaultTimeSlotRepository.count() == 0) {
-            List<DefaultTimeSlot> slots = new ArrayList<>();
-
-            // Morning slots 8:00-11:00
-            LocalTime time = LocalTime.of(8, 0);
-            for (int i = 0; time.isBefore(LocalTime.of(11, 0)); i++) {
-                slots.add(new DefaultTimeSlot(
-                        "MORNING-" + String.format("%02d", i),
-                        time,
-                        time.plusMinutes(30),
-                        "Morning"
-                ));
-                time = time.plusMinutes(30);
-            }
-
-            // Afternoon slots 13:00-17:00
-            time = LocalTime.of(13, 0);
-            for (int i = 0; time.isBefore(LocalTime.of(17, 0)); i++) {
-                slots.add(new DefaultTimeSlot(
-                        "AFTERNOON-" + String.format("%02d", i),
-                        time,
-                        time.plusMinutes(30),
-                        "Afternoon"
-                ));
-                time = time.plusMinutes(30);
-            }
-
-            defaultTimeSlotRepository.saveAll(slots);
-        }
-    }
-
     public List<DefaultTimeSlotResponse> getDefaultTimeSlots() {
         return defaultTimeSlotRepository.findAll().stream()
                 .map(s -> new DefaultTimeSlotResponse(
@@ -258,7 +203,6 @@ public class PsychologistService {
         return "TS-" + psychologistId + "-" + date.toString() + "-" + defaultSlotId;
     }
 
-
     public List<TimeSlotResponse> getPsychologistTimeSlots(
             String psychologistId,
             LocalDate date,
@@ -293,5 +237,4 @@ public class PsychologistService {
                 })
                 .collect(Collectors.toList());
     }
-
 }

@@ -25,27 +25,17 @@ import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 public class ManagerService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ManagerService.class);
     private final AppointmentRepository appointmentRepository;
     private final PsychologistRepository psychologistRepository;
-    private final PsychologistKPIRepository kpiRepository;
-    private final NotificationScheduleRepository notificationScheduleRepository;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
     private final ProgramParticipationRepository programParticipationRepository;
     private final StudentRepository studentRepository;
     private final TagsRepository tagsRepository;
-    private final Object notificationLock = new Object();
-    private final NotificationService notificationService;
-    
-    private NotificationSchedule cachedSchedule = null;
-    private LocalDateTime lastScheduleCheck = null;
-    private LocalDate lastNotificationDate = null;
 
     public ManagerDashboardResponse getDashboardStats(String filter, Integer value) {
         LocalDate[] dateRange = resolveDateRange(filter, value);
@@ -160,115 +150,6 @@ public class ManagerService {
         return stats;
     }
 
-    @Scheduled(cron = "0 0 9 * * MON")
-    public void sendWeeklyKpiReminders() {
-        synchronized (notificationLock) {
-            try {
-                // 1. Cập nhật cache lịch trình
-                refreshScheduleCache();
-
-                // 2. Kiểm tra điều kiện gửi
-                if (cachedSchedule == null) return;
-
-                LocalDate today = LocalDate.now();
-                LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-                // 3. Kiểm tra ngày và giờ
-                if (shouldSendNotification(today, now)) {
-                    // 4. Thực hiện gửi thông báo
-                    sendNotifications();
-
-                    // 5. Cập nhật trạng thái
-                    lastNotificationDate = today;
-                }
-            } catch (Exception e) {
-                // Xử lý exception
-                logger.error("Error sending KPI reminders: {}", e.getMessage(), e);
-            }
-        }
-    }
-
-    private void refreshScheduleCache() {
-        if (cachedSchedule == null
-                || lastScheduleCheck == null
-                || lastScheduleCheck.isBefore(LocalDateTime.now().minusMinutes(5))) {
-            cachedSchedule = notificationScheduleRepository.findFirstByOrderByNotificationTimeAsc();
-            lastScheduleCheck = LocalDateTime.now();
-        }
-    }
-
-    private boolean shouldSendNotification(LocalDate today, LocalTime now) {
-        return cachedSchedule.getNotificationDay() == today.getDayOfWeek()
-                && now.equals(cachedSchedule.getNotificationTime().truncatedTo(ChronoUnit.MINUTES))
-                && (lastNotificationDate == null || !lastNotificationDate.equals(today));
-    }
-
-    private void sendNotifications() {
-        LocalDate todayDate = LocalDate.now();
-        int currentMonth = todayDate.getMonthValue();
-        int currentYear = todayDate.getYear();
-
-        List<Psychologists> psychologists = psychologistRepository.findAll();
-
-        for (Psychologists psychologist : psychologists) {
-            PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(
-                    psychologist.getPsychologistID(),
-                    currentMonth,
-                    currentYear
-            );
-
-            if (kpi != null && kpi.getTargetSlots() > kpi.getAchievedSlots()) {
-                int remaining = kpi.getTargetSlots() - kpi.getAchievedSlots();
-                String message = String.format(
-                        "You need to reach %d more slots in month %d to complete KPI target.",
-                        remaining,
-                        currentMonth
-                );
-
-                notificationService.createAppointmentNotification(
-                        psychologist.getUserID(),
-                        "Weekly KPI reminder",
-                        message,
-                        null
-                );
-            }
-        }
-    }
-
-    @Transactional
-    public void setKpiForPsychologist(String psychologistId, int month, int year, int targetSlots) {
-        PsychologistKPI kpi = kpiRepository.findByPsychologistIdAndMonthAndYear(psychologistId, month, year);
-
-        if (kpi == null) {
-            kpi = new PsychologistKPI();
-            kpi.setId(psychologistId + "-" + month + "-" + year);
-            kpi.setPsychologistId(psychologistId);
-            kpi.setMonth(month);
-            kpi.setYear(year);
-        }
-
-        kpi.setTargetSlots(targetSlots);
-        kpiRepository.save(kpi);
-    }
-
-    @Transactional
-    public void setNotificationSchedule(LocalTime notificationTime, DayOfWeek notificationDay) {
-        NotificationSchedule schedule = notificationScheduleRepository.findFirstByOrderByNotificationTimeAsc();
-
-        if (schedule == null) {
-            schedule = new NotificationSchedule();
-            schedule.setId("notification-schedule-1");
-        }
-
-        schedule.setNotificationTime(notificationTime);
-        schedule.setNotificationDay(notificationDay);
-        notificationScheduleRepository.save(schedule);
-
-        cachedSchedule = schedule;
-        lastScheduleCheck = LocalDateTime.now();
-    }
-
-
     // Method to get appointment statistics
     public AppointmentStatsResponse getAppointmentStats() {
         List<Appointments> appointments = appointmentRepository.findAll();
@@ -289,7 +170,7 @@ public class ManagerService {
             // Filter appointments belonging to the current psychologist
             List<Appointments> filteredAppointments = allAppointments.stream()
                     .filter(a -> psychologist.getPsychologistID().equals(a.getPsychologistID()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             long appointmentCount = filteredAppointments.size();
             double averageRating = filteredAppointments.stream()
@@ -357,20 +238,16 @@ public class ManagerService {
     private DepartmentStats calculateDepartmentStats(LocalDate[] dateRange) {
         Map<String, Double> distribution = new HashMap<>();
 
-        // Chuyển đổi LocalDate sang LocalDateTime
         LocalDateTime startDateTime = dateRange[0] != null ? dateRange[0].atStartOfDay() : null;
         LocalDateTime endDateTime = dateRange[1] != null ? dateRange[1].atTime(23, 59, 59) : null;
 
-        // Lấy tất cả appointments đã hoàn thành trong khoảng thời gian
         List<Appointments> completedAppointments = appointmentRepository
                 .findByStatusAndDateRange(AppointmentStatus.COMPLETED, startDateTime, endDateTime);
 
-        // Tổng số appointments đã hoàn thành
         long totalCompleted = completedAppointments.size();
 
         if (totalCompleted == 0) return new DepartmentStats(distribution);
 
-        // Nhóm theo department và tính tỷ lệ
         completedAppointments.stream()
                 .collect(Collectors.groupingBy(
                         appointment -> appointment.getPsychologist().getDepartment().getName(),
@@ -383,6 +260,4 @@ public class ManagerService {
 
         return new DepartmentStats(distribution);
     }
-
-
 }

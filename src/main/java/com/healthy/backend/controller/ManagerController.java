@@ -31,7 +31,6 @@ public class ManagerController {
     private final ProgramService programService;
     private final TokenService tokenService;
 
-    // Endpoint to get appointment statistics by status
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -68,65 +67,6 @@ public class ManagerController {
         }
         return managerService.getPsychologistStats();
     }
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @PostMapping("/kpi")
-    public ResponseEntity<KpiResponse> setKpi(
-            @RequestParam String psychologistId,
-            @RequestParam int month,
-            @RequestParam int year,
-            @RequestParam int targetSlots,
-            HttpServletRequest httpServlet) {
-        if (!tokenService.validateRole(httpServlet, Role.MANAGER)) {
-            throw new IllegalArgumentException("Unauthorized access");
-        }
-
-        managerService.setKpiForPsychologist(psychologistId, month, year, targetSlots);
-
-        KpiResponse response = new KpiResponse(
-                psychologistId,
-                month,
-                year,
-                targetSlots,
-                "KPI set successfully for psychologist " + psychologistId
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @PostMapping("/notification-schedule")
-    public ResponseEntity<NotificationScheduleResponse> setNotificationSchedule(
-            @RequestParam String notificationTime,
-            @RequestParam DayOfWeek notificationDay,
-            HttpServletRequest httpRequest) {
-        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
-            throw new IllegalArgumentException("Unauthorized access");
-        }
-
-        LocalTime time = LocalTime.parse(notificationTime);
-        managerService.setNotificationSchedule(time, notificationDay);
-
-        NotificationScheduleResponse response = new NotificationScheduleResponse(
-                time,
-                notificationDay,
-                "Notification schedule set successfully"
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
