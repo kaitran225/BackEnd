@@ -223,7 +223,7 @@ public class PsychologistService {
         }
         if(isStudent) {
             return slots.stream()
-                    .filter(slot -> Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
+                    .filter(slot -> !Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
                     .map(slot -> {
                         TimeSlotResponse response = timeSlotMapper.toResponse(slot);
                         response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));
