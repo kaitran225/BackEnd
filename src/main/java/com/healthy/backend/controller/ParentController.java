@@ -4,6 +4,7 @@ package com.healthy.backend.controller;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.security.TokenService;
+import com.healthy.backend.service.ParentService;
 import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,9 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User Controller", description = "Users related management APIs")
 public class ParentController {
 
-    private final UserService userService;
     private final TokenService tokenService;
-
+    private final ParentService parentService;
     @Operation(
             summary = "Get user by ID",
             description = "Returns the user details with the specified ID."
@@ -47,7 +47,7 @@ public class ParentController {
                 && !tokenService.isManager(request) && !tokenService.isParent(request)) {
             throw new OperationFailedException("You can not get other users details");
         }
-        UsersResponse user = userService.getUserDetailsById(userId);
+        UsersResponse user = parentService.getParentDetails(userId);
         return user == null
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(user);
