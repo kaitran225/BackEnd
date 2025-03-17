@@ -219,9 +219,19 @@ public class PsychologistService {
         } else {
             slots = timeSlotRepository.findAll();
         }
-
+        if(isStudent) {
+            return slots.stream()
+                    .filter(slot -> Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
+                    .map(slot -> {
+                        TimeSlotResponse response = timeSlotMapper.toResponse(slot);
+                        if (studentId != null) {
+                            response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));
+                        }
+                        return response;
+                    })
+                    .toList();
+        }
         return slots.stream()
-                .filter(slot -> !isStudent || Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
                 .map(slot -> {
                     TimeSlotResponse response = timeSlotMapper.toResponse(slot);
                     if (studentId != null) {
