@@ -163,7 +163,7 @@ public class UserService {
         if (users.getRole().equals(Role.STUDENT)) {
             String studentID = studentRepository.findByUserID(userId).getStudentID();
             appointments = appointmentRepository.findByStudentID(studentID);
-            programs = programParticipationRepository.findByStudentID(studentID)
+            programs = programParticipationRepository.findActiveByStudentID(studentID, ParticipationStatus.CANCELLED)
                     .stream()
                     .map(participation -> programRepository
                             .findById(participation.getProgram().getProgramID())
