@@ -54,9 +54,8 @@ public class ParentController {
     }
 
     @Operation(
-            hidden = true,
             summary = "Get all events",
-            description = "Returns a list of all events for a specific user."
+            description = "Returns a list of all events for user parent."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
