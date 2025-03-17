@@ -265,9 +265,6 @@ public class ProgramService {
 
         validateStudentAvailability(studentId, program);
 
-        if (isJoined(programId, studentId)) {
-            throw new ResourceAlreadyExistsException("Student is already registered for this program");
-        }
         String programParticipationId = __.generateParticipantID();
         programParticipationRepository.save(
                 new ProgramParticipation(
@@ -447,9 +444,11 @@ public class ProgramService {
     }
 
     private void validateStudentAvailability(String studentId, Programs program) {
-        if (!programParticipationRepository.existsByProgramIDAndStudentID(program.getProgramID(), studentId)) {
-            throw new ResourceAlreadyExistsException("Student is already registered for a program");
+
+        if (isJoined(program.getProgramID(), studentId)) {
+            throw new ResourceAlreadyExistsException("Student is already registered for this program");
         }
+
         List<Appointments> appointments = appointmentRepository.findScheduledOrInProgressAppointmentsByStudentId(
                 studentId);
 
