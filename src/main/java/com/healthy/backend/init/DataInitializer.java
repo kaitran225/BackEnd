@@ -10,13 +10,16 @@ import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.GeneralService;
 import com.healthy.backend.service.ProgramService;
 import com.healthy.backend.service.SurveyService;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -452,10 +455,25 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeSurveys() {
-        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.INACTIVE));
+        int currentYear = LocalDate.now().getYear();
+        int currentMonth = LocalDate.now().getMonthValue();
+
+        
+        Surveys survey1 = new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.ACTIVE);
+        survey1.setSurveyForMonth(currentYear, currentMonth); 
+        surveyRepository.save(survey1);
+
+        Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE);
+        survey2.setSurveyForMonth(currentYear, currentMonth);
+        surveyRepository.save(survey2);
+
+        Surveys survey3 = new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@example.com").getUserId(), SurveyStatus.ACTIVE);
+        survey3.setSurveyForMonth(currentYear, currentMonth);
+        surveyRepository.save(survey3);
+
+        Surveys survey4 = new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist@example.com").getUserId(), SurveyStatus.INACTIVE);
+        survey4.setSurveyForMonth(currentYear, currentMonth);
+        surveyRepository.save(survey4);
     }
 
     private void initializeSurveyQuestions() {
