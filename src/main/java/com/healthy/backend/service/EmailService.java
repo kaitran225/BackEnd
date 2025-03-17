@@ -27,7 +27,7 @@ public class EmailService {
     public void sendProgramCancellationEmail(String email, Programs programs, String name) {
         String subject = "Program Registration Cancellation for " + programs.getProgramName();
 
-        String content = "Dear " + name + ",\n\n" +
+        String content =
                 "We regret to inform you that your registration for the **" + programs.getProgramName() + "** program has been canceled.\n\n" +
                 "We understand this may be disappointing, and we apologize for any inconvenience caused. If you would like to inquire about re-registering or if you have any questions regarding this cancellation, please feel free to contact us.\n\n" +
                 "Here are the details of the program you were registered for:\n\n" +
@@ -44,7 +44,7 @@ public class EmailService {
     public void sendRegistrationConfirmationEmail(String email, Programs programs, ProgramSchedule schedule, String name) {
         String subject = "Confirmation: Registration Successful for " + programs.getProgramName();
 
-        String content = "Dear " + name + ",\n\n" +
+        String content =
                 "We are pleased to confirm your registration for the **" + programs.getProgramName() + "** program.\n\n" +
                 "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
                 "The program duration is **" + programs.getDuration() + " hours**, and will conclude at **" + schedule.getEndTime() + "**.\n\n" +
@@ -60,7 +60,7 @@ public class EmailService {
     public void sendProgramParticipationReminder(String email, Programs programs, ProgramSchedule schedule, String name, boolean isToday) {
         String subject = "Reminder: Upcoming Program";
         String date = isToday ? "today." : "scheduled for tomorrow.";
-        String content = "Dear " + name + ",\n\n" +
+        String content =
                 "We hope this message finds you well. This is a courtesy reminder regarding your registration for the **" + programs.getProgramName() + "** program " + date + "\n\n" +
                 "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
                 "Please note that the program duration is **" + programs.getDuration() + " hours, ending at " + schedule.getEndTime() + "**.\n\n" +
