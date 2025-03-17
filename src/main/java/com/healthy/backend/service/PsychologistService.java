@@ -6,7 +6,9 @@ import com.healthy.backend.dto.psychologist.PsychologistRequest;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
-import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.DefaultTimeSlot;
+import com.healthy.backend.entity.Psychologists;
+import com.healthy.backend.entity.TimeSlots;
 import com.healthy.backend.enums.PsychologistStatus;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.AuthorizeException;
@@ -224,21 +226,13 @@ public class PsychologistService {
                     .filter(slot -> Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
                     .map(slot -> {
                         TimeSlotResponse response = timeSlotMapper.toResponse(slot);
-                        if (studentId != null) {
-                            response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));
-                        }
+                        response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));
                         return response;
                     })
                     .toList();
         }
         return slots.stream()
-                .map(slot -> {
-                    TimeSlotResponse response = timeSlotMapper.toResponse(slot);
-                    if (studentId != null) {
-                        response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));
-                    }
-                    return response;
-                })
+                .map(timeSlotMapper::toResponse)
                 .toList();
     }
 }

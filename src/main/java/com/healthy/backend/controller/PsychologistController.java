@@ -227,15 +227,14 @@ public class PsychologistController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             HttpServletRequest request) {
 
-        Users currentUser = tokenService.retrieveUser(request);
         String studentId = null;
 
-        if (currentUser.getRole().equals(Role.STUDENT)) {
-            studentId = tokenService.getRoleID(currentUser);
+        if (tokenService.isStudent(request)) {
+            studentId = tokenService.getRoleID(tokenService.retrieveUser(request));
         }
 
-        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId, currentUser.getRole().equals(Role.STUDENT));
-        return ResponseEntity.ok(slots);
+        return ResponseEntity.ok(psychologistService.getPsychologistTimeSlots(
+                psychologistId, date, studentId, studentId != null));
     }
 
 
