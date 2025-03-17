@@ -110,8 +110,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializeParentsAndStudents() {
         // Initialize Parents
-        parentRepository.save(new Parents("PRT001", userRepository.findByEmail("parent1@cybriadev.com").getUserId()));
-        parentRepository.save(new Parents("PRT002", userRepository.findByEmail("parent2@cybriadev.com").getUserId()));
+        parentRepository.save(new Parents("PAR001", userRepository.findByEmail("parent1@cybriadev.com").getUserId()));
+        parentRepository.save(new Parents("PAR002", userRepository.findByEmail("parent2@cybriadev.com").getUserId()));
 
         // Initialize Students
         studentRepository.save(new Students("STU001", userRepository.findByEmail("student1@cybriadev.com").getUserId(), parentRepository.findById("PRT001").get().getParentID(), 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));

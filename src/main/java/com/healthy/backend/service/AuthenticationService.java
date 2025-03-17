@@ -85,6 +85,12 @@ public class AuthenticationService {
 
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
 
+        for (String ID: request.getChildrenDetails().getStudentIds()) {
+                if(!studentRepository.existsById(ID)){
+                    throw new IllegalArgumentException("Student with ID " + ID + " not found.");
+                }
+        }
+
         Set<Students> children = studentRepository.findAllByIdAsSet(request.getChildrenDetails().getStudentIds());
 
         for (Students student : children) {

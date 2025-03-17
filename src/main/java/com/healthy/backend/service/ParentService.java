@@ -15,7 +15,6 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.security.PrivateKey;
 import java.time.LocalDate;
 import java.util.List;
 

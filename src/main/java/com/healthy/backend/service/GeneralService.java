@@ -140,8 +140,6 @@ public class GeneralService {
         int nextNumber = lastId == null ? 1 : parseId(lastId) + 1;
         return prefix + String.format("%03d", nextNumber);
     }
-
-
     private int parseId(String lastId) {
         try {
             return Integer.parseInt(lastId.replaceAll("[^0-9]", "")); // Extracts only numeric part

@@ -531,7 +531,7 @@ public class SurveyService {
 
                     return surveyMapper.buildSurveysResponse(survey,
                             getTotalQuestion(survey),
-                            ID.contains("PRT") ? null : getStatusStudent(survey.getSurveyID(), ID),
+                            ID.contains("PAR") ? null : getStatusStudent(survey.getSurveyID(), ID),
                             statusStuList);
                 })
                 .collect(Collectors.toList());
