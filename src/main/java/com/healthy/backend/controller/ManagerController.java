@@ -4,6 +4,7 @@ import com.healthy.backend.dto.manager.*;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ManagerService;
+import com.healthy.backend.service.ProgramService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,6 +28,7 @@ import java.util.List;
 @Tag(name = "Manager Controller", description = "Manager specific APIs")
 public class ManagerController {
     private final ManagerService managerService;
+    private final ProgramService programService;
     private final TokenService tokenService;
 
     // Endpoint to get appointment statistics by status
@@ -143,6 +145,27 @@ public class ManagerController {
         }
 
         return ResponseEntity.ok(managerService.getDashboardStats(filter, value));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
+        hidden = true,
+        deprecated = true
+    )
+    @GetMapping("/stats/psychologists")
+    public ResponseEntity<?> runReminder(
+            HttpServletRequest httpRequest
+    ) {
+        if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
+            throw new IllegalArgumentException("Unauthorized access get Appointments ");
+        }
+        programService.sendProgramReminders();
+        return ResponseEntity.ok("Program reminders sent");
     }
 
 }
