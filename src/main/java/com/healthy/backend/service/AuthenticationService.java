@@ -84,7 +84,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
-        AuthenticationResponse response = registerUser(request);
 
         Set<Students> children = studentRepository.findAllByIdAsSet(request.getChildrenDetails().getStudentIds());
 
@@ -93,7 +92,7 @@ public class AuthenticationService {
                 throw new IllegalArgumentException("Student with ID " + student.getStudentID() + " already has a parent.");
             }
         }
-
+        AuthenticationResponse response = registerUser(request);
         String parentId = __.generateParentID();
         parentRepository.save(
                 parentmapper.buildParentEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
@@ -117,8 +116,10 @@ public class AuthenticationService {
 
     // Register user entity
     private AuthenticationResponse registerUser(RegisterRequest request) {
+
         String normalizedEmail = normalizeEmailAndPhone(request.getEmail());
         String normalizedPhone = normalizeEmailAndPhone(request.getPhoneNumber());
+
         validateUniqueUser(normalizedEmail, normalizedPhone);
 
         String token = jwtService.generateVerificationToken(normalizedEmail);
