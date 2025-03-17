@@ -104,6 +104,10 @@ public class AuthenticationService {
                 parentmapper.buildParentEntity(request, userRepository.findById(response.getUserId()).orElseThrow(),
                         parentId, children)
         );
+        for (Students student : children) {
+            student.setParentID(parentId);
+            studentRepository.save(student);
+        }
         response.setParentId(parentId);
         return response;
     }
