@@ -56,6 +56,8 @@ public class UsersResponse {
     private StudentResponse studentInfo;
     @Schema(examples = {"Student 1", "Student 2", "Student 3"})
     private List<StudentResponse> children;
+    @Schema(examples = {"Student 1", "Student 2", "Student 3"})
+    private List<UsersResponse> childrenRecord;
     @Schema(examples = {"Appointment 1", "Appointment 2", "Appointment 3"})
     private List<AppointmentResponse> appointmentsRecord;
     private List<ProgramParticipationResponse> programParticipationRecord;

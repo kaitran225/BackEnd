@@ -118,6 +118,8 @@ public class UserService {
                 null);
     }
 
+
+
     private UsersResponse getManagerDetails(Users user) {
         return userMapper.buildUserDetailsResponse(
                 user,
@@ -254,6 +256,9 @@ public class UserService {
             return appointmentRepository.findAll().stream()
                     .map(appointmentMapper::buildAppointmentResponse)
                     .toList();
+        }
+        if (users.getRole().equals(Role.PARENT)) {
+            throw new ResourceNotFoundException("Parent can not have an appointment");
         }
         return null;
     }

@@ -89,6 +89,27 @@ public class UserMapper {
                 .build();
     }
 
+    public UsersResponse buildParentUserResponse(
+            Users user,
+            List<UsersResponse> children
+    ) {
+        return UsersResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender().toString())
+                .role(user.getRole().toString())
+                .active(user.isActive())
+                .verified(user.isVerified())
+                .deleted(user.isDeleted())
+                .childrenRecord(children)
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
     public UsersResponse buildUserDetailsResponse(
             Users user,
             PsychologistResponse psychologistResponse,
