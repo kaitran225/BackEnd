@@ -94,7 +94,7 @@ public class SurveyService {
                                 getTotalQuestion(survey),
                                 getSurveyStatus(survey),
                                 getTotalStudentDone(survey) + "/" + getTotalStudent(),
-                                (survey.isSurveyOpen() &&!areAllStudentsCompleted(survey)) ? "ACTIVE" : "INACTIVE" 
+                                (survey.isSurveyOpen() ||!areAllStudentsCompleted(survey)) ? "ACTIVE" : "INACTIVE" 
                         ))
                         .toList();
             }
@@ -546,7 +546,7 @@ public class SurveyService {
                             getTotalQuestion(survey),
                             ID.contains("PRT") ? null : getStatusStudent(survey.getSurveyID(), ID),
                             statusStuList,
-                            (!survey.isSurveyOpen()) ? "INACTIVE" : "ACTIVE");
+                            (survey.isSurveyOpen() ||!areAllStudentsCompleted(survey)) ? "ACTIVE" : "INACTIVE");
                                                     
                 })
                 .collect(Collectors.toList());
