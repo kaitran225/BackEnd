@@ -1,5 +1,6 @@
 package com.healthy.backend.init;
 
+import java.time.DayOfWeek;
 import com.healthy.backend.dto.auth.request.RegisterRequest;
 import com.healthy.backend.dto.programs.ProgramWeeklyScheduleRequest;
 import com.healthy.backend.dto.programs.ProgramsRequest;
@@ -184,7 +185,7 @@ public class DataInitializer implements CommandLineRunner {
         List<ProgramsRequest> programs = List.of(
                 new ProgramsRequest("Stress Management",
                         "Program to help manage stress", 20, 4,
-                        LocalDate.now().plusWeeks(0).toString(),
+                        getNextDayOfWeek("Monday").plusWeeks(0).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Monday",
                                 "10:00:00",
@@ -200,7 +201,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Anxiety Support Group",
                         "Support group for individuals with anxiety", 15, 6,
-                        LocalDate.now().plusWeeks(1).toString(),
+                        getNextDayOfWeek("Tuesday").plusWeeks(1).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Tuesday",
                                 "14:00:00",
@@ -216,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Mindfulness Workshop",
                         "Workshop on mindfulness techniques", 25, 3,
-                        LocalDate.now().plusWeeks(2).toString(),
+                        getNextDayOfWeek("Wednesday").plusWeeks(2).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Wednesday",
                                 "09:00:00",
@@ -232,7 +233,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(3).toString(),
+                        getNextDayOfWeek("Thursday").plusWeeks(3).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Thursday",
                                 "10:00:00",
@@ -248,7 +249,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(4).toString(),
+                        getNextDayOfWeek("Friday").plusWeeks(4).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Friday",
                                 "13:00:00",
@@ -264,7 +265,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(5).toString(),
+                        getNextDayOfWeek("Monday").plusWeeks(5).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Monday",
                                 "08:00:00",
@@ -280,7 +281,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(4).toString(),
+                        getNextDayOfWeek("Tuesday").plusWeeks(4).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Tuesday",
                                 "11:00:00",
@@ -296,7 +297,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(3).toString(),
+                        getNextDayOfWeek("Wednesday").plusWeeks(3).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Wednesday",
                                 "12:00:00",
@@ -312,7 +313,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(2).toString(),
+                        getNextDayOfWeek("Thursday").plusWeeks(2).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Thursday",
                                 "14:00:00",
@@ -328,7 +329,7 @@ public class DataInitializer implements CommandLineRunner {
                 new ProgramsRequest(
                         "Depression Counseling",
                         "Counseling for individuals with depression", 30, 2,
-                        LocalDate.now().plusWeeks(1).toString(),
+                        getNextDayOfWeek("Friday").plusWeeks(1).toString(),
                         new ProgramWeeklyScheduleRequest(
                                 "Friday",
                                 "16:00:00",
@@ -782,6 +783,12 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
     }
 
+    private static LocalDate getNextDayOfWeek(String dayOfWeek) {
+        LocalDate today = LocalDate.now();
+        DayOfWeek targetDay = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
+
+        return today.with(java.time.temporal.TemporalAdjusters.next(targetDay));
+    }
     @Override
     public void run(String... args) {
         if (userRepository.count()  == 0) {
