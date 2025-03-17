@@ -7,13 +7,11 @@ import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.timeslot.DefaultTimeSlotResponse;
 import com.healthy.backend.dto.timeslot.TimeSlotBatchCreateRequest;
 import com.healthy.backend.dto.timeslot.TimeSlotResponse;
-import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.AuthorizeException;
 import com.healthy.backend.repository.StudentRepository;
 import com.healthy.backend.security.TokenService;
-import com.healthy.backend.service.AppointmentService;
 import com.healthy.backend.service.PsychologistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -88,10 +86,6 @@ public class PsychologistController {
         }
         // Tự động lấy ID từ token nếu không truyền
         actualId = psychologistService.getPsychologistByUserId(user.getUserId()).getPsychologistId();
-
-
-        // Xử lý cho Manager
-
 
         return ResponseEntity.ok(psychologistService.getPsychologistById(actualId));
     }
@@ -236,13 +230,11 @@ public class PsychologistController {
         Users currentUser = tokenService.retrieveUser(request);
         String studentId = null;
 
-        // Nếu là student, lấy studentID
-        if (currentUser.getRole() == Role.STUDENT) {
-            Students student = studentRepository.findByUserID(currentUser.getUserId());
-            studentId = student.getStudentID();
+        if (currentUser.getRole().equals(Role.STUDENT)) {
+            studentId = tokenService.getRoleID(currentUser);
         }
 
-        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId);
+        List<TimeSlotResponse> slots = psychologistService.getPsychologistTimeSlots(psychologistId, date, studentId, currentUser.getRole().equals(Role.STUDENT));
         return ResponseEntity.ok(slots);
     }
 

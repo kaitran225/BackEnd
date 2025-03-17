@@ -42,7 +42,6 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final TokenService tokenService;
-    private final UserRepository userRepository;
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
     private final StudentRepository studentRepository;
@@ -155,9 +154,6 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-
-    // Hủy lịch hẹn
-    // Trong AppointmentController
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -222,7 +218,7 @@ public class AppointmentController {
             description = "Returns a list of all appointments."
     )
     @GetMapping("/")
-    public ResponseEntity<List<AppointmentResponse>> getAllPsychologist(
+    public ResponseEntity<List<AppointmentResponse>> getAllAppointments(
             HttpServletRequest httpRequest
     ) {
         if (!tokenService.validateRole(httpRequest, Role.MANAGER)) {
