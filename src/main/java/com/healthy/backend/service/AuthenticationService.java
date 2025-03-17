@@ -157,10 +157,22 @@ public class AuthenticationService {
         return usermapper.buildUserEntity(request, token, __.generateUserID(), encodedPassword, hashedID);
     }
 
-    private boolean isWhitelistedDomain(String email) {
-        return email.contains("example");
-    }
+    private static final Set<String> WHITELISTED_DOMAINS = Set.of(
+            "cybriadev.com",
+            "example.com",
+            "edu.vn",
+            "domain4.com",
+            "domain5.com",
+            "domain6.com",
+            "domain7.com",
+            "domain8.com",
+            "domain9.com",
+            "domain10.com"
+    );
 
+    private boolean isWhitelistedDomain(String email) {
+        return WHITELISTED_DOMAINS.stream().anyMatch(email::contains);
+    }
     private void sendVerificationEmailIfNeeded(String email, String token, String name) {
         String verificationUrl = buildVerificationUrl(token);
         emailService.sendVerificationEmail(email, verificationUrl, name);
