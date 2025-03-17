@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +41,11 @@ public class ParentService {
     private final AppointmentMapper appointmentMapper;
     private final PsychologistsMapper psychologistsMapper;
 
-    public EventResponse getAllChildrenEvents(String userId){
-        return new EventResponse();
+    public EventResponse getAllChildrenEvents(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found with id: " + userId);
+        }
+        return getChildrenEvent(userId);
     }
 
     public UsersResponse getParentDetails(String userId) {
@@ -137,30 +142,32 @@ public class ParentService {
 
     private EventResponse getChildrenEvent(String userId) {
 
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("Student with userID : " + userId + " not found");
+        Parents parent = parentRepository.findByUserID(userId);
+
+        Set<Students> studentsList = parent.getStudents();
+
+        List<Appointments> appointments = new ArrayList<>();
+        List<Programs> programs = new ArrayList<>();
+        List<ProgramParticipation> participation = new ArrayList<>();
+        for (Students student : studentsList) {
+            appointments.addAll(appointmentRepository.findByStudentID(student.getStudentID()).stream()
+                    .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
+                    .toList());
+            List<ProgramParticipation> temp = programParticipationRepository.findActiveByStudentID(student.getStudentID(), ParticipationStatus.CANCELLED);
+            participation.addAll(temp);
+            programs.addAll(temp
+                    .stream()
+                    .map(p -> programRepository
+                            .findById(p.getProgram().getProgramID())
+                            .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
+                    .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1)))
+                    .toList());
         }
-
-        String studentID = studentRepository.findByUserID(userId).getStudentID();
-        List<Appointments> appointments = appointmentRepository.findByStudentID(studentID);
-        List<Programs> programs = programParticipationRepository.findActiveByStudentID(studentID, ParticipationStatus.CANCELLED)
-                .stream()
-                .map(participation -> programRepository
-                        .findById(participation.getProgram().getProgramID())
-                        .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
-                .toList();
-
-        appointments = appointments.stream()
-                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
-                .toList();
-
-        programs = programs.stream()
-                .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
 
         if (appointments.isEmpty() && programs.isEmpty()) {
             return eventMapper.buildEmptyEventResponse(appointments, programs, userId);
         }
 
-        return eventMapper.buildStudentEventResponse(appointments, programs, userId);
+        return eventMapper.buildParentEventResponse(appointments, programs, participation, userId);
     }
 }

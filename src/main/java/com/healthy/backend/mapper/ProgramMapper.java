@@ -78,6 +78,19 @@ public class ProgramMapper {
                 .build();
     }
 
+    public ProgramsResponse buildBasicProgramResponse(Programs program, ProgramSchedule programSchedule, String name) {
+        return ProgramsResponse.builder()
+                .programID(program.getProgramID())
+                .title(program.getProgramName())
+                .duration(program.getDuration())
+                .status(program.getStatus().toString())
+                .startDate(LocalDate.from(program.getStartDate()))
+                .weeklySchedule(buildProgramWeeklyScheduleResponse(programSchedule))
+                .type(program.getType().toString())
+                .meetingLink(program.getMeetingLink())
+                .studentName(name)
+                .build();
+    }
 
     public ProgramsResponse buildBasicProgramResponse(Programs program, ProgramSchedule programSchedule) {
         return ProgramsResponse.builder()

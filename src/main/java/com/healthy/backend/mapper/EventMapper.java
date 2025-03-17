@@ -4,10 +4,7 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventDetails;
 import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
-import com.healthy.backend.entity.Appointments;
-import com.healthy.backend.entity.ProgramSchedule;
-import com.healthy.backend.entity.Programs;
-import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.*;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.ProgramParticipationRepository;
 import com.healthy.backend.repository.ProgramScheduleRepository;
@@ -31,6 +28,36 @@ public class EventMapper {
     private final ProgramScheduleRepository programScheduleRepository;
     private final ProgramParticipationRepository programParticipationRepository;
     private final StudentRepository studentRepository;
+
+    public EventResponse buildParentEventResponse(
+            List<Appointments> appointments,
+            List<Programs> programs,
+            List<ProgramParticipation> participation,
+            String userId
+    ) {
+        List<AppointmentResponse> appointmentResponses = appointments.stream()
+                .map(appointment -> {
+                    return appointmentMapper.buildAppointmentResponse(
+                            appointment,
+                            psychologistsMapper.buildPsychologistResponse(appointment.getPsychologist()),
+                            studentMapper.buildStudentResponse(appointment.getStudent())
+                    );
+                })
+                .toList();
+
+        List<ProgramsResponse> programsResponses = programs.stream()
+                .map(program -> {
+                    return getProgramBasicResponse(program, participation.get(programs.indexOf(program)).getStudent().getUser().getFullName());
+                })
+                .toList();
+
+        Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);
+
+        return EventResponse.builder()
+                .event(dateMap)
+                .userId(userId)
+                .build();
+    }
 
     public EventResponse buildStudentEventResponse(
             List<Appointments> appointments,
@@ -134,7 +161,6 @@ public class EventMapper {
                 .build();
     }
 
-
     private Map<String, EventDetails> dateMap(
             List<Appointments> appointments,
             List<Programs> programs,
@@ -161,6 +187,13 @@ public class EventMapper {
         List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
         return programMapper.buildBasicProgramResponse(program,
                 programSchedule.getLast());
+    }
+
+    private ProgramsResponse getProgramBasicResponse(Programs program, String name) {
+        if (program == null) throw new ResourceNotFoundException("Program not found");
+        List<ProgramSchedule> programSchedule = programScheduleRepository.findByProgramID(program.getProgramID());
+        return programMapper.buildBasicProgramResponse(program,
+                programSchedule.getLast(), name);
     }
 
     private ProgramsResponse getProgramDetailsResponse(Programs program, List<Students> students) {

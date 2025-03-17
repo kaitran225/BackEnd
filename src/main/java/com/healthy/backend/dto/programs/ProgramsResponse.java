@@ -53,6 +53,8 @@ public class ProgramsResponse {
     @Schema(example = "")
     private String studentStatus;
     @Schema(example = "")
+    private String studentName;
+    @Schema(example = "")
     private List<StudentResponse> enrolled;
 }
 
