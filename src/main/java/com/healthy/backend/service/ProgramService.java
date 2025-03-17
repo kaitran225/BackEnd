@@ -20,6 +20,7 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class ProgramService {
 
     private final GeneralService __;
     private final NotificationService notificationService;
+    private final EmailService emailService;
     private final Map<String, LocalTime> DEFAULT_SLOT_IDS = Map.ofEntries(
             // Morning
             Map.entry("MORNING-00", LocalTime.of(8, 0)), Map.entry("MORNING-01", LocalTime.of(8, 30)),
@@ -276,13 +278,20 @@ public class ProgramService {
                 )
         );
 
+        Students students = studentRepository.findByStudentID(studentId);
         // Send notification
         notificationService.createProgramNotification(
-                studentRepository.findByStudentID(studentId).getUserID(),
+                students.getUserID(),
                 "New Program Registration",
                 "You have a new program registration for " + program.getProgramName(),
                 program.getProgramID());
-
+        // Send email
+        emailService.sendRegistrationConfirmationEmail(
+                students.getUser().getEmail(),
+                program,
+                programScheduleRepository.findByProgramID(programId).getLast(),
+                students.getUser().getFullName()
+        );
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
 
@@ -313,12 +322,21 @@ public class ProgramService {
         participation.setStatus(ParticipationStatus.CANCELLED);
         ProgramParticipation updatedParticipation = programParticipationRepository.save(participation);
 
+        Programs program = updatedParticipation.getProgram();
+        Students students = participation.getStudent();
+
         notificationService.createProgramNotification(
                 participation.getStudent().getUser().getUserId(),
-                "New Program Registration",
-                "You have a new program registration for " + participation.getProgram().getProgramName(),
+                "Program Cancellation",
+                "You have cancel program registration for " + participation.getProgram().getProgramName(),
                 participation.getProgram().getProgramID());
 
+        // Send emails
+        emailService.sendProgramCancellationEmail(
+                students.getUser().getEmail(),
+                program,
+                students.getUser().getFullName()
+        );
         return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
@@ -853,7 +871,41 @@ public class ProgramService {
         return participation.getStatus().equals(ParticipationStatus.JOINED);
     }
 
-    private void updateProgramStatuses() {
+    @Async
+    public void sendProgramReminders() {
+        // Get today's date and tomorrow's date
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+
+        // Retrieve programs scheduled for today or tomorrow
+        List<Programs> programs = programRepository.findByStartDate(tomorrow);
+        programs.addAll(programRepository.findByStartDate(today));
+
+        for (Programs program : programs) {
+            List<ProgramParticipation> participations = programParticipationRepository.findByProgramID(program.getProgramID());
+
+            for (ProgramParticipation participation : participations) {
+                // Get the program start date for the participant
+                LocalDate programStartDate = participation.getStartDate();
+                Students student = participation.getStudent();
+
+                // Find the schedule of the program
+                ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+
+                // Notify 1 day before the program
+                if (programStartDate.equals(tomorrow)) {
+                    emailService.sendProgramParticipationReminder(student.getUser().getEmail(), program, schedule, student.getUser().getFullName(), false);
+                }
+
+                // Notify on the day of the program
+                if (programStartDate.equals(today)) {
+                    emailService.sendProgramParticipationReminder(student.getUser().getEmail(), program, schedule, student.getUser().getFullName(), true);
+                }
+            }
+        }
+    }
+
+    public void updateProgramStatuses() {
         LocalDate today = LocalDate.now();
         List<Programs> programs = programRepository.findAll();
 
@@ -883,23 +935,6 @@ public class ProgramService {
         System.out.println("Program statuses updated: " + today);
     }
 
-
-
-    // Run once at startup
-    @EventListener(ApplicationReadyEvent.class)
-    @Transactional
-    public void onApplicationStart() {
-        System.out.println("Checking program statuses at startup...");
-        updateProgramStatuses();
-    }
-
-    // Run every day at midnight
-    @Scheduled(cron = "0 0 0 * * *")
-    @Transactional
-    public void scheduledStatusUpdate() {
-        System.out.println("Checking program statuses at midnight...");
-        updateProgramStatuses();
-    }
 
     private List<String> getDefaultSlotIds(LocalTime startTime, LocalTime endTime) {
         return DEFAULT_SLOT_IDS.entrySet().stream()

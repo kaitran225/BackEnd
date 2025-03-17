@@ -775,7 +775,6 @@ public class DataInitializer implements CommandLineRunner {
         List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
         articles.forEach(articleRepository::save);
     }
-
     private void initializeNotifications() {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
