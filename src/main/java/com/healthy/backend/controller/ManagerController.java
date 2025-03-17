@@ -157,7 +157,7 @@ public class ManagerController {
         hidden = true,
         deprecated = true
     )
-    @GetMapping("/stats/psychologists")
+    @GetMapping("/reminders")
     public ResponseEntity<?> runReminder(
             HttpServletRequest httpRequest
     ) {
