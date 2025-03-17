@@ -1,11 +1,11 @@
 package com.healthy.backend.controller;
 
 
+import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ParentService;
-import com.healthy.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,5 +51,31 @@ public class ParentController {
         return user == null
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(user);
+    }
+
+    @Operation(
+            hidden = true,
+            summary = "Get all events",
+            description = "Returns a list of all events for a specific user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/events")
+    public ResponseEntity<?> getAllEvents(
+            @RequestParam(required = false) String userId,
+            HttpServletRequest request) {
+        userId = tokenService.validateRequestUserID(request, userId);
+        if (tokenService.validateUID(request, userId)
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users events");
+        }
+        EventResponse events = parentService.getAllChildrenEvents(userId);
+        return events == null
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(events);
     }
 }

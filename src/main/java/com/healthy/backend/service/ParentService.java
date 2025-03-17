@@ -1,6 +1,7 @@
 package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
+import com.healthy.backend.dto.event.EventResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -14,6 +15,8 @@ import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.PrivateKey;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -23,6 +26,7 @@ public class ParentService {
     private final UserRepository userRepository;
     private final ParentRepository parentRepository;
     private final StudentRepository studentRepository;
+    private final ProgramRepository programRepository;
     private final AppointmentRepository appointmentRepository;
     private final SurveyResultRepository surveyResultRepository;
     private final PsychologistRepository psychologistRepository;
@@ -30,10 +34,15 @@ public class ParentService {
     private final ProgramScheduleRepository programScheduleRepository;
 
     private final UserMapper userMapper;
+    private final EventMapper eventMapper;
     private final StudentMapper studentMapper;
     private final ProgramMapper programMapper;
     private final AppointmentMapper appointmentMapper;
     private final PsychologistsMapper psychologistsMapper;
+
+    public EventResponse getAllChildrenEvents(String userId){
+        return new EventResponse();
+    }
 
     public UsersResponse getParentDetails(String userId) {
         Users user = userRepository.findByUserId(userId)
@@ -125,5 +134,34 @@ public class ParentService {
                     }
                 })
                 .toList();
+    }
+
+    private EventResponse getChildrenEvent(String userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Student with userID : " + userId + " not found");
+        }
+
+        String studentID = studentRepository.findByUserID(userId).getStudentID();
+        List<Appointments> appointments = appointmentRepository.findByStudentID(studentID);
+        List<Programs> programs = programParticipationRepository.findActiveByStudentID(studentID, ParticipationStatus.CANCELLED)
+                .stream()
+                .map(participation -> programRepository
+                        .findById(participation.getProgram().getProgramID())
+                        .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
+                .toList();
+
+        appointments = appointments.stream()
+                .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
+                .toList();
+
+        programs = programs.stream()
+                .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1))).toList();
+
+        if (appointments.isEmpty() && programs.isEmpty()) {
+            return eventMapper.buildEmptyEventResponse(appointments, programs, userId);
+        }
+
+        return eventMapper.buildStudentEventResponse(appointments, programs, userId);
     }
 }
