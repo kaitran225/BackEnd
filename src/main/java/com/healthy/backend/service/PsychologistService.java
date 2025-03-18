@@ -125,23 +125,11 @@ public class PsychologistService {
         return callMapper(psychologist);
     }
 
-
     // Call psychologistResponse Mapper
     private PsychologistResponse callMapper(Psychologists psychologist) {
         return psychologistsMapper.buildPsychologistResponse(psychologist,
                 appointmentRepository.findByPsychologistID(psychologist.getPsychologistID()),
                 userRepository.findById(psychologist.getUserID()).orElseThrow());
-    }
-
-    // Check if status is valid
-    @SuppressWarnings("unused")
-    private boolean isValidStatus(String status) {
-        try {
-            PsychologistStatus.valueOf(status);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
     }
 
     public List<DefaultTimeSlotResponse> getDefaultTimeSlots() {
@@ -223,7 +211,7 @@ public class PsychologistService {
         }
         if(isStudent) {
             return slots.stream()
-                    .filter(slot -> !Set.of(TimeslotStatus.UNAVAILABLE, TimeslotStatus.PROGRAM).contains(slot.getStatus()))
+                    .filter(slot -> Set.of(TimeslotStatus.AVAILABLE, TimeslotStatus.BOOKED).contains(slot.getStatus()))
                     .map(slot -> {
                         TimeSlotResponse response = timeSlotMapper.toResponse(slot);
                         response.setBooked(appointmentRepository.existsByStudentIDAndTimeSlotsID(studentId, slot.getTimeSlotsID()));

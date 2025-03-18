@@ -331,7 +331,6 @@ public class AppointmentService {
             TimeSlots newTimeSlot = timeSlotRepository.findByIdWithPsychologist(request.getTimeSlotId())
                     .orElseThrow(() -> new ResourceNotFoundException("Cannot find time slot with id " + request.getTimeSlotId()));
 
-            // Check trạng thái TimeSlot mới
             if (newTimeSlot.getStatus() == TimeslotStatus.BOOKED) {
                 throw new ResourceInvalidException("Time slot is not available");
             }
