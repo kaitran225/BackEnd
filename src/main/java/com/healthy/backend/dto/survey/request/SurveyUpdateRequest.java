@@ -30,5 +30,5 @@ public class SurveyUpdateRequest {
     @Schema(example = "1")
     private Integer periodic;
     @Schema(example = "")
-    private List<QuestionRequest> question;
+    private List<QuestionUpdateRequest> question;
 }

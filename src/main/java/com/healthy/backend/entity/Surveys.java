@@ -53,10 +53,10 @@ public class Surveys {
     private LocalDateTime createdAt;
 
     @Column(name = "StartDate", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "EndDate", nullable = false)
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Column(name = "Periodic")
     private Integer Periodic; //count by week
@@ -80,7 +80,7 @@ public class Surveys {
     @OneToMany(mappedBy = "surveys", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDateTime startDate,Integer periodic, SurveyStandardType standardType) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate,Integer periodic, SurveyStandardType standardType) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
@@ -92,7 +92,7 @@ public class Surveys {
         this.category = cat(standardType);
     }
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDateTime startDate,Integer periodic, SurveyStandardType standardType,SurveyStatus status) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate,Integer periodic, SurveyStandardType standardType,SurveyStatus status) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
@@ -114,7 +114,7 @@ public class Surveys {
     }
     
     public boolean isSurveyOpen() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         return now.isAfter(startDate) && now.isBefore(endDate);
     }
 

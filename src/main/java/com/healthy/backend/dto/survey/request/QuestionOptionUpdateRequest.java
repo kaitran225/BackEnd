@@ -1,6 +1,5 @@
 package com.healthy.backend.dto.survey.request;
 
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -17,8 +16,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class QuestionRequest {
-    @Schema(example = "How are you feeling today?")
-    private String questionText;
-    private List<QuestionOptionRequest> questionOptions;
+public class QuestionOptionUpdateRequest {
+    @Schema(example = "")
+    private int value;
+    @Schema(example = "")
+    private String label;
+    @Schema(example = "")
+    private String optionID;
 }

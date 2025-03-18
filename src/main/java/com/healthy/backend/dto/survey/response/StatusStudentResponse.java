@@ -3,6 +3,7 @@ package com.healthy.backend.dto.survey.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -24,4 +25,6 @@ public class StatusStudentResponse {
     private String completeStatus;
     @Schema(example = "")
     private String studentComplete;
+    @Schema(example = "")
+    private LocalDateTime lastCompleteDate;
 }

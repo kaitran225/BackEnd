@@ -21,6 +21,4 @@ public class QuestionOptionRequest {
     private int value;
     @Schema(example = "")
     private String label;
-    @Schema(example = "SQO001")
-    private String optionID;
 }

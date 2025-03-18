@@ -1,23 +1,15 @@
 package com.healthy.backend.mapper;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
 import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.response.QuestionResponse;
-import com.healthy.backend.dto.survey.response.StatusStudentResponse;
-import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.response.SurveyQuestionResultResponse;
-import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.response.SurveysResponse;
+import com.healthy.backend.dto.survey.response.*;
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
-import com.healthy.backend.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 public class SurveyMapper {
@@ -28,6 +20,9 @@ public class SurveyMapper {
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .numberOfQuestions(numberOfQuestions)
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
@@ -43,6 +38,9 @@ public class SurveyMapper {
                 .title(survey.getSurveyName())
                 .description(survey.getDescription())
                 .numberOfQuestions(numberOfQuestions)
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())
@@ -59,37 +57,29 @@ public class SurveyMapper {
                 .numberOfQuestions(numberOfQuestions)
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
-                .createBy(survey.getCreator().getFullName())
-                .completeStatus(completeStatus)
-                .statusStudentResponse(status)
-                .build();
-    }
-    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudentResponse> status, String active) {
-        return SurveysResponse.builder()
-                .id(survey.getSurveyID())
-                .title(survey.getSurveyName())
-                .description(survey.getDescription())
-                .numberOfQuestions(numberOfQuestions)
-                .status(active)
-                .createdAt(survey.getCreatedAt().toString())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .createBy(survey.getCreator().getFullName())
                 .completeStatus(completeStatus)
                 .statusStudentResponse(status)
                 .build();
     }
 
-    public StatusStudentResponse mapToResultStudent(String score, String status, String studentId) {
+    public StatusStudentResponse mapToResultStudent(String score, String status, String studentId, LocalDateTime date) {
         return StatusStudentResponse.builder()
                 .studentComplete(status)
+                .lastCompleteDate(date)
                 .score(score)
                 .studentId(studentId)
                 .build();
     }
 
-    public StatusStudentResponse mapToResultStudent(String score, String studentId) {
+    public StatusStudentResponse mapToResultStudent(String score, String studentId, LocalDateTime date) {
         return StatusStudentResponse.builder()
                 .score(score)
                 .studentId(studentId)
+                .lastCompleteDate(date)
                 .build();
     }
 
@@ -98,32 +88,12 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .status((survey.getStatus().name()))
                 .std(std)
                 .build();
-    }
-
-    public List<SurveyResultsResponse> getUserSurveyResults(List<SurveyQuestionOptionsChoices> surveyResults) {
-        if (surveyResults == null) throw new ResourceNotFoundException("No survey results found");
-        return buildSurveyResults(surveyResults);
-    }
-
-    public List<SurveyResultsResponse> buildSurveyResults(List<SurveyQuestionOptionsChoices> surveyResults) {
-
-        Map<String, List<SurveyQuestionResultResponse>> groupedResults =
-                surveyResults
-                        .stream()
-                        .collect(Collectors.groupingBy(
-                                result ->
-                                        result.getQuestion().getSurveyID(),
-                                Collectors.mapping(this::mapToSurveyQuestionResultResponse, Collectors.toList())
-                        ));
-
-        Map<String, Surveys> surveyMap = groupedResults.keySet().stream()
-                .collect(Collectors.toMap(key -> key, key -> new Surveys()));
-        return groupedResults.entrySet().stream()
-                .map(entry -> mapToSurveyResultsResponse(surveyMap.get(entry.getKey()), entry.getValue()))
-                .toList();
     }
 
 
@@ -143,20 +113,11 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .status((survey.getStatus().name()))
                 .questions(questions)
-                .build();
-    }
-
-    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions) {
-        return SurveysResponse.builder()
-                .id(survey.getSurveyID())
-                .title(survey.getSurveyName())
-                .description(survey.getDescription())
-                .numberOfQuestions(numberOfQuestions)
-                .status(String.valueOf(survey.getStatus()))
-                .createdAt(survey.getCreatedAt().toString())
-                .createBy(survey.getCreator().getUsername())
                 .build();
     }
 
@@ -169,6 +130,9 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .title(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .questionList(questionResponseList)
                 .build();
     }
@@ -181,6 +145,9 @@ public class SurveyMapper {
                 .surveyId(survey.getSurveyID())
                 .title(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .numberOfQuestions(questionResponseList.size())
                 .questionList(questionResponseList)
                 .completeStatus(completeStatus)
@@ -213,6 +180,9 @@ public class SurveyMapper {
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
                 .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getPeriodic())
                 .status(String.valueOf(survey.getStatus()))
                 .createBy(survey.getCreator().getUsername())
                 .build();

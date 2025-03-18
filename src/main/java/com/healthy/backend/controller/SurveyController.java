@@ -73,7 +73,8 @@ public class SurveyController {
     public ResponseEntity<StatusStudentResponse> getScoreFromStudentInSuv(
             @RequestParam String surveyId,
             @RequestBody List<String> optionId,
-            @RequestParam(required = false) String studentId) {
+            @RequestParam(required = false) String studentId, HttpServletRequest request) {
+        studentId = validateStudentID(request, studentId);
         StatusStudentResponse status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
         return ResponseEntity.ok(status);
     }
@@ -177,11 +178,8 @@ public class SurveyController {
     public ResponseEntity<?> getStudentIDSurveyResults(
             HttpServletRequest request, @RequestParam String surveyId,
             @RequestParam(required = false) String studentId) {
-        String studentID = tokenService.validateRequestStudentID(request, studentId);
-        if(!studentID.equals(studentId)){
-            throw new AccessDeniedException("Access Denied");
-        }
-        SurveyQuestionResponse surveyResponse = surveyService.getSurveyResultByStudentID(surveyId, studentID);
+        studentId = validateStudentID(request, studentId);
+        SurveyQuestionResponse surveyResponse = surveyService.getSurveyResultByStudentID(surveyId, studentId);
         return ResponseEntity.ok(surveyResponse);
     }
 
@@ -291,5 +289,14 @@ public class SurveyController {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request" + ex.getMessage());
         }
+    }
+
+    private String validateStudentID(HttpServletRequest request, String studentId) {
+        studentId = tokenService.validateRequestStudentID(request, studentId);
+        if (!(studentId.equals(tokenService.getRoleID(tokenService.retrieveUser(request))))
+                && !tokenService.isManager(request)) {
+            throw new OperationFailedException("You can not get other users details");
+        }
+        return studentId;
     }
 }

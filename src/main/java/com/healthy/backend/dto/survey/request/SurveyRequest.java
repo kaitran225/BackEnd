@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,11 +21,10 @@ public class SurveyRequest {
     @Schema(example = "Survey Description")
     private String description;
     @Schema(example = "GAD_7")
-    private String standType;
-    @Schema(example = "2025-01-01")
+    private String standardType;
+    @Schema(example = "2025-03-19")
     private String startDate;
     @Schema(example = "1")
     private Integer periodic;
-    @Schema(example = "UID002")
     private List<QuestionRequest> question;
 }

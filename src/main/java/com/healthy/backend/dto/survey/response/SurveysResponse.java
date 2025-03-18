@@ -25,6 +25,8 @@ public class SurveysResponse {
     private String standardType;
     @Schema(example = "15")
     private Integer numberOfQuestions;
+    @Schema(example = "2")
+    private Integer periodic;
     @Schema(example = "Anxiety")
     private String category;
     @Schema(example = "Finished")

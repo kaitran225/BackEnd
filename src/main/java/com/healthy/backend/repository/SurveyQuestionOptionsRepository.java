@@ -18,4 +18,6 @@ public interface SurveyQuestionOptionsRepository extends JpaRepository<SurveyQue
 
     @Query("SELECT sqc.optionID FROM SurveyQuestionOptions sqc ORDER BY sqc.optionID DESC LIMIT 1")
     String findLastQuestionOptionId();
+
+    List<SurveyQuestionOptions> deleteByQuestionID(String questionID);
 }

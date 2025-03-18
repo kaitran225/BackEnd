@@ -338,19 +338,19 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializeSurveys() {
         Surveys survey1 = new Surveys("SUV001", "Stress Survey",
-                "Survey to assess stress levels", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDateTime.now(), 2, SurveyStandardType.PSS_10);
+                "Survey to assess stress levels", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10);
         surveyRepository.save(survey1);
 
         Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment",
-                "Assessment of anxiety symptoms", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDateTime.now(), 2, SurveyStandardType.GAD_7);
+                "Assessment of anxiety symptoms", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.GAD_7);
         surveyRepository.save(survey2);
 
         Surveys survey3 = new Surveys("SUV003", "Depression Screening",
-                "Screening for depression", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDateTime.now(), 2, SurveyStandardType.PHQ_9);
+                "Screening for depression", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PHQ_9);
         surveyRepository.save(survey3);
 
         Surveys survey4 = new Surveys("SUV004", "Mood Assessment",
-                "Assessment of mood", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDateTime.now(), 2, SurveyStandardType.PSS_10, SurveyStatus.INACTIVE);
+                "Assessment of mood", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10, SurveyStatus.INACTIVE);
         surveyRepository.save(survey4);
     }
 
