@@ -302,13 +302,8 @@ public class SurveyService {
     }
 
     public String getLastIdInDB(String index) {
-        String prefix = index.replaceAll("\\d", "");
-        String numberPart = index.replaceAll("\\D", "");
-
-        int currentID = Integer.parseInt(numberPart);
-        int newID = currentID + 1;
-        String formatID = prefix + String.format("%03d", newID);
-        return formatID;
+        return index.replaceAll("\\d", "")
+                + String.format("%03d", Integer.parseInt(index.replaceAll("\\D", "")) + 1);
     }
 
     public void addSurveyQuestion(HttpServletRequest request, String surveyId, SurveyQuestionRequest surveyQuestionRequest) {
@@ -674,16 +669,16 @@ public class SurveyService {
 
     }
 
-    public void openSurveysForNewMonth(int year, int month) {
-        List<Surveys> surveys = surveyRepository.findAll();
-
-        for(Surveys survey : surveys) {
-            survey.setSurveyForMonth(year, month);
-            survey.setStatus(SurveyStatus.ACTIVE);
-            surveyRepository.save(survey);
-        }
-
-    }
+//    public void openSurveysForNewMonth(int year, int month) {
+//        List<Surveys> surveys = surveyRepository.findAll();
+//
+//        for(Surveys survey : surveys) {
+//            survey.setSurveyForMonth(year, month);
+//            survey.setStatus(SurveyStatus.ACTIVE);
+//            surveyRepository.save(survey);
+//        }
+//
+//    }
 
     public void closeSurvey(Surveys survey) {
         survey.setStatus(SurveyStatus.INACTIVE);
@@ -692,14 +687,6 @@ public class SurveyService {
 
     public void periodicUpdateSurvey(){
         List<Surveys> surveys = surveyRepository.findAll();
-        for(Surveys survey : surveys) {
-            if(survey.getStatus() == SurveyStatus.ACTIVE) {
-                if(!survey.isSurveyOpen()) {
-                    survey.setOpen(true);
-                    surveyRepository.save(survey);
-                }
-            }
-        }
     }
     public boolean hasStudentCompletedSurveyThisMonth(String studentId, String surveyId) {
         LocalDate now = LocalDate.now();
@@ -716,22 +703,22 @@ public class SurveyService {
                 );
     }
 
-    public void closeSurveyIfNecessary() {
-        List<Surveys> surveys = surveyRepository.findAll();
-        LocalDateTime now = LocalDateTime.now();
-
-        for(Surveys survey : surveys) {
-            if(now.isAfter(survey.getEndDate()) || survey.getStatus() != SurveyStatus.INACTIVE) {
-                survey.setStatus(SurveyStatus.INACTIVE);
-
-                LocalDateTime nextMonthStart = survey.getStartDate().plusMonths(1);
-                survey.setSurveyForMonth(nextMonthStart.getYear(), nextMonthStart.getMonthValue());
-                survey.setStatus(SurveyStatus.ACTIVE);
-                surveyRepository.save(survey);
-            }
-
-        }
-    }
+//    public void closeSurveyIfNecessary() {
+//        List<Surveys> surveys = surveyRepository.findAll();
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        for(Surveys survey : surveys) {
+//            if(now.isAfter(survey.getEndDate()) || survey.getStatus() != SurveyStatus.INACTIVE) {
+//                survey.setStatus(SurveyStatus.INACTIVE);
+//
+//                LocalDateTime nextMonthStart = survey.getStartDate().plusMonths(1);
+//                survey.setSurveyForMonth(nextMonthStart.getYear(), nextMonthStart.getMonthValue());
+//                survey.setStatus(SurveyStatus.ACTIVE);
+//                surveyRepository.save(survey);
+//            }
+//
+//        }
+//    }
 
     public boolean areAllStudentsCompleted(Surveys survey) {
         List<Students> studentList = studentRepository.findAll();

@@ -1,10 +1,6 @@
 package com.healthy.backend.entity;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import com.healthy.backend.enums.SurveyStatus;
@@ -20,9 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,9 +61,6 @@ public class Surveys {
     @Column(name = "EndDate", nullable = false)
     private LocalDateTime endDate;
 
-    @Transient
-    private boolean isOpen;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50, nullable = false)
     private SurveyStatus status;
@@ -101,7 +92,6 @@ public class Surveys {
         this.categoryID = categoryID;
         this.createdBy = createdBy;
         this.status = status;
-        this.isOpen = false; 
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -113,23 +103,19 @@ public class Surveys {
             createdAt = LocalDateTime.now();
         }
     }
-
-    @PreUpdate
-    protected void updateSurvey() {
-        this.isOpen = isSurveyOpen();
-    }
     
     public boolean isSurveyOpen() {
         LocalDateTime now = LocalDateTime.now();
         return now.isAfter(startDate) && now.isBefore(endDate);
     }
+    
 
-    public void setSurveyForMonth(int year, int month) {
-        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-        LocalDate firstMonDay = firstDayOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
-        LocalDate endOfFirstWeek = firstMonDay.plusDays(6);
-
-        this.startDate = firstMonDay.atStartOfDay();
-        this.endDate = endOfFirstWeek.atTime(LocalTime.MAX);
-    }
+//    public void setSurveyForMonth(int year, int month) {
+//        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+//        LocalDate firstMonDay = firstDayOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+//        LocalDate endOfFirstWeek = firstMonDay.plusDays(6);
+//
+//        this.startDate = firstMonDay.atStartOfDay();
+//        this.endDate = endOfFirstWeek.atTime(LocalTime.MAX);
+//    }
 } 
