@@ -1,16 +1,23 @@
 package com.healthy.backend.mapper;
 
-import com.healthy.backend.dto.survey.*;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.QuestionResponse;
+import com.healthy.backend.dto.survey.StatusStudent;
+import com.healthy.backend.dto.survey.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
+import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class SurveyMapper {
@@ -26,6 +33,23 @@ public class SurveyMapper {
                 .numberOfQuestions(numberOfQuestions)
                 .categoryName(survey.getCategory().getCategoryName().name())
                 .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createdAt(survey.getCreatedAt().toString())
+                .createBy(survey.getCreator().getFullName())
+                .completeStatus(completeStatus)
+                .studentComplete(count)
+                .build();
+    }
+    public SurveysResponse buildManagerSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, String count, String statusSurvey) {
+        return SurveysResponse.builder()
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .numberOfQuestions(numberOfQuestions)
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(statusSurvey)
                 .detailedDescription(survey.getDetails())
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())
@@ -62,6 +86,23 @@ public class SurveyMapper {
                 .numberOfQuestions(numberOfQuestions)
                 .categoryName(survey.getCategory().getCategoryName().name())
                 .status(String.valueOf(survey.getStatus()))
+                .detailedDescription(survey.getDetails())
+                .createdAt(survey.getCreatedAt().toString())
+                .createBy(survey.getCreator().getFullName())
+                .completeStatus(completeStatus)
+                .statusStudent(status)
+                .build();
+    }
+    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudent> status, String active) {
+        return SurveysResponse.builder()
+                .id(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .categoryID(survey.getCategory().getCategoryID())
+                .duration(survey.getDuration())
+                .numberOfQuestions(numberOfQuestions)
+                .categoryName(survey.getCategory().getCategoryName().name())
+                .status(active)
                 .detailedDescription(survey.getDetails())
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())

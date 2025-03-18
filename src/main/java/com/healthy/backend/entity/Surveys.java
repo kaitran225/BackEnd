@@ -1,14 +1,32 @@
 package com.healthy.backend.entity;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+
 import com.healthy.backend.enums.SurveyStatus;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -43,6 +61,15 @@ public class Surveys {
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "StartDate", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "EndDate", nullable = false)
+    private LocalDateTime endDate;
+
+    @Transient
+    private boolean isOpen;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 50, nullable = false)
     private SurveyStatus status;
@@ -66,11 +93,43 @@ public class Surveys {
         this.createdBy = createdBy;
         this.status = status;
     }
+    
+    public Surveys(String surveyID, String surveyName, String description, String categoryID, String createdBy, SurveyStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+        this.surveyID = surveyID;
+        this.surveyName = surveyName;
+        this.description = description;
+        this.categoryID = categoryID;
+        this.createdBy = createdBy;
+        this.status = status;
+        this.isOpen = false; 
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
 
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+
+    @PreUpdate
+    protected void updateSurvey() {
+        this.isOpen = isSurveyOpen();
+    }
+    
+    public boolean isSurveyOpen() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(startDate) && now.isBefore(endDate);
+    }
+
+    public void setSurveyForMonth(int year, int month) {
+        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+        LocalDate firstMonDay = firstDayOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        LocalDate endOfFirstWeek = firstMonDay.plusDays(6);
+
+        this.startDate = firstMonDay.atStartOfDay();
+        this.endDate = endOfFirstWeek.atTime(LocalTime.MAX);
     }
 } 
