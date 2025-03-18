@@ -297,10 +297,7 @@ public class SurveyService {
                 .toList();
     }
 
-    public String getLastIdInDB(String index) {
-        return index.replaceAll("\\d", "")
-                + String.format("%03d", Integer.parseInt(index.replaceAll("\\D", "")) + 1);
-    }
+
 
     public void addSurveyQuestion(HttpServletRequest request, String surveyId, SurveyQuestionRequest surveyQuestionRequest) {
         Role role = tokenService.retrieveUser(request).getRole();
@@ -721,4 +718,8 @@ public class SurveyService {
         return true;
     }
 
+    private String getLastIdInDB(String index) {
+        return index.replaceAll("\\d", "")
+                + String.format("%03d", Integer.parseInt(index.replaceAll("\\D", "")) + 1);
+    }
 }

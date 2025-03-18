@@ -119,7 +119,7 @@ public class SurveyController {
     public ResponseEntity<?> updateSurveyQuestion(
             HttpServletRequest request,
             @RequestParam String surveyId,
-            @Valid @RequestBody SurveyQuestionRequest1 surveyQuestionRequest
+            @Valid @RequestBody SurveyQuestionRequest surveyQuestionRequest
 
     ) {
         try {

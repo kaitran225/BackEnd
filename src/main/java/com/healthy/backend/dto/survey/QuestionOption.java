@@ -23,6 +23,6 @@ public class QuestionOption {
     private String label;
     @Schema(example = "")
     private String answerID;
-    @Schema(example = "", nullable = false)
+    @Schema(example = "", nullable = true)
     private boolean checked;
 }
