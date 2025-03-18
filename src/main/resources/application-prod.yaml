@@ -8,8 +8,11 @@
     
   jvm:
     gc:
-      log-file-rotation: false
-      log-detail: false
+      log-file-rotation: true
+      log-detail: true
+      log-file: /tmp/gc.log
+      log-file-size: 20MB
+      log-file-count: 5
 
   main:
     web-application-type: servlet
@@ -24,22 +27,27 @@
     exclude:
       - org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration
       - org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
-      - org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration
       - org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
-      - org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
-      - org.springframework.boot.autoconfigure.jta.JtaAutoConfiguration
 
   resources:
     add-mappings: false
+    cache:
+      period: 0
+      control:
+        max-age: 0
     
   mvc:
     throw-exception-if-no-handler-found: true
+    async:
+      request-timeout: 5000
     
   security:
     filter:
       dispatcher-types: REQUEST
+    basic:
+      enabled: false
 
-  # Database configuration optimized for idle state
+  # Database configuration optimized for speed
   datasource:
     url: ${DATABASE_URL}?serverTimezone=Asia/Ho_Chi_Minh&cachePrepStmts=true&useServerPrepStmts=true&rewriteBatchedStatements=true
     username: ${DATABASE_USER}
@@ -48,18 +56,23 @@
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 1
-      maximum-pool-size: 2
+      minimum-idle: 5
+      maximum-pool-size: 20
       idle-timeout: 300000
       max-lifetime: 1800000
       connection-timeout: 30000
       validation-timeout: 5000
-      keepalive-time: 0
-      leak-detection-threshold: 0
+      keepalive-time: 60000
+      leak-detection-threshold: 60000
       register-mbeans: false
       allow-pool-suspension: false
       initialization-fail-timeout: 1
       validation-query: SELECT 1
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
 
   # Common timeZone setting
   jackson:
@@ -72,31 +85,27 @@
     parser:
       allow-single-quotes: true
       
-  # JPA/Hibernate configuration
+  # JPA/Hibernate configuration optimized for speed
   jpa:
     properties:
       hibernate:
         physical_naming_strategy: com.healthy.backend.init.PascalCaseNamingStrategy
-        # Memory optimized JDBC settings
         jdbc:
-          batch_size: 10
-          fetch_size: 50
-          batch_versioned_data: false
+          batch_size: 50
+          fetch_size: 100
+          batch_versioned_data: true
         
-        # Query and plan cache optimization
         query:
           in_clause_parameter_padding: true
-          plan_cache_max_size: 32
-          plan_parameter_metadata_max_size: 16
+          plan_cache_max_size: 128
+          plan_parameter_metadata_max_size: 32
         
-        # Collection and relationship optimization
         max_fetch_depth: 2
-        default_batch_fetch_size: 10
+        default_batch_fetch_size: 50
         collection:
           fetch:
-            batch_size: 10
+            batch_size: 50
         
-        # Memory management settings
         order_inserts: true
         order_updates: true
         connection:
@@ -104,14 +113,8 @@
           provider_disables_autocommit: false
           release_mode: after_transaction
         
-        # Updated metadata access setting
-        boot:
-          allow_jdbc_metadata_access: false
-        
-        # Dialect setting (explicit for production)
         dialect: org.hibernate.dialect.MySQLDialect
         
-        # Disable unnecessary features
         session:
           events:
             log: false
@@ -120,19 +123,10 @@
           use_second_level_cache: false
           use_query_cache: false
         
-        # Transaction optimization
         transaction:
           auto_close_session: false
           coordinator_class: jdbc
     
-    # JPA specific settings
-      jakarta:
-        persistence:
-          persistence-unit:
-            transaction-type: RESOURCE_LOCAL
-          flush:
-            mode: AUTO
-            
     hibernate:
       ddl-auto: update
     open-in-view: true
@@ -144,12 +138,14 @@
   task:
     execution:
       pool:
-        core-size: 1
-        max-size: 5
+        core-size: 4
+        max-size: 16
+        queue-capacity: 200
+        keep-alive: 60s
 
   cors:
     allowed-origins: "*"
-    allowed-methods: "*"
+    allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
     allowed-headers: "*"
     exposed-headers: "*"
     allow-credentials: true
@@ -163,28 +159,26 @@
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-      
+      mail.smtp.timeout: 5000
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.writetimeout: 5000
 
-  # Disable unnecessary features in production
-  springdoc:
-    swagger-ui:
-      customJs: /static/custom-swagger.js
-      customCss: /static/style.css
-      defaultModelsExpandDepth: -1
-      disable-swagger-default-response-messages: true
-      lazy-load: true
-      docExpansion: none
-      filter: true
-      use-root-path: true
-      enabled: true  # Disable in production
-    override-with-generic-response: false
-    cache:
-      disabled: true
-    writer-with-default-pretty-printer: false
-    api-docs:
-      enabled: true
+springdoc:
+  swagger-ui:
+    customJs: /static/custom-swagger.js
+    customCss: /static/style.css
+    defaultModelsExpandDepth: -1
+    disable-swagger-default-response-messages: true
+    lazy-load: true
+    docExpansion: none
+    filter: true
+    use-root-path: true
+  override-with-generic-response: false
+  cache:
+    disabled: true
+  writer-with-default-pretty-printer: false
 
-# Server settings
+# Server settings optimized for speed
 server:
   address: 0.0.0.0
   port: 8080
@@ -193,14 +187,24 @@ server:
     mime-types: application/json,text/html,text/xml
     min-response-size: 1024
   undertow:
-    io-threads: 1
-    worker-threads: 2
-    buffer-size: 512
+    io-threads: 4
+    worker-threads: 8
+    buffer-size: 2048
     websocket:
-      buffer-pool: 512
+      buffer-pool: 2048
     direct-buffers: true
+    no-request-timeout: 60000
+    max-parameters: 1000
+    max-headers: 200
+    max-cookies: 200
+    allow-encoded-slash: true
+    decode-url: true
+    url-charset: UTF-8
+    always-set-keep-alive: true
+    max-entity-size: 10485760
+    http2-enabled: true
 
-# Production logging configuration
+# Logging configuration
 logging:
   level:
     root: INFO
@@ -208,8 +212,10 @@ logging:
     com.zaxxer.hikari: INFO
     org.hibernate: INFO
     com.healthy.backend: INFO
-    io.undertow.websockets.jsr: ERROR  # Suppress websocket warnings
-    org.springframework.security.config.annotation.authentication.configuration: ERROR  # Suppress authentication warnings
+    io.undertow.websockets.jsr: ERROR
+    org.springframework.security.config.annotation.authentication.configuration: ERROR
+    org.springframework.web: INFO
+    org.springframework.security: INFO
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} : %msg%n"
 

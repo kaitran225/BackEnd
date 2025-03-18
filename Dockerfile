@@ -5,11 +5,13 @@ WORKDIR /app
 # Copy only necessary files for dependency resolution
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+RUN chmod +x mvnw && ./mvnw dependency:resolve
 
-# Copy source and build
+# Copy source and build with parallel execution
 COPY src ./src
-RUN ./mvnw clean package -DskipTests=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
+RUN ./mvnw clean package -DskipTests=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true \
+    -Dmaven.compiler.parallel=true \
+    -Dmaven.compiler.threadCount=4
 
 # Run stage with minimal image
 FROM eclipse-temurin:21-jre-alpine
@@ -29,27 +31,18 @@ COPY --from=build /app/target/swagger-api-server.jar app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Set production profile and minimal memory settings
+# Set production profile and optimized settings
 ENV SPRING_PROFILES_ACTIVE=prod \
     SPRING_MAIN_LAZY_INITIALIZATION=true \
-    SPRING_JPA_OPEN_IN_VIEW=false \
-    SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=2 \
-    SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE=1
+    SPRING_JPA_OPEN_IN_VIEW=false
 
-# Run with optimized JVM flags for minimal idle memory
+# Run with optimized JVM flags for speed
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
-    "-Xms32m", \
-    "-Xmx150m", \
-    "-XX:MaxRAMPercentage=50.0", \
-    "-XX:+UseSerialGC", \
-    "-Xss256k", \
-    "-XX:MetaspaceSize=128m", \
-    "-XX:MaxMetaspaceSize=128m", \
-    "-XX:+ShrinkHeapInSteps", \
-    "-XX:MinHeapFreeRatio=10", \
-    "-XX:MaxHeapFreeRatio=20", \
-    "-XX:-TieredCompilation", \
+    "-Xms128m", \
+    "-Xmx256m", \
+    "-XX:+UseG1GC", \
+    "-XX:MaxGCPauseMillis=200", \
     "-XX:+UseStringDeduplication", \
     "-XX:+DisableExplicitGC", \
     "-Djava.security.egd=file:/dev/./urandom", \
