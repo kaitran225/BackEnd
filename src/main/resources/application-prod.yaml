@@ -3,22 +3,6 @@
     activate:
       on-profile: prod
       
-  jmx:
-    enabled: false
-    
-  jvm:
-    gc:
-      log-file-rotation: false
-      log-detail: false
-
-  main:
-    web-application-type: servlet
-    lazy-initialization: true
-    banner-mode: off
-    allow-bean-definition-overriding: false
-    allow-circular-references: false
-    cloud-platform: none
-    register-shutdown-hook: false
   
   autoconfigure:
     exclude:
@@ -28,9 +12,6 @@
       - org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
       - org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
       - org.springframework.boot.autoconfigure.jta.JtaAutoConfiguration
-
-  resources:
-    add-mappings: false
     
   mvc:
     throw-exception-if-no-handler-found: true
@@ -48,18 +29,14 @@
     hikari:
       auto-commit: false
       pool-name: HikariCP
-      minimum-idle: 1
-      maximum-pool-size: 2
-      idle-timeout: 300000
-      max-lifetime: 1800000
-      connection-timeout: 30000
-      validation-timeout: 5000
-      keepalive-time: 0
-      leak-detection-threshold: 0
-      register-mbeans: false
-      allow-pool-suspension: false
-      initialization-fail-timeout: 1
-      validation-query: SELECT 1
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 300000 # 5 minutes
+      max-lifetime: 1800000 # 30 minutes
+      connection-timeout: 30000 # 30 seconds
+      validation-timeout: 5000 # 5 seconds
+      keepalive-time: 60000 # 1 minute
+      leak-detection-threshold: 0 # 0 seconds
 
   # Common timeZone setting
   jackson:
@@ -90,7 +67,7 @@
           plan_parameter_metadata_max_size: 16
         
         # Collection and relationship optimization
-        max_fetch_depth: 2
+        max_fetch_depth: 4
         default_batch_fetch_size: 10
         collection:
           fetch:
@@ -119,11 +96,6 @@
         cache:
           use_second_level_cache: false
           use_query_cache: false
-        
-        # Transaction optimization
-        transaction:
-          auto_close_session: false
-          coordinator_class: jdbc
     
     # JPA specific settings
       jakarta:
@@ -144,8 +116,8 @@
   task:
     execution:
       pool:
-        core-size: 1
-        max-size: 5
+        core-size: 2
+        max-size: 8
 
   cors:
     allowed-origins: "*"
@@ -193,8 +165,8 @@ server:
     mime-types: application/json,text/html,text/xml
     min-response-size: 1024
   undertow:
-    io-threads: 1
-    worker-threads: 2
+    io-threads: 2
+    worker-threads: 4
     buffer-size: 512
     websocket:
       buffer-pool: 512
