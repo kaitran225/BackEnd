@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -45,7 +46,7 @@ public class SurveyResult {
     private List<SurveyQuestionOptionsChoices> choices;
 
     @Column(name = "CompletionDate", nullable = false, updatable = false)
-    private LocalDate completionDate;
+    private LocalDateTime completionDate;
 
     public SurveyResult(String resultID, String surveyID, String studentID) {
         this.resultID = resultID;
@@ -63,6 +64,6 @@ public class SurveyResult {
 
     @PrePersist
     protected void onCreate() {
-        this.completionDate = LocalDate.now();
+        this.completionDate = LocalDateTime.now();
     }
 }

@@ -38,10 +38,10 @@ public class Surveys {
     private LocalDateTime createdAt;
 
     @Column(name = "StartDate", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "EndDate", nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Column(name = "Periodic")
     private Integer Periodic; //count by week
@@ -71,8 +71,8 @@ public class Surveys {
         this.description = description;
         this.Periodic = periodic;
         this.createdBy = createdBy;
-        this.startDate = startDate;
-        this.endDate = startDate.plusWeeks(periodic);
+        this.startDate = startDate.atStartOfDay();
+        this.endDate = startDate.plusWeeks(periodic).atStartOfDay();
         this.standardType = standardType;
         this.category = cat(standardType);
     }
@@ -83,8 +83,8 @@ public class Surveys {
         this.description = description;
         this.Periodic = periodic;
         this.createdBy = createdBy;
-        this.startDate = startDate;
-        this.endDate = startDate.plusWeeks(periodic);
+        this.startDate = startDate.atStartOfDay();
+        this.endDate = startDate.plusWeeks(periodic).atStartOfDay();
         this.standardType = standardType;
         this.category = cat(standardType);
         this.status = status;
@@ -99,7 +99,7 @@ public class Surveys {
     }
 
     public boolean isSurveyOpen() {
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         return now.isAfter(startDate) && now.isBefore(endDate);
     }
 

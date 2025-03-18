@@ -68,8 +68,8 @@ public class ManagerService {
         List<SurveyResult> allResults;
         if (startDateTime != null && endDateTime != null) {
             allResults = surveyResultRepository.findAll().stream()
-                    .filter(result -> !result.getCompletionDate().isBefore(ChronoLocalDate.from(startDateTime)) &&
-                            !result.getCompletionDate().isAfter(ChronoLocalDate.from(endDateTime)))
+                    .filter(result -> !result.getCompletionDate().isBefore((startDateTime)) &&
+                            !result.getCompletionDate().isAfter((endDateTime)))
                     .collect(Collectors.toList());
         } else {
             allResults = surveyResultRepository.findAll();

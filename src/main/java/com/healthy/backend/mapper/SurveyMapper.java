@@ -9,6 +9,7 @@ import com.healthy.backend.entity.Surveys;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -66,7 +67,7 @@ public class SurveyMapper {
                 .build();
     }
 
-    public StatusStudentResponse mapToResultStudent(String score, String status, String studentId, LocalDate
+    public StatusStudentResponse mapToResultStudent(String score, String status, String studentId, LocalDateTime
             date) {
         return StatusStudentResponse.builder()
                 .studentComplete(status)
@@ -76,7 +77,7 @@ public class SurveyMapper {
                 .build();
     }
 
-    public StatusStudentResponse mapToResultStudent(String score, String studentId, LocalDate date) {
+    public StatusStudentResponse mapToResultStudent(String score, String studentId, LocalDateTime date) {
         return StatusStudentResponse.builder()
                 .score(score)
                 .studentId(studentId)

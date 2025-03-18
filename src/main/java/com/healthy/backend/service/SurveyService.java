@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -320,7 +321,7 @@ public class SurveyService {
         }
         if (surveyUpdateRequest.getStartDate() != null) {
             try {
-                existingSurvey.setStartDate(LocalDate.parse(surveyUpdateRequest.getStartDate()));
+                existingSurvey.setStartDate(LocalDate.parse(surveyUpdateRequest.getStartDate()).atStartOfDay());
             } catch (DateTimeParseException e) {
                 throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
             }
@@ -393,9 +394,9 @@ public class SurveyService {
             return false;
         }
         SurveyResult latestResult = results.getLast();
-        LocalDate latestCompleteDate = latestResult.getCompletionDate();
-        LocalDate startDate = survey.getStartDate();
-        LocalDate endDate = survey.getEndDate();
+        LocalDateTime latestCompleteDate = latestResult.getCompletionDate();
+        LocalDateTime startDate = survey.getStartDate();
+        LocalDateTime endDate = survey.getEndDate();
         if (latestCompleteDate != null && startDate != null && endDate != null) {
             return !latestCompleteDate.isBefore(startDate) && !latestCompleteDate.isAfter(endDate);
         }
@@ -403,9 +404,9 @@ public class SurveyService {
     }
 
     private boolean isInSession(Surveys survey) {
-        LocalDate today = LocalDate.now();
-        LocalDate startDate = survey.getStartDate();
-        LocalDate endDate = survey.getEndDate();
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime startDate = survey.getStartDate();
+        LocalDateTime endDate = survey.getEndDate();
         if (startDate != null && endDate != null) {
             return !today.isBefore(startDate) && !today.isAfter(endDate);
         }
@@ -674,5 +675,16 @@ public class SurveyService {
                 .filter(option -> choices.contains(option.getOptionID()))
                 .mapToInt(SurveyQuestionOptions::getScore)
                 .sum();
+    }
+
+    //// TEST FUNCTION
+
+    public void periodicUpdateSurvey(String surveyID) {
+        Surveys survey = surveyRepository.findBySurveyID(surveyID);
+        if (survey == null) {
+            throw new ResourceNotFoundException("Survey not found");
+        }
+        survey.setStartDate(LocalDateTime.now());
+        surveyRepository.save(survey);
     }
 }
