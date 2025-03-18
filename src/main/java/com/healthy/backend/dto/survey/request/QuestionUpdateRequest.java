@@ -1,8 +1,9 @@
 package com.healthy.backend.dto.survey.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -10,9 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ConfirmationRequest {
-    @Schema(example = "")
-    private String studentID;
-    @Schema(example = "")
-    private boolean confirmation;
+public class QuestionUpdateRequest {
+    private List<QuestionRequest> question;
 }

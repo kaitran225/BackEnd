@@ -21,18 +21,14 @@ public class SurveysResponse {
     private String title;
     @Schema(example = "Survey Description")
     private String description;
-    @Schema(example = "General")
-    private String categoryID;
-    @Schema(example = "15-20")
-    private String duration;
-    @Schema(example = "10")
+    @Schema(example = "PSS_10")
+    private String standardType;
+    @Schema(example = "15")
     private Integer numberOfQuestions;
     @Schema(example = "Anxiety")
-    private String categoryName;
+    private String category;
     @Schema(example = "Finished")
     private String status;
-    @Schema(example = "Details")
-    private String detailedDescription;
     @Schema(example = "2023-01-01")
     private String createdAt;
     @Schema(example = "US001")

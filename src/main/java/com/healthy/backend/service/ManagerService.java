@@ -40,7 +40,6 @@ public class ManagerService {
                 calculateProgramStats(dateRange),
                 calculateAppointmentStats(dateRange),
                 calculateDepartmentStats(dateRange)
-
         );
     }
 
@@ -58,18 +57,13 @@ public class ManagerService {
         // Get all surveys with their categories
         List<Surveys> allSurveys = surveyRepository.findAll();
         Map<String, SurveyCategory> surveyCategories = allSurveys.stream()
-                .collect(Collectors.toMap(Surveys::getSurveyID, survey -> survey.getCategory().getCategoryName()));
+                .collect(Collectors.toMap(Surveys::getSurveyID, Surveys::getCategory));
 
-        // Initialize counters for each category
         for (SurveyCategory category : SurveyCategory.values()) {
             resultCountsByCategory.put(category.name(), 0L);
         }
-
-        // Get all survey results within the date range
         List<SurveyResult> allResults;
         if (startDateTime != null && endDateTime != null) {
-            // This would require a custom query in the repository
-            // For now, we'll filter after fetching all results
             allResults = surveyResultRepository.findAll().stream()
                     .filter(result -> !result.getCompletionDate().isBefore(startDateTime) &&
                             !result.getCompletionDate().isAfter(endDateTime))

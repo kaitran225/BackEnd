@@ -38,7 +38,7 @@ public class SurveyResult {
     private Integer maxScore;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)
+    @JoinColumn(name = "Student", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
 
     @OneToMany(mappedBy = "surveyResult", cascade = CascadeType.ALL, orphanRemoval = true)

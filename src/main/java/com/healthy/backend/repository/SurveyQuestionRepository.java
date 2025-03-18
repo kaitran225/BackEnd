@@ -28,4 +28,6 @@ public interface SurveyQuestionRepository extends JpaRepository<SurveyQuestions,
 
     @Query("SELECT q.questionID FROM SurveyQuestions q ORDER BY q.questionID DESC LIMIT 1")
     String findLastQuestionId();
-} 
+
+    boolean existsBySurveyID(String surveyID);
+}

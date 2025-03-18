@@ -24,6 +24,4 @@ public class StatusStudentResponse {
     private String completeStatus;
     @Schema(example = "")
     private String studentComplete;
-
-
 }

@@ -19,8 +19,6 @@ import lombok.NoArgsConstructor;
 public class SurveyQuestionResultResponse {
     @Schema(example = "SQR001")
     private String questionId;
-    @Schema(example = "Anxiety")
-    private String categoryName;
     @Schema(example = "How often do you have panic attacks?")
     private String questionText;
     @Schema(example = "SUR002")

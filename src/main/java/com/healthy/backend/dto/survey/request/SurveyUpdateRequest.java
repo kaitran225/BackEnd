@@ -16,17 +16,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SurveyRequest {
+public class SurveyUpdateRequest {
     @Schema(example = "Example Survey")
     private String title;
     @Schema(example = "Survey Description")
     private String description;
     @Schema(example = "GAD_7")
     private String standType;
+    @Schema(example = "ACTIVE")
+    private String status;
     @Schema(example = "2025-01-01")
     private String startDate;
     @Schema(example = "1")
     private Integer periodic;
-    @Schema(example = "UID002")
+    @Schema(example = "")
     private List<QuestionRequest> question;
 }

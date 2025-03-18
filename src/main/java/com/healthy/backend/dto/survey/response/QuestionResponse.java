@@ -21,7 +21,5 @@ public class QuestionResponse {
     private String id;
     @Schema(example = "How are you feeling today?")
     private String questionText;
-    @Schema(example = "")
-    private String questionCategory;
     private List<QuestionOption> questionOptions;
 }

@@ -3,7 +3,6 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
-import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.TimeslotStatus;
@@ -31,7 +30,6 @@ public class AppointmentService {
 
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final DepartmentRepository departmentRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;

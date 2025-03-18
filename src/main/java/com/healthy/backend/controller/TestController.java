@@ -19,7 +19,7 @@ public class TestController {
 
     @PostMapping("/survey-new-periodic-update")
     public ResponseEntity<?> updateSurveys() {
-        surveyService.periodicUpdateSurvey();
+//        surveyService.periodicUpdateSurvey();
         return ResponseEntity.ok().build();
     }
 

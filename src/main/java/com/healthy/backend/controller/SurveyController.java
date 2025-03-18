@@ -1,31 +1,17 @@
 package com.healthy.backend.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.healthy.backend.dto.survey.request.ConfirmationRequest;
-import com.healthy.backend.dto.survey.response.StatusStudentResponse;
-import com.healthy.backend.dto.survey.request.SurveyQuestionRequest;
-import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.request.SurveyRequest;
+import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
+import com.healthy.backend.dto.survey.response.StatusStudentResponse;
+import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
 import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
 import com.healthy.backend.dto.survey.response.SurveysResponse;
 import com.healthy.backend.entity.Users;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.SurveyService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,6 +22,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/surveys")
@@ -74,11 +66,11 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            summary = "Get score in survey",
+            summary = "Submit survey and get score",
             description = "Return the score that the student achieved in the survey"
     )
-    @PostMapping("/options/scoreResult")
-    public ResponseEntity<?> getScoreFromStudentInSuv(
+    @PostMapping("/submit")
+    public ResponseEntity<StatusStudentResponse> getScoreFromStudentInSuv(
             @RequestParam String surveyId,
             @RequestBody List<String> optionId,
             @RequestParam(required = false) String studentId) {
@@ -93,7 +85,7 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            summary = "Get survey details",
+            summary = "Get survey question for taking survey",
             description = "Returns details for a specific survey."
     )
     @GetMapping("/questions")
@@ -105,6 +97,7 @@ public class SurveyController {
         return ResponseEntity.ok(surveyQuestions);
     }
 
+    // update survey
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -115,78 +108,20 @@ public class SurveyController {
             summary = "Update question in survey",
             description = "Updates a question in a survey."
     )
-    @PutMapping("/questions")
-    public ResponseEntity<?> updateSurveyQuestion(
+    @PutMapping("/update")
+    public ResponseEntity<?> updateSurvey(
             HttpServletRequest request,
             @RequestParam String surveyId,
-            @Valid @RequestBody SurveyQuestionRequest surveyQuestionRequest
-
+            @Valid @RequestBody SurveyUpdateRequest surveyRequest
     ) {
-        try {
-            surveyService.updateSurveyQuestion(request, surveyId, surveyQuestionRequest);
-            return ResponseEntity.ok("Survey question updated sucessfully");
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the survey question" + ex.getMessage());
+        if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
+            surveyService.updateSurvey(surveyId, surveyRequest);
+            return ResponseEntity.ok("Survey question updated successfully");
         }
+        throw new AccessDeniedException("You do not have permission to update this survey");
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Submit survey response",
-            description = "Submits a response to a survey."
-    )
-    @PostMapping("/take") // Only Student
-    public String submitSurveyResponse(@RequestParam String surveyId, @RequestBody String responses) {
-        return "Survey responses saved for survey " + surveyId;
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-
-            summary = "Get survey results",
-            description = "Returns results for a specific survey."
-    )
-    @GetMapping("/result")
-    public ResponseEntity<?> getSurveyResults(HttpServletRequest request) {
-        List<SurveyResultsResponse> surveyResult = surveyService.getSurveyResultsBySurveyID(request);
-        return ResponseEntity.ok(surveyResult);
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Submit survey feedback",
-            description = "Submits feedback for a survey."
-    )
-    @PostMapping("/feedback")  // Manager or Psychologist Only
-    public String submitSurveyFeedback(
-            @RequestParam String surveyId, @RequestBody String feedback) {
-        return "Feedback submitted for survey " + surveyId;
-    }
-
-
+    // create survey
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -195,76 +130,21 @@ public class SurveyController {
     })
     @Operation(
             summary = "Create survey",
-            description = "Creates a new survey."
+            description = "Creates a new survey"
     )
-    @PostMapping("/create")  // Manager or Psychologist Only
-    public ResponseEntity<SurveyRequest> createSurvey(
-            @Valid @RequestBody SurveyRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SurveyRequest());
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Update survey",
-            description = "Updates an existing survey."
-    )
-    @PutMapping("/update") // Manager or Psychologist Only
-    public String updateSurvey(@PathVariable String surveyId, @RequestBody String surveyDetails) {
-        return "Survey updated successfully";
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Cancel survey",
-            description = "Cancels a survey."
-    )
-    @DeleteMapping("/cancel") // Manager or Psychologist Only
-    public String cancelSurvey(@RequestParam String surveyId) {
-        return "Survey canceled successfully";
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            summary = "Add question to survey",
-            description = "Adds a question to a survey."
-    )
-    @PostMapping("/questions")
-    public ResponseEntity<?> addSurveyQuestion(HttpServletRequest request,
-                                               @RequestParam String surveyId,
-                                               @RequestBody SurveyQuestionRequest surveyQuestionRequest) {
-        try {
-            surveyService.addSurveyQuestion(request, surveyId, surveyQuestionRequest);
+    @PostMapping("/create")
+    public ResponseEntity<?> createSurvey(
+            HttpServletRequest request,
+            @RequestBody SurveyRequest surveyRequest) {
+        if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
+            Users user = tokenService.retrieveUser(request);
+            surveyService.createSurvey(surveyRequest, user);
             return ResponseEntity.ok("Survey question add successfully");
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the survey question" + ex.getMessage());
         }
+        throw new OperationFailedException("You don't have permission to add question to this survey");
     }
 
-
+    // Get survey results
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -272,20 +152,17 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Delete question from survey",
-            description = "Deletes a question from a survey."
+            summary = "Get survey results",
+            description = "Returns results for a specific survey."
     )
-    @DeleteMapping("/questions/{questionId}")
-    public String deleteSurveyQuestion(@RequestParam String surveyId, @PathVariable String questionId) {
-        return "Question removed from survey " + surveyId;
+    @GetMapping("/result")
+    public ResponseEntity<?> getSurveyResults(HttpServletRequest request) {
+        List<SurveyResultsResponse> surveyResult = surveyService.getSurveyResultsBySurveyID(
+                tokenService.retrieveUser(request));
+        return ResponseEntity.ok(surveyResult);
     }
 
-
-    
-
-
+    // Get details of student survey results
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -293,19 +170,22 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            summary = "Get student survey results",
-            description = "Returns results for a specific student's survey."
+            summary = "Get student survey results details",
+            description = "Returns detail results for a specific student's survey."
     )
     @GetMapping("/results/student")
     public ResponseEntity<?> getStudentIDSurveyResults(
-            HttpServletRequest request,
-            @RequestParam String surveyId,
+            HttpServletRequest request, @RequestParam String surveyId,
             @RequestParam(required = false) String studentId) {
         String studentID = tokenService.validateRequestStudentID(request, studentId);
-        SurveyQuestionResponse surveyResponse = surveyService.getSurveyResultByStudentID(request, surveyId, studentID);
+        if(!studentID.equals(studentId)){
+            throw new AccessDeniedException("Access Denied");
+        }
+        SurveyQuestionResponse surveyResponse = surveyService.getSurveyResultByStudentID(surveyId, studentID);
         return ResponseEntity.ok(surveyResponse);
     }
 
+    // Deactivate survey
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -313,62 +193,20 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Get survey dashboard",
-            description = "Returns a dashboard overview for surveys."
+            summary = "Update survey",
+            description = "Updates details of a survey."
     )
-    @GetMapping("/dashboard")
-    public String getSurveyDashboard() {
-        return "Survey dashboard overview";
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Schedule survey",
-            description = "Schedules a survey."
-    )
-    @PostMapping("/schedule")
-    public String scheduleSurvey(
-            @RequestParam String surveyId,
-            @RequestBody String scheduleDetails) {
-        return "Survey " + surveyId + " scheduled successfully";
-    }
-
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful",
-                    content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(schema = @Schema(hidden = true)))
-    })
-    @Operation(
-            summary = "Update survey status",
-            description = "Updates the status of a survey."
-    )
-    @PutMapping("/status")
-    public ResponseEntity<?> updateSurveyStatus(
-            @RequestParam String surveyId,
-            @RequestBody SurveyRequest status) {
-        try {
-            surveyService.updateSurveyStatus(surveyId, status);
-            return ResponseEntity.ok("Survey status updated successfully");
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating status of survey" + ex.getMessage());
+    @PutMapping("/deactivate")
+    public ResponseEntity<?> deactivateSurvey(HttpServletRequest request, @RequestParam String surveyId) {
+        if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
+            surveyService.deactivateSurvey(surveyId);
+            return ResponseEntity.ok("Survey deactivated successfully");
         }
+        throw new AccessDeniedException("Access Denied");
     }
 
-
+    // Activate survey
+    @SuppressWarnings("unused")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -376,17 +214,19 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            hidden = true,
-            deprecated = true,
-            summary = "Enable anonymous survey",
-            description = "Enables anonymous mode for a survey."
+            summary = "Update survey",
+            description = "Updates details of a survey."
     )
-    @PostMapping("/anonymous")
-    public String enableAnonymousSurvey(@RequestParam String surveyId) {
-        return "Survey " + surveyId + " set to anonymous";
+    @PutMapping("/activate")
+    public ResponseEntity<?> activateSurvey(HttpServletRequest request, @RequestParam String surveyId) {
+        if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
+            surveyService.activateSurvey(surveyId);
+            return ResponseEntity.ok("Survey activated successfully");
+        }
+        throw new AccessDeniedException("Access Denied");
     }
 
-
+    // Get all standard types
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -394,51 +234,57 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            hidden = true,
-            deprecated = true,
+            summary = "Get all survey standard types",
+            description = "Returns a list of all survey standard types."
+    )
+    @GetMapping("/standardized")
+    public ResponseEntity<?> getAllStandardTypes() {
+        return ResponseEntity.ok(surveyService.getAllStandardTypes());
+    }
+
+    // Get all categories
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
             summary = "Export survey results",
             description = "Exports survey results in a specified format."
     )
-    @GetMapping("/export")
-    public String exportSurveyResults(
-            @RequestParam String surveyId,
-            @RequestParam String format) {
-        return "Survey results exported in format: " + format;
+    @GetMapping("/categories")
+    public ResponseEntity<?> getAllCategories() {
+        return ResponseEntity.ok(surveyService.getAllCategories());
     }
 
-
+    // Get low scoring students
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @GetMapping("/survey/{surveyId}/students/checkResultsToHaveAppointment")
-    public ResponseEntity<?> getLowScoringStudentsForAppointment(
-            HttpServletRequest request,
-            @PathVariable String surveyId) {
-        try {
-            List<ConfirmationRequest> confirmationRequests = surveyService.getLowScoringStudentsForAppointment(request, surveyId);
+    @GetMapping("/low-scoring-check")
+    public ResponseEntity<?> getLowScoringStudentsForAppointment(HttpServletRequest request) {
+        if (tokenService.isStudent(request)) {
+            ConfirmationRequest confirmationRequests =
+                    surveyService.getLowScoringStudentsForAppointment(tokenService.retrieveUser(request));
             return ResponseEntity.ok(confirmationRequests);
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the request" + ex.getMessage());
         }
+        throw new AccessDeniedException("Access Denied");
     }
 
-
+    //Confirm appointment suggestion
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    @PostMapping("/survey/{surveyId}/students/appointments")
-    public ResponseEntity<?> handleAppointmentRequest(
-            @RequestBody List<ConfirmationRequest> requests) {
+    @PostMapping("/appointment-suggestion")
+    public ResponseEntity<?> handleAppointmentRequest(@RequestBody ConfirmationRequest requests) {
         try {
-
             return ResponseEntity.ok(surveyService.handleAppointmentRequest(requests) ? "You can make appointment now" : "");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
