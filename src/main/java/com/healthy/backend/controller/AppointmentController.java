@@ -12,7 +12,6 @@ import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.AppointmentRepository;
 import com.healthy.backend.repository.PsychologistRepository;
 import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.UserRepository;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;

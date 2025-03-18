@@ -1,10 +1,6 @@
 package com.healthy.backend.dto.manager;
 
-import lombok.Getter;
-import lombok.Builder;
-import lombok.Setter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Setter

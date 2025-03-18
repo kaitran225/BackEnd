@@ -119,7 +119,6 @@ public class UserService {
     }
 
 
-
     private UsersResponse getManagerDetails(Users user) {
         return userMapper.buildUserDetailsResponse(
                 user,

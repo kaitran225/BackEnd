@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
                 @Server(
                         description = "Development Environment",
                         url = "https://ram-network-testing.up.railway.app"
-                )       
+                )
         }
 )
 @SecurityScheme(

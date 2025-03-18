@@ -1,11 +1,11 @@
 package com.healthy.backend.dto.auth;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Set;
 

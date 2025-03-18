@@ -1,32 +1,17 @@
 package com.healthy.backend.entity;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStandardType;
 import com.healthy.backend.enums.SurveyStatus;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -80,7 +65,7 @@ public class Surveys {
     @OneToMany(mappedBy = "surveys", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate,Integer periodic, SurveyStandardType standardType) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer periodic, SurveyStandardType standardType) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
@@ -92,7 +77,7 @@ public class Surveys {
         this.category = cat(standardType);
     }
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate,Integer periodic, SurveyStandardType standardType,SurveyStatus status) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer periodic, SurveyStandardType standardType, SurveyStatus status) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
@@ -112,7 +97,7 @@ public class Surveys {
             status = SurveyStatus.ACTIVE;
         }
     }
-    
+
     public boolean isSurveyOpen() {
         LocalDate now = LocalDate.now();
         return now.isAfter(startDate) && now.isBefore(endDate);

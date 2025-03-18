@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +47,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ProgramService programService;
     private final SurveyService surveyService;
     private final MentalHealthArticlesData mentalHealthArticlesData;
+
+    private static LocalDate getNextDayOfWeek(String dayOfWeek) {
+        LocalDate today = LocalDate.now();
+        DayOfWeek targetDay = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
+
+        return today.with(java.time.temporal.TemporalAdjusters.next(targetDay));
+    }
 
     private void initialize() {
         registerUsers();
@@ -560,13 +566,6 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
-    }
-
-    private static LocalDate getNextDayOfWeek(String dayOfWeek) {
-        LocalDate today = LocalDate.now();
-        DayOfWeek targetDay = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
-
-        return today.with(java.time.temporal.TemporalAdjusters.next(targetDay));
     }
 
     @Override

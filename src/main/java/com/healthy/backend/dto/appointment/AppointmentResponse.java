@@ -5,11 +5,8 @@ import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.entity.TimeSlots;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Getter

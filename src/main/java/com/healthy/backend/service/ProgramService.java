@@ -18,10 +18,7 @@ import com.healthy.backend.mapper.ProgramMapper;
 import com.healthy.backend.mapper.StudentMapper;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -309,7 +306,7 @@ public class ProgramService {
         if (!isJoined(programId, studentId)) {
             throw new ResourceNotFoundException("Participation not found");
         }
-        ProgramParticipation participation = programParticipationRepository.    findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
+        ProgramParticipation participation = programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
                 programId,
                 studentId);
         if (participation.getStatus().equals(ParticipationStatus.CANCELLED))
@@ -482,7 +479,7 @@ public class ProgramService {
         }
     }
 
-    private void validateTimeRequest(ProgramsRequest programsRequest)   {
+    private void validateTimeRequest(ProgramsRequest programsRequest) {
         LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
         LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
 
@@ -565,7 +562,7 @@ public class ProgramService {
     private void validateProgramData(Programs program, ProgramUpdateRequest updateRequest) {
         validateName(updateRequest.getName());
         validateDescription(updateRequest.getDescription());
-        validateStartDateAndDuration(updateRequest.getStartDate(),updateRequest.getDuration());
+        validateStartDateAndDuration(updateRequest.getStartDate(), updateRequest.getDuration());
 
         if (updateRequest.getWeeklyScheduleRequest() != null) {
             validateWeeklySchedule(updateRequest.getWeeklyScheduleRequest());
@@ -1046,7 +1043,7 @@ public class ProgramService {
 
         return getProgramResponse(program, null);
     }
-    
+
     @SuppressWarnings("unused")
     private ProgramsResponse _createProgram(ProgramsRequest programsRequest, String userId) {
 

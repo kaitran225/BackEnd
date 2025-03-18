@@ -1,11 +1,7 @@
 package com.healthy.backend.dto.appointment;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
 @Getter
 @Setter

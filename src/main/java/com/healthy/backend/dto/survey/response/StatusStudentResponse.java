@@ -2,8 +2,12 @@ package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -26,5 +30,5 @@ public class StatusStudentResponse {
     @Schema(example = "")
     private String studentComplete;
     @Schema(example = "")
-    private LocalDateTime lastCompleteDate;
+    private LocalDate lastCompleteDate;
 }

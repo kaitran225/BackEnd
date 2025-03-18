@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduleService {
 
     private final ProgramService programService;
+
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void onApplicationStart() {

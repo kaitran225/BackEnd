@@ -2,14 +2,10 @@ package com.healthy.backend.entity;
 
 import com.healthy.backend.enums.ProgramTags;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
+import lombok.*;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "Tags")

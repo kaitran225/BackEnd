@@ -8,6 +8,7 @@ import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStandardType;
 import com.healthy.backend.enums.SurveyStatus;
+import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.*;
@@ -384,9 +385,46 @@ public class SurveyService {
         return request.isConfirmation();
     }
 
-    public StatusStudentResponse getScoreFromStudentInSuv(String surveyId, List<String> optionId, String studentId) {
+    private boolean hasDone(Surveys survey, Students students) {
+        List<SurveyResult> results = surveyResultRepository.findBySurveyIDAndStudentID(
+                survey.getSurveyID(), students.getStudentID()
+        );
+        if (results.isEmpty()) {
+            return false;
+        }
+        SurveyResult latestResult = results.getLast();
+        LocalDate latestCompleteDate = latestResult.getCompletionDate();
+        LocalDate startDate = survey.getStartDate();
+        LocalDate endDate = survey.getEndDate();
+        if (latestCompleteDate != null && startDate != null && endDate != null) {
+            return !latestCompleteDate.isBefore(startDate) && !latestCompleteDate.isAfter(endDate);
+        }
+        return false;
+    }
+
+    private boolean isInSession(Surveys survey) {
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = survey.getStartDate();
+        LocalDate endDate = survey.getEndDate();
+        if (startDate != null && endDate != null) {
+            return !today.isBefore(startDate) && !today.isAfter(endDate);
+        }
+        return false;
+    }
+
+
+    public StatusStudentResponse submitSurvey(String surveyId, List<String> optionId, String studentId) {
         Surveys survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found survey"));
+
+        // Check if student have done this survey before
+        if (hasDone(survey, studentRepository.findByStudentID(studentId))) {
+            throw new OperationFailedException("You have done this survey before");
+        }
+
+        if (!isInSession(survey)) {
+            throw new OperationFailedException("This survey is not in session");
+        }
 
         List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
 

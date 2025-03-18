@@ -15,7 +15,11 @@ import com.healthy.backend.stats.SurveyStats;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.chrono.ChronoLocalDate;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +38,6 @@ public class ManagerService {
 
     public ManagerDashboardResponse getDashboardStats(String filter, Integer value) {
         LocalDate[] dateRange = resolveDateRange(filter, value);
-
         return new ManagerDashboardResponse(
                 calculateSurveyStats(dateRange),
                 calculateProgramStats(dateRange),
@@ -65,8 +68,8 @@ public class ManagerService {
         List<SurveyResult> allResults;
         if (startDateTime != null && endDateTime != null) {
             allResults = surveyResultRepository.findAll().stream()
-                    .filter(result -> !result.getCompletionDate().isBefore(startDateTime) &&
-                            !result.getCompletionDate().isAfter(endDateTime))
+                    .filter(result -> !result.getCompletionDate().isBefore(ChronoLocalDate.from(startDateTime)) &&
+                            !result.getCompletionDate().isAfter(ChronoLocalDate.from(endDateTime)))
                     .collect(Collectors.toList());
         } else {
             allResults = surveyResultRepository.findAll();

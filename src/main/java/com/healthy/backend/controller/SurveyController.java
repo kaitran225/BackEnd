@@ -70,12 +70,12 @@ public class SurveyController {
             description = "Return the score that the student achieved in the survey"
     )
     @PostMapping("/submit")
-    public ResponseEntity<StatusStudentResponse> getScoreFromStudentInSuv(
+    public ResponseEntity<StatusStudentResponse> submitSurvey(
             @RequestParam String surveyId,
             @RequestBody List<String> optionId,
             @RequestParam(required = false) String studentId, HttpServletRequest request) {
         studentId = validateStudentID(request, studentId);
-        StatusStudentResponse status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
+        StatusStudentResponse status = surveyService.submitSurvey(surveyId, optionId, studentId);
         return ResponseEntity.ok(status);
     }
 
