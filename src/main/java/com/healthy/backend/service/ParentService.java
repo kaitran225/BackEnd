@@ -13,7 +13,7 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -153,10 +153,9 @@ public class ParentService {
             appointments.addAll(appointmentRepository.findByStudentID(student.getStudentID()).stream()
                     .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
                     .toList());
-            List<ProgramParticipation> temp = programParticipationRepository.findActiveByStudentID(student.getStudentID(), ParticipationStatus.CANCELLED);
-            programs.addAll(temp
+            programs.addAll(programParticipationRepository.findActiveByStudentID(student.getStudentID(), ParticipationStatus.CANCELLED)
                     .stream()
-                    .map(p -> new ProgramWithStudents(student, p.getProgram()))
+                    .map(p -> new ProgramWithStudents(p.getStudent(), p.getProgram()))
                     .filter(program -> program.getPrograms().getStartDate().isAfter(LocalDate.now().minusDays(1)))
                     .toList());
         }
