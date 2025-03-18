@@ -1,6 +1,8 @@
 package com.healthy.backend.controller;
 
-import com.healthy.backend.dto.manager.*;
+import com.healthy.backend.dto.manager.AppointmentStatsResponse;
+import com.healthy.backend.dto.manager.ManagerDashboardResponse;
+import com.healthy.backend.dto.manager.PsychologistStatsResponse;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.security.TokenService;
 import com.healthy.backend.service.ManagerService;
@@ -15,10 +17,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -94,8 +97,8 @@ public class ManagerController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        hidden = true,
-        deprecated = true
+            hidden = true,
+            deprecated = true
     )
     @GetMapping("/reminders")
     public ResponseEntity<?> runReminder(

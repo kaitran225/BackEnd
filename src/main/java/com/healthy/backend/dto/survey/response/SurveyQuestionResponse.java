@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,12 +21,18 @@ public class SurveyQuestionResponse {
     private String title;
     @Schema(example = "")
     private String description;
+    @Schema(example = "PSS_10")
+    private String standardType;
+    @Schema(example = "2")
+    private Integer periodic;
+    @Schema(example = "Anxiety")
+    private String category;
     @Schema(example = "")
     private Integer numberOfQuestions;
-    @Schema(example = "")
-    private List<QuestionResponse> questionList;
     @Schema(example = "")
     private String completeStatus;
     @Schema(example = "")
     private String totalScore;
+    @Schema(example = "")
+    private List<QuestionResponse> questionList;
 }

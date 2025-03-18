@@ -3,7 +3,6 @@ package com.healthy.backend.service;
 import com.healthy.backend.dto.appointment.AppointmentRequest;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
-import com.healthy.backend.dto.psychologist.DepartmentResponse;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
 import com.healthy.backend.enums.TimeslotStatus;
@@ -11,7 +10,10 @@ import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
 import com.healthy.backend.exception.ResourceInvalidException;
 import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.*;
+import com.healthy.backend.mapper.AppointmentMapper;
+import com.healthy.backend.mapper.PsychologistsMapper;
+import com.healthy.backend.mapper.StudentMapper;
+import com.healthy.backend.mapper.UserMapper;
 import com.healthy.backend.repository.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
@@ -31,7 +33,6 @@ public class AppointmentService {
 
     private final PsychologistRepository psychologistRepository;
     private final AppointmentRepository appointmentRepository;
-    private final DepartmentRepository departmentRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;

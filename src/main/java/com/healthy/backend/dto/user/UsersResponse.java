@@ -6,7 +6,7 @@ import com.healthy.backend.dto.programs.ProgramParticipationResponse;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.psychologist.PsychologistResponse;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

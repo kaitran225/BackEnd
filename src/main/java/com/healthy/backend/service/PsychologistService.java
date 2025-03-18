@@ -66,6 +66,7 @@ public class PsychologistService {
         List<Psychologists> psychologists = psychologistRepository.findAll();
         return psychologists.stream().map(this::callMapper).toList();
     }
+
     public List<DepartmentResponse> getAllDepartments() {
         return departmentRepository.findAll()
                 .stream()
@@ -209,7 +210,7 @@ public class PsychologistService {
         } else {
             slots = timeSlotRepository.findAll();
         }
-        if(isStudent) {
+        if (isStudent) {
             return slots.stream()
                     .filter(slot -> Set.of(TimeslotStatus.AVAILABLE, TimeslotStatus.BOOKED).contains(slot.getStatus()))
                     .map(slot -> {

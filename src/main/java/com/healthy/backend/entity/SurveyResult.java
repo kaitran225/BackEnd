@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,14 +39,14 @@ public class SurveyResult {
     private Integer maxScore;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StudentID", referencedColumnName = "StudentID", insertable = false, updatable = false)
+    @JoinColumn(name = "Student", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
 
     @OneToMany(mappedBy = "surveyResult", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SurveyQuestionOptionsChoices> choices;
 
-    @Column(name = "CreatedAt", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "CompletionDate", nullable = false, updatable = false)
+    private LocalDateTime completionDate;
 
     public SurveyResult(String resultID, String surveyID, String studentID) {
         this.resultID = resultID;
@@ -63,6 +64,6 @@ public class SurveyResult {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.completionDate = LocalDateTime.now();
     }
 }

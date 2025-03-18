@@ -30,10 +30,6 @@ public class NotificationService {
         createNotification(userId, title, message, appointmentId, NotificationType.APPOINTMENT);
     }
 
-    public void createOnLeaveNotification(String userId, String title, String message, String leaveRequestId) {
-        createNotification(userId, title, message, leaveRequestId, NotificationType.ON_LEAVE);
-    }
-
     public void createProgramNotification(String userId, String title, String message, String programId) {
         createNotification(userId, title, message, programId, NotificationType.PROGRAM);
     }

@@ -1,6 +1,5 @@
 package com.healthy.backend.init;
 
-import java.time.DayOfWeek;
 import com.healthy.backend.dto.auth.request.RegisterRequest;
 import com.healthy.backend.dto.programs.ProgramWeeklyScheduleRequest;
 import com.healthy.backend.dto.programs.ProgramsRequest;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -32,14 +32,11 @@ public class DataInitializer implements CommandLineRunner {
     private final StudentRepository studentRepository;
     private final DepartmentRepository departmentRepository;
     private final PsychologistRepository psychologistRepository;
-    private final ProgramScheduleRepository programScheduleRepository;
     private final TagsRepository tagsRepository;
-    private final ProgramRepository programRepository;
     private final UserLogRepository userLogRepository;
     private final ArticleRepository articleRepository;
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final NotificationRepository notificationRepository;
-    private final CategoriesRepository categoriesRepository;
     private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
     private final SurveyQuestionOptionsChoicesRepository surveyQuestionOptionsChoicesRepository;
     private final SurveyRepository surveyRepository;
@@ -50,6 +47,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ProgramService programService;
     private final SurveyService surveyService;
     private final MentalHealthArticlesData mentalHealthArticlesData;
+
+    private static LocalDate getNextDayOfWeek(String dayOfWeek) {
+        LocalDate today = LocalDate.now();
+        DayOfWeek targetDay = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
+
+        return today.with(java.time.temporal.TemporalAdjusters.next(targetDay));
+    }
 
     private void initialize() {
         registerUsers();
@@ -66,22 +70,12 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Tags initialized");
         initializePrograms();
         System.out.println("Programs initialized");
-//        initializeProgramSchedule();
-//        System.out.println("Program Schedule initialized");
-        initializeCategories();
-        System.out.println("Categories initialized");
         initializeSurveys();
         System.out.println("Surveys initialized");
         initializeSurveyQuestions();
         System.out.println("Survey Questions initialized");
         initializeAnswers();
         System.out.println("Answers initialized");
-        initializeSurveyResults();
-        System.out.println("Survey Results initialized");
-        initializeSurveyResultsChoices();
-        System.out.println("Score initialized");
-        initScore();
-        System.out.println("Survey Results Choices initialized");
         initializeLogs();
         System.out.println("Logs initialized");
         initializeArticles();
@@ -114,9 +108,9 @@ public class DataInitializer implements CommandLineRunner {
         parentRepository.save(new Parents("PAR002", userRepository.findByEmail("parent2@cybriadev.com").getUserId()));
 
         // Initialize Students
-        studentRepository.save(new Students("STU001", userRepository.findByEmail("student1@cybriadev.com").getUserId(), parentRepository.findById("PAR001").get().getParentID(), 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
-        studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), parentRepository.findById("PAR002").get().getParentID(), 9, "B", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
-        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@cybriadev.com").getUserId(), parentRepository.findById("PAR001").get().getParentID(), 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU001", userRepository.findByEmail("student1@cybriadev.com").getUserId(), "PAR001", 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), "PAR002", 9, "B", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@cybriadev.com").getUserId(), "PAR001", 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
 
     }
 
@@ -348,145 +342,56 @@ public class DataInitializer implements CommandLineRunner {
         });
     }
 
-    @SuppressWarnings("unused")
-    private void _initializePrograms() {
-        programRepository.save(new Programs("PRG001", "Stress Management",
-                "Program to help manage stress", 20, 4, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT006").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG001", "TAG002", "TAG003"))),
-                LocalDate.now().plusWeeks(0), "https://example.com/meeting1", ProgramType.ONLINE,
-                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-
-        programRepository.save(new Programs("PRG002", "Anxiety Support Group",
-                "Support group for individuals with anxiety", 15, 6, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT006").orElseThrow(),
-                psychologistRepository.findById("PSY002").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG004", "TAG005", "TAG006"))),
-                LocalDate.now().plusWeeks(1), "https://example.com/meeting2", ProgramType.OFFLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-
-        programRepository.save(new Programs("PRG003", "Mindfulness Workshop",
-                "Workshop on mindfulness techniques", 25, 3, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT003").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG007", "TAG008", "TAG009"))),
-                LocalDate.now().plusWeeks(2), "https://example.com/meeting3", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG004", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(3), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG005", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY002").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(3), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG006", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(2), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG007", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(1), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG008", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY002").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(2), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG009", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(0), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-        programRepository.save(new Programs("PRG010", "Depression Counseling",
-                "Counseling for individuals with depression", 30, 2, ProgramStatus.ACTIVE,
-                departmentRepository.findById("DPT007").orElseThrow(),
-                psychologistRepository.findById("PSY001").orElseThrow(),
-                new HashSet<Tags>(tagsRepository.findAllById(List.of("TAG010", "TAG011", "TAG012"))),
-                LocalDate.now().plusWeeks(1), "https://example.com/meeting4", ProgramType.ONLINE, Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
-
-    }
-
-    @SuppressWarnings("unused")
-    private void _initializeProgramSchedule() {
-        // Initialize Program Schedule
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG001").orElseThrow(), "Monday", LocalTime.parse("10:00:00"), LocalTime.parse("11:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG002").orElseThrow(), "Tuesday", LocalTime.parse("14:00:00"), LocalTime.parse("15:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG003").orElseThrow(), "Wednesday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG004").orElseThrow(), "Friday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG005").orElseThrow(), "Saturday", LocalTime.parse("09:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG006").orElseThrow(), "Wednesday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG007").orElseThrow(), "Tuesday", LocalTime.parse("08:30:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG008").orElseThrow(), "Monday", LocalTime.parse("07:00:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG009").orElseThrow(), "Tuesday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
-        programScheduleRepository.save(new ProgramSchedule(__.generateProgramScheduleID(),
-                programRepository.findById("PRG010").orElseThrow(), "Monday", LocalTime.parse("09:30:00"), LocalTime.parse("10:30:00")));
-    }
-
-    private void initializeCategories() {
-        List<Categories> categories = Arrays.stream(SurveyCategory.values())
-                .map(category -> new Categories(String.format("CAT%03d", category.ordinal() + 1), category))
-                .collect(Collectors.toList());
-        categoriesRepository.saveAll(categories);
-    }
-
     private void initializeSurveys() {
-        surveyRepository.save(new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE));
-        surveyRepository.save(new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.INACTIVE));
+        Surveys survey1 = new Surveys("SUV001", "Stress Survey",
+                "Survey to assess stress levels", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10);
+        surveyRepository.save(survey1);
+
+        Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment",
+                "Assessment of anxiety symptoms", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.GAD_7);
+        surveyRepository.save(survey2);
+
+        Surveys survey3 = new Surveys("SUV003", "Depression Screening",
+                "Screening for depression", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PHQ_9);
+        surveyRepository.save(survey3);
+
+        Surveys survey4 = new Surveys("SUV004", "Mood Assessment",
+                "Assessment of mood", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10, SurveyStatus.INACTIVE);
+        surveyRepository.save(survey4);
     }
 
     private void initializeSurveyQuestions() {
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR001", "SUV001", "In the last month, how often have you been upset because something that happened was unexpected?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR002", "SUV001", "In the last month, how often have you felt that you were unable to control the important things in your life?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR003", "SUV001", "In the last month, how often have you felt nervous and stressed?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR004", "SUV001", "In the last month, how often have you felt confident about your ability to handle your personal problems?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR005", "SUV001", "In the last month, how often have you felt that things were going your way?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR006", "SUV001", "In the last month, how often have you found that you could not cope with all the things you had to do?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR007", "SUV001", "In the last month, how often have you been able to control irritations in your life?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR008", "SUV001", "In the last month, how often have you felt that you were on top of things?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR009", "SUV001", "In the last month, how often have you been angered because of things that happened that were outside of your control?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR010", "SUV001", "In the last month, how often have you felt difficulties were piling up so high that you could not overcome them?", "CAT001"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR001", "SUV001", "In the last month, how often have you been upset because something that happened was unexpected?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR002", "SUV001", "In the last month, how often have you felt that you were unable to control the important things in your life?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR003", "SUV001", "In the last month, how often have you felt nervous and stressed?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR004", "SUV001", "In the last month, how often have you felt confident about your ability to handle your personal problems?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR005", "SUV001", "In the last month, how often have you felt that things were going your way?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR006", "SUV001", "In the last month, how often have you found that you could not cope with all the things you had to do?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR007", "SUV001", "In the last month, how often have you been able to control irritations in your life?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR008", "SUV001", "In the last month, how often have you felt that you were on top of things?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR009", "SUV001", "In the last month, how often have you been angered because of things that happened that were outside of your control?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR010", "SUV001", "In the last month, how often have you felt difficulties were piling up so high that you could not overcome them?"));
 
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR011", "SUV002", "Feeling nervous, anxious, or on edge?", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR012", "SUV002", "Not being able to stop or control worrying?", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR013", "SUV002", "Trouble relaxing", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR014", "SUV002", "Do you feel sad or hopeless most of the time?", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR015", "SUV002", "Being so restless that it's hard to sit still?", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR016", "SUV002", "Becoming easily annoyed or irritable?", "CAT002"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR017", "SUV002", "Feeling afraid as if something awful might happen?", "CAT002"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR011", "SUV002", "Feeling nervous, anxious, or on edge?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR012", "SUV002", "Not being able to stop or control worrying?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR013", "SUV002", "Trouble relaxing"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR014", "SUV002", "Do you feel sad or hopeless most of the time?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR015", "SUV002", "Being so restless that it's hard to sit still?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR016", "SUV002", "Becoming easily annoyed or irritable?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR017", "SUV002", "Feeling afraid as if something awful might happen?"));
 
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR018", "SUV003", "Little interest or pleasure in doing things?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR019", "SUV003", "Feeling down, depressed, or hopeless?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR020", "SUV003", "Trouble falling or staying asleep, or sleeping too much?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR021", "SUV003", "Feeling tired or having little energy?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR022", "SUV003", "Poor appetite or overeating?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR023", "SUV003", "Feeling bad about yourself — or that you are a failure or have let yourself or your family down?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR024", "SUV003", "Trouble concentrating on things, such as reading the newspaper or watching television?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR025", "SUV003", "Moving or speaking so slowly that other people could have noticed? Or so fidgety or restless that you have been moving a lot more than usual?", "CAT003"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR026", "SUV003", "Thoughts that you would be better off dead, or thoughts of hurting yourself in some way?", "CAT003"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR018", "SUV003", "Little interest or pleasure in doing things?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR019", "SUV003", "Feeling down, depressed, or hopeless?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR020", "SUV003", "Trouble falling or staying asleep, or sleeping too much?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR021", "SUV003", "Feeling tired or having little energy?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR022", "SUV003", "Poor appetite or overeating?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR023", "SUV003", "Feeling bad about yourself — or that you are a failure or have let yourself or your family down?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR024", "SUV003", "Trouble concentrating on things, such as reading the newspaper or watching television?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR025", "SUV003", "Moving or speaking so slowly that other people could have noticed? Or so fidgety or restless that you have been moving a lot more than usual?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR026", "SUV003", "Thoughts that you would be better off dead, or thoughts of hurting yourself in some way?"));
 
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR027", "SUV004", "How are you feeling today?", "CAT001"));
-        surveyQuestionsRepository.save(new SurveyQuestions("SQR028", "SUV004", "Are you having a good day?", "CAT001"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR027", "SUV004", "How are you feeling today?"));
+        surveyQuestionsRepository.save(new SurveyQuestions("SQR028", "SUV004", "Are you having a good day?"));
 
     }
 
@@ -644,126 +549,6 @@ public class DataInitializer implements CommandLineRunner {
 
     }
 
-    private void initializeSurveyResults() {
-        surveyResultRepository.save(new SurveyResult("SRS001", "SUV001", "STU001"));
-        // surveyResultRepository.save(new SurveyResult("SRS002", "SUV002", "STU001"));
-        // surveyResultRepository.save(new SurveyResult("SRS003", "SUV003", "STU001"));
-
-        // surveyResultRepository.save(new SurveyResult("SRS004", "SUV001", "STU002"));
-        // surveyResultRepository.save(new SurveyResult("SRS005", "SUV002", "STU002"));
-        // surveyResultRepository.save(new SurveyResult("SRS006", "SUV003", "STU002"));
-
-        // surveyResultRepository.save(new SurveyResult("SRS007", "SUV001", "STU003"));
-        // surveyResultRepository.save(new SurveyResult("SRS008", "SUV002", "STU003"));
-        // surveyResultRepository.save(new SurveyResult("SRS009", "SUV003", "STU003"));
-    }
-
-    private void initializeSurveyResultsChoices() {
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR001", "SQO002"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR002", "SQO006"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR003", "SQO012"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR004", "SQO017"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR005", "SQO021"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR006", "SQO026"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR007", "SQO031"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR008", "SQO036"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR009", "SQO041"));
-        surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS001", "SQR010", "SQO046"));
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR011", "SQO051"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR012", "SQO055"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR013", "SQO059"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR014", "SQO063"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR015", "SQO067"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR016", "SQO071"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS002", "SQR017", "SQO074"));
-
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR018", "SQO078"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR019", "SQO082"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR020", "SQO086"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR021", "SQO090"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR022", "SQO094"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR023", "SQO098"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR024", "SQO102"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR025", "SQO106"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS003", "SQR026", "SQO108"));
-
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR001", "SQO001"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR002", "SQO005"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR003", "SQO009"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR004", "SQO013"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR005", "SQO017"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR006", "SQO021"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR007", "SQO025"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR008", "SQO029"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR009", "SQO033"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS004", "SQR010", "SQO037"));
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR011", "SQO041"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR012", "SQO045"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR013", "SQO049"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR014", "SQO053"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR015", "SQO057"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR016", "SQO061"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS005", "SQR017", "SQO065"));
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR018", "SQO069"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR019", "SQO073"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR020", "SQO077"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR021", "SQO081"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR022", "SQO085"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR023", "SQO089"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR024", "SQO093"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR025", "SQO097"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS006", "SQR026", "SQO101"));
-
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR001", "SQO003"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR002", "SQO007"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR003", "SQO011"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR004", "SQO015"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR005", "SQO019"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR006", "SQO023"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR007", "SQO027"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR008", "SQO031"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR009", "SQO035"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS007", "SQR010", "SQO039"));
-
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR011", "SQO043"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR012", "SQO047"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR013", "SQO051"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR014", "SQO055"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR015", "SQO059"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR016", "SQO063"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS008", "SQR017", "SQO067"));
-
-
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR018", "SQO071"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR019", "SQO075"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR020", "SQO079"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR021", "SQO083"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR022", "SQO087"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR023", "SQO091"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR024", "SQO095"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR025", "SQO099"));
-        // surveyQuestionOptionsChoicesRepository.save(new SurveyQuestionOptionsChoices("SRS009", "SQR026", "SQO103"));
-
-    }
-
-    private void initScore() {
-        List<SurveyResult> surveyResults = surveyResultRepository.findAll();
-        surveyResults.forEach(
-                result -> {
-                    result.setMaxScore(surveyService.calculateMaxScore(result.getSurvey()));
-                    result.setResult(surveyService.calculateTotalScore(result.getResultID()));
-                }
-        );
-        surveyResultRepository.saveAll(surveyResults);
-    }
-
     private void initializeLogs() {
         userLogRepository.save(new UserLogs("LOG001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "192.168.0.1"));
         userLogRepository.save(new UserLogs("LOG002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), "244.178.44.111"));
@@ -775,6 +560,7 @@ public class DataInitializer implements CommandLineRunner {
         List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
         articles.forEach(articleRepository::save);
     }
+
     private void initializeNotifications() {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
@@ -782,15 +568,9 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
     }
 
-    private static LocalDate getNextDayOfWeek(String dayOfWeek) {
-        LocalDate today = LocalDate.now();
-        DayOfWeek targetDay = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
-
-        return today.with(java.time.temporal.TemporalAdjusters.next(targetDay));
-    }
     @Override
     public void run(String... args) {
-        if (userRepository.count()  == 0) {
+        if (userRepository.count() == 0) {
             this.initialize();
         }
     }

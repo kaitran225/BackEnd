@@ -1,15 +1,21 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StatusStudent {
+public class StatusStudentResponse {
     @Schema(example = "")
     private String studentId;
     @Schema(example = "")
@@ -24,6 +30,6 @@ public class StatusStudent {
     private String completeStatus;
     @Schema(example = "")
     private String studentComplete;
-
-
+    @Schema(example = "")
+    private LocalDateTime lastCompleteDate;
 }

@@ -45,10 +45,6 @@ public class Article {
     @Builder.Default
     private Set<Tags> articleTag = new HashSet<>();
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<Comment> comments = new HashSet<>();
-
 
     public Article(String articleID, String title, String content, HashSet<Tags> articleTag, Users author) {
         this.articleID = articleID;

@@ -19,5 +19,4 @@ public class ManagerDashboardResponse {
     private ProgramStats programStats;
     private AppointmentStats appointmentStats;
     private DepartmentStats departmentStats;
-    // getters & setters
 }

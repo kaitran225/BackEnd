@@ -29,12 +29,12 @@ public class EmailService {
 
         String content =
                 "We regret to inform you that your registration for the **" + programs.getProgramName() + "** program has been canceled.\n\n" +
-                "We understand this may be disappointing, and we apologize for any inconvenience caused. If you would like to inquire about re-registering or if you have any questions regarding this cancellation, please feel free to contact us.\n\n" +
-                "Here are the details of the program you were registered for:\n\n" +
-                "Program Name: **" + programs.getProgramName() + "**\n" +
-                "Scheduled Start Date: **" + programs.getStartDate() + "**\n" +
-                "If you wish to re-register or need further assistance, please don’t hesitate to get in touch with us. " +
-                "We are here to help and support you.\n\n";
+                        "We understand this may be disappointing, and we apologize for any inconvenience caused. If you would like to inquire about re-registering or if you have any questions regarding this cancellation, please feel free to contact us.\n\n" +
+                        "Here are the details of the program you were registered for:\n\n" +
+                        "Program Name: **" + programs.getProgramName() + "**\n" +
+                        "Scheduled Start Date: **" + programs.getStartDate() + "**\n" +
+                        "If you wish to re-register or need further assistance, please don’t hesitate to get in touch with us. " +
+                        "We are here to help and support you.\n\n";
 
         sendEmail(email, subject, content, name);
     }
@@ -46,13 +46,13 @@ public class EmailService {
 
         String content =
                 "We are pleased to confirm your registration for the **" + programs.getProgramName() + "** program.\n\n" +
-                "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
-                "The program duration is **" + programs.getDuration() + " hours**, and will conclude at **" + schedule.getEndTime() + "**.\n\n" +
-                "Please make sure you are well-prepared for the program to maximize your participation.\n\n" +
-                "To join the program, please use the following meeting link: **" + programs.getMeetingLink() + "**.\n\n" +
-                "Additionally, you can also find the meeting link in your calendar on our website. Simply log in to your account and check your program schedule for easy access to the link.\n\n" +
-                "Should you have any questions or require additional information, please do not hesitate to reach out to us. We are here to assist you.\n\n" +
-                "We are excited about your participation in the program and look forward to your involvement.\n\n";
+                        "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
+                        "The program duration is **" + programs.getDuration() + " hours**, and will conclude at **" + schedule.getEndTime() + "**.\n\n" +
+                        "Please make sure you are well-prepared for the program to maximize your participation.\n\n" +
+                        "To join the program, please use the following meeting link: **" + programs.getMeetingLink() + "**.\n\n" +
+                        "Additionally, you can also find the meeting link in your calendar on our website. Simply log in to your account and check your program schedule for easy access to the link.\n\n" +
+                        "Should you have any questions or require additional information, please do not hesitate to reach out to us. We are here to assist you.\n\n" +
+                        "We are excited about your participation in the program and look forward to your involvement.\n\n";
         sendEmail(email, subject, content, name);
     }
 
@@ -62,13 +62,13 @@ public class EmailService {
         String date = isToday ? "today." : "scheduled for tomorrow.";
         String content =
                 "We hope this message finds you well. This is a courtesy reminder regarding your registration for the **" + programs.getProgramName() + "** program " + date + "\n\n" +
-                "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
-                "Please note that the program duration is **" + programs.getDuration() + " hours, ending at " + schedule.getEndTime() + "**.\n\n" +
-                "Please ensure that you are well-prepared and arrive on time to maximize your participation.\n\n" +
-                "To join the program, please use the following meeting link: **" + programs.getMeetingLink() + "**.\n\n" +
-                "Additionally, you can also find the meeting link in your calendar on our website. Simply log in to your account and check your program schedule for easy access to the link.\n\n" +
-                "Should you have any questions or require additional information, please do not hesitate to reach out to us. We are here to assist you.\n\n" +
-                "We look forward to your participation in the program and are confident it will be a valuable experience.\n\n";
+                        "The program is scheduled to take place on **" + programs.getStartDate() + "** at **" + schedule.getStartTime() + "**. " +
+                        "Please note that the program duration is **" + programs.getDuration() + " hours, ending at " + schedule.getEndTime() + "**.\n\n" +
+                        "Please ensure that you are well-prepared and arrive on time to maximize your participation.\n\n" +
+                        "To join the program, please use the following meeting link: **" + programs.getMeetingLink() + "**.\n\n" +
+                        "Additionally, you can also find the meeting link in your calendar on our website. Simply log in to your account and check your program schedule for easy access to the link.\n\n" +
+                        "Should you have any questions or require additional information, please do not hesitate to reach out to us. We are here to assist you.\n\n" +
+                        "We look forward to your participation in the program and are confident it will be a valuable experience.\n\n";
         sendEmail(email, subject, content, name);
     }
 

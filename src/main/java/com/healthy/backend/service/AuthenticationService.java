@@ -31,13 +31,25 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    private static final Set<String> WHITELISTED_DOMAINS = Set.of(
+            "cybriadev.com",
+            "example.com",
+            "edu.vn",
+            "domain4.com",
+            "domain5.com",
+            "domain6.com",
+            "domain7.com",
+            "domain8.com",
+            "domain9.com",
+            "domain10.com"
+    );
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ParentRepository parentRepository;
@@ -47,21 +59,17 @@ public class AuthenticationService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PsychologistRepository psychologistsRepository;
     private final AuthenticationRepository authenticationRepository;
-
     private final GeneralService __;
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final EmailService emailService;
-
     private final UserMapper usermapper;
     private final ParentMapper parentmapper;
     private final StudentMapper studentmapper;
     private final PsychologistsMapper psychologistsmapper;
     private final AuthenticationMapper authenticationMapper;
-
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenDuration;
-
     @Value("${app.url}")
     private String siteURL;
 
@@ -85,10 +93,10 @@ public class AuthenticationService {
 
     public AuthenticationResponse registerParent(ParentRegisterRequest request) {
 
-        for (String ID: request.getChildrenDetails().getStudentIds()) {
-                if(!studentRepository.existsById(ID)){
-                    throw new IllegalArgumentException("Student with ID " + ID + " not found.");
-                }
+        for (String ID : request.getChildrenDetails().getStudentIds()) {
+            if (!studentRepository.existsById(ID)) {
+                throw new IllegalArgumentException("Student with ID " + ID + " not found.");
+            }
         }
 
         Set<Students> children = studentRepository.findAllByIdAsSet(request.getChildrenDetails().getStudentIds());
@@ -168,22 +176,10 @@ public class AuthenticationService {
         return usermapper.buildUserEntity(request, token, __.generateUserID(), encodedPassword, hashedID);
     }
 
-    private static final Set<String> WHITELISTED_DOMAINS = Set.of(
-            "cybriadev.com",
-            "example.com",
-            "edu.vn",
-            "domain4.com",
-            "domain5.com",
-            "domain6.com",
-            "domain7.com",
-            "domain8.com",
-            "domain9.com",
-            "domain10.com"
-    );
-
     private boolean isWhitelistedDomain(String email) {
         return WHITELISTED_DOMAINS.stream().anyMatch(email::contains);
     }
+
     private void sendVerificationEmailIfNeeded(String email, String token, String name) {
         String verificationUrl = buildVerificationUrl(token);
         emailService.sendVerificationEmail(email, verificationUrl, name);

@@ -53,35 +53,35 @@ public class ExportService {
     }
 
     private byte[] exportUserAsPDF(Users user) {
-       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-           PdfWriter writer = new PdfWriter(outputStream);
-           PdfDocument pdfDocument = new PdfDocument(writer);
-           Document document = new Document(pdfDocument, PageSize.A4);
+            PdfWriter writer = new PdfWriter(outputStream);
+            PdfDocument pdfDocument = new PdfDocument(writer);
+            Document document = new Document(pdfDocument, PageSize.A4);
 
-           document.setMargins(50, 50, 50, 50);
+            document.setMargins(50, 50, 50, 50);
 
-           PdfFont titleFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-           PdfFont normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont titleFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
 
-           // Add title
-           Paragraph title = new Paragraph("User Details Report")
-                   .setFont(titleFont)
-                   .setFontSize(16)
-                   .setTextAlignment(TextAlignment.CENTER)
-                   .setMarginBottom(20);
-           document.add(title);
+            // Add title
+            Paragraph title = new Paragraph("User Details Report")
+                    .setFont(titleFont)
+                    .setFontSize(16)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(20);
+            document.add(title);
 
-           // Add user details
-           document.add(new Paragraph("User ID: " + user.getUserId()).setFont(normalFont).setFontSize(12));
-           document.add(new Paragraph("Name: " + user.getFullName()).setFont(normalFont).setFontSize(12));
-           document.add(new Paragraph("Email: " + user.getEmail()).setFont(normalFont).setFontSize(12));
+            // Add user details
+            document.add(new Paragraph("User ID: " + user.getUserId()).setFont(normalFont).setFontSize(12));
+            document.add(new Paragraph("Name: " + user.getFullName()).setFont(normalFont).setFontSize(12));
+            document.add(new Paragraph("Email: " + user.getEmail()).setFont(normalFont).setFontSize(12));
 
-           document.close();
+            document.close();
 
-           return outputStream.toByteArray();
-       } catch (Exception e) {
-           throw new RuntimeException("Error generating PDF", e);
-       }
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF", e);
+        }
     }
 }

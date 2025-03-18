@@ -21,8 +21,6 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Strin
     @Query("SELECT a.appointmentID FROM Appointments a ORDER BY a.appointmentID DESC LIMIT 1")
     String findLastAppointmentId();
 
-    List<Appointments> findByPsychologistIDAndStatusAndFeedbacksNotNull(String psychologistId, AppointmentStatus status);
-
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
             "FROM Appointments a " +
             "WHERE a.studentID = :studentId " +

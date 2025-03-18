@@ -1,86 +1,67 @@
 package com.healthy.backend.service;
 
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import com.healthy.backend.dto.survey.QuestionOption;
+import com.healthy.backend.dto.survey.request.*;
+import com.healthy.backend.dto.survey.response.*;
+import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.SurveyCategory;
+import com.healthy.backend.enums.SurveyStandardType;
+import com.healthy.backend.enums.SurveyStatus;
+import com.healthy.backend.exception.OperationFailedException;
+import com.healthy.backend.exception.ResourceNotFoundException;
+import com.healthy.backend.mapper.SurveyMapper;
+import com.healthy.backend.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.healthy.backend.dto.survey.ConfirmationRequest;
-import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.QuestionOption1;
-import com.healthy.backend.dto.survey.QuestionOptionRequest;
-import com.healthy.backend.dto.survey.QuestionRequest;
-import com.healthy.backend.dto.survey.QuestionResponse;
-import com.healthy.backend.dto.survey.QuestionResponse1;
-import com.healthy.backend.dto.survey.StatusStudent;
-import com.healthy.backend.dto.survey.SurveyQuestionRequest;
-import com.healthy.backend.dto.survey.SurveyQuestionRequest1;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
-import com.healthy.backend.entity.Categories;
-import com.healthy.backend.entity.Parents;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.SurveyQuestionOptions;
-import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
-import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResult;
-import com.healthy.backend.entity.Surveys;
-import com.healthy.backend.entity.Users;
-import com.healthy.backend.enums.Role;
-import com.healthy.backend.enums.SurveyCategory;
-import com.healthy.backend.enums.SurveyStatus;
-import com.healthy.backend.exception.ResourceNotFoundException;
-import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.CategoriesRepository;
-import com.healthy.backend.repository.ParentRepository;
-import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
-import com.healthy.backend.repository.SurveyQuestionRepository;
-import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
-import com.healthy.backend.security.TokenService;
-
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class SurveyService {
-    private final TokenService tokenService;
-    private final GeneralService generalService;
 
     private final SurveyQuestionOptionsChoicesRepository surveyQuestionOptionsChoicesRepository;
     private final SurveyRepository surveyRepository;
     private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
-    private final CategoriesRepository categoriesRepository;
     private final SurveyResultRepository surveyResultRepository;
     private final StudentRepository studentRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final ParentRepository parentRepository;
-
     private final SurveyMapper surveyMapper;
+    private final GeneralService generalService;
+    private final SurveyServiceHelper __;
 
 
+    // Deactivate
+    public void deactivateSurvey(String surveyId) {
+        Surveys survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey Not found"));
+        survey.setStatus(SurveyStatus.INACTIVE);
+        surveyRepository.save(survey);
+    }
+
+    // Activate
+    public void activateSurvey(String surveyId) {
+        Surveys survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey Not found"));
+        survey.setStatus(SurveyStatus.ACTIVE);
+        surveyRepository.save(survey);
+    }
+
+
+    // Get all survey for display
     public List<SurveysResponse> getAllSurveys(Users user) {
         return switch (user.getRole()) {
             case STUDENT -> {
-                String studentId = tokenService.getRoleID(user);
-                Students student = studentRepository.findByStudentID(studentId);
-                yield getSurveyResult(Set.of(student), tokenService.getRoleID(user));
+                Students student = studentRepository.findByUserID(user.getUserId());
+                yield getSurveyResult(Set.of(student), student.getStudentID());
             }
             case MANAGER, PSYCHOLOGIST -> {
                 List<Surveys> surveys = surveyRepository.findAll();
@@ -103,47 +84,82 @@ public class SurveyService {
         };
     }
 
+    // Get survey questions for taking survey
+    public SurveyQuestionResponse getSurveyQuestion(String surveyID) {
+        Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
+                () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
+        List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
+        if (surveyQuestions.isEmpty()) {
+            throw new ResourceNotFoundException("No questions found for surveyID " + surveyID);
+        }
+        List<QuestionResponse> questionList = surveyQuestions
+                .stream()
+                .map(questions -> surveyMapper.buildQuestionResponse(
+                        getQuestionResponse(questions),
+                        questions,
+                        surveyQuestions.indexOf(questions))
+                )
+                .toList();
+        return surveyMapper.buildSurveyQuestionResponse(questionList, surveys);
+    }
 
-    public SurveyResultsResponse getSurveyResultsBySurveyID(HttpServletRequest request, String surveyId) {
-        Role role = tokenService.retrieveUser(request).getRole();
-        Surveys survey = surveyRepository.findById(surveyId).orElseThrow(() -> new ResourceNotFoundException("SurveyId not found" + surveyId));
-        return switch (role) {
+
+    public List<SurveyResultsResponse> getSurveyResultsBySurveyID(Users user) {
+        List<Surveys> surveyList = surveyRepository.findAll();
+        if (surveyList.isEmpty()) {
+            return List.of();
+        }
+        return switch (user.getRole()) {
             case PARENT -> {
-                Set<Students> children = parentRepository.findByUserID(tokenService.getRoleID(tokenService.retrieveUser(request))).getStudents();
-                List<SurveyResult> surveyResultList = children.stream().flatMap(child -> getSurveyResultByStudentIDAndSurveyID(surveyId, child.getStudentID()).stream()).toList();
-                yield surveyMapper.mapToListResultsResponse(survey,
-                        surveyResultList.stream()
-                                .map(surveyResult -> getStatusStudent(survey, surveyResult)).toList());
+                Set<Students> children = parentRepository.findByUserID(user.getUserId()).getStudents();
+                yield surveyList.stream()
+                        .map(survey -> surveyMapper.mapToListResultsResponse(
+                                survey,
+                                children.stream()
+                                        .flatMap(child -> surveyResultRepository
+                                                .findBySurveyIDAndStudentID(survey.getSurveyID(), child.getStudentID()).stream())
+                                        .toList().stream()
+                                        .map(surveyResult -> getStatusStudent(survey, surveyResult))
+                                        .collect(Collectors.toList())
+                        ))
+                        .collect(Collectors.toList());
             }
             case STUDENT -> {
-                SurveyResult surveyResult = getSurveyResultByStudentIDAndSurveyID(surveyId, tokenService.getRoleID(tokenService.retrieveUser(request))).getFirst();
-                yield surveyMapper.mapToListResultsResponse(survey,
-                        List.of(getStatusStudent(survey, surveyResult)));
+                yield surveyList.stream()
+                        .map(survey -> {
+                            List<SurveyResult> surveyResults = surveyResultRepository.findBySurveyIDAndStudentID(survey.getSurveyID(),
+                                    studentRepository.findByUserID(user.getUserId()).getStudentID());
+                            SurveyResult surveyResult = surveyResults.isEmpty() ? null : surveyResults.getLast();
+                            if (surveyResult == null) {
+                                return surveyMapper.mapToListResultsResponse(survey, List.of());
+                            } else {
+                                return surveyMapper.mapToListResultsResponse(
+                                        survey,
+                                        List.of(getStatusStudent(survey, surveyResult)));
+                            }
+                        })
+                        .collect(Collectors.toList());
             }
             case MANAGER, PSYCHOLOGIST -> {
-                List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
-                yield surveyMapper.mapToListResultsResponse(survey,
-                        surveyResultList.stream()
-                                .map(surveyResult -> getStatusStudent(survey, surveyResult)).toList());
+                yield surveyList.stream()
+                        .map(survey -> {
+                            List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
+
+                            return surveyMapper.mapToListResultsResponse(
+                                    survey,
+                                    surveyResultList.stream()
+                                            .map(surveyResult -> getStatusStudent(survey, surveyResult))
+                                            .collect(Collectors.toList())
+                            );
+                        })
+                        .collect(Collectors.toList());
             }
             default -> throw new RuntimeException("You don't have permission to access");
         };
     }
 
-    private StatusStudent getStatusStudent(Surveys survey, SurveyResult surveyResult) {
-        return surveyMapper.mapToResultStudent(
-                getStatusStudent(survey.getSurveyID(), surveyResult.getStudentID()),
-                surveyResult.getResult() + "/" + surveyResult.getMaxScore(),
-                surveyResult.getStudentID());
-    }
 
-    private List<SurveyResult> getSurveyResultByStudentIDAndSurveyID(String surveyID, String studentId) {
-        return surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentId);
-    }
-
-    public SurveyQuestionResponse getSurveyResultByStudentID(HttpServletRequest request, String surveyID, String studentId) {
-
-        studentId = tokenService.validateRequestStudentID(request, studentId);
+    public SurveyQuestionResponse getSurveyResultByStudentID(String surveyID, String studentId) {
 
         if (!surveyResultRepository.existsBySurveyIDAndStudentID(surveyID, studentId)) {
             throw new ResourceNotFoundException("No survey found for surveyID " + surveyID + " with studentID " + studentId);
@@ -178,302 +194,366 @@ public class SurveyService {
                 surveyResult.getLast().getResult() + "/" + surveyResult.getLast().getMaxScore());
     }
 
-    public void updateSurveyQuestion(HttpServletRequest request, String surveyID, SurveyQuestionRequest1 surveyQuestionRequest) {
-        Role role = tokenService.retrieveUser(request).getRole();
-        switch (role) {
-            case MANAGER:
-            case PSYCHOLOGIST:
-                List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
-                if(surveyQuestions.isEmpty()) {
-                     throw new ResourceNotFoundException("SurveyID not found "+ surveyID);
+    private void validateSurveyUpdateRequest(SurveyUpdateRequest surveyUpdateRequest) {
+        if (surveyUpdateRequest == null) {
+            throw new IllegalArgumentException("Survey update request cannot be null.");
+        }
+        if (surveyUpdateRequest.getStartDate() != null) {
+            try {
+                LocalDate.parse(surveyUpdateRequest.getStartDate());
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
+            }
+        }
+    }
+
+    private void updateSurveyQuestions(Surveys existingSurvey, List<QuestionUpdateRequest> questionRequests) {
+        List<SurveyQuestions> existingQuestions = surveyQuestionRepository.findBySurveyID(existingSurvey.getSurveyID());
+
+        // Convert existing questions to a map for quick lookup
+        Map<String, SurveyQuestions> existingQuestionMap = existingQuestions.stream()
+                .collect(Collectors.toMap(SurveyQuestions::getQuestionID, q -> q));
+
+        List<SurveyQuestions> questionsToSave = new ArrayList<>();
+        List<SurveyQuestionOptions> optionsToSave = new ArrayList<>();
+        Set<String> updatedQuestionIds = new HashSet<>();
+
+        for (QuestionUpdateRequest questionRequest : questionRequests) {
+            if (questionRequest.getQuestionId() != null && existingQuestionMap.containsKey(questionRequest.getQuestionId())) {
+                // Update existing question
+                SurveyQuestions existingQuestion = existingQuestionMap.get(questionRequest.getQuestionId());
+                if (questionRequest.getQuestionText() != null) {
+                    existingQuestion.setQuestionText(questionRequest.getQuestionText().trim());
                 }
-
-                SurveyCategory surveyCategory = SurveyCategory.valueOf(surveyQuestionRequest.getCategory().toUpperCase());
-                Categories category = categoriesRepository.findByCategoryName(surveyCategory);
-
-                Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
-                    .collect(Collectors.toMap(SurveyQuestions :: getQuestionID, Function.identity()));
-
-                for (QuestionResponse1 sqr : surveyQuestionRequest.getQuestionList()) {
-                    SurveyQuestions surveyQuestion = surveyQuestionMap.get(sqr.getId());
-                    surveyQuestion.setQuestionText(sqr.getQuestionText());
-                    surveyQuestion.setCategoryID(category.getCategoryID());
-
-                    List<QuestionOption1> questionOption = sqr.getQuestionOptions();
-
-                    Map<String, SurveyQuestionOptions> optionMap = questionOption.stream()
-                        .map(option -> {
-                            return surveyQuestionOptionsRepository.findByOptionID(option.getAnswerID());
-                        })
-                        .collect(Collectors.toMap(SurveyQuestionOptions :: getOptionID, Function.identity()));
-
-                    List<SurveyQuestionOptions> optionList = questionOption.stream()
-                        .map(option -> {
-                            SurveyQuestionOptions sqo = optionMap.get(option.getAnswerID());
-                            sqo.setOptionText(option.getLabel());
-                            sqo.setScore(option.getValue());
-
-                            return sqo;
-                        })
-                        .collect(Collectors.toList());
-                    surveyQuestionOptionsRepository.saveAll(optionList);
-                }
-
-            return;
-            default:
-                throw new RuntimeException("You don't have permission to access");
+                questionsToSave.add(existingQuestion);
+                updatedQuestionIds.add(existingQuestion.getQuestionID());
+            } else {
+                // New question
+                SurveyQuestions newQuestion = new SurveyQuestions(
+                        generalService.generateSurveyQuestionId(),
+                        existingSurvey.getSurveyID(),
+                        questionRequest.getQuestionText().trim()
+                );
+                questionsToSave.add(newQuestion);
+                existingQuestionMap.put(newQuestion.getQuestionID(), newQuestion);
+            }
         }
 
+        surveyQuestionRepository.saveAll(questionsToSave);
+
+        updateSurveyOptions(existingQuestionMap, questionRequests, optionsToSave);
+
+        surveyQuestionOptionsRepository.saveAll(optionsToSave);
+
+        // Delete removed questions
+        List<String> removedQuestionIds = existingQuestions.stream()
+                .map(SurveyQuestions::getQuestionID)
+                .filter(id -> !updatedQuestionIds.contains(id))
+                .toList();
+
+        if (!removedQuestionIds.isEmpty()) {
+            surveyQuestionRepository.deleteAllByIdInBatch(removedQuestionIds);
+        }
+    }
+
+    private void updateSurveyOptions(Map<String, SurveyQuestions> existingQuestionMap,
+                                     List<QuestionUpdateRequest> questionRequests,
+                                     List<SurveyQuestionOptions> optionsToSave) {
+        for (QuestionUpdateRequest questionRequest : questionRequests) {
+            SurveyQuestions question = existingQuestionMap.get(questionRequest.getQuestionId());
+            if (question == null) continue;
+
+            List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
+            Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
+                    .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, o -> o));
+
+            Set<String> updatedOptionIds = new HashSet<>();
+
+            for (QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
+                if (optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
+                    // Update existing option
+                    SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
+                    if (optionRequest.getLabel() != null) {
+                        existingOption.setOptionText(optionRequest.getLabel().trim());
+                    }
+                    existingOption.setScore(optionRequest.getValue());
+                    optionsToSave.add(existingOption);
+                    updatedOptionIds.add(existingOption.getOptionID());
+                } else {
+                    // New option
+                    SurveyQuestionOptions newOption = new SurveyQuestionOptions(
+                            generalService.generateQuestionOptionId(),
+                            question.getQuestionID(),
+                            optionRequest.getLabel().trim(),
+                            optionRequest.getValue()
+                    );
+                    optionsToSave.add(newOption);
+                }
+            }
+
+            // Delete removed options
+            List<String> removedOptionIds = existingOptions.stream()
+                    .map(SurveyQuestionOptions::getOptionID)
+                    .filter(id -> !updatedOptionIds.contains(id))
+                    .toList();
+
+            if (!removedOptionIds.isEmpty()) {
+                surveyQuestionOptionsRepository.deleteAllById(removedOptionIds);
+            }
+        }
+    }
+
+    @Transactional
+    public void updateSurvey(String surveyID, SurveyUpdateRequest surveyUpdateRequest) {
+        // Fetch existing survey
+        Surveys existingSurvey = surveyRepository.findById(surveyID)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found with ID: " + surveyID));
+
+        // Validate input
+        validateSurveyUpdateRequest(surveyUpdateRequest);
+
+        // Update fields only if they are not null
+        if (surveyUpdateRequest.getTitle() != null) {
+            existingSurvey.setSurveyName(surveyUpdateRequest.getTitle().trim());
+        }
+        if (surveyUpdateRequest.getDescription() != null) {
+            existingSurvey.setDescription(surveyUpdateRequest.getDescription().trim());
+        }
+        if (surveyUpdateRequest.getStartDate() != null) {
+            try {
+                existingSurvey.setStartDate(LocalDate.parse(surveyUpdateRequest.getStartDate()).atStartOfDay());
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
+            }
+        }
+        if (surveyUpdateRequest.getStandType() != null) {
+            try {
+                existingSurvey.setStandardType(SurveyStandardType.valueOf(surveyUpdateRequest.getStandType().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid survey standard type: " + surveyUpdateRequest.getStandType());
+            }
+        }
+        if (surveyUpdateRequest.getPeriodic() != null) {
+            existingSurvey.setPeriodic(surveyUpdateRequest.getPeriodic());
+        }
+        if (surveyUpdateRequest.getStatus() != null) {
+            existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase())); // Assuming `SurveyStatus` is an enum
+        }
+
+        // Save survey updates
+        surveyRepository.save(existingSurvey);
+
+        // Handle questions and options update
+        if (surveyUpdateRequest.getQuestion() != null) {
+            updateSurveyQuestions(existingSurvey, surveyUpdateRequest.getQuestion());
+        }
+    }
+
+    // Create survey
+    @Transactional
+    public void createSurvey(SurveyRequest surveyRequest, Users users) {
+        validateSurvey(surveyRequest);
+        Surveys surveys = saveSurvey(surveyRequest, users);
+        saveSurveyQuestionsAndOptions(surveyRequest.getQuestion(), surveys);
+    }
+
+    public ConfirmationRequest getLowScoringStudentsForAppointment(Users users) {
+        Students students = studentRepository.findByUserID(users.getUserId());
+        List<SurveyResult> results = surveyResultRepository.findByStudentID(students.getStudentID());
+
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        SurveyResult lastResult = results.getLast();
+
+        if (lastResult.getResult() == 0 || lastResult.getResult() > (0.95 * lastResult.getMaxScore())) {
+            return new ConfirmationRequest(students.getStudentID(), false);
+        }
+        return new ConfirmationRequest(students.getStudentID(), true);
     }
 
 
-    // public void updateSurveyQuestion(String surveyID, SurveyQuestionResponse surveyQuestionResponse) {
-    //     List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
+    public List<SurveyStandardType> getAllStandardTypes() {
+        return Arrays.asList(SurveyStandardType.values());
+    }
 
-    //     if (surveyQuestions.isEmpty()) {
-    //         throw new ResourceNotFoundException("surveyID not found" + surveyID);
-    //     }
-    //     Map<String, SurveyQuestions> surveyQuestionMap = surveyQuestions.stream()
-    //             .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
+    public List<SurveyCategory> getAllCategories() {
+        return Arrays.asList(SurveyCategory.values());
+    }
 
-    //     for (QuestionResponse sqr : surveyQuestionResponse.getQuestionList()) {
-    //         SurveyQuestions surveyQuestion1 = surveyQuestionMap.get(sqr.getId());
+    public boolean handleAppointmentRequest(ConfirmationRequest request) {
+        return request.isConfirmation();
+    }
 
-    //         Categories categories = categoriesRepository.findById(surveyQuestion1.getCategoryID())
-    //                 .orElseThrow(() -> new ResourceNotFoundException("Categories not found" + surveyQuestion1.getCategoryID()));
-
-
-    //         surveyQuestion1.setQuestionText(sqr.getQuestionText());
-    //         categories.setCategoryName(SurveyCategory.valueOf(sqr.getQuestionCategory()));
-    //         List<QuestionOption> questionOption = sqr.getQuestionOptions();
-
-    //         List<SurveyQuestionOptions> answers = surveyQuestionOptionsRepository.findByQuestionID(surveyQuestion1.getQuestionID());
-
-    //         if (!answers.isEmpty()) {
-    //             for (int i = 0; i < answers.size(); i++) {
-    //                 SurveyQuestionOptions ans = answers.get(i);
-
-    //                 if (i < questionOption.size()) {
-    //                     ans.setOptionText(questionOption.get(i).getLabel());
-    //                     ans.setScore(questionOption.get(i).getValue());
-
-    //                 }
-    //             }
-    //         }
-    //         surveyQuestionOptionsRepository.saveAll(answers);
-    //         surveyQuestionRepository.save(surveyQuestion1);
-    //         categoriesRepository.save(categories);
-    //     }
-    // }
-
-    public SurveyQuestionResponse getSurveyQuestion(String surveyID) {
-
-        Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
-                () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID)
+    private boolean hasDone(Surveys survey, Students students) {
+        List<SurveyResult> results = surveyResultRepository.findBySurveyIDAndStudentID(
+                survey.getSurveyID(), students.getStudentID()
         );
-        List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
-        if (surveyQuestions.isEmpty()) {
-            throw new ResourceNotFoundException("No questions found for surveyID " + surveyID);
+        if (results.isEmpty()) {
+            return false;
         }
-        List<QuestionResponse> questionList = surveyQuestions
-                .stream()
-                .map(questions -> {
-                            return surveyMapper.buildQuestionResponse(
-                                    getQuestionResponse(questions),
-                                    questions,
-                                    surveyQuestions.indexOf(questions));
-                        }
-                )
-                .toList();
-        return surveyMapper.buildSurveyQuestionResponse(questionList, surveys);
-    }
-
-    private List<QuestionOption> getQuestionResponse(SurveyQuestions questions) {
-        return surveyQuestionOptionsRepository
-                .findByQuestionID(questions.getQuestionID())
-                .stream()
-                .map(surveyMapper::buildNewQuestionOption)
-                .toList();
-    }
-
-    public String getLastIdInDB(String index) {
-        String prefix = index.replaceAll("\\d", "");
-        String numberPart = index.replaceAll("\\D", "");
-
-        int currentID = Integer.parseInt(numberPart);
-        int newID = currentID + 1;
-        String formatID = prefix + String.format("%03d", newID);
-        return formatID;
-    }
-
-    public void addSurveyQuestion(HttpServletRequest request, String surveyId, SurveyQuestionRequest surveyQuestionRequest) {
-        Role role = tokenService.retrieveUser(request).getRole();
-        switch (role) {
-            case MANAGER:
-            case PSYCHOLOGIST:
-                List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(surveyId);
-                SurveyCategory surveyCategory = SurveyCategory.valueOf(surveyQuestionRequest.getCategory().toUpperCase());
-                Categories category = categoriesRepository.findByCategoryName(surveyCategory);
-
-                if(surveyQuestion.isEmpty()) {
-                    throw new ResourceNotFoundException("Not found survey for" + surveyId);
-                }
-
-                for(QuestionRequest questionRequest : surveyQuestionRequest.getQuestionList()) {
-                    String latestQuestion = generalService.generateSurveyQuestionId();
-                    SurveyQuestions surveyQuestion1 = SurveyQuestions.builder()
-                        .questionText(questionRequest.getQuestionText())
-                        .questionID(latestQuestion)
-                        .surveyID(surveyId)
-                        .categoryID(category.getCategoryID())
-                        .build();
-
-                    surveyQuestionRepository.save(surveyQuestion1);
-
-                    List<QuestionOptionRequest> questionOption = questionRequest.getQuestionOptions();
-                    AtomicInteger index = new AtomicInteger(0);
-                    String[] latestOptionID = {null};
-
-                    List<SurveyQuestionOptions> surveyQuestionOptionses = questionOption.stream()
-                        .map(questionOptionRequest -> {
-                            if(index.get() == 0) {
-                                latestOptionID[0] = generalService.generateQuestionOptionId();
-                                System.out.println(latestOptionID[0]);
-                            }
-                            else {
-                                latestOptionID[0] = (latestOptionID[0] != null) ? getLastIdInDB(latestOptionID[0]) : "SQO001";
-                            }
-                            index.getAndIncrement();
-
-                            return SurveyQuestionOptions.builder()
-                                .optionText(questionOptionRequest.getLabel())
-                                .score(questionOptionRequest.getValue())
-                                .optionID(latestOptionID[0])
-                                .questionID(latestQuestion)
-                                .build();
-
-                        })
-                        .collect(Collectors.toList());
-
-                    surveyQuestionOptionsRepository.saveAll(surveyQuestionOptionses);
-                return;
-                }
-        default:
-            throw new RuntimeException("You don't have permission to access");
+        SurveyResult latestResult = results.getLast();
+        LocalDateTime latestCompleteDate = latestResult.getCompletionDate();
+        LocalDateTime startDate = survey.getStartDate();
+        LocalDateTime endDate = survey.getEndDate();
+        if (latestCompleteDate != null && startDate != null && endDate != null) {
+            return !latestCompleteDate.isBefore(startDate) && !latestCompleteDate.isAfter(endDate);
         }
+        return false;
     }
 
-
-
-    public void updateSurveyStatus(String surveyId, SurveyRequest status) {
-        Surveys survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Survey Not found"));
-        survey.setStatus(SurveyStatus.valueOf(status.getStatus()));
-        surveyRepository.save(survey);
-    }
-
-
-    private String calculateTotalRightQuestion(List<SurveyQuestions> questions, List<String> options, Surveys survey, Students student) {
-        Map<String, Integer> mapScore = new HashMap<>();
-        int sum = 0;
-        int count = questions.size();
-        int total;
-
-
-        questions.forEach(question -> {
-
-            List<SurveyQuestionOptions> surveyOption = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
-            surveyOption.forEach(s -> {
-                mapScore.put(s.getOptionID(), s.getScore());
-            });
-        });
-
-        for (String surveyQuestionOption : options) {
-            sum += mapScore.getOrDefault(surveyQuestionOption, 0);
+    private boolean isInSession(Surveys survey) {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime startDate = survey.getStartDate();
+        LocalDateTime endDate = survey.getEndDate();
+        if (startDate != null && endDate != null) {
+            return !today.isBefore(startDate) && !today.isAfter(endDate);
         }
-
-
-        switch (survey.getCategoryID()) {
-            case "CAT001" -> {
-                newAvgScore(survey, sum, student);
-                total = count * 4;
-            }
-            case "CAT002" -> {
-                newAvgScore(survey, sum, student);
-                total = count * 3;
-            }
-
-            case "CAT003" -> {
-                newAvgScore(survey, sum, student);
-                total = count * 3;
-            }
-
-            default -> {
-                throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
-            }
-        }
-
-        return sum + "/" + total;
-
+        return false;
     }
 
 
-    public StatusStudent getScoreFromStudentInSuv(String surveyId, List<String> optionId, String studentId) {
-        StatusStudent status = new StatusStudent();
-
+    public StatusStudentResponse submitSurvey(String surveyId, List<String> optionId, String studentId) {
         Surveys survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found survey"));
 
-
-        List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-        int sizeQues = surveyQuestionRepository.countQuestionInSuv(surveyId);
-        String check = null;
-        for (String option : optionId) {
-            if (Objects.equals(check, option)) {
-                return null;
-            }
-            check = option;
+        // Check if student have done this survey before
+        if (hasDone(survey, studentRepository.findByStudentID(studentId))) {
+            throw new OperationFailedException("You have done this survey before");
         }
 
-        Students student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Not found student"));
+        if (!isInSession(survey)) {
+            throw new OperationFailedException("This survey is not in session");
+        }
 
-        String total = calculateTotalRightQuestion(surveyQuestion, optionId, survey, student);
-        String[] parts = total.split("/");
-        String firstParts = parts[0];
-        int num = Integer.parseInt(firstParts);
+        List<SurveyQuestions> surveyQuestion = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
 
-        int result = switch (survey.getCategoryID()) {
-            case "CAT001" -> sizeQues * 4;
-            case "CAT002" -> sizeQues * 3;
-            case "CAT003" -> sizeQues * 3;
-            default -> throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
-        };
+        // Calculate scores
+        int total = calScore(surveyQuestion, optionId);
+        int max = calMaxScore(survey.getStandardType(), surveyQuestion.size());
 
-        if (total != null) {
-            SurveyResult surveyResult = new SurveyResult();
-            String newResultId = generalService.generateSurveyResultId();
+        // Save result
+        SurveyResult saveResult = surveyResultRepository.save(
+                new SurveyResult(generalService.generateSurveyResultId(), surveyId, studentId, total, max)
+        );
 
-            surveyResult.setResultID(newResultId);
-            surveyResult.setStudentID(studentId);
-            surveyResult.setSurveyID(surveyId);
-            surveyResult.setMaxScore(result);
-            surveyResult.setResult(num);
+        // Set new average score
+        saveAvgScore(survey, total, studentRepository.findByStudentID(studentId));
 
-            surveyResultRepository.save(surveyResult);
+        // Save choice and return result
+        if (saveResult.getResultID() != null) {
+            saveSurveyOptionsChoice(saveResult.getResultID(), optionId);
+            return surveyMapper.mapToResultStudent(total + "/" + max, studentId, saveResult.getCompletionDate());
+        }
 
-            if (surveyResult.getResultID() != null) {
-                saveSurveyOptionsChoice(surveyResult.getResultID(), optionId);
+        return surveyMapper.mapToResultStudent("0", "NOT FINISHED", studentId, saveResult.getCompletionDate());
+    }
 
-                status = surveyMapper.mapToResultStudent(
-                        total,
-                        studentId);
-                if (status == null) {
-                    return surveyMapper.mapToResultStudent("0", "NOT FINISHED", studentId);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////// Private //////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void validateSurvey(SurveyRequest surveyRequest) {
+        if (surveyRequest == null) {
+            throw new IllegalArgumentException("Survey request cannot be null.");
+        }
+        if (surveyRequest.getTitle() == null || surveyRequest.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Survey title cannot be empty.");
+        }
+        if (surveyRequest.getDescription() == null || surveyRequest.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Survey description cannot be empty.");
+        }
+        if (surveyRequest.getStartDate() == null || surveyRequest.getStartDate().trim().isEmpty()) {
+            throw new IllegalArgumentException("Survey start date is required.");
+        }
+        if (surveyRequest.getStandardType() == null || surveyRequest.getStandardType().trim().isEmpty()) {
+            throw new IllegalArgumentException("Survey standard type is required.");
+        }
+
+        // Validate question list
+        if (surveyRequest.getQuestion() == null || surveyRequest.getQuestion().isEmpty()) {
+            throw new IllegalArgumentException("Survey must contain at least one question.");
+        }
+
+        for (QuestionRequest question : surveyRequest.getQuestion()) {
+            if (question.getQuestionText() == null || question.getQuestionText().trim().isEmpty()) {
+                throw new IllegalArgumentException("Each question must have text.");
+            }
+            if (question.getQuestionOptions() == null || question.getQuestionOptions().isEmpty()) {
+                throw new IllegalArgumentException("Each question must have at least one option.");
+            }
+            for (QuestionOptionRequest option : question.getQuestionOptions()) {
+                if (option.getLabel() == null || option.getLabel().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Option label cannot be empty.");
                 }
             }
         }
-        return status;
+    }
+
+    private Surveys saveSurvey(SurveyRequest surveyRequest, Users users) {
+        LocalDate startDate;
+        SurveyStandardType standardType;
+
+        try {
+            startDate = LocalDate.parse(surveyRequest.getStartDate());
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
+        }
+
+        try {
+            standardType = SurveyStandardType.valueOf(surveyRequest.getStandardType().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid survey standard type: " + surveyRequest.getStandardType());
+        }
+
+        return surveyRepository.save(new Surveys(
+                generalService.generateSurveyID(),
+                surveyRequest.getTitle().trim(),
+                surveyRequest.getDescription().trim(),
+                users.getUserId(),
+                startDate,
+                surveyRequest.getPeriodic(),
+                standardType
+        ));
+    }
+
+    private void saveSurveyQuestionsAndOptions(List<QuestionRequest> questions, Surveys surveys) {
+        List<SurveyQuestions> surveyQuestionsList = new ArrayList<>();
+        List<SurveyQuestionOptions> surveyOptionsList = new ArrayList<>();
+
+        for (QuestionRequest question : questions) {
+            SurveyQuestions surveyQuestion = new SurveyQuestions(
+                    generalService.generateSurveyQuestionId(),
+                    surveys.getSurveyID(),
+                    question.getQuestionText().trim()
+            );
+            surveyQuestionsList.add(surveyQuestion);
+
+            for (QuestionOptionRequest optionRequest : question.getQuestionOptions()) {
+                surveyOptionsList.add(new SurveyQuestionOptions(
+                        generalService.generateQuestionOptionId(),
+                        surveyQuestion.getQuestionID(),
+                        optionRequest.getLabel().trim(),
+                        optionRequest.getValue()
+                ));
+            }
+        }
+
+        // Bulk save for efficiency
+        surveyQuestionRepository.saveAll(surveyQuestionsList);
+        surveyQuestionOptionsRepository.saveAll(surveyOptionsList);
+    }
+
+    // Survey creation helper
+
+    private StatusStudentResponse getStatusStudent(Surveys survey, SurveyResult surveyResult) {
+        return surveyMapper.mapToResultStudent(
+                getStatusStudent(survey.getSurveyID(), surveyResult.getStudentID()),
+                surveyResult.getResult() + "/" + surveyResult.getMaxScore(),
+                surveyResult.getStudentID(),
+                surveyResult.getCompletionDate());
     }
 
     private void saveSurveyOptionsChoice(String resultID, List<String> optionId) {
@@ -490,84 +570,29 @@ public class SurveyService {
 
     private List<SurveysResponse> getSurveyResult(Set<Students> students, String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
-        HashMap<String, String> map = new HashMap<>();
-
-        for (Surveys survey : surveyList) {
-            students.forEach(
-                    student -> {
-                        map.put(student.getStudentID(), getStatusStudent(survey.getSurveyID(), student.getStudentID()));
-                    }
-            );
-        }
-
         return surveyList.stream()
-                .map(survey -> {
-                    List<StatusStudent> statusStuList = students.stream()
-                            .map(student -> {
-
-                                List<SurveyResult> surveyResultSTD = surveyResultRepository.findBySurveyIDAndStudentID(
-                                        survey.getSurveyID(),
-                                        student.getStudentID());
-
-                                if (surveyResultSTD.isEmpty()) {
-                                    return List.of(surveyMapper.mapToResultStudent(
-                                                    "0/0",
-                                                    student.getStudentID()
-                                            )
-                                    );
-                                }
-
-                                return surveyResultSTD.stream()
-                                        .map(result -> {
-                                            return surveyMapper.mapToResultStudent(
-                                                    result.getResult() + "/" + result.getMaxScore(),
-                                                    student.getStudentID()
-                                            );
-                                        })
-                                        .collect(Collectors.toList());
-                            })
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList());
-
-                    return surveyMapper.buildSurveysResponse(survey,
-                            getTotalQuestion(survey),
-                            ID.contains("PAR") ? null : getStatusStudent(survey.getSurveyID(), ID),
-                            statusStuList);
-                })
+                .map(survey -> surveyMapper.buildSurveysResponse(survey,
+                        getTotalQuestion(survey),
+                        ID.contains("PAR") ? null : getStatusStudent(survey.getSurveyID(), ID),
+                        mapStatusResponse(students, survey)))
                 .collect(Collectors.toList());
     }
 
-
-    @Transactional
-    public int calculateTotalScore(List<SurveyQuestionOptionsChoices> questionOptionsChoices) {
-        return questionOptionsChoices.stream().mapToInt(choices -> {
-            return choices.getOptions().getScore();
-        }).sum();
-    }
-
-    @Transactional
-    public int calculateTotalScore(String resultID) {
-        SurveyResult surveyResult = surveyResultRepository.findByIdWithChoices(resultID);
-        return surveyResult.getChoices().stream()
-                .map(SurveyQuestionOptionsChoices::getOptions) // Avoid null options
-                .map(SurveyQuestionOptions::getScore)
-                .mapToInt(Integer::intValue)
-                .sum(); // Sum all
-    }
-
-
-    public int calculateMaxScore(Surveys surveys) {
-        List<SurveyQuestions> surveyQuestionsList = surveyQuestionRepository.findBySurveyID(surveys.getSurveyID());
-
-        return surveyQuestionsList.stream()
-                .mapToInt(question ->
-                        surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID())
-                                .stream()
-                                .mapToInt(SurveyQuestionOptions::getScore)
-                                .max() // Get max score for the question
-                                .orElse(0)
-                )
-                .sum();
+    private List<StatusStudentResponse> mapStatusResponse(Set<Students> students, Surveys survey) {
+        return students.stream()
+                .flatMap(student -> {
+                    List<SurveyResult> surveyResultSTD = surveyResultRepository
+                            .findBySurveyIDAndStudentID(survey.getSurveyID(), student.getStudentID());
+                    return surveyResultSTD.isEmpty()
+                            ? Stream.of(surveyMapper.mapToResultStudent("0/0", student.getStudentID(), null))
+                            : surveyResultSTD.stream()
+                            .map(result -> surveyMapper.mapToResultStudent(
+                                    result.getResult() + "/" + result.getMaxScore(),
+                                    student.getStudentID(),
+                                    result.getCompletionDate()
+                            ));
+                })
+                .toList();
     }
 
     private int getTotalQuestion(Surveys surveys) {
@@ -592,103 +617,74 @@ public class SurveyService {
                 : "COMPLETED";
     }
 
-    public List<ConfirmationRequest> getLowScoringStudentsForAppointment(HttpServletRequest request, String surveyId) {
-        Role role = tokenService.retrieveUser(request).getRole();
-        switch (role) {
-            case MANAGER:
-            case PSYCHOLOGIST:
-                List<String> studentIdList = surveyResultRepository.findStudentsBySurveyID(surveyId);
-                List<SurveyResult> resultList = studentIdList.stream()
-                        .map(student -> {
-                            return surveyResultRepository.findByStudentID(student).getLast();
-                        })
-                        .toList();
-
-                return resultList.stream()
-                        .filter(result -> result.getResult() == 0 || result.getResult() > (0.95 * result.getMaxScore()))
-                        .map(result -> new ConfirmationRequest(result.getStudentID(), false))
-                        .collect(Collectors.toList());
-
-            default:
-                throw new RuntimeException("You don't have permission to access");
-        }
-
+    private List<QuestionOption> getQuestionResponse(SurveyQuestions questions) {
+        return surveyQuestionOptionsRepository
+                .findByQuestionID(questions.getQuestionID())
+                .stream()
+                .map(surveyMapper::buildNewQuestionOption)
+                .toList();
     }
 
-    public boolean handleAppointmentRequest(List<ConfirmationRequest> requests) {
-
-        return !requests.stream().anyMatch(request -> !request.isConfirmation());
-    }
-
-    // public double canculateScoreAvgStudent(String surveyId, String studentId) {
-    //     List<SurveyResult> resultList = surveyResultRepository.findSurveyIDAndStudentID(surveyId, studentId);
-    //     if(resultList.isEmpty()) {
-    //         return 0.0;
-    //     }
-
-    //     int totalWeightScore = IntStream.range(0, resultList.size())
-    //         .map(num -> resultList.get(num).getResult() * (num + 1))
-    //         .sum();
-
-    //     int totalWeight = IntStream.range(1, resultList.size() + 1).sum();
-
-    //     return (double) totalWeightScore / totalWeight;
-
-    // }
-
-    public void newAvgScore(Surveys survey, int result, Students student) {
-        String categoryId = survey.getCategoryID();
+    private void saveAvgScore(Surveys survey, int result, Students student) {
         int size = surveyResultRepository.countResultStudent(survey.getSurveyID(), student.getStudentID());
-        BigDecimal newAverage = BigDecimal.ZERO;
-
-        switch (categoryId) {
-            case "CAT001":
-                BigDecimal currentAvgStressScore = student.getStressScore();
-                newAverage = calculateNewWeightedAvg(
-                        currentAvgStressScore,
+        switch (survey.getStandardType()) {
+            case PSS_10:
+                student.setStressScore(__.calculateNewWeightedAvg(
+                        student.getStressScore(),
                         result,
-                        size);
-
-                student.setStressScore(newAverage);
-                studentRepository.save(student);
+                        size));
                 break;
-
-            case "CAT002":
-                BigDecimal currentAvgAnxietyScore = student.getAnxietyScore();
-                newAverage = calculateNewWeightedAvg(
-                        currentAvgAnxietyScore,
+            case GAD_7:
+                student.setAnxietyScore(__.calculateNewWeightedAvg(
+                        student.getAnxietyScore(),
                         result,
-                        size);
-
-                student.setAnxietyScore(newAverage);
-                studentRepository.save(student);
+                        size));
                 break;
-
-            case "CAT003":
-                BigDecimal currentAvgDepressionScore = student.getDepressionScore();
-                newAverage = calculateNewWeightedAvg(
-                        currentAvgDepressionScore,
+            case PHQ_9:
+                student.setDepressionScore(__.calculateNewWeightedAvg(
+                        student.getDepressionScore(),
                         result,
-                        size);
-
-                student.setDepressionScore(newAverage);
-                studentRepository.save(student);
+                        size));
                 break;
-
             default:
-                throw new AssertionError("Invalid category ID");
+                throw new AssertionError("Invalid standard type");
         }
-
+        studentRepository.save(student);
     }
 
-    public BigDecimal calculateNewWeightedAvg(BigDecimal presentResult, int result, int size) {
-        int totalWeightBefore = (size * (size + 1)) / 2;
-        int newWeight = size + 1;
+    private int calMaxScore(SurveyStandardType standardType, int size) {
+        switch (standardType) {
+            case PSS_10 -> {
+                return size * 4;
+            }
+            case GAD_7, PHQ_9 -> {
+                return size * 3;
+            }
+            default -> {
+                throw new IllegalArgumentException("Invalid Standard Type: " + standardType);
+            }
+        }
+    }
 
-        BigDecimal weightCurrentTotal = presentResult.multiply(BigDecimal.valueOf(totalWeightBefore));
-        BigDecimal weightNewTotal = BigDecimal.valueOf(result).multiply(BigDecimal.valueOf(newWeight));
-        BigDecimal totalWeights = BigDecimal.valueOf(totalWeightBefore).add(BigDecimal.valueOf(newWeight));
+    private int calScore(List<SurveyQuestions> questions, List<String> choices) {
+        List<SurveyQuestionOptions> surveyOptions = new ArrayList<>();
+        for (SurveyQuestions question : questions) {
+            surveyOptions.addAll(surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID()));
+        }
+        return surveyOptions.stream()
+                .filter(option -> choices.contains(option.getOptionID()))
+                .mapToInt(SurveyQuestionOptions::getScore)
+                .sum();
+    }
 
-        return (weightCurrentTotal.add(weightNewTotal)).divide(totalWeights, 2, RoundingMode.HALF_UP);
+    //// TEST FUNCTION
+
+    public void periodicUpdateSurvey(String surveyID) {
+        Surveys survey = surveyRepository.findBySurveyID(surveyID);
+        if (survey == null) {
+            throw new ResourceNotFoundException("Survey not found");
+        }
+        survey.setStartDate(LocalDateTime.now());
+        surveyRepository.save(survey);
     }
 }

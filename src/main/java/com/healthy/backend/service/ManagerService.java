@@ -12,15 +12,14 @@ import com.healthy.backend.stats.AppointmentStats;
 import com.healthy.backend.stats.DepartmentStats;
 import com.healthy.backend.stats.ProgramStats;
 import com.healthy.backend.stats.SurveyStats;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
-import java.time.temporal.ChronoUnit;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.chrono.ChronoLocalDate;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,13 +38,11 @@ public class ManagerService {
 
     public ManagerDashboardResponse getDashboardStats(String filter, Integer value) {
         LocalDate[] dateRange = resolveDateRange(filter, value);
-
         return new ManagerDashboardResponse(
                 calculateSurveyStats(dateRange),
                 calculateProgramStats(dateRange),
                 calculateAppointmentStats(dateRange),
                 calculateDepartmentStats(dateRange)
-
         );
     }
 
@@ -63,21 +60,16 @@ public class ManagerService {
         // Get all surveys with their categories
         List<Surveys> allSurveys = surveyRepository.findAll();
         Map<String, SurveyCategory> surveyCategories = allSurveys.stream()
-                .collect(Collectors.toMap(Surveys::getSurveyID, survey -> survey.getCategory().getCategoryName()));
+                .collect(Collectors.toMap(Surveys::getSurveyID, Surveys::getCategory));
 
-        // Initialize counters for each category
         for (SurveyCategory category : SurveyCategory.values()) {
             resultCountsByCategory.put(category.name(), 0L);
         }
-
-        // Get all survey results within the date range
         List<SurveyResult> allResults;
         if (startDateTime != null && endDateTime != null) {
-            // This would require a custom query in the repository
-            // For now, we'll filter after fetching all results
             allResults = surveyResultRepository.findAll().stream()
-                    .filter(result -> !result.getCreatedAt().isBefore(startDateTime) &&
-                            !result.getCreatedAt().isAfter(endDateTime))
+                    .filter(result -> !result.getCompletionDate().isBefore((startDateTime)) &&
+                            !result.getCompletionDate().isAfter((endDateTime)))
                     .collect(Collectors.toList());
         } else {
             allResults = surveyResultRepository.findAll();
