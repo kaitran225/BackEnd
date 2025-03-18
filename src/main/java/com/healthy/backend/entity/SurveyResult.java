@@ -44,8 +44,8 @@ public class SurveyResult {
     @OneToMany(mappedBy = "surveyResult", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SurveyQuestionOptionsChoices> choices;
 
-    @Column(name = "CreatedAt", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "CompletionDate", nullable = false, updatable = false)
+    private LocalDateTime completionDate;
 
     public SurveyResult(String resultID, String surveyID, String studentID) {
         this.resultID = resultID;
@@ -63,6 +63,6 @@ public class SurveyResult {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.completionDate = LocalDateTime.now();
     }
 }

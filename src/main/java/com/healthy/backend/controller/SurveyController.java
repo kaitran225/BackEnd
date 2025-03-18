@@ -151,24 +151,6 @@ public class SurveyController {
     }
 
 
-//     @ApiResponses(value = {
-//             @ApiResponse(responseCode = "200", description = "Successful",
-//                     content = @Content(schema = @Schema(hidden = true))),
-//             @ApiResponse(responseCode = "500", description = "Internal Server Error",
-//                     content = @Content(schema = @Schema(hidden = true)))
-//     })
-//     @Operation(
-
-//             summary = "Get survey results",
-//             description = "Returns results for a specific survey."
-//     )
-//     @GetMapping("/result")
-//     public ResponseEntity<?> getSurveyResults(HttpServletRequest request,
-//                                               @RequestParam String surveyId) {
-//         SurveyResultsResponse surveyResult = surveyService.getSurveyResultsBySurveyID(request, surveyId);
-//         return ResponseEntity.ok(surveyResult);
-//     }
-
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
                     content = @Content(schema = @Schema(hidden = true))),
@@ -181,9 +163,8 @@ public class SurveyController {
             description = "Returns results for a specific survey."
     )
     @GetMapping("/result")
-    public ResponseEntity<?> getSurveyResults111(HttpServletRequest request
-                                             ) {
-        List<SurveyResultsResponse> surveyResult = surveyService.getSurveyResultsBySurveyID1(request);
+    public ResponseEntity<?> getSurveyResults(HttpServletRequest request) {
+        List<SurveyResultsResponse> surveyResult = surveyService.getSurveyResultsBySurveyID(request);
         return ResponseEntity.ok(surveyResult);
     }
 

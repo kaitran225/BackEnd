@@ -29,7 +29,7 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
 
     @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID = :studentID")
     List<SurveyResult> findBySurveyIDAndStudentID(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
-
+    
     @Query("SELECT COUNT(sr) FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
     int countResultStudent(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
@@ -43,10 +43,6 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Stri
 
     @Query("SELECT sr FROM SurveyResult sr JOIN FETCH sr.choices WHERE sr.resultID = :resultID")
     SurveyResult findByIdWithChoices(@Param("resultID") String resultID);
-
-
-    // @Query("SELECT sr FROM SurveyResult sr WHERE sr.surveyID = :surveyID AND sr.studentID =:studentID")
-    // List<SurveyResult> findByResult(@Param("surveyID") String surveyID, @Param("studentID") String studentID);
 
     SurveyResult findByStudentIDAndSurveyID(String studentID, String surveyID);
 }

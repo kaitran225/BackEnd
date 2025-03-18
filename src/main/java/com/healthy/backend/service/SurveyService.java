@@ -3,6 +3,7 @@ package com.healthy.backend.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import com.healthy.backend.dto.survey.SurveysResponse;
 import com.healthy.backend.entity.Categories;
 import com.healthy.backend.entity.Parents;
 import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.SurveyCompletion;
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.SurveyQuestions;
@@ -49,7 +49,6 @@ import com.healthy.backend.mapper.SurveyMapper;
 import com.healthy.backend.repository.CategoriesRepository;
 import com.healthy.backend.repository.ParentRepository;
 import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.SurveyCompletionRepository;
 import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
 import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
 import com.healthy.backend.repository.SurveyQuestionRepository;
@@ -74,8 +73,6 @@ public class SurveyService {
     private final StudentRepository studentRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final ParentRepository parentRepository;
-    private final SurveyCompletionRepository surveyCompletionRepository;
-
     private final SurveyMapper surveyMapper;
 
 
@@ -109,7 +106,7 @@ public class SurveyService {
     }
 
 
-    public List<SurveyResultsResponse> getSurveyResultsBySurveyID1(HttpServletRequest request) {
+    public List<SurveyResultsResponse> getSurveyResultsBySurveyID(HttpServletRequest request) {
         Role role = tokenService.retrieveUser(request).getRole();
         List<Surveys> surveyList = surveyRepository.findAll();
         if(surveyList.isEmpty()) {
@@ -119,12 +116,12 @@ public class SurveyService {
         return switch (role) {
             case PARENT -> {
                 Set<Students> children = parentRepository.findByUserID(tokenService.retrieveUser(request).getUserId()).getStudents();
-                List<SurveyResultsResponse> results = surveyList.stream()
+                yield surveyList.stream()
                     .map(survey -> {
                         List<SurveyResult> surveyResultList = children.stream()
                             .flatMap(child -> surveyResultRepository
                                 .findBySurveyIDAndStudentID(survey.getSurveyID(), child.getStudentID()).stream())
-                                .collect(Collectors.toList());
+                                .toList();
 
 
                         return surveyMapper.mapToListResultsResponse(
@@ -135,12 +132,10 @@ public class SurveyService {
                         );
                     })
                     .collect(Collectors.toList());
-
-                yield results;
             }
 
             case STUDENT -> {
-                List<SurveyResultsResponse> results = surveyList.stream()
+                yield surveyList.stream()
                     .map(survey -> {
                         List<SurveyResult> surveyResults = getSurveyResultByStudentIDAndSurveyID(survey.getSurveyID(),
                             tokenService.getRoleID(tokenService.retrieveUser(request)));
@@ -157,24 +152,21 @@ public class SurveyService {
                     })
                     .collect(Collectors.toList());
 
-                yield results;
-
             }
 
             case MANAGER, PSYCHOLOGIST -> {
-               List<SurveyResultsResponse> results = surveyList.stream()
-                    .map(survey -> {
-                        List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
+                yield surveyList.stream()
+                     .map(survey -> {
+                         List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyID(survey.getSurveyID());
 
-                        return surveyMapper.mapToListResultsResponse(
-                                survey,
-                                surveyResultList.stream()
-                                        .map(surveyResult -> getStatusStudent(survey, surveyResult))
-                                        .collect(Collectors.toList())
-                        );
-                    })
-                    .collect(Collectors.toList());
-            yield results;
+                         return surveyMapper.mapToListResultsResponse(
+                                 survey,
+                                 surveyResultList.stream()
+                                         .map(surveyResult -> getStatusStudent(survey, surveyResult))
+                                         .collect(Collectors.toList())
+                         );
+                     })
+                     .collect(Collectors.toList());
             }
             default -> throw new RuntimeException("You don't have permission to access");
         };
@@ -386,51 +378,6 @@ public class SurveyService {
     }
 
 
-    // private String calculateTotalRightQuestion(List<SurveyQuestions> questions, List<String> options, Surveys survey, Students student) {
-    //     Map<String, Integer> mapScore = new HashMap<>();
-    //     int sum = 0;
-    //     int count = questions.size();
-    //     int total;
-
-
-    //     questions.forEach(question -> {
-
-    //         List<SurveyQuestionOptions> surveyOption = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
-    //         surveyOption.forEach(s -> {
-    //             mapScore.put(s.getOptionID(), s.getScore());
-    //         });
-    //     });
-
-    //     for (String surveyQuestionOption : options) {
-    //         sum += mapScore.getOrDefault(surveyQuestionOption, 0);
-    //     }
-
-
-    //     switch (survey.getCategoryID()) {
-    //         case "CAT001" -> {
-    //             newAvgScore(survey, sum, student);
-    //             total = count * 4;
-    //         }
-    //         case "CAT002" -> {
-    //             newAvgScore(survey, sum, student);
-    //             total = count * 3;
-    //         }
-
-    //         case "CAT003" -> {
-    //             newAvgScore(survey, sum, student);
-    //             total = count * 3;
-    //         }
-
-    //         default -> {
-    //             throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
-    //         }
-    //     }
-
-    //     return sum + "/" + total;
-
-    // }
-
-
     public StatusStudent getScoreFromStudentInSuv(String surveyId, List<String> optionId, String studentId) {
         StatusStudent status = new StatusStudent();
 
@@ -503,16 +450,6 @@ public class SurveyService {
 
     private List<SurveysResponse> getSurveyResult(Set<Students> students, String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
-        HashMap<String, String> map = new HashMap<>();
-
-        for (Surveys survey : surveyList) {
-            students.forEach(
-                    student -> {
-                        map.put(student.getStudentID(), getStatusStudent(survey.getSurveyID(), student.getStudentID()));
-                    }
-            );
-        }
-
         return surveyList.stream()
                 .map(survey -> {
                     List<StatusStudent> statusStuList = students.stream()
@@ -552,12 +489,9 @@ public class SurveyService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional
     public int calculateTotalScore(List<SurveyQuestionOptionsChoices> questionOptionsChoices) {
-        return questionOptionsChoices.stream().mapToInt(choices -> {
-            return choices.getOptions().getScore();
-        }).sum();
+        return questionOptionsChoices.stream().mapToInt(choices -> choices.getOptions().getScore()).sum();
     }
 
     @Transactional
@@ -631,25 +565,8 @@ public class SurveyService {
     }
 
     public boolean handleAppointmentRequest(List<ConfirmationRequest> requests) {
-
-        return !requests.stream().anyMatch(request -> !request.isConfirmation());
+        return requests.stream().allMatch(ConfirmationRequest::isConfirmation);
     }
-
-    // public double canculateScoreAvgStudent(String surveyId, String studentId) {
-    //     List<SurveyResult> resultList = surveyResultRepository.findSurveyIDAndStudentID(surveyId, studentId);
-    //     if(resultList.isEmpty()) {
-    //         return 0.0;
-    //     }
-
-    //     int totalWeightScore = IntStream.range(0, resultList.size())
-    //         .map(num -> resultList.get(num).getResult() * (num + 1))
-    //         .sum();
-
-    //     int totalWeight = IntStream.range(1, resultList.size() + 1).sum();
-
-    //     return (double) totalWeightScore / totalWeight;
-
-    // }
 
     public void newAvgScore(Surveys survey, int result, Students student) {
         String categoryId = survey.getCategoryID();
@@ -753,8 +670,6 @@ public class SurveyService {
                 throw new IllegalArgumentException("Invalid category: " + survey.getCategoryID());
             }
         }
-        saveSurveyCompletion(survey, student);
-
         return sum + "/" + total;
 
     }
@@ -776,8 +691,8 @@ public class SurveyService {
     }
 
     public boolean hasStudentCompletedSurveyThisMonth(String studentId, String surveyId) {
-        LocalDateTime now = LocalDateTime.now();
-        List<SurveyCompletion> completions = surveyCompletionRepository.findCompleteStudentIdANDSurveyId(surveyId, studentId);
+        LocalDate now = LocalDate.now();
+        List<SurveyResult> completions = surveyResultRepository.findBySurveyIDAndStudentID(surveyId, studentId);
 
         if(completions.isEmpty()) {
             return false;
@@ -805,16 +720,6 @@ public class SurveyService {
             }
 
         }
-    }
-
-
-    private void saveSurveyCompletion(Surveys survey, Students student) {
-        SurveyCompletion completion = SurveyCompletion.builder()
-            .student(student)
-            .survey(survey)
-            .completionDate(LocalDateTime.now())
-            .build();
-        surveyCompletionRepository.save(completion);
     }
 
     public boolean areAllStudentsCompleted(Surveys survey) {
