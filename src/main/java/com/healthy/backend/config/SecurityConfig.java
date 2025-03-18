@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/test/**",
                                 "/v2/api-docs",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
@@ -78,7 +79,6 @@ public class SecurityConfig {
                                         SecurityContextHolder.clearContext()
                                 )
                 );
-
         return http.build();
     }
 }

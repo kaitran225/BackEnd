@@ -690,6 +690,17 @@ public class SurveyService {
         surveyRepository.save(survey);
     }
 
+    public void periodicUpdateSurvey(){
+        List<Surveys> surveys = surveyRepository.findAll();
+        for(Surveys survey : surveys) {
+            if(survey.getStatus() == SurveyStatus.ACTIVE) {
+                if(!survey.isSurveyOpen()) {
+                    survey.setOpen(true);
+                    surveyRepository.save(survey);
+                }
+            }
+        }
+    }
     public boolean hasStudentCompletedSurveyThisMonth(String studentId, String surveyId) {
         LocalDate now = LocalDate.now();
         List<SurveyResult> completions = surveyResultRepository.findBySurveyIDAndStudentID(surveyId, studentId);
