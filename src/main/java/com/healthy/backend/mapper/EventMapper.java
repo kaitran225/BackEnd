@@ -50,12 +50,11 @@ public class EventMapper {
 
         List<ProgramsResponse> programsResponses = programs.stream()
                 .map(program -> {
-
                     return getProgramBasicResponse(program.getPrograms(), program.getStudents().getUser().getFullName());
                 })
                 .toList();
 
-        Map<String, EventDetails> dateMap = dateMap(appointments, programs.stream().map(ProgramWithStudents::getPrograms).toList(), appointmentResponses, programsResponses);
+        Map<String, EventDetails> dateMap = dateParentMap(appointments, programs, appointmentResponses, programsResponses);
 
         return EventResponse.builder()
                 .event(dateMap)
@@ -164,7 +163,26 @@ public class EventMapper {
                 .userId(userId)
                 .build();
     }
+    private Map<String, EventDetails> dateParentMap(
+            List<Appointments> appointments,
+            List<ProgramWithStudents> programs,
+            List<AppointmentResponse> appointmentResponses,
+            List<ProgramsResponse> programsResponses) {
 
+        Map<String, EventDetails> dateMap = new HashMap<>();
+
+        for (Appointments appointment : appointments) {
+            String date = appointment.getTimeSlot().getSlotDate().toString();
+            dateMap.putIfAbsent(date, new EventDetails(new ArrayList<>(), new ArrayList<>()));
+            dateMap.get(date).getAppointment().add(appointmentResponses.get(appointments.indexOf(appointment)));
+        }
+        for (int i = 0; i < programs.size(); i++) {
+            String date = programs.get(i).getPrograms().getStartDate().toString();
+            dateMap.putIfAbsent(date, new EventDetails(new ArrayList<>(), new ArrayList<>()));
+            dateMap.get(date).getProgram().add(programsResponses.get(i));
+        }
+        return dateMap;
+    }
     private Map<String, EventDetails> dateMap(
             List<Appointments> appointments,
             List<Programs> programs,
