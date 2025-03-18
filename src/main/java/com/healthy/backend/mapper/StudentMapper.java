@@ -2,7 +2,7 @@ package com.healthy.backend.mapper;
 
 import com.healthy.backend.dto.auth.request.StudentRegisterRequest;
 import com.healthy.backend.dto.student.StudentResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
 import com.healthy.backend.dto.user.UsersResponse;
 import com.healthy.backend.entity.Students;
 import com.healthy.backend.entity.Users;

@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

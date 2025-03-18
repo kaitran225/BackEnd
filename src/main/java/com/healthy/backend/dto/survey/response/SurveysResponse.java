@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,7 +40,7 @@ public class SurveysResponse {
     @Schema(example = "")
     private String completeStatus;
     @Schema(example = "")
-    private List<StatusStudent> statusStudent;
+    private List<StatusStudentResponse> statusStudentResponse;
     @Schema(example = "")
     private String score;
     @Schema(example = "")

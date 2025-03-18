@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StatusStudent {
+public class StatusStudentResponse {
     @Schema(example = "")
     private String studentId;
     @Schema(example = "")

@@ -1,6 +1,10 @@
 package com.healthy.backend.entity;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import com.healthy.backend.enums.SurveyStatus;
@@ -43,8 +47,8 @@ public class Surveys {
     @Column(name = "Details", columnDefinition = "TEXT")
     private String details;
 
-    @Column(name = "Duration", length = 100)
-    private String duration;
+    @Column(name = "Periodic")
+    private Integer Periodic;
 
     @Column(name = "CategoryID", length = 36, nullable = false)
     private String categoryID;
@@ -110,12 +114,12 @@ public class Surveys {
     }
     
 
-//    public void setSurveyForMonth(int year, int month) {
-//        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-//        LocalDate firstMonDay = firstDayOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
-//        LocalDate endOfFirstWeek = firstMonDay.plusDays(6);
-//
-//        this.startDate = firstMonDay.atStartOfDay();
-//        this.endDate = endOfFirstWeek.atTime(LocalTime.MAX);
-//    }
+    public void setSurveyForMonth(int year, int month) {
+        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+        LocalDate firstMonDay = firstDayOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        LocalDate endOfFirstWeek = firstMonDay.plusDays(6);
+
+        this.startDate = firstMonDay.atStartOfDay();
+        this.endDate = endOfFirstWeek.atTime(LocalTime.MAX);
+    }
 } 

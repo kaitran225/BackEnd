@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.request;
 
 import java.util.List;
 
@@ -9,16 +9,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class QuestionResponse1 {
-    @Schema(example = "SQR001")
-    private String id;
-    @Schema(example = "How are you feeling today?")
-    private String questionText;
-    private List<QuestionOption1> questionOptions;
+public class SurveyQuestionRequest {
+    @Schema(example = "DEPRESSION")
+    private String category;
+    @Schema(example = "")
+    private List<QuestionRequest> questionList;
+    
 }

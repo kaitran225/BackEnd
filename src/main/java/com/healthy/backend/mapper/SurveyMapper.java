@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.QuestionResponse;
-import com.healthy.backend.dto.survey.StatusStudent;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyQuestionResultResponse;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.dto.survey.response.QuestionResponse;
+import com.healthy.backend.dto.survey.response.StatusStudentResponse;
+import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.response.SurveyQuestionResultResponse;
+import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.response.SurveysResponse;
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.SurveyQuestions;
@@ -76,7 +76,7 @@ public class SurveyMapper {
                 .build();
     }
 
-    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudent> status) {
+    public SurveysResponse buildSurveysResponse(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudentResponse> status) {
         return SurveysResponse.builder()
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
@@ -90,10 +90,10 @@ public class SurveyMapper {
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())
                 .completeStatus(completeStatus)
-                .statusStudent(status)
+                .statusStudentResponse(status)
                 .build();
     }
-    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudent> status, String active) {
+    public SurveysResponse buildSurveysResponse1(Surveys survey, int numberOfQuestions, String completeStatus, List<StatusStudentResponse> status, String active) {
         return SurveysResponse.builder()
                 .id(survey.getSurveyID())
                 .title(survey.getSurveyName())
@@ -107,26 +107,26 @@ public class SurveyMapper {
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())
                 .completeStatus(completeStatus)
-                .statusStudent(status)
+                .statusStudentResponse(status)
                 .build();
     }
 
-    public StatusStudent mapToResultStudent(String score, String status, String studentId) {
-        return StatusStudent.builder()
+    public StatusStudentResponse mapToResultStudent(String score, String status, String studentId) {
+        return StatusStudentResponse.builder()
                 .studentComplete(status)
                 .score(score)
                 .studentId(studentId)
                 .build();
     }
 
-    public StatusStudent mapToResultStudent(String score, String studentId) {
-        return StatusStudent.builder()
+    public StatusStudentResponse mapToResultStudent(String score, String studentId) {
+        return StatusStudentResponse.builder()
                 .score(score)
                 .studentId(studentId)
                 .build();
     }
 
-    public SurveyResultsResponse mapToListResultsResponse(Surveys survey, List<StatusStudent> std) {
+    public SurveyResultsResponse mapToListResultsResponse(Surveys survey, List<StatusStudentResponse> std) {
         return SurveyResultsResponse.builder()
                 .surveyId(survey.getSurveyID())
                 .surveyName(survey.getSurveyName())

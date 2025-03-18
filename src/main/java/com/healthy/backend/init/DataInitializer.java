@@ -456,19 +456,19 @@ public class DataInitializer implements CommandLineRunner {
 
 
         Surveys survey1 = new Surveys("SUV001", "Stress Survey", "Survey to assess stress levels", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.ACTIVE);
-//        survey1.setSurveyForMonth(currentYear, currentMonth);
+        survey1.setSurveyForMonth(currentYear, currentMonth);
         surveyRepository.save(survey1);
 
         Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment", "Assessment of anxiety symptoms", "CAT002", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE);
-//        survey2.setSurveyForMonth(currentYear, currentMonth);
+        survey2.setSurveyForMonth(currentYear, currentMonth);
         surveyRepository.save(survey2);
 
         Surveys survey3 = new Surveys("SUV003", "Depression Screening", "Screening for depression", "CAT003", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), SurveyStatus.ACTIVE);
-//        survey3.setSurveyForMonth(currentYear, currentMonth);
+        survey3.setSurveyForMonth(currentYear, currentMonth);
         surveyRepository.save(survey3);
 
         Surveys survey4 = new Surveys("SUV004", "Mood Assessment", "Assessment of mood", "CAT001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), SurveyStatus.INACTIVE);
-//        survey4.setSurveyForMonth(currentYear, currentMonth);
+        survey4.setSurveyForMonth(currentYear, currentMonth);
         surveyRepository.save(survey4);
     }
 

@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.healthy.backend.dto.survey.ConfirmationRequest;
-import com.healthy.backend.dto.survey.StatusStudent;
-import com.healthy.backend.dto.survey.SurveyQuestionRequest;
-import com.healthy.backend.dto.survey.SurveyQuestionRequest1;
-import com.healthy.backend.dto.survey.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.SurveyRequest;
-import com.healthy.backend.dto.survey.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.SurveysResponse;
+import com.healthy.backend.dto.survey.request.ConfirmationRequest;
+import com.healthy.backend.dto.survey.response.StatusStudentResponse;
+import com.healthy.backend.dto.survey.request.SurveyQuestionRequest;
+import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.request.SurveyRequest;
+import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.response.SurveysResponse;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.security.TokenService;
@@ -83,7 +82,7 @@ public class SurveyController {
             @RequestParam String surveyId,
             @RequestBody List<String> optionId,
             @RequestParam(required = false) String studentId) {
-        StatusStudent status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
+        StatusStudentResponse status = surveyService.getScoreFromStudentInSuv(surveyId, optionId, studentId);
         return ResponseEntity.ok(status);
     }
 

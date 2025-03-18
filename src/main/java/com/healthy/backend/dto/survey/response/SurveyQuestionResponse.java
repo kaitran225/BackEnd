@@ -1,4 +1,4 @@
-package com.healthy.backend.dto.survey;
+package com.healthy.backend.dto.survey.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,22 +14,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SurveyResultsResponse {
+public class SurveyQuestionResponse {
     @Schema(example = "SUR001")
     private String surveyId;
-    @Schema(example = "Example Survey")
-    private String surveyName;
-    @Schema(example = "Survey Description")
+    @Schema(example = "How are you feeling today?")
+    private String title;
+    @Schema(example = "")
     private String description;
-    @Schema(examples = {"Question 1", "Question 2", "Question 3", "Question 4", "Question 5"})
-    private List<SurveyQuestionResultResponse> questions;
     @Schema(example = "")
-    private String studentId;
+    private Integer numberOfQuestions;
     @Schema(example = "")
-    private List<StatusStudent> std;
+    private List<QuestionResponse> questionList;
     @Schema(example = "")
-    private String status;
+    private String completeStatus;
     @Schema(example = "")
-    private List<StatusStudent> totalScore;
-
+    private String totalScore;
 }
