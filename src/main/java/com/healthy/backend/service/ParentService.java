@@ -2,6 +2,7 @@ package com.healthy.backend.service;
 
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventResponse;
+import com.healthy.backend.dto.event.ProgramWithStudents;
 import com.healthy.backend.dto.programs.ProgramsResponse;
 import com.healthy.backend.dto.student.StudentResponse;
 import com.healthy.backend.dto.survey.SurveyResultsResponse;
@@ -12,7 +13,7 @@ import com.healthy.backend.enums.Role;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.*;
 import com.healthy.backend.repository.*;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -147,27 +148,24 @@ public class ParentService {
         Set<Students> studentsList = parent.getStudents();
 
         List<Appointments> appointments = new ArrayList<>();
-        List<Programs> programs = new ArrayList<>();
-        List<ProgramParticipation> participation = new ArrayList<>();
+        List<ProgramWithStudents> programs = new ArrayList<>();
         for (Students student : studentsList) {
             appointments.addAll(appointmentRepository.findByStudentID(student.getStudentID()).stream()
                     .filter(appointment -> appointment.getTimeSlot().getSlotDate().isAfter(LocalDate.now().minusDays(1)))
                     .toList());
             List<ProgramParticipation> temp = programParticipationRepository.findActiveByStudentID(student.getStudentID(), ParticipationStatus.CANCELLED);
-            participation.addAll(temp);
             programs.addAll(temp
                     .stream()
-                    .map(p -> programRepository
-                            .findById(p.getProgram().getProgramID())
-                            .orElseThrow(() -> new ResourceNotFoundException("Program not found")))
-                    .filter(program -> program.getStartDate().isAfter(LocalDate.now().minusDays(1)))
+                    .map(p -> new ProgramWithStudents(student, p.getProgram()))
+                    .filter(program -> program.getPrograms().getStartDate().isAfter(LocalDate.now().minusDays(1)))
                     .toList());
         }
 
         if (appointments.isEmpty() && programs.isEmpty()) {
-            return eventMapper.buildEmptyEventResponse(appointments, programs, userId);
+            return eventMapper.buildEmptyEventResponse( new ArrayList<>(), new ArrayList<>(), userId);
         }
 
-        return eventMapper.buildParentEventResponse(appointments, programs, participation, userId);
+        return eventMapper.buildParentEventResponse(appointments, programs, userId);
     }
 }
+

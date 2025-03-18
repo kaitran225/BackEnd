@@ -3,8 +3,12 @@ package com.healthy.backend.mapper;
 import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.event.EventDetails;
 import com.healthy.backend.dto.event.EventResponse;
+import com.healthy.backend.dto.event.ProgramWithStudents;
 import com.healthy.backend.dto.programs.ProgramsResponse;
-import com.healthy.backend.entity.*;
+import com.healthy.backend.entity.Appointments;
+import com.healthy.backend.entity.ProgramSchedule;
+import com.healthy.backend.entity.Programs;
+import com.healthy.backend.entity.Students;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.repository.ProgramParticipationRepository;
 import com.healthy.backend.repository.ProgramScheduleRepository;
@@ -31,8 +35,7 @@ public class EventMapper {
 
     public EventResponse buildParentEventResponse(
             List<Appointments> appointments,
-            List<Programs> programs,
-            List<ProgramParticipation> participation,
+            List<ProgramWithStudents> programs,
             String userId
     ) {
         List<AppointmentResponse> appointmentResponses = appointments.stream()
@@ -47,11 +50,12 @@ public class EventMapper {
 
         List<ProgramsResponse> programsResponses = programs.stream()
                 .map(program -> {
-                    return getProgramBasicResponse(program, participation.get(programs.indexOf(program)).getStudent().getUser().getFullName());
+
+                    return getProgramBasicResponse(program.getPrograms(), program.getStudents().getUser().getFullName());
                 })
                 .toList();
 
-        Map<String, EventDetails> dateMap = dateMap(appointments, programs, appointmentResponses, programsResponses);
+        Map<String, EventDetails> dateMap = dateMap(appointments, programs.stream().map(ProgramWithStudents::getPrograms).toList(), appointmentResponses, programsResponses);
 
         return EventResponse.builder()
                 .event(dateMap)
