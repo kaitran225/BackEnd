@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 public class Periodic {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long periodicID;
+    @Column(name = "PeriodicID", length = 36, nullable = false)
+    private String periodicID;
 
     @ManyToOne
     @JoinColumn(name = "surveyID", referencedColumnName = "SurveyID", nullable = false)
@@ -33,7 +33,8 @@ public class Periodic {
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
-    public Periodic(Surveys surveyID, LocalDateTime startDate, LocalDateTime endDate) {
+    public Periodic(String periodicID,Surveys surveyID, LocalDateTime startDate, LocalDateTime endDate) {
+        this.periodicID = periodicID;
         this.survey = surveyID;
         this.startDate = startDate;
         this.duration = (int) startDate.until(endDate, java.time.temporal.ChronoUnit.DAYS);

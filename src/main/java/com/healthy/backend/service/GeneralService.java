@@ -1,5 +1,6 @@
 package com.healthy.backend.service;
 
+import com.healthy.backend.entity.Surveys;
 import com.healthy.backend.enums.Identifier;
 import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,10 @@ public class GeneralService {
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final SurveyResultRepository surveyResultRepository;
 
+    public String createPeriodicID(Surveys surveys) {
+        String periodicSize = String.format("%03d", surveys.getPeriodic().size());
+        return surveys.getSurveyID() + "_" + periodicSize;
+    }
 
     public String generateProgramScheduleID() {
         String lastCode = programScheduleRepository.findLastProgramScheduleId();

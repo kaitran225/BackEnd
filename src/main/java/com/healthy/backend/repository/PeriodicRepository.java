@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PeriodicRepository extends JpaRepository<Periodic, String> {
 
-    Periodic findByPeriodicID(Long periodicID);
+    Periodic findByPeriodicID(String periodicID);
 }

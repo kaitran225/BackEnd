@@ -29,7 +29,7 @@ public class SurveyResultsResponse {
     @Schema(example = "2")
     private Integer periodic;
     @Schema(example = "")
-    private Long periodicID;
+    private String periodicID;
     @Schema(example = "Anxiety")
     private String category;
     @Schema(example = "")

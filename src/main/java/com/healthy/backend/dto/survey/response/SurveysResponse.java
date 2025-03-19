@@ -22,7 +22,7 @@ public class SurveysResponse {
     @Schema(example = "Example Survey")
     private String title;
     @Schema(example = "")
-    private Long periodicID;
+    private String periodicID;
     @Schema(example = "Survey Description")
     private String description;
     @Schema(example = "PSS_10")

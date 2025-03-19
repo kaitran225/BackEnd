@@ -417,7 +417,12 @@ public class SurveyService {
             existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase()));
         }
         Surveys surveys = surveyRepository.save(existingSurvey);
-        periodicRepository.save(new Periodic(surveys, surveys.getStartDate(), surveys.getEndDate()));
+        periodicRepository.save(new Periodic(createPeriodicID(surveys), surveys, surveys.getStartDate(), surveys.getEndDate()));
+    }
+
+    private String createPeriodicID(Surveys surveys) {
+        String periodicSize = String.format("%03d", surveys.getPeriodic().size());
+        return surveys.getSurveyID() + "_" + periodicSize;
     }
 
     // Create survey
@@ -425,7 +430,7 @@ public class SurveyService {
     public void createSurvey(SurveyRequest surveyRequest, Users users) {
         validateSurvey(surveyRequest);
         Surveys surveys = saveSurvey(surveyRequest, users);
-        periodicRepository.save(new Periodic(surveys, surveys.getStartDate(), surveys.getEndDate()));
+        periodicRepository.save(new Periodic(createPeriodicID(surveys), surveys, surveys.getStartDate(), surveys.getEndDate()));
         saveSurveyQuestionsAndOptions(surveyRequest.getQuestion(), surveys);
     }
 
@@ -835,7 +840,7 @@ public class SurveyService {
         surveyRepository.save(survey);
     }
 
-    public void periodicRestSurvey(String surveyID, Long periodID) {
+    public void periodicRestSurvey(String surveyID, String periodID) {
         Periodic periodic = periodicRepository.findByPeriodicID(periodID);
         Surveys survey = surveyRepository.findBySurveyID(surveyID);
         if (survey == null) {

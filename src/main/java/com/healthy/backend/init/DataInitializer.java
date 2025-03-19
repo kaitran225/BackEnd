@@ -342,22 +342,22 @@ public class DataInitializer implements CommandLineRunner {
         Surveys survey1 = new Surveys("SUV001", "Stress Survey",
                 "Survey to assess stress levels", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10);
         surveyRepository.save(survey1);
-        periodicRepository.save(new Periodic(survey1, survey1.getStartDate(), survey1.getEndDate()));
+        periodicRepository.save(new Periodic(__.createPeriodicID(survey1), survey1, survey1.getStartDate(), survey1.getEndDate()));
 
         Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment",
                 "Assessment of anxiety symptoms", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.GAD_7);
         surveyRepository.save(survey2);
-        periodicRepository.save(new Periodic(survey2, survey2.getStartDate(), survey2.getEndDate()));
+        periodicRepository.save(new Periodic(__.createPeriodicID(survey2), survey2, survey2.getStartDate(), survey2.getEndDate()));
 
         Surveys survey3 = new Surveys("SUV003", "Depression Screening",
                 "Screening for depression", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PHQ_9);
         surveyRepository.save(survey3);
-        periodicRepository.save(new Periodic(survey3, survey3.getStartDate(), survey3.getEndDate()));
+        periodicRepository.save(new Periodic(__.createPeriodicID(survey3), survey3, survey3.getStartDate(), survey3.getEndDate()));
 
         Surveys survey4 = new Surveys("SUV004", "Mood Assessment",
                 "Assessment of mood", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10, SurveyStatus.INACTIVE);
         surveyRepository.save(survey4);
-        periodicRepository.save(new Periodic(survey4, survey4.getStartDate(), survey4.getEndDate()));
+        periodicRepository.save(new Periodic(__.createPeriodicID(survey4), survey4, survey4.getStartDate(), survey4.getEndDate()));
     }
 
     private void initializeSurveyQuestions() {
