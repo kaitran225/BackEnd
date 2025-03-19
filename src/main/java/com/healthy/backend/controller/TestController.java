@@ -36,4 +36,11 @@ public class TestController {
         programService.sendProgramReminders();
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/survey-repeat")
+    public ResponseEntity<?> sendProgramReminder(@RequestParam String studentId,
+                                                 @RequestParam String surveyId) {
+        surveyService.repeatSurvey(surveyId, studentId);
+        return ResponseEntity.ok("Success");
+    }
 }
