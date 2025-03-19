@@ -410,7 +410,7 @@ public class SurveyService {
                 throw new IllegalArgumentException("Invalid survey standard type: " + surveyUpdateRequest.getStandType());
             }
         }
-        if (surveyUpdateRequest.getPeriodic() != null) {
+        if (surveyUpdateRequest.getPeriodic() > 0) {
             existingSurvey.setDuration(surveyUpdateRequest.getPeriodic());
         }
         if (surveyUpdateRequest.getStatus() != null) {
