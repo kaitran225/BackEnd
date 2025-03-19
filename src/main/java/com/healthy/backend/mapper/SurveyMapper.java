@@ -6,6 +6,7 @@ import com.healthy.backend.entity.SurveyQuestionOptions;
 import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
 import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.enums.Role;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -173,11 +174,12 @@ public class SurveyMapper {
     public QuestionResponse buildQuestionResponse(
             List<QuestionOption> questionOption,
             SurveyQuestions surveyQuestions,
-            Integer index) {
+            Integer index, Role role) {
         return QuestionResponse.builder()
                 .id(index.toString())
                 .questionText(surveyQuestions.getQuestionText())
                 .questionOptions(questionOption)
+                .questionID(role == Role.STUDENT ? null : surveyQuestions.getQuestionID())
                 .build();
     }
 

@@ -5,6 +5,7 @@ import com.healthy.backend.dto.survey.QuestionOption;
 import com.healthy.backend.dto.survey.request.*;
 import com.healthy.backend.dto.survey.response.*;
 import com.healthy.backend.entity.*;
+import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStandardType;
 import com.healthy.backend.enums.SurveyStatus;
@@ -85,7 +86,7 @@ public class SurveyService {
     }
 
     // Get survey questions for taking survey
-    public SurveyQuestionResponse getSurveyQuestion(String surveyID) {
+    public SurveyQuestionResponse getSurveyQuestion(String surveyID, Role role) {
         Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
         List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
@@ -97,7 +98,7 @@ public class SurveyService {
                 .map(questions -> surveyMapper.buildQuestionResponse(
                         getQuestionResponse(questions),
                         questions,
-                        surveyQuestions.indexOf(questions))
+                        surveyQuestions.indexOf(questions),role)
                 )
                 .toList();
         return surveyMapper.buildSurveyQuestionResponse(questionList, surveys);
@@ -184,7 +185,9 @@ public class SurveyService {
                             return surveyMapper.buildQuestionResponse(
                                     questionOption,
                                     questions,
-                                    surveyQuestions.indexOf(questions));
+                                    surveyQuestions.indexOf(questions),
+                                    Role.STUDENT
+                            );
                         }
                 )
                 .toList();
@@ -303,16 +306,20 @@ public class SurveyService {
         }
     }
 
+    public void updateSurveyQuestion(String surveyID,List<QuestionUpdateRequest> questionRequest) {
+        Surveys existingSurvey = surveyRepository.findById(surveyID)
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found with ID: " + surveyID));
+        updateSurveyQuestions(existingSurvey, questionRequest);
+    }
+
     @Transactional
     public void updateSurvey(String surveyID, SurveyUpdateRequest surveyUpdateRequest) {
-        // Fetch existing survey
+
         Surveys existingSurvey = surveyRepository.findById(surveyID)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with ID: " + surveyID));
 
-        // Validate input
         validateSurveyUpdateRequest(surveyUpdateRequest);
 
-        // Update fields only if they are not null
         if (surveyUpdateRequest.getTitle() != null) {
             existingSurvey.setSurveyName(surveyUpdateRequest.getTitle().trim());
         }
@@ -337,16 +344,9 @@ public class SurveyService {
             existingSurvey.setPeriodic(surveyUpdateRequest.getPeriodic());
         }
         if (surveyUpdateRequest.getStatus() != null) {
-            existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase())); // Assuming `SurveyStatus` is an enum
+            existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase()));
         }
-
-        // Save survey updates
         surveyRepository.save(existingSurvey);
-
-        // Handle questions and options update
-        if (surveyUpdateRequest.getQuestion() != null) {
-            updateSurveyQuestions(existingSurvey, surveyUpdateRequest.getQuestion());
-        }
     }
 
     // Create survey

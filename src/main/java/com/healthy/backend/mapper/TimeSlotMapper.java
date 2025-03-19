@@ -18,5 +18,4 @@ public class TimeSlotMapper {
                 timeSlot.getBooked()
         );
     }
-
 }

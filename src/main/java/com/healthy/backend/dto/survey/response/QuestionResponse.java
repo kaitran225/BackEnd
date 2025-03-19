@@ -16,8 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuestionResponse {
-    @Schema(example = "SQR001")
+    @Schema(example = "1")
     private String id;
+    @Schema(example = "SQR001")
+    private String questionID;
     @Schema(example = "How are you feeling today?")
     private String questionText;
     private List<QuestionOption> questionOptions;

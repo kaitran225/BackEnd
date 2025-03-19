@@ -1,6 +1,7 @@
 package com.healthy.backend.controller;
 
 import com.healthy.backend.dto.survey.request.ConfirmationRequest;
+import com.healthy.backend.dto.survey.request.QuestionUpdateRequest;
 import com.healthy.backend.dto.survey.request.SurveyRequest;
 import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
 import com.healthy.backend.dto.survey.response.StatusStudentResponse;
@@ -90,8 +91,11 @@ public class SurveyController {
             description = "Returns details for a specific survey."
     )
     @GetMapping("/questions")
-    public ResponseEntity<?> getSurveyDetails(@RequestParam String surveyId) {
-        SurveyQuestionResponse surveyQuestions = surveyService.getSurveyQuestion(surveyId);
+    public ResponseEntity<?> getSurveyDetails(
+            HttpServletRequest request,
+            @RequestParam String surveyId) {
+        SurveyQuestionResponse surveyQuestions = surveyService.getSurveyQuestion(surveyId,
+                tokenService.retrieveUser(request).getRole());
         if (surveyQuestions == null) {
             throw new ResourceNotFoundException("No survey questions found");
         }
@@ -106,8 +110,8 @@ public class SurveyController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-            summary = "Update question in survey",
-            description = "Updates a question in a survey."
+            summary = "Update survey",
+            description = "Updates details of a survey."
     )
     @PutMapping("/update")
     public ResponseEntity<?> updateSurvey(
@@ -117,9 +121,33 @@ public class SurveyController {
     ) {
         if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
             surveyService.updateSurvey(surveyId, surveyRequest);
-            return ResponseEntity.ok("Survey question updated successfully");
+            return ResponseEntity.ok("Survey updated successfully");
         }
         throw new AccessDeniedException("You do not have permission to update this survey");
+    }
+
+    // update survey
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
+            summary = "Update question in survey",
+            description = "Updates a question in a survey."
+    )
+    @PutMapping("/questions/update")
+    public ResponseEntity<?> updateSurveyQuestion(
+            HttpServletRequest request,
+            @RequestParam String surveyId,
+            @Valid @RequestBody List<QuestionUpdateRequest> listRequest
+    ) {
+        if (tokenService.isManager(request) || tokenService.isPsychologist(request)) {
+            surveyService.updateSurveyQuestion(surveyId, listRequest);
+            return ResponseEntity.ok("Survey question updated successfully");
+        }
+        throw new AccessDeniedException("You do not have permission to update these questions");
     }
 
     // create survey

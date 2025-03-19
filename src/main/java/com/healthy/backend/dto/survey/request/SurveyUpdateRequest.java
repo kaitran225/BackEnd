@@ -25,6 +25,4 @@ public class SurveyUpdateRequest {
     private String startDate;
     @Schema(example = "1")
     private Integer periodic;
-    @Schema(example = "")
-    private List<QuestionUpdateRequest> question;
 }
