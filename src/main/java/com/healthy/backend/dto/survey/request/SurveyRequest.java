@@ -31,6 +31,6 @@ public class SurveyRequest {
     private String startDate;
     @Schema(example = "1")
     @Pattern(regexp = "^[1-9]$", message = "Periodic must be a number between 1 and 9")
-    private Integer periodic;
+    private int periodic;
     private List<QuestionRequest> question;
 }

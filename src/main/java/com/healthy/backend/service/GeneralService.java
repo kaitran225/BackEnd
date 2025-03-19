@@ -34,7 +34,6 @@ public class GeneralService {
             periodicSize = String.format("%03d", 0);
             return surveys.getSurveyID() + "_" + periodicSize;
         }
-        ;
         periodicSize = String.format("%03d", surveys.getPeriodic().size());
         return surveys.getSurveyID() + "_" + periodicSize;
     }
