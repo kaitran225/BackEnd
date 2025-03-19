@@ -38,6 +38,9 @@ public class SurveyResult {
     @Column(name = "MaxScore")
     private Integer maxScore;
 
+    @Column(name = "isRepeat")
+    private Boolean isRepeat;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Student", referencedColumnName = "StudentID", insertable = false, updatable = false)
     private Students student;
@@ -65,5 +68,6 @@ public class SurveyResult {
     @PrePersist
     protected void onCreate() {
         this.completionDate = LocalDateTime.now();
+        isRepeat = false;
     }
 }

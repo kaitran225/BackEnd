@@ -461,6 +461,12 @@ public class SurveyService {
             return false;
         }
         SurveyResult latestResult = results.getLast();
+        if(latestResult == null) {
+            return false;
+        }
+        if(latestResult.getIsRepeat()) {
+            return false;
+        }
         LocalDateTime latestCompleteDate = latestResult.getCompletionDate();
         LocalDateTime startDate = survey.getStartDate();
         LocalDateTime endDate = survey.getEndDate();
@@ -807,5 +813,22 @@ public class SurveyService {
         survey.setStartDate(LocalDateTime.now());
         survey.setEndDate(LocalDate.now().plusWeeks(survey.getPeriodic()).atStartOfDay());
         surveyRepository.save(survey);
+    }
+
+    public void repeatSurvey(String surveyID, String studentID) {
+        Surveys survey = surveyRepository.findBySurveyID(surveyID);
+        Students student = studentRepository.findByStudentID(studentID);
+        if (survey == null) {
+            throw new ResourceNotFoundException("Survey not found");
+        }
+        if (student == null) {
+            throw new ResourceNotFoundException("Student not found");
+        }
+        SurveyResult surveyResult = surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentID).getLast();
+        if (surveyResult == null) {
+            throw new ResourceNotFoundException("Survey result not found");
+        }
+        surveyResult.setIsRepeat(true);
+        surveyResultRepository.save(surveyResult);
     }
 }
