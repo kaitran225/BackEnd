@@ -30,7 +30,6 @@ public class SurveyUpdateRequest {
     @Valid
     @Schema(example = "2025-01-01")
     private String startDate;
-    @Valid
     @Pattern(regexp = "^[1-9]$", message = "Periodic must be a number between 1 and 9")
     @Schema(example = "1")
     private int periodic;
