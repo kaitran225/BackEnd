@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -27,6 +28,10 @@ public class SurveyQuestionResponse {
     private Integer periodic;
     @Schema(example = "Anxiety")
     private String category;
+    @Schema(example = "2023-01-01")
+    private LocalDateTime startDate;
+    @Schema(example = "2023-01-01")
+    private LocalDateTime endDate;
     @Schema(example = "")
     private Integer numberOfQuestions;
     @Schema(example = "")

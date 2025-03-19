@@ -8,7 +8,6 @@ import com.healthy.backend.entity.SurveyQuestions;
 import com.healthy.backend.entity.Surveys;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +24,8 @@ public class SurveyMapper {
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
                 .numberOfQuestions(numberOfQuestions)
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
                 .createBy(survey.getCreator().getFullName())
@@ -41,6 +42,8 @@ public class SurveyMapper {
                 .numberOfQuestions(numberOfQuestions)
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .periodic(survey.getPeriodic())
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
@@ -58,6 +61,8 @@ public class SurveyMapper {
                 .numberOfQuestions(numberOfQuestions)
                 .status(String.valueOf(survey.getStatus()))
                 .createdAt(survey.getCreatedAt().toString())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
@@ -93,6 +98,8 @@ public class SurveyMapper {
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .status((survey.getStatus().name()))
                 .std(std)
                 .build();
@@ -118,6 +125,8 @@ public class SurveyMapper {
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .status((survey.getStatus().name()))
                 .questions(questions)
                 .build();
@@ -135,6 +144,8 @@ public class SurveyMapper {
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .questionList(questionResponseList)
                 .build();
     }
@@ -150,6 +161,8 @@ public class SurveyMapper {
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .numberOfQuestions(questionResponseList.size())
                 .questionList(questionResponseList)
                 .completeStatus(completeStatus)
@@ -185,6 +198,8 @@ public class SurveyMapper {
                 .category(survey.getCategory().name())
                 .standardType(survey.getStandardType().name())
                 .periodic(survey.getPeriodic())
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
                 .status(String.valueOf(survey.getStatus()))
                 .createBy(survey.getCreator().getUsername())
                 .build();
