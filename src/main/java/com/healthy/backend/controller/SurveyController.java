@@ -211,6 +211,25 @@ public class SurveyController {
         return ResponseEntity.ok(surveyResponse);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
+            summary = "Get all student survey results details",
+            description = "Returns all detail results for a specific student's survey."
+    )
+    @GetMapping("/results/student/all")
+    public ResponseEntity<?> getStudentIDSurveyResultsAll(
+            HttpServletRequest request, @RequestParam String surveyId,
+            @RequestParam(required = false) String studentId) {
+        studentId = validateStudentID(request, studentId);
+        List<SurveyQuestionResponse> surveyResponse = surveyService.getAllSurveyResultByStudentID(surveyId, studentId);
+        return ResponseEntity.ok(surveyResponse);
+    }
+
     // Deactivate survey
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful",
