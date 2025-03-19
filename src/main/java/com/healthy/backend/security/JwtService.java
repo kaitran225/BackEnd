@@ -62,6 +62,7 @@ public class JwtService {
                 .get("email", String.class);
     }
 
+    @SuppressWarnings("")
     public boolean isTokenValid(String token) {
         try {
             Jwts.parserBuilder()
