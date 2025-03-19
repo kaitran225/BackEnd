@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuestionOptionRequest {
-    @Min(value = 1, message = "Value must be at least 1")
+    @Min(value = 0, message = "Value must be at least 0")
     @Max(value = 9, message = "Value must be at most 9")
     @Schema(example = "1")
     private int value;

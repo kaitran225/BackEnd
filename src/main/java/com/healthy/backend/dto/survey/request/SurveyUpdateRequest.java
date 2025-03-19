@@ -33,7 +33,7 @@ public class SurveyUpdateRequest {
     @Schema(example = "2025-01-01")
     private String startDate;
     @Min(value = 1, message = "Periodic must be at least 1")
-    @Max(value = 9, message = "Periodic must be at most 9")
+    @Max(value = 8, message = "Periodic must be at most 8")
     @Schema(example = "1")
     private int periodic;
 
