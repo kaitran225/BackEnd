@@ -24,7 +24,7 @@ public class TestController {
     @PutMapping("/survey-rest-periodic")
     public ResponseEntity<?> resetSurveys(
             @RequestParam String surveyId,
-            @RequestParam Long periodID) {
+            @RequestParam String periodID) {
         surveyService.periodicRestSurvey(surveyId, periodID);
         return ResponseEntity.ok().build();
     }
