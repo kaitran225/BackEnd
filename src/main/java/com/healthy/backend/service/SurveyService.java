@@ -416,7 +416,8 @@ public class SurveyService {
         if (surveyUpdateRequest.getStatus() != null) {
             existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase()));
         }
-        surveyRepository.save(existingSurvey);
+        Surveys surveys = surveyRepository.save(existingSurvey);
+        periodicRepository.save(new Periodic(surveys, surveys.getStartDate(), surveys.getEndDate()));
     }
 
     // Create survey
@@ -424,6 +425,7 @@ public class SurveyService {
     public void createSurvey(SurveyRequest surveyRequest, Users users) {
         validateSurvey(surveyRequest);
         Surveys surveys = saveSurvey(surveyRequest, users);
+        periodicRepository.save(new Periodic(surveys, surveys.getStartDate(), surveys.getEndDate()));
         saveSurveyQuestionsAndOptions(surveyRequest.getQuestion(), surveys);
     }
 
