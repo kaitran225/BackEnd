@@ -3,6 +3,8 @@ package com.healthy.backend.dto.survey.request;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,8 +31,9 @@ public class SurveyRequest {
     @Schema(example = "2025-03-19")
     @Valid
     private String startDate;
+    @Min(value = 1, message = "Periodic must be at least 1")
+    @Max(value = 9, message = "Periodic must be at most 9")
     @Schema(example = "1")
-    @Pattern(regexp = "^[1-9]$", message = "Periodic must be a number between 1 and 9")
     private int periodic;
     private List<QuestionRequest> question;
 }
