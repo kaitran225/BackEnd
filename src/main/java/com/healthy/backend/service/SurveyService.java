@@ -35,6 +35,7 @@ public class SurveyService {
     private final StudentRepository studentRepository;
     private final SurveyQuestionRepository surveyQuestionRepository;
     private final ParentRepository parentRepository;
+    private final PeriodicRepository periodicRepository;
     private final SurveyMapper surveyMapper;
     private final GeneralService generalService;
     private final SurveyServiceHelper __;
@@ -277,6 +278,7 @@ public class SurveyService {
         }
     }
 
+    @Transactional
     private void updateSurveyQuestions(Surveys existingSurvey, List<QuestionUpdateRequest> questionRequests) {
         List<SurveyQuestions> existingQuestions = surveyQuestionRepository.findBySurveyID(existingSurvey.getSurveyID());
 
@@ -289,11 +291,12 @@ public class SurveyService {
         Set<String> updatedQuestionIds = new HashSet<>();
 
         for (QuestionUpdateRequest questionRequest : questionRequests) {
+            String questionText = (questionRequest.getQuestionText() != null) ? questionRequest.getQuestionText().trim() : null;
             if (questionRequest.getQuestionId() != null && existingQuestionMap.containsKey(questionRequest.getQuestionId())) {
                 // Update existing question
                 SurveyQuestions existingQuestion = existingQuestionMap.get(questionRequest.getQuestionId());
-                if (questionRequest.getQuestionText() != null) {
-                    existingQuestion.setQuestionText(questionRequest.getQuestionText().trim());
+                if (questionText != null) {
+                    existingQuestion.setQuestionText(questionText);
                 }
                 questionsToSave.add(existingQuestion);
                 updatedQuestionIds.add(existingQuestion.getQuestionID());
@@ -302,7 +305,7 @@ public class SurveyService {
                 SurveyQuestions newQuestion = new SurveyQuestions(
                         generalService.generateSurveyQuestionId(),
                         existingSurvey.getSurveyID(),
-                        questionRequest.getQuestionText().trim()
+                        questionText
                 );
                 questionsToSave.add(newQuestion);
                 existingQuestionMap.put(newQuestion.getQuestionID(), newQuestion);
@@ -310,21 +313,21 @@ public class SurveyService {
         }
 
         surveyQuestionRepository.saveAll(questionsToSave);
-
         updateSurveyOptions(existingQuestionMap, questionRequests, optionsToSave);
-
         surveyQuestionOptionsRepository.saveAll(optionsToSave);
 
-        // Delete removed questions
+        // Identify removed questions and delete related options
         List<String> removedQuestionIds = existingQuestions.stream()
                 .map(SurveyQuestions::getQuestionID)
                 .filter(id -> !updatedQuestionIds.contains(id))
                 .toList();
 
         if (!removedQuestionIds.isEmpty()) {
+            surveyQuestionOptionsRepository.deleteByQuestionIds(removedQuestionIds);
             surveyQuestionRepository.deleteAllByIdInBatch(removedQuestionIds);
         }
     }
+
 
     private void updateSurveyOptions(Map<String, SurveyQuestions> existingQuestionMap,
                                      List<QuestionUpdateRequest> questionRequests,
@@ -408,7 +411,7 @@ public class SurveyService {
             }
         }
         if (surveyUpdateRequest.getPeriodic() != null) {
-            existingSurvey.setPeriodic(surveyUpdateRequest.getPeriodic());
+            existingSurvey.setDuration(surveyUpdateRequest.getPeriodic());
         }
         if (surveyUpdateRequest.getStatus() != null) {
             existingSurvey.setStatus(SurveyStatus.valueOf(surveyUpdateRequest.getStatus().toUpperCase()));
@@ -461,10 +464,10 @@ public class SurveyService {
             return false;
         }
         SurveyResult latestResult = results.getLast();
-        if(latestResult == null) {
+        if (latestResult == null) {
             return false;
         }
-        if(latestResult.getIsRepeat()) {
+        if (latestResult.getIsRepeat()) {
             return false;
         }
         LocalDateTime latestCompleteDate = latestResult.getCompletionDate();
@@ -600,6 +603,22 @@ public class SurveyService {
     }
 
     private void saveSurveyQuestionsAndOptions(List<QuestionRequest> questions, Surveys surveys) {
+        for (QuestionRequest question : questions) {
+            SurveyQuestions surveyQuestions = surveyQuestionRepository.save(new SurveyQuestions(
+                    generalService.generateSurveyQuestionId(),
+                    surveys.getSurveyID(),
+                    question.getQuestionText().trim()));
+            for (QuestionOptionRequest optionRequest : question.getQuestionOptions()) {
+                surveyQuestionOptionsRepository.save(new SurveyQuestionOptions(
+                        generalService.generateQuestionOptionId(),
+                        surveyQuestions.getQuestionID(),
+                        optionRequest.getLabel().trim(),
+                        optionRequest.getValue()));
+            }
+        }
+    }
+
+    private void _saveSurveyQuestionsAndOptions(List<QuestionRequest> questions, Surveys surveys) {
         List<SurveyQuestions> surveyQuestionsList = new ArrayList<>();
         List<SurveyQuestionOptions> surveyOptionsList = new ArrayList<>();
 
@@ -610,7 +629,6 @@ public class SurveyService {
                     question.getQuestionText().trim()
             );
             surveyQuestionsList.add(surveyQuestion);
-
             for (QuestionOptionRequest optionRequest : question.getQuestionOptions()) {
                 surveyOptionsList.add(new SurveyQuestionOptions(
                         generalService.generateQuestionOptionId(),
@@ -811,7 +829,19 @@ public class SurveyService {
             throw new ResourceNotFoundException("Survey not found");
         }
         survey.setStartDate(LocalDateTime.now());
-        survey.setEndDate(LocalDate.now().plusWeeks(survey.getPeriodic()).atStartOfDay());
+        survey.setEndDate(LocalDate.now().plusWeeks(survey.getDuration()).atStartOfDay());
+        surveyRepository.save(survey);
+    }
+
+    public void periodicRestSurvey(String surveyID, Long periodID) {
+        Periodic periodic = periodicRepository.findByPeriodicID(periodID);
+        Surveys survey = surveyRepository.findBySurveyID(surveyID);
+        if (survey == null) {
+            throw new ResourceNotFoundException("Survey not found");
+        }
+        survey.setStartDate(periodic.getStartDate());
+        survey.setEndDate(periodic.getEndDate());
+        survey.setDuration(periodic.getDuration());
         surveyRepository.save(survey);
     }
 

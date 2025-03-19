@@ -5,10 +5,7 @@ import com.healthy.backend.service.SurveyService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,9 +15,17 @@ public class TestController {
     private final ProgramService programService;
     private final SurveyService surveyService;
 
-    @PostMapping("/survey-new-periodic-update")
+    @PutMapping("/survey-new-periodic-update")
     public ResponseEntity<?> updateSurveys(@RequestParam String surveyId) {
         surveyService.periodicUpdateSurvey(surveyId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/survey-rest-periodic")
+    public ResponseEntity<?> resetSurveys(
+            @RequestParam String surveyId,
+            @RequestParam Long periodID) {
+        surveyService.periodicRestSurvey(surveyId, periodID);
         return ResponseEntity.ok().build();
     }
 

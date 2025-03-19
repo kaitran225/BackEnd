@@ -9,7 +9,6 @@ import com.healthy.backend.repository.*;
 import com.healthy.backend.service.AuthenticationService;
 import com.healthy.backend.service.GeneralService;
 import com.healthy.backend.service.ProgramService;
-import com.healthy.backend.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -22,6 +21,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 @Service
 @Component
 @RequiredArgsConstructor
@@ -38,14 +38,12 @@ public class DataInitializer implements CommandLineRunner {
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final NotificationRepository notificationRepository;
     private final SurveyQuestionOptionsRepository surveyQuestionOptionsRepository;
-    private final SurveyQuestionOptionsChoicesRepository surveyQuestionOptionsChoicesRepository;
     private final SurveyRepository surveyRepository;
-    private final SurveyResultRepository surveyResultRepository;
+    private final PeriodicRepository periodicRepository;
     private final SurveyQuestionRepository surveyQuestionsRepository;
     private final GeneralService __;
     private final AuthenticationService authenticationService;
     private final ProgramService programService;
-    private final SurveyService surveyService;
     private final MentalHealthArticlesData mentalHealthArticlesData;
 
     private static LocalDate getNextDayOfWeek(String dayOfWeek) {
@@ -336,28 +334,30 @@ public class DataInitializer implements CommandLineRunner {
                         "https://example.com/meeting4"
                 )
         );
-        programs.forEach(programsRequest -> {
-            programService._createProgram(programsRequest,
-                    Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null)));
-        });
+        programs.forEach(programsRequest -> programService._createProgram(programsRequest,
+                Objects.requireNonNull(userRepository.findByUserId("UID001").orElse(null))));
     }
 
     private void initializeSurveys() {
         Surveys survey1 = new Surveys("SUV001", "Stress Survey",
                 "Survey to assess stress levels", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10);
         surveyRepository.save(survey1);
+        periodicRepository.save(new Periodic(survey1, survey1.getStartDate(), survey1.getEndDate()));
 
         Surveys survey2 = new Surveys("SUV002", "Anxiety Assessment",
                 "Assessment of anxiety symptoms", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.GAD_7);
         surveyRepository.save(survey2);
+        periodicRepository.save(new Periodic(survey2, survey2.getStartDate(), survey2.getEndDate()));
 
         Surveys survey3 = new Surveys("SUV003", "Depression Screening",
                 "Screening for depression", userRepository.findByEmail("psychologist2@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PHQ_9);
         surveyRepository.save(survey3);
+        periodicRepository.save(new Periodic(survey3, survey3.getStartDate(), survey3.getEndDate()));
 
         Surveys survey4 = new Surveys("SUV004", "Mood Assessment",
                 "Assessment of mood", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), LocalDate.now(), 2, SurveyStandardType.PSS_10, SurveyStatus.INACTIVE);
         surveyRepository.save(survey4);
+        periodicRepository.save(new Periodic(survey4, survey4.getStartDate(), survey4.getEndDate()));
     }
 
     private void initializeSurveyQuestions() {

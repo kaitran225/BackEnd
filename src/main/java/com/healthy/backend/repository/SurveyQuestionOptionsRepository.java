@@ -2,8 +2,11 @@ package com.healthy.backend.repository;
 
 import com.healthy.backend.entity.SurveyQuestionOptions;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,4 +23,9 @@ public interface SurveyQuestionOptionsRepository extends JpaRepository<SurveyQue
     String findLastQuestionOptionId();
 
     List<SurveyQuestionOptions> deleteByQuestionID(String questionID);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM SurveyQuestionOptions o WHERE o.questionID IN :questionIds")
+    void deleteByQuestionIds(@Param("questionIds") List<String> questionIds);
 }

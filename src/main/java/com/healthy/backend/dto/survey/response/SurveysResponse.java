@@ -21,6 +21,8 @@ public class SurveysResponse {
     private String id;
     @Schema(example = "Example Survey")
     private String title;
+    @Schema(example = "")
+    private Long periodicID;
     @Schema(example = "Survey Description")
     private String description;
     @Schema(example = "PSS_10")

@@ -43,8 +43,8 @@ public class Surveys {
     @Column(name = "EndDate", nullable = false)
     private LocalDateTime endDate;
 
-    @Column(name = "Periodic")
-    private Integer Periodic; //count by week
+    @Column(name = "Duration")
+    private Integer duration;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "StandardType", length = 50, nullable = false)
@@ -62,29 +62,32 @@ public class Surveys {
     @JoinColumn(name = "CreatedBy", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Users creator;
 
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Periodic> periodic;
+
     @OneToMany(mappedBy = "surveys", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notifications> notifications;
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer periodic, SurveyStandardType standardType) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer duration, SurveyStandardType standardType) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
-        this.Periodic = periodic;
+        this.duration = duration;
         this.createdBy = createdBy;
         this.startDate = startDate.atStartOfDay();
-        this.endDate = startDate.plusWeeks(periodic).atStartOfDay();
+        this.endDate = startDate.plusWeeks(duration).atStartOfDay();
         this.standardType = standardType;
         this.category = cat(standardType);
     }
 
-    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer periodic, SurveyStandardType standardType, SurveyStatus status) {
+    public Surveys(String surveyID, String surveyName, String description, String createdBy, LocalDate startDate, Integer duration, SurveyStandardType standardType, SurveyStatus status) {
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.description = description;
-        this.Periodic = periodic;
+        this.duration = duration;
         this.createdBy = createdBy;
         this.startDate = startDate.atStartOfDay();
-        this.endDate = startDate.plusWeeks(periodic).atStartOfDay();
+        this.endDate = startDate.plusWeeks(duration).atStartOfDay();
         this.standardType = standardType;
         this.category = cat(standardType);
         this.status = status;

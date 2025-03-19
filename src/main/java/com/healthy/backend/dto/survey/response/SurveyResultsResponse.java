@@ -28,6 +28,8 @@ public class SurveyResultsResponse {
     private String standardType;
     @Schema(example = "2")
     private Integer periodic;
+    @Schema(example = "")
+    private Long periodicID;
     @Schema(example = "Anxiety")
     private String category;
     @Schema(example = "")
