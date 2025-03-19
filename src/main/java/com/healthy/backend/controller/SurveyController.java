@@ -95,7 +95,7 @@ public class SurveyController {
             HttpServletRequest request,
             @RequestParam String surveyId) {
         SurveyQuestionResponse surveyQuestions = surveyService.getSurveyQuestion(surveyId,
-                tokenService.retrieveUser(request).getRole());
+                tokenService.retrieveUser(request));
         if (surveyQuestions == null) {
             throw new ResourceNotFoundException("No survey questions found");
         }

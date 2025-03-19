@@ -86,9 +86,22 @@ public class SurveyService {
     }
 
     // Get survey questions for taking survey
-    public SurveyQuestionResponse getSurveyQuestion(String surveyID, Role role) {
+    public SurveyQuestionResponse getSurveyQuestion(String surveyID, Users users) {
         Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
+
+        if (users.getRole().equals(Role.STUDENT)) {
+            Students student = studentRepository.findByUserID(users.getUserId());
+            // Check if student have done this survey before
+            if (hasDone(surveys, studentRepository.findByStudentID(student.getStudentID()))) {
+                throw new OperationFailedException("You have done this survey before");
+            }
+
+            if (!isInSession(surveys)) {
+                throw new OperationFailedException("This survey is not in session");
+            }
+        }
+
         List<SurveyQuestions> surveyQuestions = surveyQuestionRepository.findBySurveyID(surveyID);
         if (surveyQuestions.isEmpty()) {
             throw new ResourceNotFoundException("No questions found for surveyID " + surveyID);
@@ -98,7 +111,7 @@ public class SurveyService {
                 .map(questions -> surveyMapper.buildQuestionResponse(
                         getQuestionResponse(questions),
                         questions,
-                        surveyQuestions.indexOf(questions),role)
+                        surveyQuestions.indexOf(questions), users.getRole())
                 )
                 .toList();
         return surveyMapper.buildSurveyQuestionResponse(questionList, surveys);
@@ -306,7 +319,7 @@ public class SurveyService {
         }
     }
 
-    public void updateSurveyQuestion(String surveyID,List<QuestionUpdateRequest> questionRequest) {
+    public void updateSurveyQuestion(String surveyID, List<QuestionUpdateRequest> questionRequest) {
         Surveys existingSurvey = surveyRepository.findById(surveyID)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with ID: " + surveyID));
         updateSurveyQuestions(existingSurvey, questionRequest);
@@ -412,7 +425,6 @@ public class SurveyService {
         }
         return false;
     }
-
 
     public StatusStudentResponse submitSurvey(String surveyId, List<String> optionId, String studentId) {
         Surveys survey = surveyRepository.findById(surveyId)
