@@ -421,7 +421,13 @@ public class SurveyService {
     }
 
     private String createPeriodicID(Surveys surveys) {
-        String periodicSize = String.format("%03d", surveys.getPeriodic().size());
+        String periodicSize;
+        if (surveys.getPeriodic() == null) {
+            periodicSize = String.format("%03d", 0);
+            return surveys.getSurveyID() + "_" + periodicSize;
+        }
+        ;
+        periodicSize = String.format("%03d", surveys.getPeriodic().size());
         return surveys.getSurveyID() + "_" + periodicSize;
     }
 
