@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -903,14 +904,16 @@ public class ProgramService {
     }
 
     public void updateProgramStatuses() {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         List<Programs> programs = programRepository.findAll();
 
         programs.forEach(program -> {
-            LocalDate endDate = program.getStartDate().plusDays(program.getDuration());
+            ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+            LocalDateTime startDate = program.getStartDate().atTime(schedule.getStartTime());
+            LocalDateTime endDate = program.getStartDate().plusWeeks(program.getDuration()).atTime(schedule.getEndTime());
 
             // Change PENDING → IN_PROGRESS
-            if (program.getStatus() == ProgramStatus.ACTIVE && program.getStartDate().isBefore(today)) {
+            if (program.getStatus() == ProgramStatus.ACTIVE && startDate.isBefore(today)) {
                 program.setStatus(ProgramStatus.IN_PROGRESS);
             }
 

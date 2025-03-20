@@ -40,7 +40,6 @@ public class SurveyService {
     private final GeneralService generalService;
     private final SurveyServiceHelper __;
 
-
     // Deactivate
     public void deactivateSurvey(String surveyId) {
         Surveys survey = surveyRepository.findById(surveyId)
@@ -56,7 +55,6 @@ public class SurveyService {
         survey.setStatus(SurveyStatus.ACTIVE);
         surveyRepository.save(survey);
     }
-
 
     // Get all survey for display
     public List<SurveysResponse> getAllSurveys(Users user) {
@@ -687,7 +685,6 @@ public class SurveyService {
                         mapStatusResponse(students, survey)))
                 .collect(Collectors.toList());
     }
-
 
     private List<SurveysResponse> getSurveyResult(Students students, String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
