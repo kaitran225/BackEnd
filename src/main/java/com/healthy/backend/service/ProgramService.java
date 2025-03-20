@@ -491,10 +491,6 @@ public class ProgramService {
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
-//
-//        if (startTime.isBefore(endTime)) {
-//            return;
-//        }
     }
 
     private void validateProgramStatus(Programs program, ProgramUpdateRequest updateRequest) {

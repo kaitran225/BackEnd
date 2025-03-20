@@ -127,7 +127,7 @@ public class Programs {
         this.tags = tags;
         this.startDate = startDate;
         this.type = type;
-        this.endDate = startDate.plusDays(duration);
+        this.endDate = startDate.plusWeeks(duration);
         this.meetingLink = meetingLink;
         this.facilitatorID = psychologists.getPsychologistID();
         this.departmentID = department.getDepartmentID();
