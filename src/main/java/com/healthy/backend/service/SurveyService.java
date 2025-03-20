@@ -841,8 +841,21 @@ public class SurveyService {
         if (survey == null) {
             throw new ResourceNotFoundException("Survey not found");
         }
-        survey.setStartDate(LocalDateTime.now());
-        survey.setEndDate(LocalDate.now().plusWeeks(survey.getDuration()).atStartOfDay());
+
+        int duration = survey.getDuration();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Periodic currentPeriodic = survey.getPeriodic().getLast();
+        currentPeriodic.setEndDate(now);
+        periodicRepository.save(currentPeriodic);
+
+        Periodic periodic = periodicRepository.save(
+                new Periodic(createPeriodicID(survey), survey,now,LocalDate.now().plusWeeks(duration).atStartOfDay()));
+
+        survey.setStartDate(periodic.getStartDate());
+        survey.setEndDate(periodic.getEndDate());
+
         surveyRepository.save(survey);
     }
 
