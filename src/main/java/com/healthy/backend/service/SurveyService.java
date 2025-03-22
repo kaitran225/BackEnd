@@ -40,7 +40,6 @@ public class SurveyService {
     private final GeneralService generalService;
     private final SurveyServiceHelper __;
 
-
     // Deactivate
     public void deactivateSurvey(String surveyId) {
         Surveys survey = surveyRepository.findById(surveyId)
@@ -56,7 +55,6 @@ public class SurveyService {
         survey.setStatus(SurveyStatus.ACTIVE);
         surveyRepository.save(survey);
     }
-
 
     // Get all survey for display
     public List<SurveysResponse> getAllSurveys(Users user) {
@@ -278,6 +276,14 @@ public class SurveyService {
         }
     }
 
+
+    // Sửa update
+    // Check if the user has permission to update the survey
+    // Validate the survey update request
+    // Check đúng câu hỏi ( chỉ update option )
+    // Xóa câu hỏi -> xóa option
+    // Thêm câu mới xóa câu cũng -> thêm option
+    // If thêm câu hỏi không xóa -> thêm option
     @Transactional
     private void updateSurveyQuestions(Surveys existingSurvey, List<QuestionUpdateRequest> questionRequests) {
         List<SurveyQuestions> existingQuestions = surveyQuestionRepository.findBySurveyID(existingSurvey.getSurveyID());
@@ -688,7 +694,6 @@ public class SurveyService {
                 .collect(Collectors.toList());
     }
 
-
     private List<SurveysResponse> getSurveyResult(Students students, String ID) {
         List<Surveys> surveyList = surveyRepository.findAll();
         return surveyList.stream()
@@ -738,10 +743,6 @@ public class SurveyService {
 
     private int getTotalQuestion(Surveys surveys) {
         return (int) surveyQuestionRepository.countBySurveyID(surveys.getSurveyID());
-    }
-
-    private int getTotalStudentDone(Surveys surveys) {
-        return surveyResultRepository.countDistinctStudentsBySurveyID(surveys.getSurveyID());
     }
 
     private int getTotalStudentDoneInCurrentPeriod(Surveys surveys) {
@@ -841,8 +842,21 @@ public class SurveyService {
         if (survey == null) {
             throw new ResourceNotFoundException("Survey not found");
         }
-        survey.setStartDate(LocalDateTime.now());
-        survey.setEndDate(LocalDate.now().plusWeeks(survey.getDuration()).atStartOfDay());
+
+        int duration = survey.getDuration();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Periodic currentPeriodic = survey.getPeriodic().getLast();
+        currentPeriodic.setEndDate(now);
+        periodicRepository.save(currentPeriodic);
+
+        Periodic periodic = periodicRepository.save(
+                new Periodic(createPeriodicID(survey), survey,now,LocalDate.now().plusWeeks(duration).atStartOfDay()));
+
+        survey.setStartDate(periodic.getStartDate());
+        survey.setEndDate(periodic.getEndDate());
+
         surveyRepository.save(survey);
     }
 

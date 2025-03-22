@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -490,10 +491,6 @@ public class ProgramService {
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
-//
-//        if (startTime.isBefore(endTime)) {
-//            return;
-//        }
     }
 
     private void validateProgramStatus(Programs program, ProgramUpdateRequest updateRequest) {
@@ -560,9 +557,21 @@ public class ProgramService {
     }
 
     private void validateProgramData(Programs program, ProgramUpdateRequest updateRequest) {
-        validateName(updateRequest.getName());
-        validateDescription(updateRequest.getDescription());
-        validateStartDateAndDuration(updateRequest.getStartDate(), updateRequest.getDuration());
+        if(program == null) throw new ResourceNotFoundException("Program not found");
+        if(!program.getProgramName().equals(updateRequest.getName())){
+            validateName(updateRequest.getName());
+        }
+        if(!program.getDescription().equals(updateRequest.getDescription())){
+            validateDescription(updateRequest.getDescription());
+        }
+
+        if (!program.getStartDate().isEqual(LocalDate.parse(updateRequest.getStartDate()))){
+            validateStartDate(updateRequest.getStartDate());
+        }
+
+        if (!program.getDuration().equals(updateRequest.getDuration())) {
+            validateDuration(updateRequest.getDuration());
+        }
 
         if (updateRequest.getWeeklyScheduleRequest() != null) {
             validateWeeklySchedule(updateRequest.getWeeklyScheduleRequest());
@@ -587,7 +596,7 @@ public class ProgramService {
         }
     }
 
-    private void validateStartDateAndDuration(String startDate, Integer duration) {
+    private void validateStartDate(String startDate) {
         if (startDate == null || startDate.isEmpty()) {
             throw new IllegalArgumentException("Start date cannot be empty");
         }
@@ -599,7 +608,9 @@ public class ProgramService {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format");
         }
+    }
 
+    private void validateDuration(Integer duration) {
         if (duration == null || duration <= 0) {
             throw new IllegalArgumentException("Duration must be a positive integer");
         }
@@ -607,14 +618,6 @@ public class ProgramService {
             throw new IllegalArgumentException("Duration cannot exceed 12 months (52 weeks)");
         }
     }
-
-    @SuppressWarnings("unused")
-    private void validateDuration(Integer duration) {
-        if (duration == null || duration <= 0) {
-            throw new IllegalArgumentException("Duration must be a positive integer");
-        }
-    }
-
     private void validateWeeklySchedule(ProgramWeeklyScheduleRequest schedule) {
         if (schedule.getWeeklyAt() == null || schedule.getWeeklyAt().isEmpty()) {
             throw new IllegalArgumentException("Weekly schedule day cannot be empty");
@@ -903,14 +906,16 @@ public class ProgramService {
     }
 
     public void updateProgramStatuses() {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         List<Programs> programs = programRepository.findAll();
 
         programs.forEach(program -> {
-            LocalDate endDate = program.getStartDate().plusDays(program.getDuration());
+            ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+            LocalDateTime startDate = program.getStartDate().atTime(schedule.getStartTime());
+            LocalDateTime endDate = program.getStartDate().plusWeeks(program.getDuration()).atTime(schedule.getEndTime());
 
             // Change PENDING → IN_PROGRESS
-            if (program.getStatus() == ProgramStatus.ACTIVE && program.getStartDate().isBefore(today)) {
+            if (program.getStatus() == ProgramStatus.ACTIVE && startDate.isBefore(today)) {
                 program.setStatus(ProgramStatus.IN_PROGRESS);
             }
 

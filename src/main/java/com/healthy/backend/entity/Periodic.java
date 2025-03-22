@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
@@ -31,13 +32,13 @@ public class Periodic {
     private LocalDateTime endDate;
 
     @Column(name = "duration", nullable = false)
-    private Integer duration;
+    private Integer duration; // Count by week
 
     public Periodic(String periodicID,Surveys surveyID, LocalDateTime startDate, LocalDateTime endDate) {
         this.periodicID = periodicID;
         this.survey = surveyID;
         this.startDate = startDate;
-        this.duration = (int) startDate.until(endDate, java.time.temporal.ChronoUnit.DAYS);
+        this.duration = (int) startDate.until(endDate, ChronoUnit.WEEKS);
         this.endDate = endDate;
     }
 }
