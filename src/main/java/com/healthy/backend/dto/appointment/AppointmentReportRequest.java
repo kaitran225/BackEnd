@@ -31,6 +31,6 @@ public class AppointmentReportRequest {
     private Integer stressScore;
     @Schema(example = "10")
     private Integer totalScore;
-    @Schema(example = "")
+    @Schema(example = "SCHEDULED")
     private String status;
 }
