@@ -1,7 +1,17 @@
 package com.healthy.backend.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -16,9 +26,6 @@ public class SurveyQuestionOptions {
     @Column(name = "OptionID", length = 36, nullable = false)
     private String optionID;
 
-    @Column(name = "QuestionID", length = 36, nullable = false)
-    private String questionID;
-
     @Column(name = "OptionText", columnDefinition = "TEXT", nullable = false)
     private String optionText;
 
@@ -26,13 +33,14 @@ public class SurveyQuestionOptions {
     private Integer score;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "QuestionID", referencedColumnName = "QuestionID", insertable = false, updatable = false)
+    @JoinColumn(name = "QuestionID", referencedColumnName = "QuestionID", nullable = false)
     private SurveyQuestions question;
 
-    public SurveyQuestionOptions(String answerID, String questionID, String optionText, Integer score) {
-        this.optionID = answerID;
-        this.questionID = questionID;
+    
+    public SurveyQuestionOptions(String optionID, SurveyQuestions question, String optionText, Integer score) {
+        this.optionID = optionID;
+        this.question = question;
         this.optionText = optionText;
         this.score = score;
     }
-} 
+}
