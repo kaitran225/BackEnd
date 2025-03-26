@@ -318,7 +318,7 @@ public class SurveyService {
     }
 
     @Transactional
-    private void updateSurveyQuestions1(Surveys survey, List<QuestionUpdateRequest> questionRequests) {
+    private void updateSurveyQuestions(Surveys survey, List<QuestionUpdateRequest> questionRequests) {
         List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
         
         Map<String, SurveyQuestions> mapQuestions = surveyQuestionList.stream()
@@ -385,18 +385,14 @@ public class SurveyService {
                 .collect(Collectors.toList())
         );
 
-
         if (!questionsToDelete.isEmpty()) {
             surveyQuestionRepository.deleteAll(questionsToDelete);
             surveyQuestionOptionsRepository.deleteAll(existingOptions);
         } 
-
-        
-
-        updateSurveyOptions1(mapQuestions, questionRequests, optionToSave);        
+        updateSurveyOptions(mapQuestions, questionRequests, optionToSave);        
     } 
 
-    private void updateSurveyOptions1(Map<String, SurveyQuestions> QuestionMap,
+    private void updateSurveyOptions(Map<String, SurveyQuestions> QuestionMap,
                                      List<QuestionUpdateRequest> questionRequests,
                                      List<SurveyQuestionOptions> optionsToSave) {    
                                 
@@ -571,7 +567,7 @@ public class SurveyService {
     public void updateSurveyQuestion(String surveyID, List<QuestionUpdateRequest> questionRequest) {
         Surveys existingSurvey = surveyRepository.findById(surveyID)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with ID: " + surveyID));
-        updateSurveyQuestions1(existingSurvey, questionRequest);
+        updateSurveyQuestions(existingSurvey, questionRequest);
     }
 
     @Transactional
