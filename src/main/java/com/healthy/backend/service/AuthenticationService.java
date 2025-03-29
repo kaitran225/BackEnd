@@ -240,53 +240,42 @@ public class AuthenticationService {
     }
 
     // Refresh token
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        String authHeader = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
-                .orElseGet(() -> request.getHeader(HttpHeaders.WWW_AUTHENTICATE));
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Invalid access token: missing or malformed.");
-        }
-
-        final String accessToken = authHeader.substring(7);
-
-        if (!jwtService.isTokenValid(accessToken)) {
-            throw new InvalidTokenException("Invalid or expired access token.");
-        }
-
-        final String username = jwtService.extractHashedID(accessToken);
-
-        // Validate username
-        if (username == null) {
-            throw new InvalidTokenException("Invalid access token: unable to extract username.");
-        }
-
-        // Get user from the repository
-        Users user = authenticationRepository.findByHashedID(username);
-
-        // Check if the user exists
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found.");
-        }
-
-        // Method to extract refresh token
-        String refreshToken = refreshTokenRepository.findByUserId(user.getUserId()).getHashedToken();
-
+    public AuthenticationResponse refreshToken(String refreshToken) {
         // Validate the refresh token
         if (refreshToken == null || !jwtService.isTokenValid(refreshToken)) {
             throw new InvalidTokenException("Invalid or expired refresh token.");
         }
 
-        // Generate a new access token using the user details
+        // Extract username (or user identifier) from the refresh token
+        final String username = jwtService.extractHashedID(refreshToken);
+
+        if (username == null) {
+            throw new InvalidTokenException("Invalid refresh token: unable to extract username.");
+        }
+
+        // Retrieve user from the repository
+        Users user = authenticationRepository.findByHashedID(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found.");
+        }
+
+        // Ensure the refresh token matches the one stored for the user
+        String storedRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).getHashedToken();
+        if (!refreshToken.equals(storedRefreshToken)) {
+            throw new InvalidTokenException("Refresh token mismatch or has been revoked.");
+        }
+
+        // Generate a new access token
         String newAccessToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
                 .accessToken(newAccessToken)  // New access token
-                .refreshToken(refreshToken)   // The same refresh token
+                .refreshToken(refreshToken)   // Keep the same refresh token
                 .userId(user.getUserId())
                 .role(user.getRole().toString())
                 .build();
     }
+
 
 
     // Initiate password reset

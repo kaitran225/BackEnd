@@ -125,8 +125,8 @@ public class AuthenticationController {
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponse> refresh(HttpServletRequest request) {
-        return ResponseEntity.ok(authenticationService.refreshToken(request));
+    public ResponseEntity<AuthenticationResponse> refresh(String refreshToken) {
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshToken));
     }
 
 
