@@ -1,10 +1,44 @@
 package com.healthy.backend.service;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.request.*;
-import com.healthy.backend.dto.survey.response.*;
-import com.healthy.backend.entity.*;
+import com.healthy.backend.dto.survey.request.ConfirmationRequest;
+import com.healthy.backend.dto.survey.request.QuestionOptionRequest;
+import com.healthy.backend.dto.survey.request.QuestionOptionUpdateRequest;
+import com.healthy.backend.dto.survey.request.QuestionRequest;
+import com.healthy.backend.dto.survey.request.QuestionUpdateRequest;
+import com.healthy.backend.dto.survey.request.SurveyRequest;
+import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
+import com.healthy.backend.dto.survey.response.QuestionResponse;
+import com.healthy.backend.dto.survey.response.StatusStudentResponse;
+import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
+import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
+import com.healthy.backend.dto.survey.response.SurveysResponse;
+import com.healthy.backend.entity.Parents;
+import com.healthy.backend.entity.Periodic;
+import com.healthy.backend.entity.Students;
+import com.healthy.backend.entity.SurveyQuestionOptions;
+import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
+import com.healthy.backend.entity.SurveyQuestions;
+import com.healthy.backend.entity.SurveyResult;
+import com.healthy.backend.entity.Surveys;
+import com.healthy.backend.entity.Users;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStandardType;
@@ -12,17 +46,16 @@ import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.healthy.backend.repository.ParentRepository;
+import com.healthy.backend.repository.PeriodicRepository;
+import com.healthy.backend.repository.StudentRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
+import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
+import com.healthy.backend.repository.SurveyQuestionRepository;
+import com.healthy.backend.repository.SurveyRepository;
+import com.healthy.backend.repository.SurveyResultRepository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -276,6 +309,156 @@ public class SurveyService {
         }
     }
 
+    private String nextGenerationId(String presentId) {
+        String prefix = presentId.replaceAll("\\d", "");
+        String number = presentId.replaceAll("\\D", "");
+        int nextNum = Integer.parseInt(number) + 1;
+
+        return prefix + String.format("%03d", nextNum);
+    }
+
+    @Transactional
+    private void updateSurveyQuestions(Surveys survey, List<QuestionUpdateRequest> questionRequests) {
+        List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
+        
+        Map<String, SurveyQuestions> mapQuestions = surveyQuestionList.stream()
+            .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
+
+        List<SurveyQuestions> questionToSave = new ArrayList<>();
+        List<SurveyQuestionOptions> optionToSave = new ArrayList<>();
+        
+        boolean isFirstIteration = true;
+        String questionId = null;
+        for(QuestionUpdateRequest questionRequest : questionRequests) {
+            String questionText = questionRequest.getQuestionText().trim();
+            
+            if(questionRequest.getQuestionId() != null && mapQuestions.containsKey(questionRequest.getQuestionId())){
+                SurveyQuestions existingQuestion = mapQuestions.get(questionRequest.getQuestionId());
+                if (!existingQuestion.getQuestionText().equals(questionText)) {
+                    existingQuestion.setQuestionText(questionText);
+                    questionToSave.add(existingQuestion);
+                    System.out.println("Updating existing question: " + existingQuestion.getQuestionID());
+                }
+                
+            }
+            else {
+                if (isFirstIteration) {
+                    questionId = generalService.generateSurveyQuestionId();  
+                    isFirstIteration = false;
+                } else {
+                    questionId = nextGenerationId(questionId); 
+                }
+
+                SurveyQuestions newQuestion = new SurveyQuestions(
+                    questionId,
+                    survey.getSurveyID(),
+                    questionText
+                );
+                questionToSave.add(newQuestion);
+                mapQuestions.put(newQuestion.getQuestionID(), newQuestion);
+                System.out.println("Created new question: " + newQuestion.getQuestionID());
+                questionRequest.setQuestionId(newQuestion.getQuestionID());
+            }
+        }
+
+        if (!questionToSave.isEmpty()) {
+            System.out.println("Saving the following questions:");
+            questionToSave.forEach(q -> System.out.println("Question ID: " + q.getQuestionID() + ", Text: " + q.getQuestionText()));
+            surveyQuestionRepository.saveAll(questionToSave);
+            surveyQuestionRepository.flush();
+            
+        }
+
+        List<String> questionDeleteIdsFromClient = questionRequests.stream()
+                .map(QuestionUpdateRequest :: getDeleteQuestionId)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        List<SurveyQuestions> questionsToDelete = surveyQuestionList.stream()
+            .filter(q -> questionDeleteIdsFromClient.contains(q.getQuestionID()))
+            .collect(Collectors.toList());
+        
+        List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findAllByQuestionIds(
+            questionsToDelete.stream()
+                .map(SurveyQuestions :: getQuestionID)
+                .collect(Collectors.toList())
+        );
+
+        if (!questionsToDelete.isEmpty()) {
+            surveyQuestionRepository.deleteAll(questionsToDelete);
+            surveyQuestionOptionsRepository.deleteAll(existingOptions);
+        } 
+        updateSurveyOptions(mapQuestions, questionRequests, optionToSave);        
+    } 
+
+    private void updateSurveyOptions(Map<String, SurveyQuestions> QuestionMap,
+                                     List<QuestionUpdateRequest> questionRequests,
+                                     List<SurveyQuestionOptions> optionsToSave) {    
+                                
+        boolean flag = true;
+        String nextOptionId = null;
+
+        for (QuestionUpdateRequest questionRequest : questionRequests) {
+                SurveyQuestions question = QuestionMap.get(questionRequest.getQuestionId());
+                
+                if(question == null) continue;
+                List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestion_QuestionID(question.getQuestionID());
+                Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
+                    .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, Function.identity()));  
+
+                
+
+
+                for(QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
+                    String optionText = optionRequest.getLabel().trim();
+                    int optionScore = optionRequest.getValue();
+
+                    if(optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
+                        SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
+                        System.out.println("Updating option: " + existingOption.getOptionID());
+                        if(!existingOption.getOptionText().equals(optionText) && existingOption.getScore() != optionScore) {
+                            existingOption.setOptionText(optionText);
+                            existingOption.setScore(optionScore);
+                            optionsToSave.add(existingOption);
+                        }
+                        existingOptionsMap.remove(optionRequest.getOptionID());
+                    }
+                    else {
+                        if(flag) {
+                            nextOptionId = generalService.generateQuestionOptionId();
+                            flag = false;
+                        }
+                        else {
+                            nextOptionId = nextGenerationId(nextOptionId);
+                        }
+
+                        SurveyQuestionOptions newOption = new SurveyQuestionOptions(
+                            nextOptionId,
+                            question,
+                            optionText,
+                            optionScore
+                        );
+                        optionsToSave.add(newOption);
+                    }
+
+                    if (optionRequest.getDeleteOptionID() != null && !optionRequest.getDeleteOptionID().isEmpty()) {
+                        List<SurveyQuestionOptions> optionsToDelete = existingOptions.stream()
+                            .filter(option -> optionRequest.getDeleteOptionID().contains(option.getOptionID()))
+                            .collect(Collectors.toList());
+
+                        if (!optionsToDelete.isEmpty()) {
+                            surveyQuestionOptionsRepository.deleteAll(optionsToDelete);
+                            System.out.println("Deleted options: " + optionsToDelete.stream().map(SurveyQuestionOptions::getOptionID).collect(Collectors.toList()));
+                        }
+                    }                     
+                }
+            
+        }
+        if (!optionsToSave.isEmpty()) {
+            surveyQuestionOptionsRepository.saveAll(optionsToSave);
+        }         
+    }
 
     // Sửa update
     // Check if the user has permission to update the survey
@@ -284,103 +467,102 @@ public class SurveyService {
     // Xóa câu hỏi -> xóa option
     // Thêm câu mới xóa câu cũng -> thêm option
     // If thêm câu hỏi không xóa -> thêm option
-    @Transactional
-    private void updateSurveyQuestions(Surveys existingSurvey, List<QuestionUpdateRequest> questionRequests) {
-        List<SurveyQuestions> existingQuestions = surveyQuestionRepository.findBySurveyID(existingSurvey.getSurveyID());
+    // @Transactional
+    // private void updateSurveyQuestions(Surveys existingSurvey, List<QuestionUpdateRequest> questionRequests) {
+    //     List<SurveyQuestions> existingQuestions = surveyQuestionRepository.findBySurveyID(existingSurvey.getSurveyID());
 
-        // Convert existing questions to a map for quick lookup
-        Map<String, SurveyQuestions> existingQuestionMap = existingQuestions.stream()
-                .collect(Collectors.toMap(SurveyQuestions::getQuestionID, q -> q));
+    //     // Convert existing questions to a map for quick lookup
+    //     Map<String, SurveyQuestions> existingQuestionMap = existingQuestions.stream()
+    //             .collect(Collectors.toMap(SurveyQuestions::getQuestionID, q -> q));
 
-        List<SurveyQuestions> questionsToSave = new ArrayList<>();
-        List<SurveyQuestionOptions> optionsToSave = new ArrayList<>();
-        Set<String> updatedQuestionIds = new HashSet<>();
+    //     List<SurveyQuestions> questionsToSave = new ArrayList<>();
+    //     List<SurveyQuestionOptions> optionsToSave = new ArrayList<>();
+    //     Set<String> updatedQuestionIds = new HashSet<>();
 
-        for (QuestionUpdateRequest questionRequest : questionRequests) {
-            String questionText = (questionRequest.getQuestionText() != null) ? questionRequest.getQuestionText().trim() : null;
-            if (questionRequest.getQuestionId() != null && existingQuestionMap.containsKey(questionRequest.getQuestionId())) {
-                // Update existing question
-                SurveyQuestions existingQuestion = existingQuestionMap.get(questionRequest.getQuestionId());
-                if (questionText != null) {
-                    existingQuestion.setQuestionText(questionText);
-                }
-                questionsToSave.add(existingQuestion);
-                updatedQuestionIds.add(existingQuestion.getQuestionID());
-            } else {
-                // New question
-                SurveyQuestions newQuestion = new SurveyQuestions(
-                        generalService.generateSurveyQuestionId(),
-                        existingSurvey.getSurveyID(),
-                        questionText
-                );
-                questionsToSave.add(newQuestion);
-                existingQuestionMap.put(newQuestion.getQuestionID(), newQuestion);
-            }
-        }
+    //     for (QuestionUpdateRequest questionRequest : questionRequests) {
+    //         String questionText = (questionRequest.getQuestionText() != null) ? questionRequest.getQuestionText().trim() : null;
+    //         if (questionRequest.getQuestionId() != null && existingQuestionMap.containsKey(questionRequest.getQuestionId())) {
+    //             // Update existing question
+    //             SurveyQuestions existingQuestion = existingQuestionMap.get(questionRequest.getQuestionId());
+    //             if (questionText != null) {
+    //                 existingQuestion.setQuestionText(questionText);
+    //             }
+    //             questionsToSave.add(existingQuestion);
+    //             updatedQuestionIds.add(existingQuestion.getQuestionID());
+    //         } else {
+    //             SurveyQuestions newQuestion = new SurveyQuestions(
+    //                     generalService.generateSurveyQuestionId(),
+    //                     existingSurvey.getSurveyID(),
+    //                     questionText
+    //             );
+    //             questionsToSave.add(newQuestion);
+    //             existingQuestionMap.put(newQuestion.getQuestionID(), newQuestion);
+    //         }
+    //     }
 
-        surveyQuestionRepository.saveAll(questionsToSave);
-        updateSurveyOptions(existingQuestionMap, questionRequests, optionsToSave);
-        surveyQuestionOptionsRepository.saveAll(optionsToSave);
+    //     surveyQuestionRepository.saveAll(questionsToSave);
+    //     updateSurveyOptions(existingQuestionMap, questionRequests, optionsToSave);
+    //     surveyQuestionOptionsRepository.saveAll(optionsToSave);
 
-        // Identify removed questions and delete related options
-        List<String> removedQuestionIds = existingQuestions.stream()
-                .map(SurveyQuestions::getQuestionID)
-                .filter(id -> !updatedQuestionIds.contains(id))
-                .toList();
+    //     // Identify removed questions and delete related options
+    //     List<String> removedQuestionIds = existingQuestions.stream()
+    //             .map(SurveyQuestions::getQuestionID)
+    //             .filter(id -> !updatedQuestionIds.contains(id))
+    //             .toList();
 
-        if (!removedQuestionIds.isEmpty()) {
-            surveyQuestionOptionsRepository.deleteByQuestionIds(removedQuestionIds);
-            surveyQuestionRepository.deleteAllByIdInBatch(removedQuestionIds);
-        }
-    }
+    //     if (!removedQuestionIds.isEmpty()) {
+    //         surveyQuestionOptionsRepository.deleteByQuestionIds(removedQuestionIds);
+    //         surveyQuestionRepository.deleteAllByIdInBatch(removedQuestionIds);
+    //     }
+    // }
 
 
-    private void updateSurveyOptions(Map<String, SurveyQuestions> existingQuestionMap,
-                                     List<QuestionUpdateRequest> questionRequests,
-                                     List<SurveyQuestionOptions> optionsToSave) {
-        for (QuestionUpdateRequest questionRequest : questionRequests) {
-            SurveyQuestions question = existingQuestionMap.get(questionRequest.getQuestionId());
-            if (question == null) continue;
+    // private void updateSurveyOptions(Map<String, SurveyQuestions> existingQuestionMap,
+    //                                  List<QuestionUpdateRequest> questionRequests,
+    //                                  List<SurveyQuestionOptions> optionsToSave) {
+    //     for (QuestionUpdateRequest questionRequest : questionRequests) {
+    //         SurveyQuestions question = existingQuestionMap.get(questionRequest.getQuestionId());
+    //         if (question == null) continue;
 
-            List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
-            Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
-                    .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, o -> o));
+    //         List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID());
+    //         Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
+    //                 .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, o -> o));
 
-            Set<String> updatedOptionIds = new HashSet<>();
+    //         Set<String> updatedOptionIds = new HashSet<>();
 
-            for (QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
-                if (optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
-                    // Update existing option
-                    SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
-                    if (optionRequest.getLabel() != null) {
-                        existingOption.setOptionText(optionRequest.getLabel().trim());
-                    }
-                    existingOption.setScore(optionRequest.getValue());
-                    optionsToSave.add(existingOption);
-                    updatedOptionIds.add(existingOption.getOptionID());
-                } else {
-                    // New option
-                    SurveyQuestionOptions newOption = new SurveyQuestionOptions(
-                            generalService.generateQuestionOptionId(),
-                            question.getQuestionID(),
-                            optionRequest.getLabel().trim(),
-                            optionRequest.getValue()
-                    );
-                    optionsToSave.add(newOption);
-                }
-            }
+    //         for (QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
+    //             if (optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
+    //                 // Update existing option
+    //                 SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
+    //                 if (optionRequest.getLabel() != null) {
+    //                     existingOption.setOptionText(optionRequest.getLabel().trim());
+    //                 }
+    //                 existingOption.setScore(optionRequest.getValue());
+    //                 optionsToSave.add(existingOption);
+    //                 updatedOptionIds.add(existingOption.getOptionID());
+    //             } else {
+    //                 // New option
+    //                 SurveyQuestionOptions newOption = new SurveyQuestionOptions(
+    //                         generalService.generateQuestionOptionId(),
+    //                         question.getQuestionID(),
+    //                         optionRequest.getLabel().trim(),
+    //                         optionRequest.getValue()
+    //                 );
+    //                 optionsToSave.add(newOption);
+    //             }
+    //         }
 
-            // Delete removed options
-            List<String> removedOptionIds = existingOptions.stream()
-                    .map(SurveyQuestionOptions::getOptionID)
-                    .filter(id -> !updatedOptionIds.contains(id))
-                    .toList();
+    //         // Delete removed options
+    //         List<String> removedOptionIds = existingOptions.stream()
+    //                 .map(SurveyQuestionOptions::getOptionID)
+    //                 .filter(id -> !updatedOptionIds.contains(id))
+    //                 .toList();
 
-            if (!removedOptionIds.isEmpty()) {
-                surveyQuestionOptionsRepository.deleteAllById(removedOptionIds);
-            }
-        }
-    }
+    //         if (!removedOptionIds.isEmpty()) {
+    //             surveyQuestionOptionsRepository.deleteAllById(removedOptionIds);
+    //         }
+    //     }
+    // }
 
     public void updateSurveyQuestion(String surveyID, List<QuestionUpdateRequest> questionRequest) {
         Surveys existingSurvey = surveyRepository.findById(surveyID)
@@ -630,7 +812,7 @@ public class SurveyService {
             for (QuestionOptionRequest optionRequest : question.getQuestionOptions()) {
                 surveyQuestionOptionsRepository.save(new SurveyQuestionOptions(
                         generalService.generateQuestionOptionId(),
-                        surveyQuestions.getQuestionID(),
+                        surveyQuestions,
                         optionRequest.getLabel().trim(),
                         optionRequest.getValue()));
             }
@@ -651,7 +833,7 @@ public class SurveyService {
             for (QuestionOptionRequest optionRequest : question.getQuestionOptions()) {
                 surveyOptionsList.add(new SurveyQuestionOptions(
                         generalService.generateQuestionOptionId(),
-                        surveyQuestion.getQuestionID(),
+                        surveyQuestion,
                         optionRequest.getLabel().trim(),
                         optionRequest.getValue()
                 ));
@@ -677,7 +859,7 @@ public class SurveyService {
         List<SurveyQuestionOptionsChoices> choiceList = new ArrayList<>();
         for (String surveyQuestionOption : optionId) {
             SurveyQuestionOptions question = surveyQuestionOptionsRepository.findByOptionID(surveyQuestionOption);
-            String questionId = question.getQuestionID();
+            String questionId = question.getQuestion().getQuestionID();
             SurveyQuestionOptionsChoices sqc = new SurveyQuestionOptionsChoices(resultID, questionId, surveyQuestionOption);
             choiceList.add(sqc);
         }
@@ -777,7 +959,7 @@ public class SurveyService {
 
     private List<QuestionOption> getQuestionResponse(SurveyQuestions questions) {
         return surveyQuestionOptionsRepository
-                .findByQuestionID(questions.getQuestionID())
+                .findByQuestion_QuestionID(questions.getQuestionID())
                 .stream()
                 .map(surveyMapper::buildNewQuestionOption)
                 .toList();
@@ -827,7 +1009,7 @@ public class SurveyService {
     private int calScore(List<SurveyQuestions> questions, List<String> choices) {
         List<SurveyQuestionOptions> surveyOptions = new ArrayList<>();
         for (SurveyQuestions question : questions) {
-            surveyOptions.addAll(surveyQuestionOptionsRepository.findByQuestionID(question.getQuestionID()));
+            surveyOptions.addAll(surveyQuestionOptionsRepository.findByQuestion_QuestionID(question.getQuestionID()));
         }
         return surveyOptions.stream()
                 .filter(option -> choices.contains(option.getOptionID()))
