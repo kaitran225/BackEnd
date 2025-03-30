@@ -66,4 +66,5 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
 
 
     ProgramParticipation findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(String programID, String studentID);
+    List<ProgramParticipation> findByStudentIDAndStatus(String studentId, ParticipationStatus status);
 }

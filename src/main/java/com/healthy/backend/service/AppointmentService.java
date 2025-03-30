@@ -5,6 +5,7 @@ import com.healthy.backend.dto.appointment.AppointmentResponse;
 import com.healthy.backend.dto.appointment.AppointmentUpdateRequest;
 import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.AppointmentStatus;
+import com.healthy.backend.enums.ParticipationStatus;
 import com.healthy.backend.enums.TimeslotStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceAlreadyExistsException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,6 +47,42 @@ public class AppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final StudentMapper studentMapper;
     private final UserMapper userMapper;
+    private final ProgramParticipationRepository programParticipationRepository;
+    private final ProgramScheduleRepository programScheduleRepository;
+
+    private boolean hasProgramConflict(Students student, TimeSlots timeSlot) {
+        List<ProgramParticipation> participations = programParticipationRepository.findByStudentIDAndStatus(
+                student.getStudentID(), ParticipationStatus.JOINED);
+
+        for (ProgramParticipation participation : participations) {
+            Programs program = participation.getProgram();
+            // Kiểm tra ngày của timeSlot có nằm trong khoảng thời gian diễn ra chương trình không
+            if (timeSlot.getSlotDate().isBefore(program.getStartDate()) ||
+                    timeSlot.getSlotDate().isAfter(program.getEndDate())) {
+                continue;
+            }
+
+            List<ProgramSchedule> schedules = programScheduleRepository.findByProgramID(program.getProgramID());
+            for (ProgramSchedule schedule : schedules) {
+                // Kiểm tra ngày trong tuần có khớp không
+                if (!schedule.getDayOfWeek().equalsIgnoreCase(timeSlot.getSlotDate().getDayOfWeek().toString())) {
+                    continue;
+                }
+
+                // Kiểm tra xem thời gian có trùng không
+                if (isTimeOverlap(
+                        timeSlot.getStartTime(), timeSlot.getEndTime(),
+                        schedule.getStartTime(), schedule.getEndTime())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isTimeOverlap(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
+        return start1.isBefore(end2) && end1.isAfter(start2);
+    }
 
 
     public List<AppointmentResponse> filterAppointments(
@@ -158,6 +196,10 @@ public class AppointmentService {
         Students student = studentRepository.findByUserID(request.getUserId());
         if (student == null) {
             throw new ResourceNotFoundException("Student not found" + request.getUserId());
+        }
+
+        if (hasProgramConflict(student, timeSlot)) {
+            throw new ResourceInvalidException("Student is enrolled in a program during this time slot.");
         }
 
         // Validate psychologist
