@@ -61,7 +61,7 @@ public interface ProgramParticipationRepository extends JpaRepository<ProgramPar
             @Param("programId") String programId,
             @Param("studentIDs") List<String> studentIDs);
 
-    @Query("SELECT COUNT(p) FROM ProgramParticipation p WHERE p.programID = :programID AND p.status = 'JOINED'")
+    @Query("SELECT COUNT(p) FROM ProgramParticipation p WHERE p.programID = :programID AND p.status != 'CANCELLED'")
     Long countActiveStudentsByProgramID(@Param("programID") String programID);
 
 
