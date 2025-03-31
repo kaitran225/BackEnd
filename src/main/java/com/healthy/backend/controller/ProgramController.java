@@ -325,10 +325,6 @@ public class ProgramController {
             throw new OperationFailedException("You don't have permission to create this program");
         }
         String managerId = tokenService.retrieveUser(request).getUserId();
-//        String finalFacilitatorID = validatePsychologistID(request, programsRequest.getFacilitatorId()); // Check
-//        if(tokenService.isManager(request) || !finalFacilitatorID.equals(programsRequest.getFacilitatorId())){
-//            throw new OperationFailedException("You can't assign other psychologist for this program");
-//        }
         ProgramsResponse programsResponse = programService.createProgram(programsRequest, managerId);
         if (programsResponse.getProgramID() == null) throw new OperationFailedException("Failed to create program");
         return ResponseEntity.status(HttpStatus.CREATED).body(programsResponse);
@@ -355,7 +351,6 @@ public class ProgramController {
         if (!tokenService.validateRoles(request, List.of(Role.MANAGER, Role.PSYCHOLOGIST))) {
             throw new OperationFailedException("You don't have permission to update this program");
         }
-
         ProgramsResponse response = programService.updateProgram(programId, programsRequest);
         return ResponseEntity.ok(response);
     }

@@ -122,9 +122,17 @@ public class SurveyService {
         Surveys surveys = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
 
+        if (surveys.getStatus().equals(SurveyStatus.INACTIVE)) {
+            throw new OperationFailedException("This survey is inactive");
+        }
+
+        if (surveys.getStartDate().isAfter(LocalDateTime.now())) {
+            throw new OperationFailedException("This survey is not in session");
+        }
+
         if (users.getRole().equals(Role.STUDENT)) {
             Students student = studentRepository.findByUserID(users.getUserId());
-            // Check if student have done this survey before
+
             if (hasDone(surveys, studentRepository.findByStudentID(student.getStudentID()))) {
                 throw new OperationFailedException("You have done this survey before");
             }

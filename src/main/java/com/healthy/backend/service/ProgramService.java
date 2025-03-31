@@ -22,10 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -484,13 +481,20 @@ public class ProgramService {
         LocalTime startTime = parseTime(programsRequest.getWeeklyScheduleRequest().getStartTime());
         LocalTime endTime = parseTime(programsRequest.getWeeklyScheduleRequest().getEndTime());
 
+
+
         if (!isModulo30(startTime) || !isModulo30(endTime)) {
             throw new IllegalArgumentException("Start time and end time must be in 30 minute intervals");
         }
 
-        if (startTime.isAfter(endTime)) {
+        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
+
+        if (Duration.between(startTime, endTime).toMinutes() > 120) {
+            throw new IllegalArgumentException("Program duration cannot exceed 2 hours");
+        }
+
     }
 
     private void validateProgramStatus(Programs program, ProgramUpdateRequest updateRequest) {
@@ -614,10 +618,11 @@ public class ProgramService {
         if (duration == null || duration <= 0) {
             throw new IllegalArgumentException("Duration must be a positive integer");
         }
-        if (duration > 52) {
-            throw new IllegalArgumentException("Duration cannot exceed 12 months (52 weeks)");
+        if (duration > 24) {
+            throw new IllegalArgumentException("Duration cannot exceed (24 weeks)");
         }
     }
+
     private void validateWeeklySchedule(ProgramWeeklyScheduleRequest schedule) {
         if (schedule.getWeeklyAt() == null || schedule.getWeeklyAt().isEmpty()) {
             throw new IllegalArgumentException("Weekly schedule day cannot be empty");
@@ -663,7 +668,7 @@ public class ProgramService {
         program.setDepartmentID(updateRequest.getDepartmentId());
         program.setStartDate(LocalDate.parse(updateRequest.getStartDate()));
         program.setTags(tags);
-        programRepository.save(program); // Save the updated program
+        programRepository.save(program);
     }
 
     private void updateProgramSchedule(ProgramSchedule programSchedule, ProgramUpdateRequest updateRequest) {

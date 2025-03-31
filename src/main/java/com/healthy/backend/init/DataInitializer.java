@@ -122,18 +122,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private void registerUsers() {
         List<RegisterRequest> users = List.of(
-                new RegisterRequest("@Manager_Pass123", "Admin Admin", "manager@cybriadev.com", "1111111111", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
-                new RegisterRequest("@Manager_Pass123", "Staff Member", "staff@cybriadev.com", "2222222222", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest("@Manager_Pass123", "Admin Admin", "manager@cybriadev.com", "0901721803", "Street 123, Ho Chi Minh City", Role.MANAGER.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Manager_Pass123", "Staff Member", "staff@cybriadev.com", "0914055035", "Street 202, Ho Chi Minh City", Role.MANAGER.toString(), Gender.FEMALE.toString()),
 
-                new RegisterRequest("@Psychologist_Pass123", "Dr. Brown", "psychologist1@cybriadev.com", "0912345671", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
-                new RegisterRequest("@Psychologist_Pass123", "Dr. Blue", "psychologist2@cybriadev.com", "0912345672", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Psychologist_Pass123", "Dr. Brown", "psychologist1@cybriadev.com", "0918807263", "Street 101, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Psychologist_Pass123", "Dr. Blue", "psychologist2@cybriadev.com", "0913457620", "Street 505, Ho Chi Minh City", Role.PSYCHOLOGIST.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("@Parent_Pass123", "Jane Smith", "parent1@cybriadev.com", "0812345671", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
-                new RegisterRequest("@Parent_Pass123", "Bob Johnson", "parent2@cybriadev.com", "0812345672", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Parent_Pass123", "Jane Smith", "parent1@cybriadev.com", "0812614184", "Street 789, Ho Chi Minh City", Role.PARENT.toString(), Gender.FEMALE.toString()),
+                new RegisterRequest("@Parent_Pass123", "Bob Johnson", "parent2@cybriadev.com", "0829810129", "Street 404, Ho Chi Minh City", Role.PARENT.toString(), Gender.MALE.toString()),
 
-                new RegisterRequest("@Student_Pass123", "John Doe", "student1@cybriadev.com", "0512345671", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("@Student_Pass123", "John Green", "student2@cybriadev.com", "0512345672", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
-                new RegisterRequest("@Student_Pass123", "Alice Jones", "student3@cybriadev.com", "0512345673", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
+                new RegisterRequest("@Student_Pass123", "John Doe", "student1@cybriadev.com", "0996477276", "Street 456, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Student_Pass123", "John Green", "student2@cybriadev.com", "0931926082", "Street 606, Ho Chi Minh City", Role.STUDENT.toString(), Gender.MALE.toString()),
+                new RegisterRequest("@Student_Pass123", "Alice Jones", "student3@cybriadev.com", "0836844105", "Street 303, Ho Chi Minh City", Role.STUDENT.toString(), Gender.FEMALE.toString())
         );
         users.forEach(authenticationService::register);
     }
