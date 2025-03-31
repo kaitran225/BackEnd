@@ -224,6 +224,10 @@ public class AuthenticationService {
         String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
+        if (!jwtService.extractIsActive(accessToken) || !user.isActive()) {
+            throw new BadCredentialsException("Your account has been disabled by an administrator. Please contact authority for further support.");
+        }
+
         // Save refresh token to database
         _saveRefreshToken(user.getUserId(), refreshToken);
 
