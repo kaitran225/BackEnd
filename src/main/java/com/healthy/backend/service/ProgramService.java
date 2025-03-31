@@ -915,7 +915,7 @@ public class ProgramService {
         programs.forEach(program -> {
             ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
             LocalDateTime startDate = program.getStartDate().atTime(schedule.getStartTime());
-            LocalDateTime endDate = program.getStartDate().plusWeeks(program.getDuration()).atTime(schedule.getEndTime());
+            LocalDateTime endDate = program.getEndDate().atTime(schedule.getEndTime());
 
             // Change PENDING → IN_PROGRESS
             if (program.getStatus() == ProgramStatus.ACTIVE && startDate.isBefore(today)) {
