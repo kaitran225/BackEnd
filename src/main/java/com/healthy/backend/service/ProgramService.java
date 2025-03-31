@@ -139,7 +139,7 @@ public class ProgramService {
                 .filter(slot -> slot.getStartTime().isBefore(programEndTime) && slot.getEndTime().isAfter(programStartTime))
                 .collect(Collectors.toList());
 
-        occupiedSlots.forEach(slot -> slot.setStatus(TimeslotStatus.UNAVAILABLE));
+        occupiedSlots.forEach(slot -> slot.setStatus(TimeslotStatus.PROGRAM));
 
         timeSlotRepository.saveAll(occupiedSlots);
     }
@@ -195,7 +195,6 @@ public class ProgramService {
         setTimeSlotUnavailable(facilitator.getPsychologistID(), programsRequest);
 
         Programs program = buildProgram(programId, programsRequest, department, facilitator, tags, staffUser);
-
 
         validateParticipantCount(programId, programsRequest.getNumberParticipants());
 

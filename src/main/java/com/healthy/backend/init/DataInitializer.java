@@ -71,7 +71,6 @@ public class DataInitializer implements CommandLineRunner {
     private final DepartmentRepository departmentRepository;
     private final PsychologistRepository psychologistRepository;
     private final TagsRepository tagsRepository;
-    private final UserLogRepository userLogRepository;
     private final ArticleRepository articleRepository;
     private final DefaultTimeSlotRepository defaultTimeSlotRepository;
     private final NotificationRepository notificationRepository;
