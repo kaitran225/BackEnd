@@ -74,4 +74,8 @@ public class AppointmentResponse {
     private String slotDate;
     @Schema(example = "")
     private String cancelReason;
+    @Schema(example = "")
+    private String studentEmail;
+    @Schema(example = "")
+    private String psychologistEmail;
 }

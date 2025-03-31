@@ -146,6 +146,8 @@ public class AppointmentService {
         response.setStudentNotes(appointment.getStudentNote());
         response.setPsychologistNotes(appointment.getPsychologistNote());
         response.setCancelReason(appointment.getCancellationReason());
+        response.setStudentEmail(appointment.getStudent().getUser().getEmail());
+        response.setPsychologistEmail(appointment.getPsychologist().getUser().getEmail());
 
         if (appointment.getTimeSlot() != null) {
             response.setSlotDate(String.valueOf(appointment.getTimeSlot().getSlotDate()));
