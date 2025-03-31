@@ -112,12 +112,8 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Survey Questions initialized");
         initializeAnswers();
         System.out.println("Answers initialized");
-        initializeLogs();
-        System.out.println("Logs initialized");
         initializeArticles();
         System.out.println("Articles initialized");
-        initializeNotifications();
-        System.out.println("Notifications initialized");
     }
 
     private void registerUsers() {
@@ -616,23 +612,9 @@ public class DataInitializer implements CommandLineRunner {
 
     }
 
-    private void initializeLogs() {
-        userLogRepository.save(new UserLogs("LOG001", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "192.168.0.1"));
-        userLogRepository.save(new UserLogs("LOG002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), "244.178.44.111"));
-        userLogRepository.save(new UserLogs("LOG003", userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "38.0.101.76"));
-        userLogRepository.save(new UserLogs("LOG004", userRepository.findByEmail("parent2@cybriadev.com").getUserId(), "89.0.142.86"));
-    }
-
     private void initializeArticles() {
         List<Article> articles = mentalHealthArticlesData.getMentalHealthArticles();
         articles.forEach(articleRepository::save);
-    }
-
-    private void initializeNotifications() {
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("psychologist1@cybriadev.com").getUserId(), "Appointment Scheduled", "Your appointment is scheduled", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Appointment", "You have a new appointment", NotificationType.APPOINTMENT));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Survey", "You have a new survey", NotificationType.SURVEY));
-        notificationRepository.save(new Notifications(__.generateNextNotificationID(), userRepository.findByEmail("student1@cybriadev.com").getUserId(), "New Program", "You have a new program", NotificationType.PROGRAM));
     }
 
     @Override
