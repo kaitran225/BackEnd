@@ -287,6 +287,7 @@ public class ProgramService {
         );
         if(program.getNumberParticipants() >= getActiveStudentsByProgram(program.getProgramID()).size()){
             program.setStatus(ProgramStatus.FULL);
+            programRepository.save(program);
         }
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
