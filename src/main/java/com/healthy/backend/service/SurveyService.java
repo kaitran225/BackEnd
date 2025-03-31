@@ -334,7 +334,8 @@ public class SurveyService {
                         }
                 )
                 .toList();
-        return surveyMapper.buildSurveyResultResponse(questionList,
+        return surveyMapper.buildSurveyResultResponsePeriodic(questionList,
+                periodID,
                 survey,
                 getStatusStudent(survey.getSurveyID(), studentId),
                 surveyResult.getResult() + "/" + surveyResult.getMaxScore());

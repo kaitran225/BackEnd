@@ -178,6 +178,28 @@ public class SurveyMapper {
                 .build();
     }
 
+    public SurveyQuestionResponse buildSurveyResultResponsePeriodic(
+            List<QuestionResponse> questionResponseList,
+            String periodicID,
+            Surveys survey, String completeStatus, String score
+    ) {
+        return SurveyQuestionResponse.builder()
+                .surveyId(survey.getSurveyID())
+                .title(survey.getSurveyName())
+                .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getDuration())
+                .periodicID(periodicID)
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
+                .numberOfQuestions(questionResponseList.size())
+                .questionList(questionResponseList)
+                .completeStatus(completeStatus)
+                .totalScore(score)
+                .build();
+    }
+
     public QuestionResponse buildQuestionResponse(
             List<QuestionOption> questionOption,
             SurveyQuestions surveyQuestions,
