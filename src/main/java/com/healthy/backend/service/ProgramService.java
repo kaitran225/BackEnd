@@ -285,7 +285,7 @@ public class ProgramService {
                 programScheduleRepository.findByProgramID(programId).getLast(),
                 students.getUser().getFullName()
         );
-        if(program.getNumberParticipants() >= getActiveStudentsByProgram(program.getProgramID()).size()){
+        if(program.getNumberParticipants() <= getActiveStudentsByProgram(program.getProgramID()).size()){
             program.setStatus(ProgramStatus.FULL);
             programRepository.save(program);
         }
@@ -334,7 +334,7 @@ public class ProgramService {
                 program,
                 students.getUser().getFullName()
         );
-        if(program.getNumberParticipants() >= getActiveStudentsByProgram(program.getProgramID()).size()){
+        if(program.getNumberParticipants() > getActiveStudentsByProgram(program.getProgramID()).size()){
             LocalDateTime today = LocalDateTime.now();
             ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
             if(program.getStartDate().atTime(schedule.getStartTime()).isBefore(today)){
