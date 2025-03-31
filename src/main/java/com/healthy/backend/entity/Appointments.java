@@ -39,11 +39,9 @@ public class Appointments {
     @Column(name = "PsychologistNote", columnDefinition = "TEXT")
     private String psychologistNote;
 
-
     @Column(name = "Rating")
     private Integer rating;
-
-
+    
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
 

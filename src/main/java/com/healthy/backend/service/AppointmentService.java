@@ -138,6 +138,14 @@ public class AppointmentService {
         response.setStatus(String.valueOf(appointment.getStatus()));
         response.setCreatedAt(appointment.getCreatedAt());
         response.setUpdatedAt(appointment.getUpdatedAt());
+        response.setPsychologistResponse(psychologistMapper.buildPsychologistResponse(appointment.getPsychologist()));
+        response.setStudentResponse(studentMapper.buildBasicStudentResponse(appointment.getStudent()));
+        response.setTimeSlotID(appointment.getTimeSlotsID());
+        response.setCheckInTime(appointment.getCheckInTime());
+        response.setCheckOutTime(appointment.getCheckOutTime());
+        response.setStudentNotes(appointment.getStudentNote());
+        response.setPsychologistNotes(appointment.getPsychologistNote());
+        response.setCancelReason(appointment.getCancellationReason());
 
         if (appointment.getTimeSlot() != null) {
             response.setSlotDate(String.valueOf(appointment.getTimeSlot().getSlotDate()));
@@ -221,6 +229,7 @@ public class AppointmentService {
         appointment.setPsychologist(psychologist);
         appointment.setStudent(student);
         appointment.setTimeSlot(timeSlot);
+        appointment.setStudentNote(request.getNote());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
 
         Appointments savedAppointment = appointmentRepository.save(appointment);

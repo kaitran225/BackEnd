@@ -72,4 +72,6 @@ public class AppointmentResponse {
     private String endTime;
     @Schema(example = "")
     private String slotDate;
+    @Schema(example = "")
+    private String cancelReason;
 }
