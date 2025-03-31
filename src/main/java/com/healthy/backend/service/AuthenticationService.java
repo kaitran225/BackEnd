@@ -58,6 +58,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PsychologistRepository psychologistsRepository;
+    private final DepartmentRepository departmentRepository;
     private final AuthenticationRepository authenticationRepository;
     private final GeneralService __;
     private final JwtService jwtService;
@@ -81,6 +82,20 @@ public class AuthenticationService {
         if (!tokenService.isManager(httpServletRequest)) {
             throw new RuntimeException("You don't have permission to register psychologist");
         }
+        String department = request.getPsychologistDetails().getDepartmentID();
+        int yearsOfExperience = request.getPsychologistDetails().getYearsOfExperience();
+        if (department == null || yearsOfExperience == 0) {
+            throw new IllegalArgumentException("Department and years of experience are required");
+        }
+
+        if (!departmentRepository.existsById(department)) {
+            throw new ResourceNotFoundException("Department not found");
+        }
+
+        if (yearsOfExperience < 0) {
+            throw new IllegalArgumentException("Years of experience cannot be negative");
+        }
+
         AuthenticationResponse response = registerUser(request);
         String psychologistId = __.generatePsychologistID();
         psychologistsRepository.save(

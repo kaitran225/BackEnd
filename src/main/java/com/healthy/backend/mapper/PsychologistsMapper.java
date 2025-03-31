@@ -21,9 +21,10 @@ public class PsychologistsMapper {
         return Psychologists.builder()
                 .psychologistID(psychologistId)
                 .status(PsychologistStatus.ACTIVE)
+                .userID(user.getUserId())
+                .user(user)
                 .yearsOfExperience(request.getPsychologistDetails().getYearsOfExperience())
                 .departmentID(request.getPsychologistDetails().getDepartmentID())
-                .user(user)
                 .build();
     }
 
