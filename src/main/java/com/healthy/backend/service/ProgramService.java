@@ -338,8 +338,8 @@ public class ProgramService {
             LocalDateTime today = LocalDateTime.now();
             ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
             if(program.getStartDate().atTime(schedule.getStartTime()).isBefore(today)){
-                program.setStatus(ProgramStatus.ACTIVE);
-            } else program.setStatus(ProgramStatus.IN_PROGRESS);
+                program.setStatus(ProgramStatus.IN_PROGRESS);
+            } else program.setStatus(ProgramStatus.ACTIVE);
             programRepository.save(program);
         }
         return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
