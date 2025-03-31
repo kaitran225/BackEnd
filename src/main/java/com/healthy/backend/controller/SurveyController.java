@@ -4,10 +4,7 @@ import com.healthy.backend.dto.survey.request.ConfirmationRequest;
 import com.healthy.backend.dto.survey.request.QuestionUpdateRequest;
 import com.healthy.backend.dto.survey.request.SurveyRequest;
 import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
-import com.healthy.backend.dto.survey.response.StatusStudentResponse;
-import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.response.SurveysResponse;
+import com.healthy.backend.dto.survey.response.*;
 import com.healthy.backend.entity.Users;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
@@ -187,6 +184,23 @@ public class SurveyController {
     @GetMapping("/result")
     public ResponseEntity<?> getSurveyResults(HttpServletRequest request) {
         List<SurveyResultsResponse> surveyResult = surveyService.getSurveyResultsBySurveyID(
+                tokenService.retrieveUser(request));
+        return ResponseEntity.ok(surveyResult);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(
+            summary = "Get survey results",
+            description = "Returns results for a specific survey."
+    )
+    @GetMapping("/record")
+    public ResponseEntity<?> getRecord(HttpServletRequest request) {
+        List<PeriodicResponse> surveyResult = surveyService.getPeriodicResults(
                 tokenService.retrieveUser(request));
         return ResponseEntity.ok(surveyResult);
     }

@@ -4,16 +4,14 @@ package com.healthy.backend.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.healthy.backend.dto.survey.response.*;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +23,6 @@ import com.healthy.backend.dto.survey.request.QuestionRequest;
 import com.healthy.backend.dto.survey.request.QuestionUpdateRequest;
 import com.healthy.backend.dto.survey.request.SurveyRequest;
 import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
-import com.healthy.backend.dto.survey.response.QuestionResponse;
-import com.healthy.backend.dto.survey.response.StatusStudentResponse;
-import com.healthy.backend.dto.survey.response.SurveyQuestionResponse;
-import com.healthy.backend.dto.survey.response.SurveyResultsResponse;
-import com.healthy.backend.dto.survey.response.SurveysResponse;
 import com.healthy.backend.entity.Parents;
 import com.healthy.backend.entity.Periodic;
 import com.healthy.backend.entity.Students;
@@ -212,6 +205,37 @@ public class SurveyService {
             default -> throw new RuntimeException("You don't have permission to access");
         };
     }
+
+    public List<PeriodicResponse> getPeriodicResults(Users user) {
+        List<Surveys> surveyList = surveyRepository.findAll();
+        if (surveyList.isEmpty()) {
+            return List.of();
+        }
+        List<SurveyResultsResponse> surveyResults = getSurveyResultsBySurveyID(user);
+        List<PeriodicResponse> periodicResponses = new ArrayList<>();
+        Set<String> periodic = new HashSet<>();
+
+        for (SurveyResultsResponse surveyResult : surveyResults) {
+            if (surveyResult.getPeriodicID() != null) {
+                periodic.add(String.valueOf(extractPeriod(surveyResult.getPeriodicID())));
+            }
+        }
+        for (String period : periodic) {
+            List<SurveyResultsResponse> temp = new ArrayList<>();
+            for (SurveyResultsResponse surveyResult : surveyResults) {
+                if (period.equals(String.valueOf(extractPeriod(surveyResult.getPeriodicID())))) {
+                    temp.add(surveyResult);
+                }
+            }
+            periodicResponses.add(new PeriodicResponse(period, temp));
+        }
+        return periodicResponses;
+    }
+
+    private int extractPeriod(String periodicID) {
+        return Integer.parseInt(periodicID.substring(periodicID.length() - 3));
+    }
+
 
     public List<SurveyQuestionResponse> getAllSurveyResultByStudentID(String surveyID, String studentId) {
 
