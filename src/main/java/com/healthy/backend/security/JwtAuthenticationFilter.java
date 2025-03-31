@@ -1,5 +1,7 @@
 package com.healthy.backend.security;
 
+import com.healthy.backend.entity.Users;
+import com.healthy.backend.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +25,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest request,
@@ -39,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
                 boolean isVerified = jwtService.extractClaim(token, claims -> claims.get("isVerified", Boolean.class));
                 boolean isActive = jwtService.extractClaim(token, claims -> claims.get("isActive", Boolean.class));
+                String userId = jwtService.extractClaim(token, claims -> claims.get("uid", String.class));
                 String hashedID = jwtService.extractClaim(token, Claims::getSubject); // Extract subject directly
 
                 // Validation of the claims
@@ -55,6 +59,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (!isActive) {
                     returnErrorResponse(response, "User is not active.");
                     return;
+                }
+
+                Users user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("User not found."));
+                if (!user.isActive()) {
+                    returnErrorResponse(response, "User is not active.");
                 }
 
                 // Convert the role to GrantedAuthority
