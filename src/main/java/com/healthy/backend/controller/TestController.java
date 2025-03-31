@@ -21,6 +21,12 @@ public class TestController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/survey-reset-periodic-auto")
+    public ResponseEntity<?> resetSurveys() {
+        surveyService.updatePeriodicBulk();
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/survey-rest-periodic")
     public ResponseEntity<?> resetSurveys(
             @RequestParam String surveyId,
