@@ -201,7 +201,7 @@ public class SurveyController {
     @GetMapping("/record")
     public ResponseEntity<?> getRecord(HttpServletRequest request) {
         List<PeriodicResponse> surveyResult = surveyService.getPeriodicResults(
-                tokenService.retrieveUser(request));
+                tokenService.getRoleID(tokenService.retrieveUser(request)));
         return ResponseEntity.ok(surveyResult);
     }
 

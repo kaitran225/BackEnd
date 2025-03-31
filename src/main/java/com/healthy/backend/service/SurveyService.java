@@ -206,12 +206,17 @@ public class SurveyService {
         };
     }
 
-    public List<PeriodicResponse> getPeriodicResults(Users user) {
-        List<Surveys> surveyList = surveyRepository.findAll();
-        if (surveyList.isEmpty()) {
-            return List.of();
-        }
-        List<SurveyResultsResponse> surveyResults = getSurveyResultsBySurveyID(user);
+    public List<PeriodicResponse> getPeriodicResults(String studentID) {
+        List<SurveyResult> sr = surveyResultRepository.findByStudentID(studentID);
+
+        List<SurveyResultsResponse> surveyResults = sr.stream().map(surveyResult -> {
+                Surveys survey = surveyRepository.findById(surveyResult.getSurveyID()).orElseThrow(
+                        () -> new ResourceNotFoundException("No survey found for surveyID " + surveyResult.getSurveyID()));
+                    return surveyMapper.mapToListResultsResponse(
+                            survey,
+                            List.of(getStatusStudent(survey, surveyResult)));
+        }).toList();
+
         List<PeriodicResponse> periodicResponses = new ArrayList<>();
         Set<String> periodic = new HashSet<>();
 
