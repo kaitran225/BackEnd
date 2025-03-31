@@ -334,6 +334,14 @@ public class ProgramService {
                 program,
                 students.getUser().getFullName()
         );
+        if(program.getNumberParticipants() >= getActiveStudentsByProgram(program.getProgramID()).size()){
+            LocalDateTime today = LocalDateTime.now();
+            ProgramSchedule schedule = programScheduleRepository.findByProgramID(program.getProgramID()).getLast();
+            if(program.getStartDate().atTime(schedule.getStartTime()).isBefore(today)){
+                program.setStatus(ProgramStatus.ACTIVE);
+            } else program.setStatus(ProgramStatus.IN_PROGRESS);
+            programRepository.save(program);
+        }
         return updatedParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
