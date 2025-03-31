@@ -296,6 +296,7 @@ public class SurveyService {
         Surveys survey = surveyRepository.findById(surveyID).orElseThrow(
                 () -> new ResourceNotFoundException("No survey found for surveyID " + surveyID));
 
+
         List<SurveyResult> surveyResultList = surveyResultRepository.findBySurveyIDAndStudentID(surveyID, studentId);
 
         SurveyResult surveyResult = new SurveyResult();
