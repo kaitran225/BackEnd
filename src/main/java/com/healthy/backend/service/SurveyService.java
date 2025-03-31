@@ -1,37 +1,10 @@
 package com.healthy.backend.service;
 
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import com.healthy.backend.dto.survey.response.*;
-import jakarta.validation.constraints.Pattern;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.healthy.backend.dto.survey.QuestionOption;
-import com.healthy.backend.dto.survey.request.ConfirmationRequest;
-import com.healthy.backend.dto.survey.request.QuestionOptionRequest;
-import com.healthy.backend.dto.survey.request.QuestionOptionUpdateRequest;
-import com.healthy.backend.dto.survey.request.QuestionRequest;
-import com.healthy.backend.dto.survey.request.QuestionUpdateRequest;
-import com.healthy.backend.dto.survey.request.SurveyRequest;
-import com.healthy.backend.dto.survey.request.SurveyUpdateRequest;
-import com.healthy.backend.entity.Parents;
-import com.healthy.backend.entity.Periodic;
-import com.healthy.backend.entity.Students;
-import com.healthy.backend.entity.SurveyQuestionOptions;
-import com.healthy.backend.entity.SurveyQuestionOptionsChoices;
-import com.healthy.backend.entity.SurveyQuestions;
-import com.healthy.backend.entity.SurveyResult;
-import com.healthy.backend.entity.Surveys;
-import com.healthy.backend.entity.Users;
+import com.healthy.backend.dto.survey.request.*;
+import com.healthy.backend.dto.survey.response.*;
+import com.healthy.backend.entity.*;
 import com.healthy.backend.enums.Role;
 import com.healthy.backend.enums.SurveyCategory;
 import com.healthy.backend.enums.SurveyStandardType;
@@ -39,16 +12,18 @@ import com.healthy.backend.enums.SurveyStatus;
 import com.healthy.backend.exception.OperationFailedException;
 import com.healthy.backend.exception.ResourceNotFoundException;
 import com.healthy.backend.mapper.SurveyMapper;
-import com.healthy.backend.repository.ParentRepository;
-import com.healthy.backend.repository.PeriodicRepository;
-import com.healthy.backend.repository.StudentRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsChoicesRepository;
-import com.healthy.backend.repository.SurveyQuestionOptionsRepository;
-import com.healthy.backend.repository.SurveyQuestionRepository;
-import com.healthy.backend.repository.SurveyRepository;
-import com.healthy.backend.repository.SurveyResultRepository;
-
+import com.healthy.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -206,15 +181,40 @@ public class SurveyService {
         };
     }
 
+    private SurveyResultsResponse mapToListResultsResponse(Surveys survey, List<StatusStudentResponse> std, String periodicID) {
+        return SurveyResultsResponse.builder()
+                .surveyId(survey.getSurveyID())
+                .surveyName(survey.getSurveyName())
+                .description(survey.getDescription())
+                .category(survey.getCategory().name())
+                .standardType(survey.getStandardType().name())
+                .periodic(survey.getDuration())
+                .periodicID(periodicID)
+                .startDate(survey.getStartDate())
+                .endDate(survey.getEndDate())
+                .status((survey.getStatus().name()))
+                .std(std)
+                .build();
+    }
+
     public List<PeriodicResponse> getPeriodicResults(String studentID) {
         List<SurveyResult> sr = surveyResultRepository.findByStudentID(studentID);
 
         List<SurveyResultsResponse> surveyResults = sr.stream().map(surveyResult -> {
-                Surveys survey = surveyRepository.findById(surveyResult.getSurveyID()).orElseThrow(
-                        () -> new ResourceNotFoundException("No survey found for surveyID " + surveyResult.getSurveyID()));
-                    return surveyMapper.mapToListResultsResponse(
-                            survey,
-                            List.of(getStatusStudent(survey, surveyResult)));
+            Surveys survey = surveyRepository.findById(surveyResult.getSurveyID()).orElseThrow(
+                    () -> new ResourceNotFoundException("No survey found for surveyID " + surveyResult.getSurveyID()));
+            LocalDateTime completionDate = surveyResult.getCompletionDate();
+            List<Periodic> periodics = survey.getPeriodic();
+            String periodicID = "";
+            for (Periodic periodic : periodics) {
+                if (completionDate.isAfter(periodic.getStartDate()) && completionDate.isBefore(periodic.getEndDate())) {
+                    periodicID = periodic.getPeriodicID();
+                    break;
+                }
+            }
+            return mapToListResultsResponse(
+                    survey,
+                    List.of(getStatusStudent(survey, surveyResult)), periodicID);
         }).toList();
 
         List<PeriodicResponse> periodicResponses = new ArrayList<>();
@@ -357,39 +357,38 @@ public class SurveyService {
     @Transactional
     private void updateSurveyQuestions(Surveys survey, List<QuestionUpdateRequest> questionRequests) {
         List<SurveyQuestions> surveyQuestionList = surveyQuestionRepository.findBySurveyID(survey.getSurveyID());
-        
+
         Map<String, SurveyQuestions> mapQuestions = surveyQuestionList.stream()
-            .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
+                .collect(Collectors.toMap(SurveyQuestions::getQuestionID, Function.identity()));
 
         List<SurveyQuestions> questionToSave = new ArrayList<>();
         List<SurveyQuestionOptions> optionToSave = new ArrayList<>();
-        
+
         boolean isFirstIteration = true;
         String questionId = null;
-        for(QuestionUpdateRequest questionRequest : questionRequests) {
+        for (QuestionUpdateRequest questionRequest : questionRequests) {
             String questionText = questionRequest.getQuestionText().trim();
-            
-            if(questionRequest.getQuestionId() != null && mapQuestions.containsKey(questionRequest.getQuestionId())){
+
+            if (questionRequest.getQuestionId() != null && mapQuestions.containsKey(questionRequest.getQuestionId())) {
                 SurveyQuestions existingQuestion = mapQuestions.get(questionRequest.getQuestionId());
                 if (!existingQuestion.getQuestionText().equals(questionText)) {
                     existingQuestion.setQuestionText(questionText);
                     questionToSave.add(existingQuestion);
                     System.out.println("Updating existing question: " + existingQuestion.getQuestionID());
                 }
-                
-            }
-            else {
+
+            } else {
                 if (isFirstIteration) {
-                    questionId = generalService.generateSurveyQuestionId();  
+                    questionId = generalService.generateSurveyQuestionId();
                     isFirstIteration = false;
                 } else {
-                    questionId = nextGenerationId(questionId); 
+                    questionId = nextGenerationId(questionId);
                 }
 
                 SurveyQuestions newQuestion = new SurveyQuestions(
-                    questionId,
-                    survey.getSurveyID(),
-                    questionText
+                        questionId,
+                        survey.getSurveyID(),
+                        questionText
                 );
                 questionToSave.add(newQuestion);
                 mapQuestions.put(newQuestion.getQuestionID(), newQuestion);
@@ -403,98 +402,94 @@ public class SurveyService {
             questionToSave.forEach(q -> System.out.println("Question ID: " + q.getQuestionID() + ", Text: " + q.getQuestionText()));
             surveyQuestionRepository.saveAll(questionToSave);
             surveyQuestionRepository.flush();
-            
+
         }
 
         List<String> questionDeleteIdsFromClient = questionRequests.stream()
-                .map(QuestionUpdateRequest :: getDeleteQuestionId)
+                .map(QuestionUpdateRequest::getDeleteQuestionId)
                 .filter(Objects::nonNull)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
         List<SurveyQuestions> questionsToDelete = surveyQuestionList.stream()
-            .filter(q -> questionDeleteIdsFromClient.contains(q.getQuestionID()))
-            .collect(Collectors.toList());
-        
+                .filter(q -> questionDeleteIdsFromClient.contains(q.getQuestionID()))
+                .collect(Collectors.toList());
+
         List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findAllByQuestionIds(
-            questionsToDelete.stream()
-                .map(SurveyQuestions :: getQuestionID)
-                .collect(Collectors.toList())
+                questionsToDelete.stream()
+                        .map(SurveyQuestions::getQuestionID)
+                        .collect(Collectors.toList())
         );
 
         if (!questionsToDelete.isEmpty()) {
             surveyQuestionRepository.deleteAll(questionsToDelete);
             surveyQuestionOptionsRepository.deleteAll(existingOptions);
-        } 
-        updateSurveyOptions(mapQuestions, questionRequests, optionToSave);        
-    } 
+        }
+        updateSurveyOptions(mapQuestions, questionRequests, optionToSave);
+    }
 
     private void updateSurveyOptions(Map<String, SurveyQuestions> QuestionMap,
                                      List<QuestionUpdateRequest> questionRequests,
-                                     List<SurveyQuestionOptions> optionsToSave) {    
-                                
+                                     List<SurveyQuestionOptions> optionsToSave) {
+
         boolean flag = true;
         String nextOptionId = null;
 
         for (QuestionUpdateRequest questionRequest : questionRequests) {
-                SurveyQuestions question = QuestionMap.get(questionRequest.getQuestionId());
-                
-                if(question == null) continue;
-                List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestion_QuestionID(question.getQuestionID());
-                Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
-                    .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, Function.identity()));  
+            SurveyQuestions question = QuestionMap.get(questionRequest.getQuestionId());
 
-                
+            if (question == null) continue;
+            List<SurveyQuestionOptions> existingOptions = surveyQuestionOptionsRepository.findByQuestion_QuestionID(question.getQuestionID());
+            Map<String, SurveyQuestionOptions> existingOptionsMap = existingOptions.stream()
+                    .collect(Collectors.toMap(SurveyQuestionOptions::getOptionID, Function.identity()));
 
 
-                for(QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
-                    String optionText = optionRequest.getLabel().trim();
-                    int optionScore = optionRequest.getValue();
+            for (QuestionOptionUpdateRequest optionRequest : questionRequest.getQuestionOptions()) {
+                String optionText = optionRequest.getLabel().trim();
+                int optionScore = optionRequest.getValue();
 
-                    if(optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
-                        SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
-                        System.out.println("Updating option: " + existingOption.getOptionID());
-                        if(!existingOption.getOptionText().equals(optionText) && existingOption.getScore() != optionScore) {
-                            existingOption.setOptionText(optionText);
-                            existingOption.setScore(optionScore);
-                            optionsToSave.add(existingOption);
-                        }
-                        existingOptionsMap.remove(optionRequest.getOptionID());
+                if (optionRequest.getOptionID() != null && existingOptionsMap.containsKey(optionRequest.getOptionID())) {
+                    SurveyQuestionOptions existingOption = existingOptionsMap.get(optionRequest.getOptionID());
+                    System.out.println("Updating option: " + existingOption.getOptionID());
+                    if (!existingOption.getOptionText().equals(optionText) && existingOption.getScore() != optionScore) {
+                        existingOption.setOptionText(optionText);
+                        existingOption.setScore(optionScore);
+                        optionsToSave.add(existingOption);
                     }
-                    else {
-                        if(flag) {
-                            nextOptionId = generalService.generateQuestionOptionId();
-                            flag = false;
-                        }
-                        else {
-                            nextOptionId = nextGenerationId(nextOptionId);
-                        }
+                    existingOptionsMap.remove(optionRequest.getOptionID());
+                } else {
+                    if (flag) {
+                        nextOptionId = generalService.generateQuestionOptionId();
+                        flag = false;
+                    } else {
+                        nextOptionId = nextGenerationId(nextOptionId);
+                    }
 
-                        SurveyQuestionOptions newOption = new SurveyQuestionOptions(
+                    SurveyQuestionOptions newOption = new SurveyQuestionOptions(
                             nextOptionId,
                             question,
                             optionText,
                             optionScore
-                        );
-                        optionsToSave.add(newOption);
-                    }
+                    );
+                    optionsToSave.add(newOption);
+                }
 
-                    if (optionRequest.getDeleteOptionID() != null && !optionRequest.getDeleteOptionID().isEmpty()) {
-                        List<SurveyQuestionOptions> optionsToDelete = existingOptions.stream()
+                if (optionRequest.getDeleteOptionID() != null && !optionRequest.getDeleteOptionID().isEmpty()) {
+                    List<SurveyQuestionOptions> optionsToDelete = existingOptions.stream()
                             .filter(option -> optionRequest.getDeleteOptionID().contains(option.getOptionID()))
                             .collect(Collectors.toList());
 
-                        if (!optionsToDelete.isEmpty()) {
-                            surveyQuestionOptionsRepository.deleteAll(optionsToDelete);
-                            System.out.println("Deleted options: " + optionsToDelete.stream().map(SurveyQuestionOptions::getOptionID).collect(Collectors.toList()));
-                        }
-                    }                     
+                    if (!optionsToDelete.isEmpty()) {
+                        surveyQuestionOptionsRepository.deleteAll(optionsToDelete);
+                        System.out.println("Deleted options: " + optionsToDelete.stream().map(SurveyQuestionOptions::getOptionID).collect(Collectors.toList()));
+                    }
                 }
-            
+            }
+
         }
         if (!optionsToSave.isEmpty()) {
             surveyQuestionOptionsRepository.saveAll(optionsToSave);
-        }         
+        }
     }
 
     // Sửa update
@@ -1059,7 +1054,7 @@ public class SurveyService {
     public void updatePeriodicBulk() {
         List<Surveys> surveys = surveyRepository.findAll();
         for (Surveys survey : surveys) {
-            if (isOverdue(survey.getSurveyID())){
+            if (isOverdue(survey.getSurveyID())) {
                 periodicUpdateSurvey(survey.getSurveyID());
             }
         }
@@ -1089,7 +1084,7 @@ public class SurveyService {
         periodicRepository.save(currentPeriodic);
 
         Periodic periodic = periodicRepository.save(
-                new Periodic(createPeriodicID(survey), survey,now,LocalDate.now().plusWeeks(duration).atStartOfDay()));
+                new Periodic(createPeriodicID(survey), survey, now, LocalDate.now().plusWeeks(duration).atStartOfDay()));
 
         survey.setStartDate(periodic.getStartDate());
         survey.setEndDate(periodic.getEndDate());
