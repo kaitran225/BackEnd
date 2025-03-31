@@ -285,6 +285,9 @@ public class ProgramService {
                 programScheduleRepository.findByProgramID(programId).getLast(),
                 students.getUser().getFullName()
         );
+        if(program.getNumberParticipants() >= getActiveStudentsByProgram(program.getProgramID()).size()){
+            program.setStatus(ProgramStatus.FULL);
+        }
         return programParticipationRepository.findById(programParticipationId).isPresent();
     }
 
@@ -719,7 +722,7 @@ public class ProgramService {
                 .filter(studentResponse -> {
                     ProgramParticipation programParticipation = programParticipationRepository
                             .findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(programId, studentResponse.getStudentId());
-                    return programParticipation != null && programParticipation.getStatus().equals(ParticipationStatus.JOINED);
+                    return programParticipation != null && !programParticipation.getStatus().equals(ParticipationStatus.CANCELLED);
                 })
                 .toList();
         return programMapper.buildProgramsParticipantResponse(program, studentResponses);
@@ -871,7 +874,7 @@ public class ProgramService {
         }
         ProgramParticipation participation = programParticipationRepository.findFirstByProgramIDAndStudentIDOrderByParticipationIDDesc(
                 programId, studentId);
-        return participation.getStatus().equals(ParticipationStatus.JOINED);
+        return !participation.getStatus().equals(ParticipationStatus.CANCELLED);
     }
 
     @Async
