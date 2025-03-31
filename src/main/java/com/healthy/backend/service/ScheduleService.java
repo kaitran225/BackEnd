@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduleService {
 
     private final ProgramService programService;
+    private final SurveyService surveyService;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -20,6 +21,8 @@ public class ScheduleService {
         programService.updateProgramStatuses();
         System.out.println("Sending program reminders...");
         programService.sendProgramReminders();
+        System.out.println("Checking survey statuses at startup...");
+        surveyService.updatePeriodicBulk();
     }
 
     // Run every day at midnight
@@ -30,5 +33,7 @@ public class ScheduleService {
         programService.updateProgramStatuses();
         System.out.println("Sending program reminders...");
         programService.sendProgramReminders();
+        System.out.println("Checking survey statuses at startup...");
+        surveyService.updatePeriodicBulk();
     }
 }

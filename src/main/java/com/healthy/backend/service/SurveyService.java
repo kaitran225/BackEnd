@@ -1027,6 +1027,24 @@ public class SurveyService {
 
     //// TEST FUNCTION
 
+    public void updatePeriodicBulk() {
+        List<Surveys> surveys = surveyRepository.findAll();
+        for (Surveys survey : surveys) {
+            if (isOverdue(survey.getSurveyID())){
+                periodicUpdateSurvey(survey.getSurveyID());
+            }
+        }
+    }
+
+    public boolean isOverdue(String surveyID) {
+        Surveys survey = surveyRepository.findBySurveyID(surveyID);
+        if (survey == null) {
+            throw new ResourceNotFoundException("Survey not found");
+        }
+        Periodic periodic = survey.getPeriodic().getLast();
+        return periodic.getEndDate().isBefore(LocalDateTime.now());
+    }
+
     public void periodicUpdateSurvey(String surveyID) {
         Surveys survey = surveyRepository.findBySurveyID(surveyID);
         if (survey == null) {
@@ -1050,7 +1068,7 @@ public class SurveyService {
         surveyRepository.save(survey);
     }
 
-    public void periodicRestSurvey(String surveyID, String periodID) {
+    public void periodicResetSurvey(String surveyID, String periodID) {
         Periodic periodic = periodicRepository.findByPeriodicID(periodID);
         Surveys survey = surveyRepository.findBySurveyID(surveyID);
         if (survey == null) {

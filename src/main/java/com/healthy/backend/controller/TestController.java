@@ -25,7 +25,7 @@ public class TestController {
     public ResponseEntity<?> resetSurveys(
             @RequestParam String surveyId,
             @RequestParam String periodID) {
-        surveyService.periodicRestSurvey(surveyId, periodID);
+        surveyService.periodicResetSurvey(surveyId, periodID);
         return ResponseEntity.ok().build();
     }
 
