@@ -259,7 +259,7 @@ public class SurveyController {
             @RequestParam(required = false) String studentId,
             @RequestParam(required = false) String periodID) {
         studentId = validateStudentID(request, studentId);
-        List<SurveyQuestionResponse> surveyResponse = surveyService.getReport(surveyId, studentId, periodID);
+        SurveyQuestionResponse surveyResponse = surveyService.getReport(surveyId, studentId, periodID);
         return ResponseEntity.ok(surveyResponse);
     }
 
