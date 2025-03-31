@@ -165,7 +165,6 @@ public class ProgramService {
 
         Programs program = buildProgram(programId, programsRequest, department, facilitator, tags, staffUser);
 
-
         validateParticipantCount(programId, programsRequest.getNumberParticipants());
 
         ProgramSchedule programSchedule = createProgramSchedule(
@@ -987,8 +986,8 @@ public class ProgramService {
                 slot.setStartTime(defaultSlot.getStartTime());
                 slot.setEndTime(defaultSlot.getEndTime());
                 slot.setPsychologist(psychologist);
-                slot.setMaxCapacity(3); // Default capacity
-                slot.setStatus(TimeslotStatus.UNAVAILABLE);
+                slot.setMaxCapacity(0); // Default capacity
+                slot.setStatus(TimeslotStatus.PROGRAM);
                 slot.setTimeSlotsID(generateSlotId(psychologistId, slotDate, defaultSlot.getSlotId()));
                 newSlots.add(slot);
             }

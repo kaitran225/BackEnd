@@ -223,7 +223,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG001", "TAG002", "TAG003")),
                         "PSY001",
-                        "DPT006",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting1"
                 ),
@@ -255,7 +255,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG007", "TAG008", "TAG009")),
                         "PSY001",
-                        "DPT003",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting3"
                 ),
@@ -271,7 +271,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG010", "TAG011", "TAG012")),
                         "PSY001",
-                        "DPT007",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting4"
                 ),
@@ -319,7 +319,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG010", "TAG011", "TAG012")),
                         "PSY001",
-                        "DPT007",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting4"
                 ),
@@ -351,7 +351,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG010", "TAG011", "TAG012")),
                         "PSY001",
-                        "DPT007",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting4"
                 ),
@@ -367,7 +367,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Active",
                         new HashSet<>(Set.of("TAG010", "TAG011", "TAG012")),
                         "PSY001",
-                        "DPT007",
+                        "DPT001",
                         "Online",
                         "https://example.com/meeting4"
                 )
