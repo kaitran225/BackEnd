@@ -141,7 +141,7 @@ public class DataInitializer implements CommandLineRunner {
         // Initialize Students
         studentRepository.save(new Students("STU001", userRepository.findByEmail("student1@cybriadev.com").getUserId(), "PAR001", 10, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
         studentRepository.save(new Students("STU002", userRepository.findByEmail("student2@cybriadev.com").getUserId(), "PAR002", 9, "B", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
-        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@cybriadev.com").getUserId(), "PAR001", 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
+        studentRepository.save(new Students("STU003", userRepository.findByEmail("student3@cybriadev.com").getUserId(), null, 9, "A", "Example High School", BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)));
 
     }
 
